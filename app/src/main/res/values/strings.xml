@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Remember Cards</string>
+	<string name="home">Home</string>
+	<string name="play">Play</string>
+	<string name="library">Library</string>
+	<string name="book">Book</string>
+	<string name="person">Person</string>
+	<string name="games">Games</string>
+	<string name="add_new_word">ADD NEW WORD</string>
+	<string name="search">search</string>
+	<string name="my_book">My Book</string>
+	<string name="enter_new_word">Enter New Word</string>
+	<string name="add_translate">add translate</string>
+	<string name="enter_translate">Enter Translate</string>
+	<string name="description">Description</string>
+	<string name="remove">remove</string>
+	<string name="add">add</string>
+	<string name="create">create</string>
+</resources>

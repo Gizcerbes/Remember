@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
+
+	<item
+		android:id="@+id/game_fragment"
+		android:icon="@drawable/ic_game_controller"
+		android:title="@string/games" />
+
+	<item
+		android:id="@+id/library_fragment"
+		android:icon="@drawable/ic_library_sharp"
+		android:title="@string/library" />
+
+	<item
+		android:id="@+id/book_fragment"
+		android:icon="@drawable/ic_book"
+		android:title="@string/book" />
+
+	<item
+		android:id="@+id/person_fragment"
+		android:icon="@drawable/ic_person_sharp"
+		android:title="@string/person" />
+
+
+</menu>

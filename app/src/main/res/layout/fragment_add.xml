@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+	<com.google.android.material.appbar.AppBarLayout
+		android:id="@+id/app_bar"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		app:layout_constraintTop_toTopOf="parent">
+
+		<com.google.android.material.appbar.MaterialToolbar
+			android:id="@+id/topAppBar"
+			style="@style/Widget.MaterialComponents.Toolbar.Primary"
+			android:layout_width="match_parent"
+			android:layout_height="?attr/actionBarSize"
+			app:navigationIcon="@drawable/ic_baseline_keyboard_backspace_24"
+			app:title="Add Word">
+
+			<com.google.android.material.textfield.TextInputEditText
+				style="@style/Theme.AppBar"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:visibility="gone" />
+
+		</com.google.android.material.appbar.MaterialToolbar>
+	</com.google.android.material.appbar.AppBarLayout>
+
+	<androidx.core.widget.NestedScrollView
+		android:id="@+id/nested"
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:layout_margin="7dp"
+		app:layout_behavior="@string/appbar_scrolling_view_behavior"
+		app:layout_constraintTop_toBottomOf="@id/app_bar">
+
+		<androidx.constraintlayout.widget.ConstraintLayout
+			android:layout_width="match_parent"
+			android:layout_height="match_parent">
+
+			<com.google.android.material.textfield.TextInputLayout
+				android:id="@+id/new_word"
+				style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:hint="@string/enter_new_word"
+				app:expandedHintEnabled="false"
+				app:layout_constraintTop_toTopOf="parent">
+
+				<com.google.android.material.textfield.TextInputEditText
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content" />
+
+			</com.google.android.material.textfield.TextInputLayout>
+
+			<androidx.appcompat.widget.LinearLayoutCompat
+				android:id="@+id/new_translate_layout"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				app:layout_constraintTop_toBottomOf="@id/new_word">
+
+				<com.google.android.material.textfield.TextInputLayout
+					style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:hint="@string/enter_translate"
+					app:expandedHintEnabled="false"
+					app:layout_constraintTop_toTopOf="parent">
+
+					<com.google.android.material.textfield.TextInputEditText
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content" />
+
+				</com.google.android.material.textfield.TextInputLayout>
+
+			</androidx.appcompat.widget.LinearLayoutCompat>
+
+			<Button
+				android:id="@+id/add_translate"
+				style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:text="@string/add"
+				app:icon="@drawable/ic_baseline_add_24"
+				app:layout_constraintEnd_toStartOf="@id/remove_translate"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/new_translate_layout" />
+
+			<Button
+				android:id="@+id/remove_translate"
+				style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:text="@string/remove"
+				app:icon="@drawable/ic_baseline_delete_24"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toEndOf="@id/add_translate"
+				app:layout_constraintTop_toBottomOf="@id/new_translate_layout" />
+
+
+			<com.google.android.material.textfield.TextInputLayout
+				android:id="@+id/description"
+				style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:hint="@string/description"
+				app:expandedHintEnabled="false"
+				app:layout_constraintTop_toBottomOf="@id/add_translate">
+
+				<com.google.android.material.textfield.TextInputEditText
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:maxLines="100"
+					android:lines="5" />
+
+			</com.google.android.material.textfield.TextInputLayout>
+
+
+		</androidx.constraintlayout.widget.ConstraintLayout>
+
+	</androidx.core.widget.NestedScrollView>
+
+	<Button
+		android:layout_margin="7dp"
+		style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="@string/create"
+		app:layout_constraintBottom_toBottomOf="parent"
+
+		/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
