@@ -1,4 +1,4 @@
-package com.uogames.remembercards.ui.mainNav
+package com.uogames.remembercards.ui.gamesFragment
 
 import android.os.Bundle
 import android.view.LayoutInflater

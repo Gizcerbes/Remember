@@ -9,4 +9,5 @@
 		android:id="@+id/mainNaviFragment"
 		android:name="com.uogames.remembercards.ui.mainNav.MainNaviFragment"
 		android:label="MainNaviFragment" />
+
 </navigation>

@@ -14,6 +14,8 @@
 	<string name="enter_translate">Enter Translate</string>
 	<string name="description">Description</string>
 	<string name="remove">remove</string>
-	<string name="add">add</string>
 	<string name="create">create</string>
+	<string name="oxford_university_press">Oxford University Press:</string>
+	<string name="etymologies">Etymologies:</string>
+	<string name="enter_new_phrase">Enter new phrase</string>
 </resources>

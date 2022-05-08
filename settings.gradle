@@ -8,3 +8,6 @@ dependencyResolutionManagement {
 }
 rootProject.name = "Remember Cards"
 include ':app'
+include ':modules:dto'
+include ':modules:database'
+include ':modules:repository'

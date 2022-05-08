@@ -2,10 +2,10 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:id="@+id/mav_main"
-	app:startDestination="@id/gamesFragment">
+	app:startDestination="@id/game_fragment">
 
 	<fragment
-		android:id="@+id/gamesFragment"
-		android:name="com.uogames.remembercards.ui.mainNav.GamesFragment"
+		android:id="@+id/game_fragment"
+		android:name="com.uogames.remembercards.ui.gamesFragment.GamesFragment"
 		android:label="GamesFragment" />
 </navigation>
