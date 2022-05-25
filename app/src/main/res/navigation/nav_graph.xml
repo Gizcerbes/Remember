@@ -8,6 +8,16 @@
 	<fragment
 		android:id="@+id/mainNaviFragment"
 		android:name="com.uogames.remembercards.ui.mainNav.MainNaviFragment"
-		android:label="MainNaviFragment" />
+		android:label="MainNaviFragment"
+		tools:layout="@layout/fragment_main_navi"
+		/>
+
+	<fragment
+		android:id="@+id/gameYesOrNotFragment"
+		android:name="com.uogames.remembercards.ui.gameYesOrNo.GameYesOrNotFragment"
+		android:label="GameYesOrNotFragment"
+		tools:layout="@layout/fragment_yes_or_not_game"
+		/>
+
 
 </navigation>

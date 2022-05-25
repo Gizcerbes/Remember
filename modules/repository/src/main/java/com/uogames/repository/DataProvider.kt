@@ -3,6 +3,8 @@ package com.uogames.repository
 import android.content.Context
 import com.uogames.database.DatabaseRepository
 import com.uogames.dto.Card
+import kotlinx.coroutines.async
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class DataProvider private constructor(
@@ -21,23 +23,7 @@ class DataProvider private constructor(
         }
     }
 
-    fun getCard(number: Long, call: (Card) -> Unit) = ioScope.launch {
-        call(database.getCard(number))
-    }
+    val cards = CardsProvider(database)
 
-    fun addCard(card: Card) = ioScope.launch {
-        database.addCard(card)
-    }
 
-    fun updateCard(card: Card) = ioScope.launch {
-        database.updateCard(card)
-    }
-
-    fun deleteCard(card: Card) = ioScope.launch {
-        database.deleteCard(card)
-    }
-
-    fun cardCount(call: (Long) -> Unit) = ioScope.launch {
-        call(database.cardCount())
-    }
 }

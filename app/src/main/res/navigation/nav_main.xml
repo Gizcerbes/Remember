@@ -1,11 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/mav_main"
 	app:startDestination="@id/game_fragment">
 
 	<fragment
 		android:id="@+id/game_fragment"
 		android:name="com.uogames.remembercards.ui.gamesFragment.GamesFragment"
-		android:label="GamesFragment" />
+		android:label="GamesFragment"
+		tools:layout="@layout/fragment_games" />
+
+	<fragment
+		android:id="@+id/book_fragment"
+		android:name="com.uogames.remembercards.ui.bookFragment.BookFragment"
+		android:label="BookFragment"
+		tools:layout="@layout/fragment_book" />
+
+	<fragment
+		android:id="@+id/library_fragment"
+		android:name="com.uogames.remembercards.ui.libraryFragment.LibraryFragment"
+		android:label="BookFragment"
+		tools:layout="@layout/fragment_lbrary" />
+
+	<fragment
+		android:id="@+id/person_fragment"
+		android:name="com.uogames.remembercards.ui.personFragment.PersonFragment"
+		android:label="BookFragment"
+		tools:layout="@layout/fragment_person" />
+
 </navigation>

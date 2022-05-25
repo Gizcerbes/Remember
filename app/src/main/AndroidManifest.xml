@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.uogames.remembercards">
 
+    <uses-permission android:name="android.permission.VIBRATE"/>
+
     <application
         android:name=".App"
         android:allowBackup="true"
@@ -12,6 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.RememberCards">
         <activity
+            android:windowSoftInputMode="stateVisible"
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

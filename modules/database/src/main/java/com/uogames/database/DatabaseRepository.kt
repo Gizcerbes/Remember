@@ -26,6 +26,21 @@ class DatabaseRepository private constructor(private val database: MyDatabase) {
 
     suspend fun cardCount() = database.cardDAO().count()
 
-    suspend fun getCard(number: Long) = database.cardDAO().get(number).toDTO()
+    suspend fun cardCount(like: String) = database.cardDAO().count(like)
+
+    suspend fun getCard(number: Long) = database.cardDAO().get(number)?.toDTO()
+
+    suspend fun getCard(number: Long, like: String) = database.cardDAO().get(number, like)?.toDTO()
+
+    suspend fun getCard(phrase: String, translate: String) = database.cardDAO().get(phrase, translate)?.toDTO()
+
+    suspend fun getRandomCard() = database.cardDAO().getRandom()?.toDTO()
+
+    suspend fun getRandomCardWithout(phrase: String) = database.cardDAO().getRandomWithout(phrase)?.toDTO()
+
+    suspend fun getRandomCardWithout(phrase: String, translate: String) = database.cardDAO().getRandomWithout(phrase,translate)?.toDTO()
+
+    suspend fun exists(card: Card) = database.cardDAO().exists(card.phrase, card.translate)
+
 
 }

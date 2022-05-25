@@ -18,4 +18,11 @@
 	<string name="oxford_university_press">Oxford University Press:</string>
 	<string name="etymologies">Etymologies:</string>
 	<string name="enter_new_phrase">Enter new phrase</string>
+	<string name="phrase">Phrase:</string>
+	<string name="translate">Translate:</string>
+	<string name="yes_or_no">YES or NO</string>
+	<string name="time">Time:</string>
+	<string name="answers">Answers:</string>
+	<string name="answer">Answer:</string>
+	<string name="your_book_is_empty">Your book is empty</string>
 </resources>

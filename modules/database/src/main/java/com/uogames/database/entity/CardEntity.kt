@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "card_table")
 data class CardEntity(
     @PrimaryKey(autoGenerate = true)
-    val id: Long,
+    val id: Int = 0,
     val phrase: String,
     val translate: String
 )
