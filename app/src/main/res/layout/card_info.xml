@@ -30,6 +30,7 @@
 					android:id="@+id/lbl_phrase"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
+					android:visibility="gone"
 					android:text="@string/phrase"
 					android:textSize="20sp" />
 
@@ -76,6 +77,7 @@
 				android:id="@+id/lbl_translate"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
+				android:visibility="gone"
 				android:text="@string/translate"
 				android:textSize="20sp" />
 

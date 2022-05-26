@@ -49,4 +49,9 @@
 		<item name="cardElevation">5dp</item>
 		<item name="cardCornerRadius">10dp</item>
 	</style>
+
+	<style name="Theme.RememberCards.AppBar" parent="">
+		<item name="android:layout_height">55dp</item>
+		<item name="android:layout_width">match_parent</item>
+	</style>
 </resources>

@@ -25,4 +25,7 @@
 	<string name="answers">Answers:</string>
 	<string name="answer">Answer:</string>
 	<string name="your_book_is_empty">Your book is empty</string>
+	<string name="your_answer">Your answer</string>
+	<string name="game_list">Game List</string>
+	<string name="your_book">Your Book</string>
 </resources>

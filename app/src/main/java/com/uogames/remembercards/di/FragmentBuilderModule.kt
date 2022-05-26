@@ -2,8 +2,8 @@ package com.uogames.remembercards.di
 
 import com.uogames.remembercards.ui.bookFragment.AddCardDialog
 import com.uogames.remembercards.ui.bookFragment.BookFragment
-import com.uogames.remembercards.ui.bookFragment.BookRecyclerFragment
 import com.uogames.remembercards.ui.gameYesOrNo.GameYesOrNotFragment
+import com.uogames.remembercards.ui.gameYesOrNo.ResultYesOrNotFragment
 import com.uogames.remembercards.ui.gamesFragment.GamesFragment
 import com.uogames.remembercards.ui.libraryFragment.LibraryFragment
 import com.uogames.remembercards.ui.mainNav.MainNaviFragment
@@ -22,9 +22,6 @@ abstract class FragmentBuilderModule {
     abstract fun contributeBookFragment(): BookFragment
 
     @ContributesAndroidInjector
-    abstract fun contributeBookRecyclerFragment(): BookRecyclerFragment
-
-    @ContributesAndroidInjector
     abstract fun contributeLibraryFragment(): LibraryFragment
 
     @ContributesAndroidInjector
@@ -38,6 +35,9 @@ abstract class FragmentBuilderModule {
 
     @ContributesAndroidInjector
     abstract fun contributeGameYesOrNotFragment(): GameYesOrNotFragment
+
+	@ContributesAndroidInjector
+	abstract fun contributeYesOrNotResultFragment(): ResultYesOrNotFragment
 
 
 }

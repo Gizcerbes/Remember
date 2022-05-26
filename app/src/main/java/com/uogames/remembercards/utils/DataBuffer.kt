@@ -18,15 +18,18 @@ class DataBuffer<T>(
 
     private data class Data<T>(
         private val default: T,
-        val item: MutableStateFlow<T>,
         val updater: suspend (position: Int) -> T
     ) {
+		val item: MutableStateFlow<T> = MutableStateFlow(default)
+		val isReady = MutableStateFlow(false)
         var numberRequest = 0L
 
         suspend fun update(request: Long, position: Int) {
             if (position >= 0) {
+				isReady.value = false
                 val newValue = updater(position)
                 if (numberRequest == request) item.value = newValue
+				isReady.value = true
             } else {
                 if (numberRequest == request) item.value = default
             }
@@ -38,15 +41,22 @@ class DataBuffer<T>(
     @Synchronized
     fun getDataFlow(position: Int): StateFlow<T> {
         val cell = position % maxSize
-        if (map[cell] == null) map[cell] = Data(default, MutableStateFlow(default), updater)
+        if (map[cell] == null) map[cell] = Data(default, updater)
         return map[cell]?.item?.asStateFlow()!!
     }
+
+	@Synchronized
+	fun isDataReadyFlow(position: Int): StateFlow<Boolean>{
+		val cell = position % maxSize
+		if (map[cell] == null) map[cell] = Data(default, updater)
+		return map[cell]?.isReady?.asStateFlow()!!
+	}
 
     @Synchronized
     fun update(position: Int) {
         var data = map[position % maxSize]
         if (data == null) {
-            data = Data(default, MutableStateFlow(default), updater)
+            data = Data(default, updater)
             map[position % maxSize] = data
         }
         val request = ++data.numberRequest

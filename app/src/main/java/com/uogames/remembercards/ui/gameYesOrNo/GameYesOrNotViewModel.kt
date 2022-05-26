@@ -11,70 +11,76 @@ import javax.inject.Inject
 import kotlin.collections.ArrayList
 
 class GameYesOrNotViewModel @Inject constructor(
-    private val provider: DataProvider
+	private val provider: DataProvider
 ) : ViewModel() {
 
-    companion object {
-        const val MAX_TIME = 60
-    }
+	companion object {
+		const val MAX_TIME = 60000
+	}
 
-    data class AnswersCard(val firs: Card, val second: Card, var truth: Boolean)
+	data class AnswersCard(val firs: Card, val second: Card, var truth: Boolean)
 
-    private val ioScope = CoroutineScope(Dispatchers.IO)
+	private val ioScope = CoroutineScope(Dispatchers.IO)
 
-    private val _timer = MutableStateFlow(MAX_TIME)
-    val time = _timer.asStateFlow()
+	private val _timer = MutableStateFlow(MAX_TIME)
+	val time = _timer.asStateFlow()
 
-    private val _allAnswers = MutableStateFlow(0)
-    val allAnswers = _allAnswers.asStateFlow()
+	private val _allAnswers = MutableStateFlow(0)
+	val allAnswers = _allAnswers.asStateFlow()
 
-    private val _trueAnswers = MutableStateFlow(0)
-    val trueAnswers = _trueAnswers.asStateFlow()
+	private val _trueAnswers = MutableStateFlow(0)
+	val trueAnswers = _trueAnswers.asStateFlow()
 
-    private val answersList = ArrayList<AnswersCard>()
+	private val _isStarted = MutableStateFlow(false)
+	val isStarted = _isStarted.asStateFlow()
 
-    private var job: Job? = null
+	private val _answersList = ArrayList<AnswersCard>()
 
-    fun reset() {
-        _timer.value = MAX_TIME
-        _allAnswers.value = 0
-        _trueAnswers.value = 0
-        answersList.clear()
-    }
+	private var job: Job? = null
 
-    fun start(endCall: () -> Unit) {
-        Log.e("TAG", "start: ", )
-        job?.cancel()
-        job = ioScope.launch {
-            while (true) {
-                delay(1000)
-                _timer.value -= 1
-                if (_timer.value == 0) {
-                    launch(Dispatchers.Main) { endCall() }
-                    return@launch
-                }
-            }
-        }
-    }
+	fun reset() {
+		_timer.value = MAX_TIME
+		_allAnswers.value = 0
+		_trueAnswers.value = 0
+		_answersList.clear()
+	}
 
-    fun stop() {
-        job?.cancel()
-    }
+	fun getAnswer(position: Int) = _answersList[position]
 
-    fun getRandomAnswerCard(call: (AnswersCard) -> Unit) {
-        ioScope.launch {
-            val firsCard: Card = provider.cards.getRandomCardAsync().await() ?: Card()
-            val secondCard: Card =
-                provider.cards.getRandomCardWithoutAsync(firsCard.phrase, firsCard.translate)
-                    .await() ?: Card()
-            launch(Dispatchers.Main) { call(AnswersCard(firsCard, secondCard, false)) }
-        }
-    }
+	fun start(endCall: () -> Unit) {
+		job?.cancel()
+		job = ioScope.launch {
+			_isStarted.value = true
+			while (true) {
+				delay(100)
+				_timer.value -= 100
+				if (_timer.value <= 0) {
+					launch(Dispatchers.Main) { endCall() }
+					return@launch
+				}
+			}
+		}
+	}
 
-    fun setAnswer(answer: AnswersCard) {
-        answersList.add(answer)
-        if (answer.truth) _trueAnswers.value++
-        _allAnswers.value++
-    }
+	fun stop() {
+		job?.cancel()
+		_isStarted.value = false
+	}
+
+	fun getRandomAnswerCard(call: (AnswersCard) -> Unit) {
+		ioScope.launch {
+			val firsCard: Card = provider.cards.getRandomCardAsync().await() ?: Card()
+			val secondCard: Card =
+				provider.cards.getRandomCardWithoutAsync(firsCard.phrase, firsCard.translate)
+					.await() ?: Card()
+			launch(Dispatchers.Main) { call(AnswersCard(firsCard, secondCard, false)) }
+		}
+	}
+
+	fun setAnswer(answer: AnswersCard) {
+		_answersList.add(answer)
+		if (answer.truth) _trueAnswers.value++
+		_allAnswers.value++
+	}
 
 }
