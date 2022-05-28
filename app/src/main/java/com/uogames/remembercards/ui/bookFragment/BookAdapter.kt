@@ -32,12 +32,14 @@ class BookAdapter(
 		}
 	}
 
+	private val recyclerScope = CoroutineScope(Dispatchers.Main)
 	private val stopAll = MutableStateFlow(false)
 	private val changeAll = MutableStateFlow(0)
 
 	init {
-		if (BuildConfig.DEBUG) {
-			model.size { it ->
+		model.size {
+			notifyDataSetChanged()
+			if (BuildConfig.DEBUG) {
 				if (it == 0) {
 					CoroutineScope(Dispatchers.IO).launch {
 						for (i in 0..100) {
@@ -50,7 +52,9 @@ class BookAdapter(
 				}
 			}
 		}
-		model.size { notifyDataSetChanged() }
+		model.size.onEach {
+			changeAll.value++
+		}.launchIn(recyclerScope)
 	}
 
 	inner class CardViewHolder(view: View, private val viewGrope: ViewGroup) :
@@ -122,7 +126,7 @@ class BookAdapter(
 		}
 
 		private fun showEditMode() {
-			Log.e("TAG", "showEditMode: $adapterPosition", )
+			Log.e("TAG", "showEditMode: $adapterPosition")
 			val card = model.get(adapterPosition).value
 			editBind.editPhrase.editText?.setText(card.phrase)
 			editBind.editTranslate.editText?.setText(card.translate)
@@ -169,7 +173,9 @@ class BookAdapter(
 
 
 	fun stop() {
+		model.reset()
 		stopAll.value = true
+		recyclerScope.cancel()
 	}
 
 }

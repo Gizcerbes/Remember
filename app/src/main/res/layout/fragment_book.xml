@@ -70,6 +70,8 @@
 		android:layout_height="wrap_content"
 		android:hint="@string/search"
 		android:visibility="visible"
+		app:endIconMode="clear_text"
+		app:startIconDrawable="@drawable/ic_baseline_search_24"
 		app:expandedHintEnabled="false"
 		android:layout_alignParentBottom="true">
 
@@ -95,7 +97,7 @@
 		android:id="@+id/txt_book_empty"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:text="@string/your_book_is_empty"
+		android:text="@string/here_is_empty"
 		android:layout_centerInParent="true" />
 
 

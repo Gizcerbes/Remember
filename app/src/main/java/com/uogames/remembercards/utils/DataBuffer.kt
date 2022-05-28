@@ -16,6 +16,8 @@ class DataBuffer<T>(
 
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
+	private val map = HashMap<Int, Data<T>>()
+
     private data class Data<T>(
         private val default: T,
         val updater: suspend (position: Int) -> T
@@ -35,8 +37,6 @@ class DataBuffer<T>(
             }
         }
     }
-
-    private val map = HashMap<Int, Data<T>>()
 
     @Synchronized
     fun getDataFlow(position: Int): StateFlow<T> {
@@ -66,5 +66,9 @@ class DataBuffer<T>(
     fun updateAll() {
         map.forEach { (t, u) -> ioScope.launch { u.updater(t) } }
     }
+
+	fun clear(){
+		map.clear()
+	}
 
 }

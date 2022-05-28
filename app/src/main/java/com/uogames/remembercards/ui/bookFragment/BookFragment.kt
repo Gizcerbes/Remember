@@ -51,7 +51,6 @@ class BookFragment : DaggerFragment() {
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
 
-
 		bind.recycler.layoutManager = LinearLayoutManager(requireContext()).apply {
 			orientation = LinearLayoutManager.VERTICAL
 		}
@@ -92,25 +91,6 @@ class BookFragment : DaggerFragment() {
 
 		bind.btnAdd.setOnClickListener { openAddDialog() }
 
-//		bind.recyclerSize.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
-//			val rect = Rect(left, top, right, bottom)
-//			val params = bind.recycler.layoutParams
-//			params.height = rect.height()
-//			bind.recycler.layoutParams = params
-//			Log.e("TAG", "view: ${rect.height()}")
-//		}
-//
-//		bind.recycler.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
-//			val rect = Rect(left, top, right, bottom)
-//			Log.e("TAG", "recycler: ${rect.height()}")
-//		}
-
-
-
-//		lifecycleScope.launch {
-//			delay(100)
-//			bind.recycler.adapter = adapter
-//		}
 		bind.recycler.adapter = adapter
 	}
 

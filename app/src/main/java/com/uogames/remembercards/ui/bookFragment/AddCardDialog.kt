@@ -22,68 +22,68 @@ import javax.inject.Inject
 
 class AddCardDialog : DaggerDialogFragment() {
 
-    companion object {
-        const val TAG = "ADD_DIALOG"
-    }
+	companion object {
+		const val TAG = "ADD_DIALOG"
+	}
 
-    @Inject
-    lateinit var bookViewModel: BookViewModel
+	@Inject
+	lateinit var bookViewModel: BookViewModel
 
-    private lateinit var bind: CardEditBinding
+	private lateinit var bind: CardEditBinding
 
-    private val imm by lazy {
-        requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-    }
+	private val imm by lazy {
+		requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+	}
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        bind = CardEditBinding.inflate(inflater, container, false)
-        return bind.root
-    }
+	override fun onCreateView(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+		savedInstanceState: Bundle?
+	): View? {
+		bind = CardEditBinding.inflate(inflater, container, false)
+		return bind.root
+	}
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        bind.btnBack.setOnClickListener {
-            imm.hideSoftInputFromWindow(view.windowToken, 0)
-            dismiss()
-        }
+		bind.btnBack.setOnClickListener {
+			imm.hideSoftInputFromWindow(view.windowToken, 0)
+			dismiss()
+		}
+		bind.editPhrase.editText?.setText(bookViewModel.like.value)
+		bind.btnDelete.visibility = View.GONE
+		bind.btnSave.setOnClickListener {
+			val phrase = bind.editPhrase.editText?.text.toString()
+			val translate = bind.editTranslate.editText?.text.toString()
+			val card = Card(phrase = phrase, translate = translate)
+			if (phrase.isNotEmpty() && translate.isNotEmpty()) bookViewModel.add(card) {
+				if (it) {
+					imm.hideSoftInputFromWindow(view.windowToken, 0)
+					dismiss()
+				}
+			} else {
+				bind.editPhrase.error = ""
+				bind.editTranslate.error = ""
+			}
+		}
+	}
 
-        bind.btnDelete.visibility = View.GONE
-        bind.btnSave.setOnClickListener {
-            val phrase = bind.editPhrase.editText?.text.toString()
-            val translate = bind.editTranslate.editText?.text.toString()
-            val card = Card(phrase = phrase, translate = translate)
-            if (phrase.isNotEmpty() && translate.isNotEmpty()) bookViewModel.add(card) {
-                if (it) {
-                    imm.hideSoftInputFromWindow(view.windowToken, 0)
-                    dismiss()
-                }
-            } else {
-                bind.editPhrase.error = ""
-                bind.editTranslate.error = ""
-            }
-        }
-    }
+	override fun onStart() {
+		super.onStart()
 
-    override fun onStart() {
-        super.onStart()
-
-        bind.editPhrase.requestFocus()
-        CoroutineScope(Dispatchers.Main).launch {
-            delay(100)
-            imm.showSoftInput(bind.editPhrase.editText, InputMethodManager.SHOW_IMPLICIT)
-        }
+		bind.editPhrase.requestFocus()
+		CoroutineScope(Dispatchers.Main).launch {
+			delay(100)
+			imm.showSoftInput(bind.editPhrase.editText, InputMethodManager.SHOW_IMPLICIT)
+		}
 
 
-        dialog?.window?.setLayout(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.WRAP_CONTENT
-        )
-        dialog?.window?.attributes?.horizontalMargin = 17f
-    }
+		dialog?.window?.setLayout(
+			WindowManager.LayoutParams.MATCH_PARENT,
+			WindowManager.LayoutParams.WRAP_CONTENT
+		)
+		dialog?.window?.attributes?.horizontalMargin = 17f
+	}
 
 
 }

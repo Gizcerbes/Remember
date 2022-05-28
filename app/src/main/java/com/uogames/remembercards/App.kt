@@ -9,4 +9,6 @@ class App: DaggerApplication() {
 		return DaggerAppComponent.builder().bindApplication(this).build()
 		//return AndroidInjector {  }
 	}
+
+
 }
