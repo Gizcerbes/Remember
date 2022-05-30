@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class DataBuffer<T>(
+class HashDataBuffer<T>(
     private val maxSize: Int = 15,
     private val default: T,
     private val updater: suspend (position: Int) -> T

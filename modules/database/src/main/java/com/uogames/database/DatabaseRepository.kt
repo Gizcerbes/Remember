@@ -4,6 +4,7 @@ import android.content.Context
 import com.uogames.database.map.CardMap.toDTO
 import com.uogames.database.map.CardMap.toEntity
 import com.uogames.dto.Card
+import kotlinx.coroutines.flow.map
 
 class DatabaseRepository private constructor(private val database: MyDatabase) {
 
@@ -24,19 +25,11 @@ class DatabaseRepository private constructor(private val database: MyDatabase) {
 
     suspend fun deleteCard(card: Card) = database.cardDAO().delete(card.toEntity())
 
-    suspend fun cardCount() = database.cardDAO().count()
+	fun cardCountFlo(like: String) = database.cardDAO().countFLOW(like)
 
-    suspend fun cardCount(like: String) = database.cardDAO().count(like)
-
-    suspend fun getCard(number: Long) = database.cardDAO().get(number)?.toDTO()
-
-    suspend fun getCard(number: Long, like: String) = database.cardDAO().get(number, like)?.toDTO()
-
-    suspend fun getCard(phrase: String, translate: String) = database.cardDAO().get(phrase, translate)?.toDTO()
+	fun getCardFLOW(number: Int, like: String) = database.cardDAO().getCardFLOW(number, like).map { it?.toDTO() }
 
     suspend fun getRandomCard() = database.cardDAO().getRandom()?.toDTO()
-
-    suspend fun getRandomCardWithout(phrase: String) = database.cardDAO().getRandomWithout(phrase)?.toDTO()
 
     suspend fun getRandomCardWithout(phrase: String, translate: String) = database.cardDAO().getRandomWithout(phrase,translate)?.toDTO()
 

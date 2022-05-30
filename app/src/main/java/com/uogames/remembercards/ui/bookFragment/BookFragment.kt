@@ -1,11 +1,9 @@
 package com.uogames.remembercards.ui.bookFragment
 
 import android.content.Context
-import android.graphics.Rect
 import android.os.Bundle
 import android.transition.AutoTransition
 import android.transition.TransitionManager
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,11 +15,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentBookBinding
 import dagger.android.support.DaggerFragment
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class BookFragment : DaggerFragment() {
@@ -51,22 +47,17 @@ class BookFragment : DaggerFragment() {
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
 
+		bookViewModel.reset()
+
+		bookViewModel.size.onEach {
+			adapter.dataChanged()
+		}.launchIn(lifecycleScope)
+
 		bind.recycler.layoutManager = LinearLayoutManager(requireContext()).apply {
 			orientation = LinearLayoutManager.VERTICAL
 		}
 
-		bind.recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-			override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-				super.onScrolled(recyclerView, dx, dy)
-				bookViewModel.setSpeedScrolling(dy)
-			}
-		})
-
-		bind.tilSearch.editText?.addTextChangedListener {
-			bookViewModel.setLike(bind.tilSearch.editText?.text.toString()) {
-				adapter.notifyDataSetChanged()
-			}
-		}
+		bind.tilSearch.editText?.addTextChangedListener { bookViewModel.setLike(it.toString()) }
 
 		bookViewModel.size.onEach {
 			bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
@@ -98,8 +89,4 @@ class BookFragment : DaggerFragment() {
 		AddCardDialog().show(requireActivity().supportFragmentManager, AddCardDialog.TAG)
 	}
 
-	override fun onStop() {
-		super.onStop()
-		adapter.stop()
-	}
 }

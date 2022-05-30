@@ -6,10 +6,16 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.uogames.database.dao.CardDAO
 import com.uogames.database.entity.CardEntity
+import com.uogames.database.entity.ImageEntity
+import com.uogames.database.entity.NewCardEntity
+import com.uogames.database.entity.WordEntity
 
 @Database(
 	entities = [
 		CardEntity::class,
+		WordEntity::class,
+		ImageEntity::class,
+		NewCardEntity::class
 	],
 	version = 1
 )
