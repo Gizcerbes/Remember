@@ -4,16 +4,14 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.uogames.database.dao.CardDAO
-import com.uogames.database.entity.CardEntity
-import com.uogames.database.entity.ImageEntity
-import com.uogames.database.entity.NewCardEntity
-import com.uogames.database.entity.WordEntity
+import com.uogames.database.dao.*
+import com.uogames.database.entity.*
 
 @Database(
 	entities = [
 		CardEntity::class,
-		WordEntity::class,
+		PronunciationEntity::class,
+		PhraseEntity::class,
 		ImageEntity::class,
 		NewCardEntity::class
 	],
@@ -22,6 +20,14 @@ import com.uogames.database.entity.WordEntity
 abstract class MyDatabase : RoomDatabase() {
 
 	abstract fun cardDAO(): CardDAO
+
+	abstract fun phraseDAO(): PhraseDAO
+
+	abstract fun imageDAO(): ImageDAO
+
+	abstract fun newCardDAO(): NewCardDAO
+
+	abstract fun pronunciationDAO(): PronunciationDAO
 
 
 	companion object {

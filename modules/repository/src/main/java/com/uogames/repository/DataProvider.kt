@@ -25,5 +25,7 @@ class DataProvider private constructor(
 
     val cards = CardsProvider(database)
 
+	val phrase = PhraseProvider(database)
+
 
 }

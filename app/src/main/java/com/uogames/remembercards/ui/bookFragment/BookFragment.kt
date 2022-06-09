@@ -57,7 +57,7 @@ class BookFragment : DaggerFragment() {
 			orientation = LinearLayoutManager.VERTICAL
 		}
 
-		bind.tilSearch.editText?.addTextChangedListener { bookViewModel.setLike(it.toString()) }
+		//bind.tilSearch.editText?.addTextChangedListener { bookViewModel.setLike(it.toString()) }
 
 		bookViewModel.size.onEach {
 			bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE

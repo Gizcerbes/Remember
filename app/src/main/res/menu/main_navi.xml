@@ -16,6 +16,11 @@
 		android:title="@string/library" />
 
 	<item
+		android:id="@+id/card_fragment"
+		android:icon="@drawable/ic_red_card"
+		android:title="@string/cards" />
+
+	<item
 		android:id="@+id/book_fragment"
 		android:icon="@drawable/ic_book"
 		android:title="@string/book" />

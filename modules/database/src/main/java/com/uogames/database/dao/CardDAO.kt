@@ -19,7 +19,6 @@ interface CardDAO {
     @Update
     suspend fun update(card: CardEntity)
 
-
 	@Query("SELECT COUNT(id) FROM card_table WHERE phrase LIKE '%' || :nameItems || '%' OR translate LIKE '%' || :nameItems || '%'")
 	fun countFLOW(nameItems: String): Flow<Int>
 

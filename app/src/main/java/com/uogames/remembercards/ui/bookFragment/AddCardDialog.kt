@@ -56,15 +56,15 @@ class AddCardDialog : DaggerDialogFragment() {
 			val phrase = bind.editPhrase.editText?.text.toString()
 			val translate = bind.editTranslate.editText?.text.toString()
 			val card = Card(phrase = phrase, translate = translate)
-			if (phrase.isNotEmpty() && translate.isNotEmpty()) bookViewModel.add(card) {
-				if (it) {
-					imm.hideSoftInputFromWindow(view.windowToken, 0)
-					dismiss()
-				}
-			} else {
-				bind.editPhrase.error = ""
-				bind.editTranslate.error = ""
-			}
+//			if (phrase.isNotEmpty() && translate.isNotEmpty()) bookViewModel.add(card) {
+//				if (it) {
+//					imm.hideSoftInputFromWindow(view.windowToken, 0)
+//					dismiss()
+//				}
+//			} else {
+//				bind.editPhrase.error = ""
+//				bind.editTranslate.error = ""
+//			}
 		}
 	}
 

@@ -5,33 +5,24 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
 @Entity(
-	tableName = "new_cards_table", foreignKeys = arrayOf(
+	tableName = "new_cards_table", foreignKeys = [
 		ForeignKey(
-			entity = WordEntity::class,
-			parentColumns = arrayOf("word"),
-			childColumns = arrayOf("word"),
+			entity = PhraseEntity::class,
+			parentColumns = ["id"],
+			childColumns = ["idPhrase"],
 			onDelete = ForeignKey.CASCADE
-		),
-		ForeignKey(
-			entity = WordEntity::class,
-			parentColumns = arrayOf("word"),
-			childColumns = arrayOf("translate"),
+		), ForeignKey(
+			entity = PhraseEntity::class,
+			parentColumns = ["id"],
+			childColumns = ["idTranslate"],
 			onDelete = ForeignKey.CASCADE
-		),
-		ForeignKey(
-			entity = ImageEntity::class,
-			parentColumns = arrayOf("id"),
-			childColumns = arrayOf("imgBase64"),
-			onDelete = ForeignKey.CASCADE
-		)
-	)
+		)]
 )
+
 data class NewCardEntity(
 	@PrimaryKey(autoGenerate = true)
 	val id: Int = 0,
-	val word: String,
-	val translate: String,
-	val langFrom: String,
-	val langTo: String,
-	val imgBase64: Int?
+	val idPhrase: Int,
+	val idTranslate: Int,
+	val idImgBase64: Int?
 )

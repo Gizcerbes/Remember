@@ -4,6 +4,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
+import com.uogames.repository.DataProvider.Companion.get
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -22,7 +23,8 @@ abstract class ChangeableAdapter<VH : ChangeableAdapter.ChangeableViewHolder> :
 	) : RecyclerView.ViewHolder(view) {
 
 		private val defHolderScope = CoroutineScope(Dispatchers.Main)
-		var cardScope = CoroutineScope(Dispatchers.Main)
+		private var _cardScope = CoroutineScope(Dispatchers.Main)
+		val cardScope: CoroutineScope get() = _cardScope
 
 		private val typeFragment = MutableStateFlow(0)
 
@@ -32,8 +34,8 @@ abstract class ChangeableAdapter<VH : ChangeableAdapter.ChangeableViewHolder> :
 		}
 
 		fun changePosition() {
-			cardScope.cancel()
-			cardScope = CoroutineScope(Dispatchers.Main)
+			_cardScope.cancel()
+			_cardScope = CoroutineScope(Dispatchers.Main)
 			val type = itemViewType()
 			if (typeFragment.value == type) {
 				if (adapterPosition != -1) show(typeFragment.value)
@@ -46,7 +48,7 @@ abstract class ChangeableAdapter<VH : ChangeableAdapter.ChangeableViewHolder> :
 			return 0
 		}
 
-		fun changeType(type: Int){
+		fun changeType(type: Int) {
 			typeFragment.value = type
 		}
 
@@ -64,7 +66,7 @@ abstract class ChangeableAdapter<VH : ChangeableAdapter.ChangeableViewHolder> :
 
 		abstract fun show(typeFragment: Int)
 
-		fun onDetached(){
+		fun onDetached() {
 			cardScope.cancel()
 		}
 

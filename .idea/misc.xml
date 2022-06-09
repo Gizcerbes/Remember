@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/androidProgect/RememberCards/app/src/main/res/drawable/ic_ad.xml" value="0.318" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/drawable/ic_baseline_change_24.xml" value="0.317" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/drawable/ic_baseline_close_24.xml" value="0.317" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/drawable/ic_baseline_home_24.xml" value="0.43125" />
@@ -13,29 +14,65 @@
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/drawable/ic_baseline_repeat_24.xml" value="0.318" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/drawable/ic_baseline_save_24.xml" value="0.317" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/drawable/ic_baseline_search_24.xml" value="0.317" />
-        <entry key="..\:/androidProgect/RememberCards/app/src/main/res/drawable/ic_book.xml" value="0.43125" />
+        <entry key="..\:/androidProgect/RememberCards/app/src/main/res/drawable/ic_baseline_volume_up_24.xml" value="0.4995" />
+        <entry key="..\:/androidProgect/RememberCards/app/src/main/res/drawable/ic_book.xml" value="0.2245" />
+        <entry key="..\:/androidProgect/RememberCards/app/src/main/res/drawable/ic_card_games.xml" value="0.2245" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/drawable/ic_launcher_background.xml" value="0.43125" />
-        <entry key="..\:/androidProgect/RememberCards/app/src/main/res/drawable/ic_library_sharp.xml" value="0.43125" />
+        <entry key="..\:/androidProgect/RememberCards/app/src/main/res/drawable/ic_library_sharp.xml" value="0.2245" />
+        <entry key="..\:/androidProgect/RememberCards/app/src/main/res/drawable/ic_red_card.xml" value="0.2245" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/activity_main.xml" value="0.33125" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/card_add.xml" value="0.33611111111111114" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/card_edit.xml" value="0.3151041666666667" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/card_empty.xml" value="0.3151041666666667" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/card_game_result.xml" value="0.31302083333333336" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/card_info.xml" value="0.31302083333333336" />
+        <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/card_phrase.xml" value="0.19901315789473684" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/empty_list.xml" value="0.3140625" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_add.xml" value="0.3151041666666667" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_book.xml" value="0.19901315789473684" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_games.xml" value="0.19835526315789473" />
-        <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_lbrary.xml" value="0.31302083333333336" />
+        <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_lbrary.xml" value="0.19901315789473684" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_main_navi.xml" value="0.3151041666666667" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_person.xml" value="0.31302083333333336" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_recycler_book.xml" value="0.3140625" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_result_mistakes.xml" value="0.19835526315789473" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_yes_or_not_game.xml" value="0.19835526315789473" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/item_word.xml" value="0.3151041666666667" />
-        <entry key="..\:/androidProgect/RememberCards/app/src/main/res/menu/main_navi.xml" value="0.3151041666666667" />
+        <entry key="..\:/androidProgect/RememberCards/app/src/main/res/menu/main_navi.xml" value="0.19901315789473684" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/menu/words_menu.xml" value="0.3151041666666667" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/menu/wors_meny.xml" value="0.5546875" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic__0181225050748_flag_of_malawi.xml" value="0.3465" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic__0190214200642_flag_of_the_dominican_republic.xml" value="0.318" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic__0201207110236_flag_of_guatemala.xml" value="0.4466666666666667" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic__0210116122201_flag_of_french_polynesia.xml" value="0.318" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic_af.xml" value="0.3045" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic_ai.xml" value="0.318" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic_by.xml" value="0.404" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic_dz.xml" value="0.3465" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic_flag_bs.xml" value="0.318" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic_flag_bvi.xml" value="0.317" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic_flag_east_timor.xml" value="0.3465" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic_flag_ee.xml" value="0.318" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic_flag_england.xml" value="0.3465" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic_flag_gw.xml" value="0.3465" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic_flag_hawaii.xml" value="0.3465" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic_flag_ir.xml" value="0.3465" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic_flag_mw.xml" value="0.3465" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic_flag_north_korea.xml" value="0.3465" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic_flag_of_andorra.xml" value="0.318" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic_flag_of_belarus.xml" value="0.404" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic_flag_of_bonaire.xml" value="0.404" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic_flag_of_bosnia_and_herzegovina.xml" value="0.404" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic_flag_of_botswana.xml" value="0.404" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic_flag_of_french_guiana.xml" value="0.318" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic_flag_of_guyana.xml" value="0.3465" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic_flag_of_malawi.xml" value="0.3465" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic_flag_of_norway.xml" value="0.3465" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic_flag_of_saba.xml" value="0.404" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic_flag_of_sint_eustatius.xml" value="0.404" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic_flag_of_the_netherlands.xml" value="0.3465" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic_flag_sint_eustatius.xml" value="0.3465" />
+        <entry key="..\:/androidProgect/RememberCards/modules/flags/src/main/res/drawable/ic_white_russia.xml" value="0.404" />
       </map>
     </option>
   </component>

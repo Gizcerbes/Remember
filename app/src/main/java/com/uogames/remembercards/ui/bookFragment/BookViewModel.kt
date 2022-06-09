@@ -1,7 +1,9 @@
 package com.uogames.remembercards.ui.bookFragment
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.uogames.dto.Card
+import com.uogames.dto.Phrase
 import com.uogames.repository.DataProvider
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -10,40 +12,33 @@ import javax.inject.Inject
 class BookViewModel @Inject constructor(
 	private val provider: DataProvider
 ) : ViewModel() {
-	private val ioScope = CoroutineScope(Dispatchers.IO)
 
+	val like = MutableStateFlow("")
 
-	private val _like = MutableStateFlow("")
-	val like = _like.asStateFlow()
 
 	private val _size = MutableStateFlow(0)
 	val size = _size.asStateFlow()
 
+
+	private val likeSize = like.flatMapLatest { provider.phrase.countFlow(it) }
 	init {
-		_like.flatMapLatest { provider.cards.getCardCountFlow(it) }.onEach {
-			_size.value = it
-		}.launchIn(ioScope)
+		likeSize.onEach { _size.value = it }.launchIn(viewModelScope)
 	}
 
 	fun reset() {
-		_like.value = ""
+		like.value = ""
 	}
 
-	fun get(position: Int) = provider.cards.getCardFlow(position, like.value)
+	fun get(position: Int) = provider.phrase.getFlow(like.value, position)
 
-	fun delete(card: Card, result: (Boolean) -> Unit = {}) = ioScope.launch {
-		val res = provider.cards.deleteCardAsync(card).await()
+	fun delete(phrase: Phrase, result: (Boolean) -> Unit = {}) = provider.phrase.delete(phrase, result)
+
+	fun updateCard(phrase: Phrase, result: (Boolean) -> Unit = {}) = provider.phrase.update(phrase, result)
+
+	fun add(phrase: Phrase, result: (Boolean) -> Unit = {}) = viewModelScope.launch {
+		val res = provider.phrase.addAsync(phrase).await() > 0
 		launch(Dispatchers.Main) { result(res) }
 	}
 
-	fun updateCard(card: Card) = provider.cards.updateCard(card)
 
-	fun add(card: Card, result: (Boolean) -> Unit = {}) = ioScope.launch {
-		val res = provider.cards.addCardAsync(card).await()
-		launch(Dispatchers.Main) { result(res) }
-	}
-
-	fun setLike(string: String) {
-		_like.value = string
-	}
 }
