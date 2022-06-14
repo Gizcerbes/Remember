@@ -69,7 +69,7 @@ class AddPhraseFragment : DaggerFragment() {
 				}
 		}
 		bind.btnEditImage.setOnClickListener {
-			Permission.ACCESS_MEDIA_LOCATION.requestPermission(requireActivity()) { permission ->
+			Permission.READ_EXTERNAL_STORAGE.requestPermission(requireActivity()) { permission ->
 				if (permission) chooser.getBitmap { viewModel.setBitmapImage(it) }
 			}
 		}
