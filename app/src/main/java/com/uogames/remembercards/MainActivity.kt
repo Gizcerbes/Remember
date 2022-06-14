@@ -1,18 +1,25 @@
 package com.uogames.remembercards
 
 import android.os.Bundle
+import android.util.Log
+import androidx.core.text.layoutDirection
 import com.uogames.remembercards.utils.Permission
 import com.uogames.repository.DataProvider
 import dagger.android.support.DaggerAppCompatActivity
+import java.util.*
 
 class MainActivity : DaggerAppCompatActivity() {
-
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_main)
-
 		DataProvider.get(applicationContext)
+		val lang = Locale.getAvailableLocales()
+		Log.e("TAG", "${Locale.forLanguageTag("pny").displayLanguage} ", )
+//		lang.forEach {
+//			Log.e("TAG", ":;${it.displayCountry};${it.country};${it.displayLanguage};${it.language};${it.toLanguageTag()}", )
+//		}
+
 	}
 
 	override fun onRequestPermissionsResult(

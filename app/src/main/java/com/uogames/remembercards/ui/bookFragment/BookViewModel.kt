@@ -35,10 +35,7 @@ class BookViewModel @Inject constructor(
 
 	fun updateCard(phrase: Phrase, result: (Boolean) -> Unit = {}) = provider.phrase.update(phrase, result)
 
-	fun add(phrase: Phrase, result: (Boolean) -> Unit = {}) = viewModelScope.launch {
-		val res = provider.phrase.addAsync(phrase).await() > 0
-		launch(Dispatchers.Main) { result(res) }
-	}
+
 
 
 }

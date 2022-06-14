@@ -7,7 +7,7 @@
 	<string name="person">Person</string>
 	<string name="games">Games</string>
 	<string name="add_new_word">ADD NEW WORD</string>
-	<string name="search">search</string>
+	<string name="search">Search</string>
 	<string name="my_book">My Book</string>
 	<string name="enter_new_word">Enter New Word</string>
 	<string name="add_translate">add translate</string>
@@ -30,4 +30,10 @@
 	<string name="your_book">Your Book</string>
 	<string name="here_is_empty">Here is empty</string>
 	<string name="cards">Cards</string>
+	<string name="enterdefinition">EnterDefinition</string>
+	<string name="new_card">New Card</string>
+	<string name="editor">Editor</string>
+	<string name="definition">Definition</string>
+	<string name="phrase2">Phrase</string>
+	<string name="languages">Languages</string>
 </resources>

@@ -4,9 +4,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import com.uogames.flags.Countries
-import com.uogames.remembercards.databinding.CardEditBinding
 import com.uogames.remembercards.databinding.CardPhraseBinding
+import com.uogames.remembercards.databinding.FragmentEditBinding
 import com.uogames.remembercards.utils.ChangeableAdapter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -32,8 +31,8 @@ class BookAdapter(
 			CardPhraseBinding.inflate(LayoutInflater.from(itemView.context), viewGrope, false)
 		}
 
-		private val editBind: CardEditBinding by lazy {
-			CardEditBinding.inflate(LayoutInflater.from(itemView.context), viewGrope, false)
+		private val editBind: FragmentEditBinding by lazy {
+			FragmentEditBinding.inflate(LayoutInflater.from(itemView.context), viewGrope, false)
 		}
 
 		override fun onCreateView(typeFragment: Int, viewGrope: ViewGroup): View? {
@@ -74,15 +73,12 @@ class BookAdapter(
 					phrase.definition?.let {
 						infoBind.txtDefinition.text = it
 					}
-
-					infoBind.btnEdit.setOnClickListener {
-
-					}
+				}
+				infoBind.btnEdit.setOnClickListener {
 
 				}
 			}.launchIn(cardScope)
 		}
-
 	}
 
 	override fun onShow(

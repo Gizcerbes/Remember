@@ -23,6 +23,11 @@
 		android:name="com.uogames.remembercards.ui.gameYesOrNo.ResultYesOrNotFragment"
 		android:label="ResultYesOrNotFragment"
 		tools:layout="@layout/fragment_result_mistakes"/>
+	<fragment
+		android:id="@+id/addPhraseFragment"
+		android:name="com.uogames.remembercards.ui.addPhrase.AddPhraseFragment"
+		tools:layout="@layout/fragment_edit"
+		android:label="AddPhraseFragment" />
 
 
 </navigation>

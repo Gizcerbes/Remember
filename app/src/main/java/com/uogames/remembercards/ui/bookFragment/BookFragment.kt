@@ -8,12 +8,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentBookBinding
+import com.uogames.remembercards.ui.addPhrase.AddPhraseFragment
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -86,7 +86,7 @@ class BookFragment : DaggerFragment() {
 	}
 
 	private fun openAddDialog() {
-		AddCardDialog().show(requireActivity().supportFragmentManager, AddCardDialog.TAG)
+		requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.addPhraseFragment)
 	}
 
 }

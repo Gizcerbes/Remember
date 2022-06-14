@@ -16,7 +16,7 @@
 		<TextView
 			android:text="@string/your_book"
 			android:layout_marginStart="13dp"
-			android:textSize="20sp"
+			android:textAppearance="?attr/textAppearanceHeadline6"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
 			app:layout_constraintBottom_toBottomOf="parent"
@@ -86,11 +86,11 @@
 		android:id="@+id/recycler"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:orientation="vertical"
-		android:layout_below="@id/bottom_bar"
 		android:layout_above="@id/til_search"
+		android:layout_below="@id/bottom_bar"
+		android:orientation="vertical"
 		app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-		tools:listitem="@layout/card_info" />
+		tools:listitem="@layout/card_phrase" />
 
 
 	<TextView

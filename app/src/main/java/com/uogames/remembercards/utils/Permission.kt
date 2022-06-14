@@ -18,8 +18,9 @@ enum class Permission constructor(private val permission: String) {
 	@RequiresApi(Build.VERSION_CODES.Q)
 	ACCESS_MEDIA_LOCATION(Manifest.permission.ACCESS_MEDIA_LOCATION);
 
-	private val _isPermission = MutableStateFlow(false)
-	val isPermission = _isPermission.asStateFlow()
+
+	private var lastResult: Boolean = false
+	private var listener: (Boolean) -> Unit = {}
 
 	private fun hasPermission(application: Application): Boolean {
 		return ContextCompat.checkSelfPermission(
@@ -28,14 +29,17 @@ enum class Permission constructor(private val permission: String) {
 		) == PackageManager.PERMISSION_GRANTED;
 	}
 
-	fun requestPermission(activity: Activity) {
+	fun requestPermission(activity: Activity, requestListener: (permission: Boolean) -> Unit = {}) {
+		listener = requestListener
 		val res = hasPermission(activity.application)
 		if (!res) activity.requestPermissions(arrayOf(permission), ordinal)
-		_isPermission.value = res
+		lastResult = res
+		listener(lastResult)
 	}
 
 	fun onRequestPermissionResult(grantResults: IntArray) {
-		_isPermission.value = grantResults[0] == PackageManager.PERMISSION_GRANTED
+		lastResult = grantResults[0] == PackageManager.PERMISSION_GRANTED
+		listener(lastResult)
 	}
 
 }

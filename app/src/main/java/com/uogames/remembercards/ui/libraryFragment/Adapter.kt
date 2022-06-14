@@ -25,7 +25,7 @@ class Adapter : RecyclerView.Adapter<Adapter.Holder>() {
 
 				bind.imgPhrase.setImageResource(country.res)
 				bind.imgCountry.setImageResource(country.res)
-				bind.txtPhrase.text = country.country[0]
+				bind.txtPhrase.text = country.country[0].value
 
 			}
 		}
@@ -38,12 +38,10 @@ class Adapter : RecyclerView.Adapter<Adapter.Holder>() {
 	}
 
 	override fun onBindViewHolder(holder: Holder, position: Int) {
-		Log.e("TAG", "onBindViewHolder: ", )
 		holder.show()
 	}
 
 	override fun getItemCount(): Int {
-		Log.e("TAG", "getItemCount:${Countries.values().size} ", )
 		return Countries.values().size
 	}
 
