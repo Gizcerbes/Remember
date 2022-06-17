@@ -1,5 +1,6 @@
 package com.uogames.remembercards.utils
 
+import android.util.Base64
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -38,3 +39,7 @@ fun <T> Flow<T>.observeWhile(
 		if (!checkAfter(it)) this.cancel()
 	}
 }
+
+fun ByteArray.toStringBase64(): String = Base64.encodeToString(this, Base64.DEFAULT)
+
+fun String.toByteArrayBase64(): ByteArray = Base64.decode(this, Base64.DEFAULT)

@@ -66,8 +66,12 @@ abstract class ChangeableAdapter<VH : ChangeableAdapter.ChangeableViewHolder> :
 
 		abstract fun show(typeFragment: Int)
 
-		fun onDetached() {
+		fun onDetach(){
 			cardScope.cancel()
+			onDetached()
+		}
+
+		open fun onDetached() {
 		}
 
 	}

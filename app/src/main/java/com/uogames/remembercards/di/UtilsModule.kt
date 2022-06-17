@@ -3,7 +3,7 @@ package com.uogames.remembercards.di
 import android.app.Application
 import android.content.Context
 import com.uogames.remembercards.GlobalViewModel
-import com.uogames.remembercards.ui.addPhrase.AddPhraseViewModel
+import com.uogames.remembercards.ui.addPhraseFragment.AddPhraseViewModel
 import com.uogames.remembercards.ui.bookFragment.BookViewModel
 import com.uogames.remembercards.ui.gameYesOrNo.GameYesOrNotViewModel
 import com.uogames.remembercards.ui.mainNav.NavigationViewModel

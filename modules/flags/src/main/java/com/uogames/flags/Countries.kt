@@ -3,7 +3,7 @@ package com.uogames.flags
 import androidx.annotation.DrawableRes
 import java.util.*
 
-enum class Countries(@DrawableRes val res: Int, val isoCode: String?, val country: Array<Text>) {
+enum class Countries(@DrawableRes val res: Int, val isoCode: String, val country: Array<Text>) {
 	AFGHANISTAN(
 		R.drawable.ic_flag_af, "AF", arrayOf(
 			Text(Locale("en"), "Islamic Republic of Afghanistan"),
@@ -1592,6 +1592,15 @@ enum class Countries(@DrawableRes val res: Int, val isoCode: String?, val countr
 			Text(Locale("xh"), "Ilizwe lase-Zimbabwe")
 		)
 	);
+
+	companion object {
+		fun search(tag: String): Countries? {
+			values().forEach {
+				if (tag.uppercase() == it.isoCode) return it
+			}
+			return null
+		}
+	}
 
 	data class Text(val locale: Locale?, val value: String)
 

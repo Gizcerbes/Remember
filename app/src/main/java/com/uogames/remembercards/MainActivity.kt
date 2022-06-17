@@ -2,6 +2,7 @@ package com.uogames.remembercards
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.core.text.layoutDirection
 import com.uogames.remembercards.utils.Permission
 import com.uogames.repository.DataProvider
@@ -14,12 +15,6 @@ class MainActivity : DaggerAppCompatActivity() {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_main)
 		DataProvider.get(applicationContext)
-		val lang = Locale.getAvailableLocales()
-		Log.e("TAG", "${Locale.forLanguageTag("pny").displayLanguage} ", )
-//		lang.forEach {
-//			Log.e("TAG", ":;${it.displayCountry};${it.country};${it.displayLanguage};${it.language};${it.toLanguageTag()}", )
-//		}
-
 	}
 
 	override fun onRequestPermissionsResult(
@@ -30,6 +25,9 @@ class MainActivity : DaggerAppCompatActivity() {
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 		Permission.values()[requestCode].onRequestPermissionResult(grantResults)
 	}
+
+
+
 
 }
 

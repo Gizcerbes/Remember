@@ -8,24 +8,33 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class DataProvider private constructor(
-    private val database: DatabaseRepository
+	private val database: DatabaseRepository
 ) : Provider() {
 
-    companion object {
-        private var INSTANCE: DataProvider? = null
+	companion object {
+		private var INSTANCE: DataProvider? = null
 
 
-        fun get(context: Context): DataProvider {
-            if (INSTANCE == null) INSTANCE = DataProvider(
-                DatabaseRepository.getINSTANCE(context)
-            )
-            return INSTANCE as DataProvider
-        }
-    }
+		fun get(context: Context): DataProvider {
+			if (INSTANCE == null) INSTANCE = DataProvider(
+				DatabaseRepository.getINSTANCE(context)
+			)
+			return INSTANCE as DataProvider
+		}
+	}
 
-    val cards = CardsProvider(database)
+	val cards by lazy { CardsProvider(database) }
 
-	val phrase = PhraseProvider(database)
+	val phrase by lazy { PhraseProvider(database) }
 
+	val images by lazy { ImageProvider(database) }
+
+	val pronounce by lazy { PronunciationProvider(database) }
+
+
+	fun clean() = ioScope.launch {
+		images.cleanAsync().await()
+		pronounce.cleanAsync().await()
+	}
 
 }

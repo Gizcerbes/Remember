@@ -29,4 +29,6 @@ class ImageRepository(private val imageDAO: ImageDAO) {
 		imageDAO.getByID(id).map { it?.toDTO() }
 	} ?: MutableStateFlow(Image(0, "")).asStateFlow()
 
+	suspend fun clean() = imageDAO.clean()
+
 }

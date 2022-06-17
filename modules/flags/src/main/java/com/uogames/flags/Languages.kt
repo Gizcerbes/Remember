@@ -6,7 +6,7 @@ enum class Languages(val language: String, val isoCode: String) {
 	AFRIKAANS("Afrikaans", "af"),
 	AKAN("Ákán", "ak"),
 	ALBANIAN("shqip", "sq"),
-	ALGERIAN_ARABIC("دزيرية","arq"),
+	ALGERIAN_ARABIC("دزيرية", "arq"),
 	AMHARIC("አማርኛ", "ar"),
 	ARABIC("اَلْعَرَبِيَّةُ", "ar"),
 	ARAGONESE("aragonés", "an"),
@@ -20,7 +20,7 @@ enum class Languages(val language: String, val isoCode: String) {
 	BASQUE("euskara", "eq"),
 	BELARUSIAN("Беларуская мова", "be"),
 	BENGALI("বাংলা", "bn"),
-	BERBER("ⵜⴰⵎⴰⵣⵉⵖⵜ, ⵜⵎⵣⵗⵜ","ber"),
+	BERBER("ⵜⴰⵎⴰⵣⵉⵖⵜ, ⵜⵎⵣⵗⵜ", "ber"),
 	BISLAMA("Bislama", "bi"),
 	BOSNIAN("bosanski", "bs"),
 	BRETON("brezhoneg", "br"),
@@ -38,7 +38,7 @@ enum class Languages(val language: String, val isoCode: String) {
 	CROATIAN("hrvatski", "hr"),
 	CZECH("čeština", "cs"),
 	DANISH("dansk", "da"),
-	DARI("دری","prs"),
+	DARI("دری", "prs"),
 	DIVEHI("ދިވެހި", "dv"),
 	DUTCH("Nederlands", "nl"),
 	DZONGKHA("རྫོང་ཁ་", "dz"),
@@ -104,8 +104,8 @@ enum class Languages(val language: String, val isoCode: String) {
 	MACEDONIAN("makedonski", "mk"),
 	MALAGASY("malagasy", "mg"),
 	MALAY("بهاس ملايو", "ms"),
-	RUMI_SCRIPT("Tulisan Rumi","ms-Latn"),
-	JAWI_ALPHABET("توليسن جاوي","ms-Arab"),
+	RUMI_SCRIPT("Tulisan Rumi", "ms-Latn"),
+	JAWI_ALPHABET("توليسن جاوي", "ms-Arab"),
 	MALAYALAM("മലയാളം", "ml"),
 	MALTESE("Malti", "mt"),
 	MANX("Gaelg", "gv"),
@@ -130,7 +130,7 @@ enum class Languages(val language: String, val isoCode: String) {
 	OSSETIAN("irōn ævzag", "os"),
 	PALI("Pāli", "pi"),
 	PASHTO("پښتو", "ps"),
-	PAPIAMENTO("Papiamentu","pap"),
+	PAPIAMENTO("Papiamentu", "pap"),
 	PERSIAN("فارسی", "fa"),
 	POLISH("polski", "pl"),
 	PORTUGUESE("português", "pt"),
@@ -161,7 +161,6 @@ enum class Languages(val language: String, val isoCode: String) {
 	SWEDISH("svenska", "sw"),
 	TAGALOG("Wikang Tagalog", "tl"),
 	TAHITIAN("Reo Tahiti", "ty"),
-	//TAMAZIGHT("Tamaziɣt",""),
 	TAJIK("Тоҷикӣ", "tg"),
 	TAMIL("தமிழ்", "ta"),
 	TATAR("تاتار تلی", "tt"),
@@ -189,5 +188,18 @@ enum class Languages(val language: String, val isoCode: String) {
 	YIDDISH("ייִדיש", "yi"),
 	YORUBA("Èdè Yorùbá ", "yo"),
 	ZHUANG("Vahcuengh", "za"),
-	ZULU("isiZulu", "zu")
+	ZULU("isiZulu", "zu"),
+	DEFAULT("", "")
+	;
+
+	companion object {
+		fun search(teg: String): Languages? {
+			val teg = teg.split("-")[0]
+			values().forEach {
+				if (it.isoCode == teg) return it
+			}
+			return null
+		}
+	}
+
 }

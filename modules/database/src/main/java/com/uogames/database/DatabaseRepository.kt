@@ -3,7 +3,9 @@ package com.uogames.database
 import android.content.Context
 import com.uogames.database.map.CardMap.toDTO
 import com.uogames.database.map.CardMap.toEntity
+import com.uogames.database.repository.ImageRepository
 import com.uogames.database.repository.PhraseRepository
+import com.uogames.database.repository.PronunciationRepository
 import com.uogames.dto.Card
 import kotlinx.coroutines.flow.map
 
@@ -22,6 +24,9 @@ class DatabaseRepository private constructor(private val database: MyDatabase) {
 
 	val phraseRepository by lazy { PhraseRepository(database.phraseDAO()) }
 
+	val imageRepository by lazy { ImageRepository(database.imageDAO()) }
+
+	val pronunciationRepository by lazy { PronunciationRepository(database.pronunciationDAO()) }
 
 
 	suspend fun addCard(card: Card) = database.cardDAO().insert(card.toEntity())

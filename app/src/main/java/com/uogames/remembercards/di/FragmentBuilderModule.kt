@@ -1,6 +1,6 @@
 package com.uogames.remembercards.di
 
-import com.uogames.remembercards.ui.addPhrase.AddPhraseFragment
+import com.uogames.remembercards.ui.addPhraseFragment.AddPhraseFragment
 import com.uogames.remembercards.ui.bookFragment.BookFragment
 import com.uogames.remembercards.ui.gameYesOrNo.GameYesOrNotFragment
 import com.uogames.remembercards.ui.gameYesOrNo.ResultYesOrNotFragment

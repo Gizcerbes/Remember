@@ -25,4 +25,12 @@ interface PronunciationDAO {
 	@Query("SELECT * FROM pronounce_table LIMIT :number, 1")
 	fun getByNumber(number: Int): Flow<PronunciationEntity?>
 
+
+	@Query(
+		"DELETE FROM pronounce_table " +
+				"WHERE " +
+				"NOT EXISTS (SELECT * FROM phrase_table pt WHERE pt.idPronounce = pronounce_table.id )"
+	)
+	suspend fun clean()
+
 }

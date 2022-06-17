@@ -2,18 +2,19 @@ package com.uogames.remembercards.ui.bookFragment
 
 import android.content.Context
 import android.os.Bundle
-import android.transition.AutoTransition
-import android.transition.TransitionManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentBookBinding
-import com.uogames.remembercards.ui.addPhrase.AddPhraseFragment
+import com.uogames.remembercards.ui.addPhraseFragment.AddPhraseViewModel
+import com.uogames.remembercards.utils.observeWhile
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -24,6 +25,12 @@ class BookFragment : DaggerFragment() {
 
 	@Inject
 	lateinit var bookViewModel: BookViewModel
+
+	@Inject
+	lateinit var globalViewModel: GlobalViewModel
+
+	@Inject
+	lateinit var addPhraseViewModel: AddPhraseViewModel
 
 	lateinit var bind: FragmentBookBinding
 
@@ -57,35 +64,43 @@ class BookFragment : DaggerFragment() {
 			orientation = LinearLayoutManager.VERTICAL
 		}
 
-		//bind.tilSearch.editText?.addTextChangedListener { bookViewModel.setLike(it.toString()) }
-
 		bookViewModel.size.onEach {
 			bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
 		}.launchIn(lifecycleScope)
 
-		TransitionManager.beginDelayedTransition(bind.root, AutoTransition())
+		//TransitionManager.beginDelayedTransition(bind.root, AutoTransition())
 
-		isSearch.onEach {
+		globalViewModel.isShowKey.observeWhile(lifecycleScope){
 			bind.tilSearch.visibility = if (it) View.VISIBLE else View.GONE
 			bind.btnAdd.visibility = if (it) View.GONE else View.VISIBLE
 			if (it) {
 				bind.searchImage.setImageResource(R.drawable.ic_baseline_close_24)
+			} else {
+				bind.searchImage.setImageResource(R.drawable.ic_baseline_search_24)
+			}
+		}
+
+		bind.btnSearch.setOnClickListener {
+			//isSearch.value = !isSearch.value
+			if (!globalViewModel.isShowKey.value) {
 				bind.tilSearch.requestFocus()
 				imm.showSoftInput(bind.tilSearch.editText, InputMethodManager.SHOW_IMPLICIT)
 			} else {
-				bind.searchImage.setImageResource(R.drawable.ic_baseline_search_24)
 				imm.hideSoftInputFromWindow(view.windowToken, 0)
 			}
-		}.launchIn(lifecycleScope)
+		}
 
-		bind.btnSearch.setOnClickListener { isSearch.value = !isSearch.value }
+		bind.btnAdd.setOnClickListener { openAddFragment() }
 
-		bind.btnAdd.setOnClickListener { openAddDialog() }
+		bind.tilSearch.editText?.doOnTextChanged { text, _, _, _ ->
+			bookViewModel.like.value = text.toString()
+		}
 
 		bind.recycler.adapter = adapter
 	}
 
-	private fun openAddDialog() {
+	private fun openAddFragment() {
+		addPhraseViewModel.reset()
 		requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.addPhraseFragment)
 	}
 

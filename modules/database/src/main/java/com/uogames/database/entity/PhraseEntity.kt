@@ -3,7 +3,7 @@ package com.uogames.database.entity
 import androidx.room.*
 
 @Entity(
-	tableName = "phrase_table",
+	tableName = "phrase_table"
 )
 data class PhraseEntity(
 	@PrimaryKey(autoGenerate = true)

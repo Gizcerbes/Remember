@@ -32,12 +32,12 @@ class TestPhraseDAO {
 	}
 
 	fun setData() = runBlocking {
-		db.phraseDAO().insert(PhraseEntity(1, "Hello", "en", null, null))
-		db.phraseDAO().insert(PhraseEntity(2, "World", "en", null, null))
-		db.phraseDAO().insert(PhraseEntity(3, "Hello World", "en", null, null))
-		db.phraseDAO().insert(PhraseEntity(4, "Привет", "ru", null, null))
-		db.phraseDAO().insert(PhraseEntity(5, "Мир", "ru", null, null))
-		db.phraseDAO().insert(PhraseEntity(6, "Привет Мир", "ru", null, null))
+		db.phraseDAO().insert(PhraseEntity(1, "Hello", "en", null, null,null,0))
+		db.phraseDAO().insert(PhraseEntity(2, "World", "en", null, null,null,0))
+		db.phraseDAO().insert(PhraseEntity(3, "Hello World", "en", null, null,null,0))
+		db.phraseDAO().insert(PhraseEntity(4, "Привет", "ru", null, null,null,0))
+		db.phraseDAO().insert(PhraseEntity(5, "Мир", "ru", null, null,null,0))
+		db.phraseDAO().insert(PhraseEntity(6, "Привет Мир", "ru", null, null,null,0))
 	}
 
 	@Test
@@ -62,9 +62,9 @@ class TestPhraseDAO {
 	@Test
 	fun testDelete() = runBlocking {
 		setData()
-		val id = db.phraseDAO().delete(PhraseEntity(3, "", null, null, null))
+		val id = db.phraseDAO().delete(PhraseEntity(3, "", null, null, null,null,0))
 		Assert.assertEquals(id, 1)
-		val id2 = db.phraseDAO().delete(PhraseEntity(3, "", null, null, null))
+		val id2 = db.phraseDAO().delete(PhraseEntity(3, "", null, null, null,null,0))
 		Assert.assertEquals(id2, 0)
 	}
 

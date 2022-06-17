@@ -14,6 +14,7 @@ enum class Permission constructor(private val permission: String) {
 	ACCESS_FINE_LOCATION(Manifest.permission.ACCESS_FINE_LOCATION),
 	READ_EXTERNAL_STORAGE(Manifest.permission.READ_EXTERNAL_STORAGE),
 	WRITE_EXTERNAL_STORAGE(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+	RECORD_AUDIO(Manifest.permission.RECORD_AUDIO),
 
 	@RequiresApi(Build.VERSION_CODES.Q)
 	ACCESS_MEDIA_LOCATION(Manifest.permission.ACCESS_MEDIA_LOCATION);
@@ -24,8 +25,7 @@ enum class Permission constructor(private val permission: String) {
 
 	private fun hasPermission(application: Application): Boolean {
 		return ContextCompat.checkSelfPermission(
-			application,
-			permission
+			application, permission
 		) == PackageManager.PERMISSION_GRANTED;
 	}
 

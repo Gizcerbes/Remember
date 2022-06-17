@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Remember Cards</string>
+	<string name="app_name">Remember Cards</string>
 	<string name="home">Home</string>
 	<string name="play">Play</string>
 	<string name="library">Library</string>
@@ -15,7 +15,6 @@
 	<string name="description">Description</string>
 	<string name="remove">remove</string>
 	<string name="create">create</string>
-	<string name="oxford_university_press">Oxford University Press:</string>
 	<string name="etymologies">Etymologies:</string>
 	<string name="enter_new_phrase">Enter new phrase</string>
 	<string name="phrase">Phrase:</string>
@@ -36,4 +35,7 @@
 	<string name="definition">Definition</string>
 	<string name="phrase2">Phrase</string>
 	<string name="languages">Languages</string>
+	<string name="record">Record</string>
+	<string name="record_sp">Record ||TIME||s / 60s</string>
+	<string name="tag_second">s</string>
 </resources>
