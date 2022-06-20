@@ -7,12 +7,13 @@
 	android:orientation="vertical">
 
 	<androidx.constraintlayout.widget.ConstraintLayout
-		android:id="@+id/bottom_bar"
+		android:id="@+id/top_bar"
 		style="@style/Theme.RememberCards.AppBar"
 		android:layout_width="match_parent"
 		app:layout_constraintTop_toTopOf="parent">
 
 		<TextView
+			android:id="@+id/txt_fragment_name"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginStart="13dp"
@@ -22,56 +23,56 @@
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent" />
 
-		<com.google.android.material.card.MaterialCardView
-			android:id="@+id/btn_save"
-			style="@style/Theme.RememberCards.CardView.Button"
+		<LinearLayout
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-
-			android:visibility="visible"
+			android:orientation="horizontal"
 			app:layout_constraintBottom_toBottomOf="parent"
-			app:layout_constraintRight_toRightOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintTop_toTopOf="parent">
 
-			<ImageView
-				android:layout_width="@dimen/card_button"
-				android:layout_height="@dimen/card_button"
-				android:src="@drawable/ic_baseline_save_24" />
-		</com.google.android.material.card.MaterialCardView>
+			<com.google.android.material.card.MaterialCardView
+				android:id="@+id/btn_back"
+				style="@style/Theme.RememberCards.CardView.Button"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:visibility="visible">
 
+				<ImageView
+					android:layout_width="@dimen/card_button"
+					android:layout_height="@dimen/card_button"
+					android:src="@drawable/ic_baseline_keyboard_backspace_24" />
+			</com.google.android.material.card.MaterialCardView>
 
-		<com.google.android.material.card.MaterialCardView
-			android:id="@+id/btn_delete"
-			style="@style/Theme.RememberCards.CardView.Button"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:visibility="gone"
-			app:layout_constraintBottom_toBottomOf="parent"
-			app:layout_constraintEnd_toStartOf="@id/btn_save"
-			app:layout_constraintTop_toTopOf="parent">
+			<com.google.android.material.card.MaterialCardView
+				android:id="@+id/btn_delete"
+				style="@style/Theme.RememberCards.CardView.Button"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginStart="0dp"
+				android:visibility="gone">
 
-			<ImageView
-				android:layout_width="@dimen/card_button"
-				android:layout_height="@dimen/card_button"
-				android:src="@drawable/ic_baseline_delete_24" />
-		</com.google.android.material.card.MaterialCardView>
+				<ImageView
+					android:layout_width="@dimen/card_button"
+					android:layout_height="@dimen/card_button"
+					android:src="@drawable/ic_baseline_delete_24" />
+			</com.google.android.material.card.MaterialCardView>
 
-		<com.google.android.material.card.MaterialCardView
-			android:id="@+id/btn_back"
-			style="@style/Theme.RememberCards.CardView.Button"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginStart="1dp"
-			android:visibility="visible"
-			app:layout_constraintBottom_toBottomOf="parent"
-			app:layout_constraintEnd_toStartOf="@id/btn_save"
-			app:layout_constraintTop_toTopOf="parent">
+			<com.google.android.material.card.MaterialCardView
+				android:id="@+id/btn_save"
+				style="@style/Theme.RememberCards.CardView.Button"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginStart="0dp"
+				android:visibility="visible">
 
-			<ImageView
-				android:layout_width="@dimen/card_button"
-				android:layout_height="@dimen/card_button"
-				android:src="@drawable/ic_baseline_keyboard_backspace_24" />
-		</com.google.android.material.card.MaterialCardView>
+				<ImageView
+					android:layout_width="@dimen/card_button"
+					android:layout_height="@dimen/card_button"
+					android:src="@drawable/ic_baseline_save_24" />
+			</com.google.android.material.card.MaterialCardView>
+
+		</LinearLayout>
 
 
 		<com.google.android.material.divider.MaterialDivider
@@ -117,7 +118,7 @@
 					android:id="@+id/img_mic"
 					android:layout_width="@dimen/card_button"
 					android:layout_height="@dimen/card_button"
-					android:src="@drawable/ic_baseline_mic_24" />
+					android:background="@drawable/list_mic" />
 
 			</com.google.android.material.card.MaterialCardView>
 
@@ -129,9 +130,10 @@
 				android:layout_marginStart="1dp">
 
 				<ImageView
+					android:id="@+id/img_btn_image"
 					android:layout_width="@dimen/card_button"
 					android:layout_height="@dimen/card_button"
-					android:src="@drawable/ic_baseline_image_24" />
+					android:background="@drawable/list_image"/>
 
 			</com.google.android.material.card.MaterialCardView>
 
@@ -189,7 +191,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="0dp"
 		app:layout_constraintBottom_toTopOf="@id/til_edit"
-		app:layout_constraintTop_toBottomOf="@id/bottom_bar">
+		app:layout_constraintTop_toBottomOf="@id/top_bar">
 
 		<LinearLayout
 			android:layout_width="match_parent"
@@ -214,7 +216,7 @@
 						android:layout_height="wrap_content"
 						android:adjustViewBounds="true"
 						android:visibility="visible"
-						tools:src="@drawable/apple" />
+						tools:src="@drawable/noise" />
 
 					<LinearLayout
 						android:layout_width="match_parent"
@@ -237,33 +239,13 @@
 								app:layout_constraintTop_toTopOf="parent">
 
 								<ImageView
+									android:id="@+id/img_btn_sound"
 									android:layout_width="@dimen/card_button"
 									android:layout_height="@dimen/card_button"
-									android:src="@drawable/ic_baseline_volume_up_24" />
+									android:background="@drawable/list_music_play"
+									/>
 							</com.google.android.material.card.MaterialCardView>
 
-							<com.google.android.material.card.MaterialCardView
-								android:id="@+id/mcv_flag"
-								android:layout_width="50dp"
-								android:layout_height="wrap_content"
-								android:layout_margin="7dp"
-								app:layout_constraintBottom_toBottomOf="parent"
-								app:layout_constraintEnd_toEndOf="parent"
-								app:layout_constraintTop_toTopOf="parent"
-								app:strokeColor="?attr/colorControlNormal"
-								app:strokeWidth="1dp">
-
-								<ImageView
-									android:id="@+id/img_country"
-									android:layout_width="wrap_content"
-									android:layout_height="wrap_content"
-									android:adjustViewBounds="true"
-									app:layout_constraintBottom_toBottomOf="parent"
-									app:layout_constraintEnd_toEndOf="parent"
-									app:layout_constraintTop_toTopOf="parent"
-									tools:src="@drawable/ic_flag_gb" />
-
-							</com.google.android.material.card.MaterialCardView>
 
 							<com.google.android.material.card.MaterialCardView
 								android:id="@+id/btn_edit"
@@ -289,7 +271,7 @@
 								android:layout_marginEnd="7dp"
 								android:textAppearance="?attr/textAppearanceBody1"
 								app:layout_constraintBottom_toBottomOf="parent"
-								app:layout_constraintEnd_toStartOf="@id/mcv_flag"
+								app:layout_constraintEnd_toEndOf="parent"
 								app:layout_constraintTop_toTopOf="parent"
 								tools:text="Russian" />
 

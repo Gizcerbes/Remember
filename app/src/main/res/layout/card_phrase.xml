@@ -18,7 +18,7 @@
 			android:layout_height="wrap_content"
 			android:adjustViewBounds="true"
 			android:visibility="visible"
-			tools:src="@drawable/apple" />
+			android:src="@drawable/noise" />
 
 		<LinearLayout
 			android:layout_width="match_parent"
@@ -41,33 +41,12 @@
 					app:layout_constraintTop_toTopOf="parent">
 
 					<ImageView
+						android:id="@+id/img_btn_sound"
 						android:layout_width="@dimen/card_button"
 						android:layout_height="@dimen/card_button"
-						android:src="@drawable/ic_baseline_volume_up_24" />
+						android:background="@drawable/list_music_play" />
 				</com.google.android.material.card.MaterialCardView>
 
-				<com.google.android.material.card.MaterialCardView
-					android:id="@+id/mcv_flag"
-					android:layout_width="50dp"
-					android:layout_height="wrap_content"
-					android:layout_margin="7dp"
-					app:strokeWidth="1dp"
-					app:strokeColor="?attr/colorControlNormal"
-					app:layout_constraintBottom_toBottomOf="parent"
-					app:layout_constraintEnd_toEndOf="parent"
-					app:layout_constraintTop_toTopOf="parent">
-
-					<ImageView
-						android:id="@+id/img_country"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:adjustViewBounds="true"
-						app:layout_constraintBottom_toBottomOf="parent"
-						app:layout_constraintEnd_toEndOf="parent"
-						app:layout_constraintTop_toTopOf="parent"
-						tools:src="@drawable/ic_flag_gb" />
-
-				</com.google.android.material.card.MaterialCardView>
 
 
 				<com.google.android.material.card.MaterialCardView
@@ -94,9 +73,9 @@
 					android:layout_marginEnd="7dp"
 					android:textAppearance="?attr/textAppearanceBody1"
 					app:layout_constraintBottom_toBottomOf="parent"
-					app:layout_constraintEnd_toStartOf="@id/mcv_flag"
+					app:layout_constraintEnd_toEndOf="parent"
 					app:layout_constraintTop_toTopOf="parent"
-					tools:text="Russian" />
+					tools:text="English" />
 
 			</androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -117,7 +96,7 @@
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toTopOf="parent"
-				tools:text="Apple" />
+				tools:text="Noise" />
 
 			<TextView
 				android:id="@+id/txt_definition"
@@ -125,7 +104,7 @@
 				android:layout_height="wrap_content"
 				android:layout_margin="7dp"
 				android:textAppearance="?attr/textAppearanceBody2"
-				tools:text="The round fruit of a tree of the rose family, which typically has thin green or red skin and crisp flesh." />
+				tools:text="Irregular fluctuations that accompany a transmitted electrical signal but are not part of it and tend to obscure it." />
 
 		</LinearLayout>
 

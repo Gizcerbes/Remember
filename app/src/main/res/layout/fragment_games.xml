@@ -7,7 +7,7 @@
 	android:orientation="vertical">
 
 	<androidx.constraintlayout.widget.ConstraintLayout
-		android:id="@+id/bottom_bar"
+		android:id="@+id/top_bar"
 		style="@style/Theme.RememberCards.AppBar"
 		android:layout_width="match_parent"
 		app:layout_constraintBaseline_toTopOf="parent">
@@ -35,7 +35,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="0dp"
 		app:layout_constraintBottom_toBottomOf="parent"
-		app:layout_constraintTop_toBottomOf="@id/bottom_bar"
+		app:layout_constraintTop_toBottomOf="@id/top_bar"
 		app:layout_constraintVertical_bias="1.0"
 		tools:layout_editor_absoluteX="120dp">
 

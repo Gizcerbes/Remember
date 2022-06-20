@@ -1,4 +1,4 @@
-package com.uogames.remembercards.ui.addPhraseFragment
+package com.uogames.remembercards.ui.editPhraseFragment
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -13,6 +13,7 @@ import com.uogames.dto.Pronunciation
 import com.uogames.flags.Countries
 import com.uogames.flags.Languages
 import com.uogames.remembercards.utils.MediaBytesSource
+import com.uogames.remembercards.utils.toStringBase64
 import com.uogames.repository.DataProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -27,18 +28,19 @@ import java.io.File
 import java.util.*
 import javax.inject.Inject
 
-class AddPhraseViewModel @Inject constructor(
+class EditPhraseViewModel @Inject constructor(
 	private val provider: DataProvider
 ) : ViewModel() {
 
 	private val _imgPhrase: MutableStateFlow<ByteArray?> = MutableStateFlow(null)
 	val imgPhrase = _imgPhrase.asStateFlow().map { it?.let { BitmapFactory.decodeByteArray(it, 0, it.size) } }
+	val isImgPhraseNotNull get() = _imgPhrase.value?.isNotEmpty() ?: false
 
 	private val _country = MutableStateFlow(Countries.UNITED_KINGDOM)
 	val country = _country.asStateFlow()
 
-	private val _lang = MutableStateFlow("en")
-	val lang = _lang.asStateFlow().map { Languages.search(it.split("-")[0]) ?: Languages.DEFAULT }
+	private val _lang = MutableStateFlow(Locale.getDefault())
+	val lang = _lang.asStateFlow()
 
 	private val _phrase = MutableStateFlow("")
 	val phrase = _phrase.asStateFlow()
@@ -49,7 +51,7 @@ class AddPhraseViewModel @Inject constructor(
 	private val _isFileWriting = MutableStateFlow(false)
 	val isFileWriting = _isFileWriting.asStateFlow()
 
-	private val _timeWriting = MutableStateFlow(0)
+	private val _timeWriting = MutableStateFlow(-1)
 	val timeWriting = _timeWriting.asStateFlow()
 	private var jobWriting: Job? = null
 
@@ -59,11 +61,11 @@ class AddPhraseViewModel @Inject constructor(
 	fun reset() {
 		_imgPhrase.value = null
 		_country.value = Countries.UNITED_KINGDOM
-		_lang.value = "en"
+		_lang.value = Locale.getDefault()
 		_phrase.value = ""
 		_definition.value = ""
 		_isFileWriting.value = false
-		_timeWriting.value = 0
+		_timeWriting.value = -1
 		_tempAudioFile = File.createTempFile("audio", ".gpp")
 	}
 
@@ -75,7 +77,7 @@ class AddPhraseViewModel @Inject constructor(
 				_definition.value = phrase.definition ?: ""
 				phrase.lang?.let {
 					val l = it.split("-")
-					_lang.value = Languages.valueOf(l[0]).isoCode
+					_lang.value = Locale.forLanguageTag(it)
 					_country.value = Countries.valueOf(l[1])
 				}
 				val img = provider.images.getByPhrase(phrase).first()
@@ -92,14 +94,16 @@ class AddPhraseViewModel @Inject constructor(
 		}
 	}
 
-	fun setBitmapImage(bitmap: Bitmap) {
-		viewModelScope.launch(Dispatchers.IO) {
+	fun setBitmapImage(bitmap: Bitmap?) {
+		if (bitmap != null) viewModelScope.launch(Dispatchers.IO) {
 			val stream = ByteArrayOutputStream()
 			val newWidth = 800
 			val newHeight = bitmap.height * newWidth / bitmap.width
 			val newBitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
 			newBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
 			_imgPhrase.value = stream.toByteArray()
+		} else {
+			_imgPhrase.value = null
 		}
 	}
 
@@ -139,56 +143,52 @@ class AddPhraseViewModel @Inject constructor(
 		_definition.value = definition
 	}
 
-	fun setLang(tag: String) {
-		_lang.value = tag
+	fun setLang(tag: Locale) {
+		_lang.value = if (tag.isO3Language.isNotEmpty()) tag else Locale.getDefault()
 	}
 
 	fun save(call: (Boolean) -> Unit) {
-		viewModelScope.launch {
-			val imageID = _imgPhrase.value?.let {
-				provider.images.addAsync(Image(0, Base64.encodeToString(it, Base64.DEFAULT))).await()
-			}
-			val pronounceID = provider.pronounce.addAsync(Pronunciation(0, Base64.encodeToString(_tempAudioFile.readBytes(), Base64.DEFAULT))).await()
-			val phrase = Phrase(
-				id = 0,
-				phrase = _phrase.value,
-				definition = _definition.value,
-				lang = lang.first().toString() + "-" + _country.value.toString(),
-				idPronounce = pronounceID.toInt(),
-				idImage = imageID?.toInt(),
-				timeChange = Date().time
-			)
+		if (_phrase.value.isNotEmpty()) viewModelScope.launch {
+			val phrase = createPhrase(0)
 			val res = provider.phrase.addAsync(phrase).await()
 			call(res > 0)
-		}
+		} else call(false)
 	}
 
 	fun update(id: Int, call: (Boolean) -> Unit) {
-		viewModelScope.launch {
-			val imageID = _imgPhrase.value?.let {
-				provider.images.addAsync(Image(0, Base64.encodeToString(it, Base64.DEFAULT))).await()
-			}
-			val pronounceID = provider.pronounce.addAsync(Pronunciation(0, Base64.encodeToString(_tempAudioFile.readBytes(), Base64.DEFAULT))).await()
-			val phrase = Phrase(
-				id = id,
-				phrase = _phrase.value,
-				definition = _definition.value,
-				lang = lang.first().toString() + "-" + _country.value.toString(),
-				idPronounce = pronounceID.toInt(),
-				idImage = imageID?.toInt(),
-				timeChange = Date().time
-			)
+		if (_phrase.value.isNotEmpty()) viewModelScope.launch {
+			val phrase = createPhrase(id)
 			val res = provider.phrase.updateAsync(phrase).await()
-			call(res)
 			provider.clean()
+			call(res)
+		} else call(false)
+	}
+
+	private suspend fun createPhrase(id: Int = 0): Phrase {
+		val imageID = _imgPhrase.value?.let {
+			if (it.isNotEmpty()) provider.images.addAsync(Image(0, it.toStringBase64())).await()
+			else null
 		}
+		val pronounceID = if (_tempAudioFile.length() > 0)
+			provider.pronounce.addAsync(Pronunciation(0, _tempAudioFile.readBytes().toStringBase64())).await()
+		else null
+		return Phrase(
+			id = id,
+			phrase = _phrase.value,
+			definition = _definition.value,
+			lang = lang.first().isO3Language + "-" + _country.value.toString(),
+			idPronounce = pronounceID?.toInt(),
+			idImage = imageID?.toInt(),
+			timeChange = Date().time
+		)
 	}
 
 	fun delete(id: Int, call: (Boolean) -> Unit) {
 		viewModelScope.launch {
-			val res = provider.phrase.deleteAsync(Phrase(id, "", null, null, null, null, 0)).await()
-			call(res)
+			val res = provider.phrase.deleteAsync(Phrase(id)).await()
 			provider.clean()
+			call(res)
 		}
 	}
+
 }

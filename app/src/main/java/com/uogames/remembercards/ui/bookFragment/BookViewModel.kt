@@ -1,5 +1,6 @@
 package com.uogames.remembercards.ui.bookFragment
 
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Base64
 import androidx.lifecycle.ViewModel
@@ -23,6 +24,7 @@ class BookViewModel @Inject constructor(
 	val size = _size.asStateFlow()
 
 	private val likeSize = like.flatMapLatest { provider.phrase.countFlow(it) }
+
 	init {
 		likeSize.onEach { _size.value = it }.launchIn(viewModelScope)
 	}
@@ -42,11 +44,16 @@ class BookViewModel @Inject constructor(
 		BitmapFactory.decodeByteArray(data, 0, data.size)
 	}
 
+	fun getImage(phrase: Phrase, call: (Bitmap?) -> Unit) {
+		CoroutineScope(Dispatchers.IO)
+		viewModelScope.launch {
+			call(getImage(phrase).first())
+		}
+	}
+
 	fun delete(phrase: Phrase, result: (Boolean) -> Unit = {}) = provider.phrase.delete(phrase, result)
 
 	fun updateCard(phrase: Phrase, result: (Boolean) -> Unit = {}) = provider.phrase.update(phrase, result)
-
-
 
 
 }

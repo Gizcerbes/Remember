@@ -25,9 +25,14 @@
 		tools:layout="@layout/fragment_result_mistakes"/>
 	<fragment
 		android:id="@+id/addPhraseFragment"
-		android:name="com.uogames.remembercards.ui.addPhraseFragment.AddPhraseFragment"
+		android:name="com.uogames.remembercards.ui.editPhraseFragment.EditPhraseFragment"
 		tools:layout="@layout/fragment_edit"
 		android:label="AddPhraseFragment" />
+	<fragment
+		android:id="@+id/cropFragment"
+		android:name="com.uogames.remembercards.ui.cropFragment.CropFragment"
+		tools:layout="@layout/fragment_crop"
+		android:label="CropFragment" />
 
 
 </navigation>

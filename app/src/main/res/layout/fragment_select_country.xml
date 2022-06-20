@@ -7,7 +7,7 @@
 
 
 	<androidx.constraintlayout.widget.ConstraintLayout
-		android:id="@+id/bottom_bar"
+		android:id="@+id/top_bar"
 		style="@style/Theme.RememberCards.AppBar"
 		android:layout_width="match_parent"
 		app:layout_constraintBaseline_toTopOf="parent">
@@ -35,7 +35,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:layout_above="@id/til_edit"
-		android:layout_below="@id/bottom_bar"
+		android:layout_below="@id/top_bar"
 		tools:listitem="@layout/card_language" />
 
 	<com.google.android.material.textfield.TextInputLayout

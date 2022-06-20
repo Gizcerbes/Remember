@@ -44,9 +44,6 @@ class MainNaviFragment : DaggerFragment() {
             bind.bottomNavigation.visibility = if (it) View.GONE else View.VISIBLE
         }.launchIn(lifecycleScope)
 
-        view.viewTreeObserver.addOnGlobalLayoutListener {
-			globalViewModel.setShowKeyboard(view)
-        }
 
     }
 
@@ -60,6 +57,4 @@ class MainNaviFragment : DaggerFragment() {
         }
 
     }
-
-
 }

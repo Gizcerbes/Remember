@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	style="@style/Theme.RememberCards.CardView"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	app:contentPadding="0dp">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical">
+
+
+		<androidx.constraintlayout.widget.ConstraintLayout
+			android:orientation="horizontal"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content">
+
+			<ImageView
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="parent"
+				app:layout_constraintEnd_toStartOf="@id/img_phrase_second"
+				android:id="@+id/img_phrase_first"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:adjustViewBounds="true"
+				android:src="@drawable/noise"
+				android:visibility="visible" />
+
+			<ImageView
+				app:layout_constraintStart_toEndOf="@id/img_phrase_first"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintTop_toTopOf="parent"
+				android:id="@+id/img_phrase_second"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:adjustViewBounds="true"
+				android:src="@drawable/noise"
+				android:visibility="visible" />
+
+		</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical">
+
+			<androidx.constraintlayout.widget.ConstraintLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content">
+
+				<TextView
+					android:id="@+id/txt_lang"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginStart="7dp"
+					android:layout_marginTop="7dp"
+					android:textAppearance="?attr/textAppearanceBody1"
+					app:layout_constraintBottom_toTopOf="@id/l_first"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintTop_toTopOf="parent"
+					tools:text="English" />
+
+				<LinearLayout
+					android:id="@+id/l_first"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:orientation="horizontal"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintTop_toBottomOf="@id/txt_lang">
+
+					<ImageButton
+						android:id="@+id/btn_sound"
+						android:layout_width="@dimen/card_button"
+						android:layout_height="@dimen/card_button"
+						android:layout_margin="7dp"
+						android:visibility="visible"
+						android:background="@drawable/list_music_play"
+						app:layout_constraintStart_toStartOf="parent"
+						app:layout_constraintTop_toBottomOf="@id/txt_lang_second">
+
+					</ImageButton>
+
+					<TextView
+						android:id="@+id/txt_phrase"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_marginTop="7dp"
+						android:layout_marginEnd="7dp"
+						android:textAppearance="?attr/textAppearanceHeadline6"
+						app:layout_constraintBottom_toBottomOf="parent"
+						app:layout_constraintEnd_toEndOf="parent"
+						app:layout_constraintStart_toEndOf="@+id/btn_sound_second"
+						app:layout_constraintTop_toBottomOf="@id/txt_lang_second"
+						tools:text="Noise " />
+
+				</LinearLayout>
+
+			</androidx.constraintlayout.widget.ConstraintLayout>
+
+		</LinearLayout>
+
+		<com.google.android.material.divider.MaterialDivider
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="7dp"
+			android:layout_marginEnd="7dp" />
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="7dp"
+			android:orientation="vertical">
+
+			<androidx.constraintlayout.widget.ConstraintLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content">
+
+				<TextView
+					android:id="@+id/txt_lang_second"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginStart="7dp"
+					android:layout_marginTop="7dp"
+					android:textAppearance="?attr/textAppearanceBody1"
+					app:layout_constraintBottom_toTopOf="@id/l_two"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintTop_toTopOf="parent"
+					tools:text="English" />
+
+				<LinearLayout
+					android:id="@+id/l_two"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:orientation="horizontal"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintTop_toBottomOf="@id/txt_lang_second">
+
+					<ImageButton
+						android:id="@+id/btn_sound_second"
+						style="@style/Theme.RememberCards.CardView.Button"
+						android:layout_width="@dimen/card_button"
+						android:layout_height="@dimen/card_button"
+						android:layout_margin="7dp"
+						android:layout_marginTop="7dp"
+						android:visibility="visible"
+						android:background="@drawable/list_music_play"
+						app:layout_constraintStart_toStartOf="parent"
+						app:layout_constraintTop_toBottomOf="@id/txt_lang_second">
+
+					</ImageButton>
+
+					<TextView
+						android:id="@+id/txt_phrase_second"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_marginTop="7dp"
+						android:layout_marginEnd="7dp"
+						android:textAppearance="?attr/textAppearanceHeadline6"
+						app:layout_constraintBottom_toBottomOf="parent"
+						app:layout_constraintEnd_toEndOf="parent"
+						app:layout_constraintStart_toEndOf="@+id/btn_sound_second"
+						app:layout_constraintTop_toBottomOf="@id/txt_lang_second"
+						tools:text="Noise " />
+
+				</LinearLayout>
+
+			</androidx.constraintlayout.widget.ConstraintLayout>
+
+		</LinearLayout>
+
+
+	</LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

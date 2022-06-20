@@ -61,12 +61,12 @@ abstract class ChangeableAdapter<VH : ChangeableAdapter.ChangeableViewHolder> :
 			val param = view.layoutParams
 			param.height = ViewGroup.LayoutParams.WRAP_CONTENT
 			view.layoutParams = param
-			show(typeFragment)
+			if (adapterPosition != -1) show(typeFragment)
 		}
 
 		abstract fun show(typeFragment: Int)
 
-		fun onDetach(){
+		fun onDetach() {
 			cardScope.cancel()
 			onDetached()
 		}

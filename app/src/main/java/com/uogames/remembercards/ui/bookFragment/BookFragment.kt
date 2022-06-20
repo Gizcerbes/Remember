@@ -13,10 +13,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentBookBinding
-import com.uogames.remembercards.ui.addPhraseFragment.AddPhraseViewModel
+import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseViewModel
 import com.uogames.remembercards.utils.observeWhile
 import dagger.android.support.DaggerFragment
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
@@ -30,7 +29,7 @@ class BookFragment : DaggerFragment() {
 	lateinit var globalViewModel: GlobalViewModel
 
 	@Inject
-	lateinit var addPhraseViewModel: AddPhraseViewModel
+	lateinit var addPhraseViewModel: EditPhraseViewModel
 
 	lateinit var bind: FragmentBookBinding
 
@@ -39,8 +38,6 @@ class BookFragment : DaggerFragment() {
 	}
 
 	private val adapter by lazy { BookAdapter(bookViewModel) }
-
-	private val isSearch = MutableStateFlow(false)
 
 	override fun onCreateView(
 		inflater: LayoutInflater,
@@ -68,8 +65,6 @@ class BookFragment : DaggerFragment() {
 			bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
 		}.launchIn(lifecycleScope)
 
-		//TransitionManager.beginDelayedTransition(bind.root, AutoTransition())
-
 		globalViewModel.isShowKey.observeWhile(lifecycleScope){
 			bind.tilSearch.visibility = if (it) View.VISIBLE else View.GONE
 			bind.btnAdd.visibility = if (it) View.GONE else View.VISIBLE
@@ -81,7 +76,6 @@ class BookFragment : DaggerFragment() {
 		}
 
 		bind.btnSearch.setOnClickListener {
-			//isSearch.value = !isSearch.value
 			if (!globalViewModel.isShowKey.value) {
 				bind.tilSearch.requestFocus()
 				imm.showSoftInput(bind.tilSearch.editText, InputMethodManager.SHOW_IMPLICIT)
@@ -90,7 +84,7 @@ class BookFragment : DaggerFragment() {
 			}
 		}
 
-		bind.btnAdd.setOnClickListener { openAddFragment() }
+		bind.btnAdd.setOnClickListener { openEditFragment() }
 
 		bind.tilSearch.editText?.doOnTextChanged { text, _, _, _ ->
 			bookViewModel.like.value = text.toString()
@@ -99,7 +93,7 @@ class BookFragment : DaggerFragment() {
 		bind.recycler.adapter = adapter
 	}
 
-	private fun openAddFragment() {
+	private fun openEditFragment() {
 		addPhraseViewModel.reset()
 		requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.addPhraseFragment)
 	}

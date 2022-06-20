@@ -14,7 +14,7 @@
 		app:layout_constraintBaseline_toTopOf="parent">
 
 		<TextView
-			android:text="@string/your_book"
+			android:text="@string/your_cards"
 			android:layout_marginStart="13dp"
 			android:textAppearance="?attr/textAppearanceHeadline6"
 			app:layout_constraintStart_toStartOf="parent"
@@ -90,7 +90,7 @@
 		android:layout_below="@id/top_bar"
 		android:orientation="vertical"
 		app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-		tools:listitem="@layout/card_phrase" />
+		tools:listitem="@layout/card_card" />
 
 
 	<TextView

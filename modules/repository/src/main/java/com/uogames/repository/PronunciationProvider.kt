@@ -12,10 +12,6 @@ class PronunciationProvider(
 	private val database: DatabaseRepository
 ) : Provider() {
 
-	init {
-		ioScope.launch { Log.e("TAG", ": ${database.pronunciationRepository.countFlow().first()}", ) }
-	}
-
 	fun addAsync(pronunciation: Pronunciation) = ioScope.async { database.pronunciationRepository.insert(pronunciation) }
 
 	fun deleteAsync(pronunciation: Pronunciation) = ioScope.async { database.pronunciationRepository.delete(pronunciation) }

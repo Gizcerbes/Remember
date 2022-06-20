@@ -112,7 +112,7 @@ enum class Languages(val language: String, val isoCode: String) {
 	MAORI("Te reo Māori", "mi"),
 	MARATHI("मराठी", "mr"),
 	MARSHALLESE("Kajin M̧ajeļ", "mh"),
-	MONGOLIAN("монгол хэл", ""),
+	MONGOLIAN("монгол хэл", "khk"),
 	NAURU("Ekaiairũ Naoero", "na"),
 	NAVAJO("Diné bizaad", "nv"),
 	NORTH_NDEBELE("Zimbabwe Ndebele", "nd"),

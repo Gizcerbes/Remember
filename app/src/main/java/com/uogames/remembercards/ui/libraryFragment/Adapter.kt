@@ -19,12 +19,8 @@ class Adapter : RecyclerView.Adapter<Adapter.Holder>() {
 
 		fun show() {
 			CoroutineScope(Dispatchers.Main).launch {
-
-
 				val country = Countries.values()[adapterPosition]
-
 				bind.imgPhrase.setImageResource(country.res)
-				bind.imgCountry.setImageResource(country.res)
 				bind.txtPhrase.text = country.country[0].value
 
 			}
