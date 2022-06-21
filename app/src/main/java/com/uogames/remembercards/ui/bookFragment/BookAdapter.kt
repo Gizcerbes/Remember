@@ -1,6 +1,7 @@
 package com.uogames.remembercards.ui.bookFragment
 
 import android.graphics.drawable.AnimationDrawable
+import android.media.MediaDataSource
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
@@ -85,7 +86,8 @@ class BookAdapter(
 				infoBind.imgPhrase.visibility = View.VISIBLE
 				infoBind.imgPhrase.setImageResource(R.drawable.noise)
 				model.getImage(phrase){
-					infoBind.imgPhrase.setImageBitmap(it)
+					//infoBind.imgPhrase.setImageBitmap(it)
+					infoBind.imgPhrase.setImageURI(it)
 				}
 			} ?: run { infoBind.imgPhrase.visibility = View.GONE }
 		}
@@ -94,11 +96,11 @@ class BookAdapter(
 			phrase.idPronounce?.let {
 				infoBind.btnSound.visibility = View.VISIBLE
 				infoBind.btnSound.setOnClickListener {
-					cardScope.launch {
+					cardScope.launch(Dispatchers.IO) {
 						val audio = model.getAudio(phrase).first()
 						player?.stop()
 						val player = MediaPlayer()
-						player.setDataSource(audio)
+						player.setDataSource(itemView.context, audio)
 						try {
 							player.prepare()
 						} catch (e :Exception){
@@ -119,10 +121,9 @@ class BookAdapter(
 
 		private fun showLang(phrase: Phrase) {
 			phrase.lang?.let {
-				Log.e("TAG", "showLang: $it", )
 				val data = it.split("-")
 				if (data.isNotEmpty()) try {
-					infoBind.txtLang.text = Locale.forLanguageTag(data[0]).displayLanguage
+					infoBind.txtLang.text = Locale(data[0]).displayLanguage
 				} catch (e: Exception) {
 				}
 			}

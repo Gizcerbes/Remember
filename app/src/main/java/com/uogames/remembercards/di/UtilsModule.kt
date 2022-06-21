@@ -35,8 +35,8 @@ class UtilsModule {
 
 	@Provides
 	@Singleton
-	fun provideAddPhraseViewModel(context: Context): EditPhraseViewModel =
-		EditPhraseViewModel(DataProvider.get(context))
+	fun provideAddPhraseViewModel(app: Application): EditPhraseViewModel =
+		EditPhraseViewModel(DataProvider.get(app.applicationContext),app)
 
 	@Provides
 	@Singleton

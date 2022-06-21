@@ -23,7 +23,7 @@ class ImageRepository(private val imageDAO: ImageDAO) {
 
 	fun getByPhrase(phrase: Phrase) = phrase.idImage?.let { id ->
 		imageDAO.getByID(id).map { it?.toDTO() }
-	} ?: MutableStateFlow(Image(0, "")).asStateFlow()
+	} ?: MutableStateFlow(null).asStateFlow()
 
 	fun getByCard(card: NewCard) = card.idImgBase64?.let { id ->
 		imageDAO.getByID(id).map { it?.toDTO() }

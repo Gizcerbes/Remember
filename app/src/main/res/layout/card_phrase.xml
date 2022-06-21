@@ -17,8 +17,8 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:adjustViewBounds="true"
-			android:visibility="visible"
-			android:src="@drawable/noise" />
+			android:src="@drawable/noise"
+			android:visibility="visible" />
 
 		<LinearLayout
 			android:layout_width="match_parent"
@@ -31,7 +31,7 @@
 
 				<com.google.android.material.card.MaterialCardView
 					android:id="@+id/btn_sound"
-					style="@style/Theme.RememberCards.CardView.Button"
+					style="@style/Theme.RememberCards.CardView.Button.Icon"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_margin="7dp"
@@ -47,11 +47,9 @@
 						android:background="@drawable/list_music_play" />
 				</com.google.android.material.card.MaterialCardView>
 
-
-
 				<com.google.android.material.card.MaterialCardView
 					android:id="@+id/btn_edit"
-					style="@style/Theme.RememberCards.CardView.Button"
+					style="@style/Theme.RememberCards.CardView.Button.Icon"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_margin="7dp"

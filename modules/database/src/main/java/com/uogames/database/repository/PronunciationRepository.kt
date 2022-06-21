@@ -25,7 +25,7 @@ class PronunciationRepository(val dao: PronunciationDAO) {
 
 	fun getByPhrase(phrase: Phrase) = phrase.idPronounce?.let {
 		getById(it)
-	} ?: MutableStateFlow(Pronunciation(0, "")).asStateFlow()
+	} ?: MutableStateFlow(null).asStateFlow()
 
 	suspend fun clean() = dao.clean()
 

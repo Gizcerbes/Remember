@@ -16,7 +16,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.RememberCards">
         <activity
-            android:windowSoftInputMode="stateVisible"
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

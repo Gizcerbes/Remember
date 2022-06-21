@@ -22,9 +22,7 @@ import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentEditBinding
 import com.uogames.remembercards.ui.cropFragment.CropViewModel
-import com.uogames.remembercards.utils.FileChooser
-import com.uogames.remembercards.utils.Permission
-import com.uogames.remembercards.utils.observeWhile
+import com.uogames.remembercards.utils.*
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -75,8 +73,12 @@ class EditPhraseFragment : DaggerFragment() {
 		id?.let {
 			bind.txtFragmentName.text = getString(R.string.edit_card)
 			bind.btnDelete.visibility = View.VISIBLE
-			viewModel.reset()
-			viewModel.loadByID(it)
+			cropViewModel.getData()?.let { bitmap ->
+				viewModel.setBitmapImage(bitmap)
+				cropViewModel.reset()
+			}.ifNull {
+				viewModel.loadByID(it)
+			}
 			bind.btnSave.setOnClickListener {
 				viewModel.update(id) { res ->
 					if (res) findNavController().popBackStack()
@@ -87,11 +89,18 @@ class EditPhraseFragment : DaggerFragment() {
 					if (res) findNavController().popBackStack()
 				}
 			}
-		} ?: bind.btnSave.setOnClickListener {
-			viewModel.save {
-				if (it) findNavController().popBackStack()
+		}.ifNull {
+			bind.btnSave.setOnClickListener {
+				viewModel.save { res ->
+					if (res) findNavController().popBackStack()
+				}
+			}
+			cropViewModel.getData()?.let { bitmap ->
+				viewModel.setBitmapImage(bitmap)
+				cropViewModel.reset()
 			}
 		}
+
 
 		bind.btnEditAudio.setOnClickListener {
 			Permission.RECORD_AUDIO.requestPermission(requireActivity()) {
@@ -117,7 +126,7 @@ class EditPhraseFragment : DaggerFragment() {
 		}
 		bind.btnEditDefinition.setOnClickListener {
 			textWatcher =
-				setTextWatcher(textWatcher, viewModel.definition.value) { text, _, _, _ ->
+				setTextWatcher(textWatcher, viewModel.definition.value.orEmpty()) { text, _, _, _ ->
 					text?.let { viewModel.setDefinition(it.toString()) }
 				}
 		}
@@ -155,10 +164,6 @@ class EditPhraseFragment : DaggerFragment() {
 			bind.tilEdit.visibility = if (it) View.VISIBLE else View.GONE
 		}
 
-		cropViewModel.getData()?.let {
-			viewModel.setBitmapImage(it)
-			cropViewModel.reset()
-		}
 
 		viewModel.imgPhrase.observeWhile(lifecycleScope) {
 			if (it != null) {
@@ -175,7 +180,7 @@ class EditPhraseFragment : DaggerFragment() {
 			bind.txtPhrase.text = it.ifEmpty { requireContext().getString(R.string.phrase2) }
 		}
 		viewModel.definition.observeWhile(lifecycleScope) {
-			bind.txtDefinition.text = it.ifEmpty { requireContext().getString(R.string.definition) }
+			bind.txtDefinition.text = it.ifNullOrEmpty { requireContext().getString(R.string.definition) }
 		}
 
 		viewModel.lang.observeWhile(lifecycleScope) {
@@ -230,6 +235,5 @@ class EditPhraseFragment : DaggerFragment() {
 		bind.tilEdit.editText?.removeTextChangedListener(textWatcher)
 		recorder?.let { viewModel.stopRecordAudio(it) }
 	}
-
 
 }

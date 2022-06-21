@@ -13,6 +13,7 @@ class BitmapCropper {
 
 	private var area: Area
 	private var preview: Bitmap
+	private var canvas: Canvas
 
 	private var crop: Bitmap? = null
 	private var previewCrop: Bitmap? = null
@@ -29,16 +30,12 @@ class BitmapCropper {
 		val newHeight = src.height * previewWidth / src.width
 		preview = Bitmap.createScaledBitmap(src, previewWidth.toInt(), newHeight.toInt(), true)
 		area = Area(preview.width.toFloat(), preview.height.toFloat(), 0.1f, 16f / 9f)
+		previewCrop =
+			Bitmap.createBitmap(preview.width, preview.height, Bitmap.Config.ARGB_8888)
+		canvas = Canvas(previewCrop!!)
 	}
 
-	constructor(src: Bitmap, area: Area) {
-		this.src = src
-		val newHeight = src.height * previewWidth / src.width
-		preview = Bitmap.createScaledBitmap(src, previewWidth.toInt(), newHeight.toInt(), true)
-		this.area = Area(preview.width.toFloat(), preview.height.toFloat(), 0.1f, 16f / 9f)
-		this.area.changePosition(this.area.cursorX - area.cursorX, this.area.cursorY - area.cursorY)
-		this.area.changeDiagonal(area.diagonal - this.area.diagonal)
-	}
+
 
 	fun getCrop(): Bitmap {
 		area.resize()
@@ -59,10 +56,6 @@ class BitmapCropper {
 	fun getPreview(): Bitmap {
 		area.resize()
 		if (previewChange) {
-			previewCrop =
-				Bitmap.createBitmap(preview.width, preview.height, Bitmap.Config.ARGB_8888)
-			val canvas = Canvas(previewCrop!!)
-
 			canvas.drawBitmap(preview, 0f, 0f, null)
 			val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
 				style = Paint.Style.FILL

@@ -4,6 +4,7 @@
     <bytecodeTargetLevel target="1.7">
       <module name="Remember_Cards.app" target="11" />
       <module name="Remember_Cards.modules.database" target="11" />
+      <module name="Remember_Cards.modules.fileDir" target="11" />
       <module name="Remember_Cards.modules.flags" target="11" />
       <module name="Remember_Cards.modules.oxfordLibrery" target="11" />
       <module name="Remember_Cards.modules.repository" target="11" />

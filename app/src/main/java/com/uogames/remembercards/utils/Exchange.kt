@@ -43,3 +43,11 @@ fun <T> Flow<T>.observeWhile(
 fun ByteArray.toStringBase64(): String = Base64.encodeToString(this, Base64.DEFAULT)
 
 fun String.toByteArrayBase64(): ByteArray = Base64.decode(this, Base64.DEFAULT)
+
+inline fun <C> C?.ifNull(defaultValue: () -> C): C =
+	this ?: defaultValue()
+
+inline fun <C : CharSequence?> C.ifNullOrEmpty(defaultValue: () -> C): C {
+	return if (isNullOrEmpty()) defaultValue()
+	else this
+}

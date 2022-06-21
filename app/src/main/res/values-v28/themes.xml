@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<style name="Theme.RememberCards.CardView.Button.Icon" parent="Theme.RememberCards.CardView.Button">
+		<item name="android:outlineSpotShadowColor">@color/transparent</item>
+		<item name="android:outlineAmbientShadowColor">@color/transparent</item>
+		<item name="cardBackgroundColor">@color/transparent</item>
+	</style>
+</resources>
