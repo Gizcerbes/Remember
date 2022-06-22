@@ -68,13 +68,13 @@ class GameYesOrNotViewModel @Inject constructor(
 	}
 
 	fun getRandomAnswerCard(call: (AnswersCard) -> Unit) {
-		ioScope.launch {
-			val firsCard: Card = provider.cards.getRandomCardAsync().await() ?: Card()
-			val secondCard: Card =
-				provider.cards.getRandomCardWithoutAsync(firsCard.phrase, firsCard.translate)
-					.await() ?: Card()
-			launch(Dispatchers.Main) { call(AnswersCard(firsCard, secondCard, false)) }
-		}
+//		ioScope.launch {
+//			val firsCard: Card = provider.cards.getRandomCardAsync().await() ?: Card()
+//			val secondCard: Card =
+//				provider.cards.getRandomCardWithoutAsync(firsCard.phrase, firsCard.translate)
+//					.await() ?: Card()
+//			launch(Dispatchers.Main) { call(AnswersCard(firsCard, secondCard, false)) }
+//		}
 	}
 
 	fun setAnswer(answer: AnswersCard) {

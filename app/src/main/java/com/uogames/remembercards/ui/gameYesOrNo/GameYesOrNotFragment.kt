@@ -89,24 +89,24 @@ class GameYesOrNotFragment : DaggerFragment() {
 	}
 
 	private fun setData(card: GameYesOrNotViewModel.AnswersCard) {
-		bind.txtPhrase.text = card.firs.phrase
-		if ((Math.random() * Int.MAX_VALUE).toInt() % 2 == 0) {
-			bind.txtTranslate.text = card.firs.translate
-		} else {
-			bind.txtTranslate.text = card.second.translate
-		}
-		bind.btnYes.setOnClickListener {
-			card.truth = bind.txtTranslate.text == card.firs.translate
-			gameModel.setAnswer(card)
-			gameModel.getRandomAnswerCard { setData(it) }
-			reaction(card.truth)
-		}
-		bind.btnNo.setOnClickListener {
-			card.truth = bind.txtTranslate.text == card.second.translate
-			gameModel.setAnswer(card)
-			gameModel.getRandomAnswerCard { setData(it) }
-			reaction(card.truth)
-		}
+//		bind.txtPhrase.text = card.firs.phrase
+//		if ((Math.random() * Int.MAX_VALUE).toInt() % 2 == 0) {
+//			bind.txtTranslate.text = card.firs.translate
+//		} else {
+//			bind.txtTranslate.text = card.second.translate
+//		}
+//		bind.btnYes.setOnClickListener {
+//			card.truth = bind.txtTranslate.text == card.firs.translate
+//			gameModel.setAnswer(card)
+//			gameModel.getRandomAnswerCard { setData(it) }
+//			reaction(card.truth)
+//		}
+//		bind.btnNo.setOnClickListener {
+//			card.truth = bind.txtTranslate.text == card.second.translate
+//			gameModel.setAnswer(card)
+//			gameModel.getRandomAnswerCard { setData(it) }
+//			reaction(card.truth)
+//		}
 	}
 
 	private fun reaction(boolean: Boolean) {

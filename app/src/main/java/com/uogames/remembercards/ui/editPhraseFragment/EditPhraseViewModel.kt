@@ -5,22 +5,17 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaRecorder
-import android.net.Uri
-import android.util.Base64
 import android.util.Log
 import androidx.core.net.toFile
 import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.uogames.dto.Image
 import com.uogames.dto.Phrase
 import com.uogames.dto.Pronunciation
 import com.uogames.flags.Countries
-import com.uogames.remembercards.App
 import com.uogames.remembercards.utils.MediaBytesSource
 import com.uogames.remembercards.utils.ifNull
-import com.uogames.remembercards.utils.toStringBase64
 import com.uogames.repository.DataProvider
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -122,7 +117,7 @@ class EditPhraseViewModel @Inject constructor(
 			_imgPhrase.value = provider.images.getByPhrase(phrase).first()?.let { it.imgBase64.toUri().toFile().readBytes() }
 			val audio = provider.pronounce.getByPhrase(phrase).first()
 			_isFileWriting.value = true
-			_tempAudioFile.writeBytes(audio?.dataBase64?.toUri()?.toFile()?.readBytes().ifNull { ByteArray(0) })
+			audio?.dataBase64?.let { if (it.isNotEmpty()) _tempAudioFile.writeBytes(it.toUri().toFile().readBytes()) }
 			_imgChanged.value = false
 			_audioChanged.value = false
 			_isFileWriting.value = false
@@ -200,6 +195,7 @@ class EditPhraseViewModel @Inject constructor(
 			val phrase = build(id)
 			val res = provider.phrase.updateAsync(phrase).await()
 			call(res)
+			provider.clean()
 		} else call(false)
 	}
 
@@ -214,15 +210,7 @@ class EditPhraseViewModel @Inject constructor(
 	private suspend fun savePronounceToId(): Int? {
 		return viewModelScope.async(Dispatchers.IO) {
 			if (_audioChanged.value && _tempAudioFile.length() > 0) {
-				val id = provider.pronounce.addAsync(Pronunciation(0, "")).await().toInt()
-				val fileName = "$id.gpp"
-				getContext().openFileOutput(fileName, Context.MODE_PRIVATE).use {
-					it.write(_tempAudioFile.readBytes())
-					it.flush()
-					it.close()
-				}
-				provider.pronounce.updateAsync(Pronunciation(id, File(getContext().filesDir, fileName).toUri().toString())).await()
-				id
+				provider.pronounce.addAsync(Pronunciation(0, ""), _tempAudioFile.readBytes()).await().toInt()
 			} else {
 				phraseObject.idPronounce.value
 			}
@@ -232,18 +220,7 @@ class EditPhraseViewModel @Inject constructor(
 	private suspend fun saveImageToId(): Int? {
 		return viewModelScope.async(Dispatchers.IO) {
 			if (_imgChanged.value) {
-				_imgPhrase.value?.let {
-					val id = provider.images.addAsync(Image(0, "")).await().toInt()
-					val fileName = "$id.png"
-					getContext().openFileOutput(fileName, Context.MODE_PRIVATE).use {
-						it.write(_imgPhrase.value)
-						it.flush()
-						it.close()
-					}
-					provider.images.updateAsync(Image(id, File(getContext().filesDir, fileName).toUri().toString())).await()
-					Log.e("TAG", ": $id", )
-					id
-				}
+				_imgPhrase.value?.let { provider.images.addAsync(Image(0, ""), it).await() }
 			} else {
 				phraseObject.idImage.value
 			}
@@ -254,6 +231,7 @@ class EditPhraseViewModel @Inject constructor(
 		viewModelScope.launch {
 			val res = provider.phrase.deleteAsync(Phrase(id)).await()
 			call(res)
+			provider.clean()
 		}
 	}
 

@@ -58,16 +58,16 @@ class GameYesOrNoAdapter(
 		}
 
 		private fun showResult(){
-			val answer = model.getAnswer(adapterPosition)
-			resultBind.txtPhrase.text = answer.firs.phrase
-			resultBind.txtTranslate.text = answer.firs.translate
-			if (answer.truth){
-				resultBind.txtAnswer.text = answer.firs.translate
-				resultBind.txtAnswer.setTextColor(ContextCompat.getColor(itemView.context, R.color.darkGreen))
-			} else {
-				resultBind.txtAnswer.text = answer.second.translate
-				resultBind.txtAnswer.setTextColor(ContextCompat.getColor(itemView.context, R.color.redwood))
-			}
+//			val answer = model.getAnswer(adapterPosition)
+//			resultBind.txtPhrase.text = answer.firs.phrase
+//			resultBind.txtTranslate.text = answer.firs.translate
+//			if (answer.truth){
+//				resultBind.txtAnswer.text = answer.firs.translate
+//				resultBind.txtAnswer.setTextColor(ContextCompat.getColor(itemView.context, R.color.darkGreen))
+//			} else {
+//				resultBind.txtAnswer.text = answer.second.translate
+//				resultBind.txtAnswer.setTextColor(ContextCompat.getColor(itemView.context, R.color.redwood))
+//			}
 		}
 
 

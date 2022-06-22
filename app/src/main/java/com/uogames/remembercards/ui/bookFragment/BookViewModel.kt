@@ -1,18 +1,9 @@
 package com.uogames.remembercards.ui.bookFragment
 
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
-import android.util.Base64
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.uogames.dto.Card
 import com.uogames.dto.Phrase
-import com.uogames.remembercards.utils.MediaBytesSource
-import com.uogames.remembercards.utils.ifNull
-import com.uogames.remembercards.utils.toByteArrayBase64
 import com.uogames.repository.DataProvider
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*

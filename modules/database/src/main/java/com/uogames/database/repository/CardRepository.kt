@@ -1,19 +1,18 @@
 package com.uogames.database.repository
 
-import com.uogames.database.dao.NewCardDAO
-import com.uogames.database.map.NewCardMap.toDTO
-import com.uogames.database.map.NewCardMap.toEntity
-import com.uogames.dto.NewCard
-import kotlinx.coroutines.flow.Flow
+import com.uogames.database.dao.CardDAO
+import com.uogames.database.map.CardMap.toDTO
+import com.uogames.database.map.CardMap.toEntity
+import com.uogames.dto.Card
 import kotlinx.coroutines.flow.map
 
-class CardRepository(private val dao: NewCardDAO) {
+class CardRepository(private val dao: CardDAO) {
 
-	suspend fun insert(card: NewCard) = dao.insert(card.toEntity())
+	suspend fun insert(card: Card) = dao.insert(card.toEntity())
 
-	suspend fun delete(card: NewCard) = dao.delete(card.toEntity()) > 0
+	suspend fun delete(card: Card) = dao.delete(card.toEntity()) > 0
 
-	suspend fun update(card: NewCard) = dao.update(card.toEntity()) > 0
+	suspend fun update(card: Card) = dao.update(card.toEntity()) > 0
 
 	fun getCountFlow(like:String) = dao.getCountFlow(like)
 

@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<dimen name="card_button">30dp</dimen>
+	<dimen name="testHeight">30dp</dimen>
+	<dimen name="testWidth">30dp</dimen>
 </resources>

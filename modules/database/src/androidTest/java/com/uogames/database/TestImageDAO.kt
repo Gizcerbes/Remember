@@ -1,11 +1,10 @@
 package com.uogames.database
 
-import android.util.Log
 import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.uogames.database.entity.ImageEntity
-import com.uogames.database.entity.NewCardEntity
+import com.uogames.database.entity.CardEntity
 import com.uogames.database.entity.PhraseEntity
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -42,14 +41,14 @@ class TestImageDAO {
 		db.phraseDAO().insert(PhraseEntity(1,"1", null,null, null, 1, 0))
 		db.phraseDAO().insert(PhraseEntity(2,"2", null,null, null, 2, 0))
 
-		db.newCardDAO().insert(NewCardEntity(1,1,2,4))
+		db.cardDAO().insert(CardEntity(1,1,2,4))
 	}
 
 	@Test
 	fun getFree()= runBlocking {
 		setData()
 		Assert.assertEquals(db.imageDAO().count().first(), 4)
-		db.imageDAO().clean()
+		db.imageDAO().freeId()
 		Assert.assertEquals(db.imageDAO().count().first(), 3)
 	}
 

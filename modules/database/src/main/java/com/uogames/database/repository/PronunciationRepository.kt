@@ -27,6 +27,6 @@ class PronunciationRepository(val dao: PronunciationDAO) {
 		getById(it)
 	} ?: MutableStateFlow(null).asStateFlow()
 
-	suspend fun clean() = dao.clean()
+	suspend fun freeId() = dao.freePronounce().map { it.toDTO() }
 
 }

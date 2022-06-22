@@ -1,7 +1,5 @@
 package com.uogames.remembercards.ui.bookFragment
 
-import android.graphics.drawable.AnimationDrawable
-import android.media.MediaDataSource
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
@@ -11,14 +9,14 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.uogames.dto.Phrase
-import com.uogames.flags.Languages
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardPhraseBinding
 import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseFragment
 import com.uogames.remembercards.utils.ChangeableAdapter
+import com.uogames.remembercards.utils.asAnimationDrawable
+import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observeWhile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -82,19 +80,17 @@ class BookAdapter(
 		}
 
 		private fun showImage(phrase: Phrase) {
-			phrase.idImage?.let {
-				infoBind.imgPhrase.visibility = View.VISIBLE
+			infoBind.imgPhrase.visibility = phrase.idImage?.let {
 				infoBind.imgPhrase.setImageResource(R.drawable.noise)
-				model.getImage(phrase){
-					//infoBind.imgPhrase.setImageBitmap(it)
+				model.getImage(phrase) {
 					infoBind.imgPhrase.setImageURI(it)
 				}
-			} ?: run { infoBind.imgPhrase.visibility = View.GONE }
+				View.VISIBLE
+			}.ifNull { View.GONE }
 		}
 
 		private fun showPronounce(phrase: Phrase) {
-			phrase.idPronounce?.let {
-				infoBind.btnSound.visibility = View.VISIBLE
+			infoBind.btnSound.visibility = phrase.idPronounce?.let {
 				infoBind.btnSound.setOnClickListener {
 					cardScope.launch(Dispatchers.IO) {
 						val audio = model.getAudio(phrase).first()
@@ -103,20 +99,21 @@ class BookAdapter(
 						player.setDataSource(itemView.context, audio)
 						try {
 							player.prepare()
-						} catch (e :Exception){
+						} catch (e: Exception) {
 							Toast.makeText(itemView.context, e.toString(), Toast.LENGTH_SHORT).show()
 						}
 						player.start()
 						this@BookAdapter.player = player
 						launch(Dispatchers.Main) {
-							(infoBind.imgBtnSound.background as AnimationDrawable).start()
+							infoBind.imgBtnSound.background.asAnimationDrawable().start()
 							while (player.isPlaying) delay(100)
-							(infoBind.imgBtnSound.background as AnimationDrawable).stop()
-							(infoBind.imgBtnSound.background as AnimationDrawable).selectDrawable(0)
+							infoBind.imgBtnSound.background.asAnimationDrawable().stop()
+							infoBind.imgBtnSound.background.asAnimationDrawable().selectDrawable(0)
 						}
 					}
 				}
-			} ?: run { infoBind.btnSound.visibility = View.GONE }
+				View.VISIBLE
+			}.ifNull { View.GONE }
 		}
 
 		private fun showLang(phrase: Phrase) {
@@ -145,7 +142,6 @@ class BookAdapter(
 	}
 
 	override fun getItemCount() = model.size.value
-
 
 
 }

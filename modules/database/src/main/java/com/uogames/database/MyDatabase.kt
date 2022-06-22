@@ -9,23 +9,20 @@ import com.uogames.database.entity.*
 
 @Database(
 	entities = [
-		CardEntity::class,
 		PronunciationEntity::class,
 		PhraseEntity::class,
 		ImageEntity::class,
-		NewCardEntity::class
+		CardEntity::class
 	],
 	version = 1
 )
 abstract class MyDatabase : RoomDatabase() {
 
-	abstract fun cardDAO(): CardDAO
-
 	abstract fun phraseDAO(): PhraseDAO
 
 	abstract fun imageDAO(): ImageDAO
 
-	abstract fun newCardDAO(): NewCardDAO
+	abstract fun cardDAO(): CardDAO
 
 	abstract fun pronunciationDAO(): PronunciationDAO
 

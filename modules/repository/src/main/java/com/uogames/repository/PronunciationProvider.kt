@@ -1,22 +1,40 @@
 package com.uogames.repository
 
-import android.util.Log
+import androidx.core.net.toUri
 import com.uogames.database.DatabaseRepository
+import com.uogames.dto.Image
 import com.uogames.dto.Phrase
 import com.uogames.dto.Pronunciation
+import com.uogames.repository.fileRepository.FileRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class PronunciationProvider(
-	private val database: DatabaseRepository
+	private val database: DatabaseRepository,
+	private val fileRepository: FileRepository
 ) : Provider() {
 
-	fun addAsync(pronunciation: Pronunciation) = ioScope.async { database.pronunciationRepository.insert(pronunciation) }
+	fun addAsync(pronunciation: Pronunciation, bytes: ByteArray) = ioScope.async {
+		val id = database.pronunciationRepository.insert(pronunciation).toInt()
+		val uri = fileRepository.saveFile("$id.gpp", bytes)
+		database.pronunciationRepository.update(Pronunciation(id,uri.toString()))
+		return@async id
+	}
 
-	fun deleteAsync(pronunciation: Pronunciation) = ioScope.async { database.pronunciationRepository.delete(pronunciation) }
+	fun deleteAsync(pronunciation: Pronunciation) = ioScope.async {
+		database.pronunciationRepository.getById(pronunciation.id).first()?.let {
+			fileRepository.deleteFile(it.dataBase64.toUri())
+			return@async database.pronunciationRepository.delete(pronunciation)
+		} ?: false
+	}
 
-	fun updateAsync(pronunciation: Pronunciation) = ioScope.async { database.pronunciationRepository.update(pronunciation) }
+	fun updateAsync(pronunciation: Pronunciation, bytes: ByteArray) = ioScope.async {
+		database.pronunciationRepository.getById(pronunciation.id).first()?.let {
+			val uri = fileRepository.saveFile("${it.id}.gpp", bytes)
+			return@async database.pronunciationRepository.update(Pronunciation(pronunciation.id, uri.toString()))
+		}?: false
+	}
 
 	fun getCount() = database.pronunciationRepository.countFlow()
 
@@ -26,5 +44,11 @@ class PronunciationProvider(
 
 	fun getByPhrase(phrase: Phrase) = database.pronunciationRepository.getByPhrase(phrase)
 
-	fun cleanAsync() = ioScope.async { database.pronunciationRepository.clean() }
+	suspend fun clear(){
+		database.pronunciationRepository.freeId().forEach{
+			fileRepository.deleteFile(it.dataBase64.toUri())
+			database.pronunciationRepository.delete(it)
+		}
+	}
+
 }

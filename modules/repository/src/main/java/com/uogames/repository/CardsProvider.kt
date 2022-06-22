@@ -10,41 +10,16 @@ class CardsProvider(
 	private val database: DatabaseRepository
 ) : Provider() {
 
-	fun getRandomCardAsync() = ioScope.async {
-		database.getRandomCard()
-	}
+	fun addAsync(card: Card) = ioScope.async { database.cardRepository.insert(card) }
 
-	fun getRandomCardWithoutAsync(phrase: String, translate: String) = ioScope.async {
-		database.getRandomCardWithout(phrase, translate)
-	}
+	fun deleteAsync(card: Card) = ioScope.async { database.cardRepository.delete(card) }
 
-	fun addCardAsync(card: Card) = ioScope.async {
-		if (database.exists(card)) return@async false
-		return@async try {
-			database.addCard(card)
-			true
-		} catch (e: Exception) {
-			false
-		}
-	}
+	fun updateAsync(card: Card) = ioScope.async { database.cardRepository.update(card) }
 
-	fun updateCard(card: Card) = ioScope.launch {
-		database.updateCard(card)
-	}
+	fun getCountFlow(like: String = "") = database.cardRepository.getCountFlow(like)
 
-	fun deleteCardAsync(card: Card) = ioScope.async {
-		if (!database.exists(card)) return@async false
-		return@async try {
-			database.deleteCard(card)
-			!database.exists(card)
-		} catch (e: Exception) {
-			false
-		}
-	}
+	fun getCardFlow(like: String = "", number: Int) = database.cardRepository.getCardFlow(like, number)
 
-
-	fun getCardCountFlow(like: String) = database.cardCountFlo(like)
-
-	fun getCardFlow(number: Int, like: String) = database.getCardFLOW(number, like)
+	fun getByIdFlow(id: Int) = database.phraseRepository.getByIdFlow(id)
 
 }

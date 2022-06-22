@@ -1,14 +1,11 @@
 package com.uogames.remembercards.ui.editPhraseFragment
 
 import android.content.Context
-import android.graphics.drawable.AnimationDrawable
-import android.graphics.drawable.DrawableContainer
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Build
 import android.os.Bundle
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +17,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
-import com.uogames.remembercards.databinding.FragmentEditBinding
+import com.uogames.remembercards.databinding.FragmentEditPhraseBinding
 import com.uogames.remembercards.ui.cropFragment.CropViewModel
 import com.uogames.remembercards.utils.*
 import dagger.android.support.DaggerFragment
@@ -40,7 +37,7 @@ class EditPhraseFragment : DaggerFragment() {
 	@Inject
 	lateinit var cropViewModel: CropViewModel
 
-	private lateinit var bind: FragmentEditBinding
+	private lateinit var bind: FragmentEditPhraseBinding
 
 	private val chooser = FileChooser(this, "image/*")
 
@@ -62,7 +59,7 @@ class EditPhraseFragment : DaggerFragment() {
 		container: ViewGroup?,
 		savedInstanceState: Bundle?
 	): View? {
-		bind = FragmentEditBinding.inflate(inflater, container, false)
+		bind = FragmentEditPhraseBinding.inflate(inflater, container, false)
 		return bind.root
 	}
 
@@ -151,10 +148,10 @@ class EditPhraseFragment : DaggerFragment() {
 			player?.start()
 
 			lifecycleScope.launch {
-				(bind.imgBtnSound.background as AnimationDrawable).start()
+				bind.imgBtnSound.background.asAnimationDrawable().start()
 				while (player?.isPlaying == true) delay(100)
-				(bind.imgBtnSound.background as AnimationDrawable).stop()
-				(bind.imgBtnSound.background as AnimationDrawable).selectDrawable(0)
+				bind.imgBtnSound.background.asAnimationDrawable().stop()
+				bind.imgBtnSound.background.asAnimationDrawable().selectDrawable(0)
 			}
 
 		}
@@ -167,11 +164,11 @@ class EditPhraseFragment : DaggerFragment() {
 
 		viewModel.imgPhrase.observeWhile(lifecycleScope) {
 			if (it != null) {
-				(bind.imgBtnImage.background as AnimationDrawable).selectDrawable(1)
+				bind.imgBtnImage.background.asAnimationDrawable().selectDrawable(1)
 				bind.imgPhrase.visibility = View.VISIBLE
 				bind.imgPhrase.setImageBitmap(it)
 			} else {
-				(bind.imgBtnImage.background as AnimationDrawable).selectDrawable(0)
+				bind.imgBtnImage.background.asAnimationDrawable().selectDrawable(0)
 				bind.imgPhrase.visibility = View.GONE
 			}
 		}
@@ -189,7 +186,7 @@ class EditPhraseFragment : DaggerFragment() {
 
 		viewModel.isFileWriting.observeWhile(lifecycleScope) {
 			bind.btnSound.visibility = if (it || viewModel.tempAudioSource.size == 0L) View.GONE else View.VISIBLE
-			(bind.imgMic.background as AnimationDrawable).selectDrawable(if (it) 1 else 0)
+			bind.imgMic.background.asAnimationDrawable().selectDrawable(if (it) 1 else 0)
 			if (!viewModel.isFileWriting.value) bind.txtEditor.text = requireContext().getText(R.string.editor)
 			else bind.txtEditor.text =
 				requireContext().getText(R.string.record_sp).toString().replace("||TIME||", viewModel.timeWriting.value.toString())

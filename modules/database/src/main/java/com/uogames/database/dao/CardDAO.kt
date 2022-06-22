@@ -7,31 +7,41 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CardDAO {
 
-    @Insert
-    suspend fun insert(card: CardEntity)
-
 	@Insert
-	suspend fun insert(vararg card: CardEntity)
+	suspend fun insert(cardEntity: CardEntity): Long
 
-    @Delete
-    suspend fun delete(card: CardEntity)
+	@Delete
+	suspend fun delete(cardEntity: CardEntity): Int
 
-    @Update
-    suspend fun update(card: CardEntity)
+	@Update
+	suspend fun update(cardEntity: CardEntity): Int
 
-	@Query("SELECT COUNT(id) FROM card_table WHERE phrase LIKE '%' || :nameItems || '%' OR translate LIKE '%' || :nameItems || '%'")
-	fun countFLOW(nameItems: String): Flow<Int>
+	@Query(
+		"SELECT COUNT(*) FROM (" +
+				"SELECT nct.id FROM new_cards_table nct " +
+				"INNER JOIN phrase_table pt ON nct.idPhrase = pt.id " +
+				"WHERE pt.phrase LIKE '%' || :like || '%' " +
+				"UNION " +
+				"SELECT nct.id FROM new_cards_table nct " +
+				"INNER JOIN phrase_table pt ON nct.idTranslate = pt.id " +
+				"WHERE pt.phrase LIKE '%' || :like || '%' )"
+	)
+	fun getCountFlow(like: String): Flow<Int>
 
-	@Query("SELECT * FROM card_table WHERE phrase LIKE '%' || :nameItems || '%' OR translate LIKE '%' || :nameItems || '%' LIMIT :number, 1")
-	fun getCardFLOW(number: Int, nameItems: String): Flow<CardEntity?>
+	@Query(
+		"SELECT nct.* FROM new_cards_table nct " +
+				"INNER JOIN phrase_table pt ON nct.idPhrase = pt.id " +
+				"WHERE pt.phrase LIKE '%' || :like || '%' " +
+				"UNION " +
+				"SELECT nct.* FROM new_cards_table nct " +
+				"INNER JOIN phrase_table pt ON nct.idTranslate = pt.id " +
+				"WHERE pt.phrase LIKE '%' || :like || '%'" +
+				"LIMIT :number, 1"
+	)
+	fun getCardFlow(like: String, number: Int): Flow<CardEntity?>
 
-    @Query("SELECT * FROM card_table ORDER BY RANDOM() LIMIT 1")
-    suspend fun getRandom(): CardEntity?
+	@Query("SELECT * FROM new_cards_table WHERE id = :id")
+	fun getByIdFlow(id: Int): Flow<CardEntity?>
 
-    @Query("SELECT * FROM card_table WHERE phrase != :phrase OR translate != :translate ORDER BY RANDOM() LIMIT 1")
-    suspend fun getRandomWithout(phrase: String, translate: String): CardEntity?
-
-    @Query("SELECT EXISTS (SELECT * FROM card_table WHERE phrase = :phrase AND translate = :translate)")
-    suspend fun exists(phrase: String, translate: String): Boolean
 
 }

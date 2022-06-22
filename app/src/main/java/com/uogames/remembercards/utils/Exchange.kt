@@ -1,5 +1,7 @@
 package com.uogames.remembercards.utils
 
+import android.graphics.drawable.AnimationDrawable
+import android.graphics.drawable.Drawable
 import android.util.Base64
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -40,10 +42,6 @@ fun <T> Flow<T>.observeWhile(
 	}
 }
 
-fun ByteArray.toStringBase64(): String = Base64.encodeToString(this, Base64.DEFAULT)
-
-fun String.toByteArrayBase64(): ByteArray = Base64.decode(this, Base64.DEFAULT)
-
 inline fun <C> C?.ifNull(defaultValue: () -> C): C =
 	this ?: defaultValue()
 
@@ -51,3 +49,5 @@ inline fun <C : CharSequence?> C.ifNullOrEmpty(defaultValue: () -> C): C {
 	return if (isNullOrEmpty()) defaultValue()
 	else this
 }
+
+fun <C:Drawable> C.asAnimationDrawable(): AnimationDrawable = this as AnimationDrawable

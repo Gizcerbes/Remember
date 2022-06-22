@@ -3,12 +3,12 @@ package com.uogames.database.relationships
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import com.uogames.database.entity.NewCardEntity
+import com.uogames.database.entity.CardEntity
 import com.uogames.dto.Phrase
 
 data class CardAndPhraseAndTranslate(
 	@Embedded
-	val card: NewCardEntity,
+	val card: CardEntity,
 	@Relation(
 		parentColumn = "",
 		entityColumn = ""

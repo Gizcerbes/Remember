@@ -1,10 +1,9 @@
 package com.uogames.database
 
-import android.util.Log
 import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.uogames.database.entity.NewCardEntity
+import com.uogames.database.entity.CardEntity
 import com.uogames.database.entity.PhraseEntity
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -39,9 +38,9 @@ class DBTest {
 		db.phraseDAO().insert(PhraseEntity(5, "Мир", "ru", null, null, null, 0))
 		db.phraseDAO().insert(PhraseEntity(6, "Привет Мир", "ru", null, null, null, 0))
 
-		db.newCardDAO().insert(NewCardEntity(1, 1, 4, null))
-		db.newCardDAO().insert(NewCardEntity(2, 2, 5, null))
-		db.newCardDAO().insert(NewCardEntity(3, 3, 6, null))
+		db.cardDAO().insert(CardEntity(1, 1, 4, null))
+		db.cardDAO().insert(CardEntity(2, 2, 5, null))
+		db.cardDAO().insert(CardEntity(3, 3, 6, null))
 
 	}
 
@@ -49,18 +48,18 @@ class DBTest {
 	fun innerCountTest() = runBlocking {
 
 		setData()
-		Assert.assertEquals(db.newCardDAO().getCountFlow("").first(), 3)
-		Assert.assertEquals(db.newCardDAO().getCountFlow("ет").first(), 2)
-		Assert.assertEquals(db.newCardDAO().getCountFlow("he").first(), 2)
-		Assert.assertEquals(db.newCardDAO().getCountFlow("o w").first(), 1)
+		Assert.assertEquals(db.cardDAO().getCountFlow("").first(), 3)
+		Assert.assertEquals(db.cardDAO().getCountFlow("ет").first(), 2)
+		Assert.assertEquals(db.cardDAO().getCountFlow("he").first(), 2)
+		Assert.assertEquals(db.cardDAO().getCountFlow("o w").first(), 1)
 	}
 
 	@Test
 	fun getLikeTest() = runBlocking {
 		setData()
-		Assert.assertEquals(db.newCardDAO().getCardFlow("hello", 0).first()?.id, 1)
-		Assert.assertEquals(db.newCardDAO().getCardFlow("hello", 1).first()?.id, 3)
-		Assert.assertEquals(db.newCardDAO().getCardFlow("ив", 1).first()?.id, 3)
+		Assert.assertEquals(db.cardDAO().getCardFlow("hello", 0).first()?.id, 1)
+		Assert.assertEquals(db.cardDAO().getCardFlow("hello", 1).first()?.id, 3)
+		Assert.assertEquals(db.cardDAO().getCardFlow("ив", 1).first()?.id, 3)
 	}
 
 
