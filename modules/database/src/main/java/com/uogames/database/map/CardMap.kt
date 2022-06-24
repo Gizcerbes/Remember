@@ -9,7 +9,8 @@ object CardMap : Map<CardEntity, Card> {
 			id = id,
 			idPhrase = idPhrase,
 			idTranslate = idTranslate,
-			idImgBase64 = idImgBase64
+			idImage = idImage,
+			reason = reason
 		)
 	}
 
@@ -18,7 +19,8 @@ object CardMap : Map<CardEntity, Card> {
 			id = id,
 			idPhrase = idPhrase,
 			idTranslate = idTranslate,
-			idImgBase64 = idImgBase64
+			idImage = idImage,
+			reason = reason
 		)
 	}
 }

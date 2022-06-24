@@ -7,9 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentCardBinding
+import com.uogames.remembercards.utils.observeWhenStarted
 import com.uogames.remembercards.utils.observeWhile
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
@@ -33,7 +35,7 @@ class CardFragment : DaggerFragment() {
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
 
-		globalViewModel.isShowKey.observeWhile(lifecycleScope){
+		globalViewModel.isShowKey.observeWhenStarted(lifecycleScope){
 			bind.tilSearch.visibility = if (it) View.VISIBLE else View.GONE
 			bind.btnAdd.visibility = if (it) View.GONE else View.VISIBLE
 			if (it) {
@@ -50,6 +52,10 @@ class CardFragment : DaggerFragment() {
 			} else {
 				imm.hideSoftInputFromWindow(view.windowToken, 0)
 			}
+		}
+
+		bind.btnAdd.setOnClickListener {
+			requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.editCardFragment)
 		}
 
 	}

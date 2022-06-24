@@ -6,13 +6,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.LinearLayout
 import androidx.core.widget.doOnTextChanged
 import com.uogames.flags.Languages
-import com.uogames.remembercards.databinding.FragmentChoiceLanguageBinding
+import com.uogames.remembercards.databinding.FragmentChoiceDialogBinding
 import com.uogames.remembercards.utils.ObservedDaggerDialog
-import dagger.android.support.DaggerDialogFragment
-import javax.inject.Inject
 
 class ChoiceLanguageDialog(call: (Languages) -> Unit) : ObservedDaggerDialog<Languages>(call) {
 
@@ -21,7 +18,7 @@ class ChoiceLanguageDialog(call: (Languages) -> Unit) : ObservedDaggerDialog<Lan
 	}
 
 
-	private lateinit var bind: FragmentChoiceLanguageBinding
+	private lateinit var bind: FragmentChoiceDialogBinding
 
 	private val imm by lazy {
 		requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -36,7 +33,7 @@ class ChoiceLanguageDialog(call: (Languages) -> Unit) : ObservedDaggerDialog<Lan
 	}
 
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-		bind = FragmentChoiceLanguageBinding.inflate(inflater, container, false)
+		bind = FragmentChoiceDialogBinding.inflate(inflater, container, false)
 		return bind.root
 	}
 
@@ -52,6 +49,5 @@ class ChoiceLanguageDialog(call: (Languages) -> Unit) : ObservedDaggerDialog<Lan
 		}
 
 	}
-
 
 }

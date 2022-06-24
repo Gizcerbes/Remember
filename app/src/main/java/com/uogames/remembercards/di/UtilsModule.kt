@@ -6,6 +6,7 @@ import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseViewModel
 import com.uogames.remembercards.ui.bookFragment.BookViewModel
 import com.uogames.remembercards.ui.cropFragment.CropViewModel
+import com.uogames.remembercards.ui.editCardFragment.EditCardViewModel
 import com.uogames.remembercards.ui.gameYesOrNo.GameYesOrNotViewModel
 import com.uogames.remembercards.ui.mainNav.NavigationViewModel
 import com.uogames.remembercards.ui.selectCountry.SelectCountryViewModel
@@ -21,37 +22,38 @@ class UtilsModule {
 	fun provideContext(app: Application): Context = app.applicationContext
 
 	@Provides
+	fun provideDataProvider(context: Context):DataProvider = DataProvider.get(context)
+
+	@Provides
 	@Singleton
 	fun provideNavigationViewModel(): NavigationViewModel = NavigationViewModel()
 
 	@Provides
 	@Singleton
-	fun provideGlobalViewModel(): GlobalViewModel = GlobalViewModel()
+	fun provideGlobalViewModel(provider: DataProvider): GlobalViewModel = GlobalViewModel(provider)
 
 	@Provides
 	@Singleton
-	fun provideBookViewModel(context: Context): BookViewModel =
-		BookViewModel(DataProvider.get(context))
+	fun provideBookViewModel(provider: DataProvider): BookViewModel = BookViewModel(provider)
 
 	@Provides
 	@Singleton
-	fun provideAddPhraseViewModel(app: Application): EditPhraseViewModel =
-		EditPhraseViewModel(DataProvider.get(app.applicationContext),app)
+	fun provideAddPhraseViewModel(provider: DataProvider): EditPhraseViewModel = EditPhraseViewModel(provider)
 
 	@Provides
 	@Singleton
-	fun provideGameYesOrNotViewModel(context: Context): GameYesOrNotViewModel =
-		GameYesOrNotViewModel(DataProvider.get(context))
+	fun provideGameYesOrNotViewModel(provider: DataProvider): GameYesOrNotViewModel = GameYesOrNotViewModel(provider)
 
 	@Provides
 	@Singleton
-	fun provideSelectCountryViewModel(): SelectCountryViewModel =
-		SelectCountryViewModel()
+	fun provideSelectCountryViewModel(): SelectCountryViewModel = SelectCountryViewModel()
 
 	@Provides
 	@Singleton
-	fun provideCropViewModel(): CropViewModel =
-		CropViewModel()
+	fun provideCropViewModel(): CropViewModel = CropViewModel()
 
+	@Provides
+	@Singleton
+	fun provideEditCardViewModel(provider: DataProvider): EditCardViewModel = EditCardViewModel(provider)
 
 }

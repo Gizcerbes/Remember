@@ -12,7 +12,8 @@ import com.uogames.database.entity.*
 		PronunciationEntity::class,
 		PhraseEntity::class,
 		ImageEntity::class,
-		CardEntity::class
+		CardEntity::class,
+		SettingEntity::class
 	],
 	version = 1
 )
@@ -25,6 +26,8 @@ abstract class MyDatabase : RoomDatabase() {
 	abstract fun cardDAO(): CardDAO
 
 	abstract fun pronunciationDAO(): PronunciationDAO
+
+	abstract fun settingDAO(): SettingDAO
 
 
 	companion object {

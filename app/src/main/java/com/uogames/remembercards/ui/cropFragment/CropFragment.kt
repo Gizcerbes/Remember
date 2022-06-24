@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.uogames.remembercards.databinding.FragmentCropBinding
 import com.uogames.remembercards.utils.cropp.BitmapCropper
+import com.uogames.remembercards.utils.observeWhenStarted
 import com.uogames.remembercards.utils.observeWhile
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
@@ -56,14 +57,14 @@ class CropFragment : DaggerFragment() {
 			cropViewModel.rightRotate()
 		}
 
-		bind.img.setOnTouchListener { v, event ->
+		bind.img.setOnTouchListener { _, event ->
 			cropper?.crop(event, bind.img.width, bind.img.height)
 			cropper?.let { bind.img.setImageBitmap(it.getPreview()) }
 			bind.img.performClick()
 			true
 		}
 
-		cropViewModel.rotateStat.observeWhile(lifecycleScope) {
+		cropViewModel.rotateStat.observeWhenStarted(lifecycleScope) {
 			val bitmap = cropViewModel.getData()
 			val area = cropper?.getArea()
 			if (bitmap != null && area != null) when (it % 4) {

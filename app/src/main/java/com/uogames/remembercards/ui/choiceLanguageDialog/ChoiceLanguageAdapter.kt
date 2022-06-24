@@ -8,14 +8,15 @@ import android.widget.LinearLayout
 import com.uogames.flags.Languages
 import com.uogames.remembercards.databinding.CardLanguageBinding
 import com.uogames.remembercards.utils.ChangeableAdapter
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class ChoiceLanguageAdapter(val call: (Languages) -> Unit) : ChangeableAdapter<ChoiceLanguageAdapter.LanguageHolder>() {
 
 	private var list: Array<Languages> = Languages.values()
 
-	inner class LanguageHolder(view: LinearLayout, viewGrope: ViewGroup, dataChange: MutableStateFlow<Int>) :
-		ChangeableAdapter.ChangeableViewHolder(view, viewGrope, dataChange) {
+	inner class LanguageHolder(view: LinearLayout, viewGrope: ViewGroup) :
+		ChangeableAdapter.ChangeableViewHolder(view, viewGrope) {
 
 		private val bind by lazy { CardLanguageBinding.inflate(LayoutInflater.from(itemView.context), viewGrope, false) }
 
@@ -26,7 +27,7 @@ class ChoiceLanguageAdapter(val call: (Languages) -> Unit) : ChangeableAdapter<C
 			}
 		}
 
-		override fun show(typeFragment: Int) {
+		override fun CoroutineScope.show(typeFragment: Int) {
 			bind.txtLanguage.text = list[adapterPosition].language
 			bind.root.setOnClickListener {
 				call(list[adapterPosition])
@@ -35,8 +36,8 @@ class ChoiceLanguageAdapter(val call: (Languages) -> Unit) : ChangeableAdapter<C
 
 	}
 
-	override fun onShow(parent: ViewGroup, view: LinearLayout, viewType: Int, changeListener: MutableStateFlow<Int>): LanguageHolder {
-		return LanguageHolder(view, parent, changeListener)
+	override fun onShow(parent: ViewGroup, view: LinearLayout, viewType: Int): LanguageHolder {
+		return LanguageHolder(view, parent)
 	}
 
 	override fun getItemCount(): Int {

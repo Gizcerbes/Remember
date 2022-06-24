@@ -33,6 +33,16 @@
 		android:name="com.uogames.remembercards.ui.cropFragment.CropFragment"
 		tools:layout="@layout/fragment_crop"
 		android:label="CropFragment" />
+	<fragment
+		android:id="@+id/editCardFragment"
+		android:name="com.uogames.remembercards.ui.editCardFragment.EditCardFragment"
+		android:label="EditCardFragment"
+		tools:layout="@layout/fragment_edit_card" />
+	<fragment
+		android:id="@+id/choicePhraseDialog"
+		android:name="com.uogames.remembercards.ui.choicePhraseFragment.ChoicePhraseFragment"
+		tools:layout="@layout/fragment_choice_dialog"
+		android:label="ChoicePhraseDialog" />
 
 
 </navigation>

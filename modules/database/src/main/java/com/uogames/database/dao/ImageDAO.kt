@@ -27,7 +27,7 @@ interface ImageDAO {
 				"WHERE " +
 				"NOT EXISTS (SELECT * FROM phrase_table pt WHERE pt.idImage = images_table.id ) " +
 				"AND " +
-				"NOT EXISTS (SELECT * FROM new_cards_table nct WHERE nct.idImgBase64 = images_table.id)"
+				"NOT EXISTS (SELECT * FROM new_cards_table nct WHERE nct.idImage = images_table.id)"
 	)
 	suspend fun freeImages(): List<ImageEntity>
 

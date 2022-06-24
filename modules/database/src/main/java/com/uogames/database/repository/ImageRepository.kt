@@ -24,9 +24,9 @@ class ImageRepository(private val imageDAO: ImageDAO) {
 		imageDAO.getByID(id).map { it?.toDTO() }
 	} ?: MutableStateFlow(null).asStateFlow()
 
-	fun getByCard(card: Card) = card.idImgBase64?.let { id ->
+	fun getByCard(card: Card) = card.idImage?.let { id ->
 		imageDAO.getByID(id).map { it?.toDTO() }
-	} ?: MutableStateFlow(Image(0, "")).asStateFlow()
+	} ?: MutableStateFlow(null).asStateFlow()
 
 	suspend fun freeImages() = imageDAO.freeImages().map { it.toDTO() }
 

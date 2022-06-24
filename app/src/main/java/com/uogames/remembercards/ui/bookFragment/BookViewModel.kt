@@ -18,10 +18,15 @@ class BookViewModel @Inject constructor(
 	private val _size = MutableStateFlow(0)
 	val size = _size.asStateFlow()
 
+	private val _listID:MutableStateFlow<List<Int>> = MutableStateFlow(listOf())
+	val listId = _listID.asStateFlow()
+
 	private val likeSize = like.flatMapLatest { provider.phrase.countFlow(it) }
+	private val likeListId  = like.flatMapLatest { provider.phrase.getListId(it) }
 
 	init {
 		likeSize.onEach { _size.value = it }.launchIn(viewModelScope)
+		likeListId.onEach { _listID.value = it }.launchIn(viewModelScope)
 	}
 
 	fun reset() {
@@ -29,6 +34,8 @@ class BookViewModel @Inject constructor(
 	}
 
 	fun get(position: Int) = provider.phrase.getFlow(like.value, position)
+
+	fun getById(id:Int) = provider.phrase.getByIdFlow(id)
 
 	fun getAudio(phrase: Phrase) = provider.pronounce.getByPhrase(phrase).map {
 		Uri.parse(it?.dataBase64.orEmpty())
@@ -44,10 +51,5 @@ class BookViewModel @Inject constructor(
 			call(getImage(phrase).first())
 		}
 	}
-
-	fun delete(phrase: Phrase, result: (Boolean) -> Unit = {}) = provider.phrase.delete(phrase, result)
-
-	fun updateCard(phrase: Phrase, result: (Boolean) -> Unit = {}) = provider.phrase.update(phrase, result)
-
 
 }

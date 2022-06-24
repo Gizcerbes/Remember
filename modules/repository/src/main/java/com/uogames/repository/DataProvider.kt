@@ -29,12 +29,13 @@ class DataProvider private constructor(
 
 	val cards by lazy { CardsProvider(database) }
 
-	val phrase by lazy { PhraseProvider(database ) }
+	val phrase by lazy { PhraseProvider(database) }
 
 	val images by lazy { ImageProvider(database, fileRepository) }
 
-	val pronounce by lazy { PronunciationProvider(database,fileRepository) }
+	val pronounce by lazy { PronunciationProvider(database, fileRepository) }
 
+	val setting by lazy { SettingProvider(database.settingRepository) }
 
 	fun clean() = ioScope.launch(Dispatchers.IO) {
 		images.clear()

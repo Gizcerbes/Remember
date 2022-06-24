@@ -1,5 +1,6 @@
 package com.uogames.remembercards.utils
 
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -19,18 +20,17 @@ abstract class ChangeableAdapter<VH : ChangeableAdapter.ChangeableViewHolder> :
 	abstract class ChangeableViewHolder(
 		view: LinearLayout,
 		private val viewGrope: ViewGroup,
-		dataChange: MutableStateFlow<Int>
 	) : RecyclerView.ViewHolder(view) {
 
 		private val defHolderScope = CoroutineScope(Dispatchers.Main)
 		private var _cardScope = CoroutineScope(Dispatchers.Main)
 		val cardScope: CoroutineScope get() = _cardScope
+		private var oldPos = -1
 
 		private val typeFragment = MutableStateFlow(0)
 
 		init {
 			typeFragment.onEach { draw(it) }.launchIn(defHolderScope)
-			dataChange.onEach { changePosition() }.launchIn(defHolderScope)
 		}
 
 		fun changePosition() {
@@ -38,7 +38,7 @@ abstract class ChangeableAdapter<VH : ChangeableAdapter.ChangeableViewHolder> :
 			_cardScope = CoroutineScope(Dispatchers.Main)
 			val type = itemViewType()
 			if (typeFragment.value == type) {
-				if (adapterPosition != -1) show(typeFragment.value)
+				if (adapterPosition != -1) cardScope.show(typeFragment.value)
 			} else {
 				if (adapterPosition != -1) typeFragment.value = type
 			}
@@ -56,15 +56,20 @@ abstract class ChangeableAdapter<VH : ChangeableAdapter.ChangeableViewHolder> :
 
 		private fun draw(typeFragment: Int) {
 			val view = itemView as LinearLayout
-			view.removeAllViews()
-			view.addView(onCreateView(typeFragment, viewGrope))
+			if (adapterPosition != oldPos) {
+				view.removeAllViews()
+				view.addView(onCreateView(typeFragment, viewGrope))
+			} else {
+				Log.e("TAG", "draw: $adapterPosition $oldPosition $oldPos")
+			}
+			if (adapterPosition != -1) cardScope.launch { show(typeFragment) }
 			val param = view.layoutParams
 			param.height = ViewGroup.LayoutParams.WRAP_CONTENT
 			view.layoutParams = param
-			if (adapterPosition != -1) show(typeFragment)
+			oldPos = adapterPosition
 		}
 
-		abstract fun show(typeFragment: Int)
+		abstract fun CoroutineScope.show(typeFragment: Int)
 
 		fun onDetach() {
 			cardScope.cancel()
@@ -77,14 +82,13 @@ abstract class ChangeableAdapter<VH : ChangeableAdapter.ChangeableViewHolder> :
 	}
 
 	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-		return onShow(parent, createLayout(parent), viewType, dataChange)
+		return onShow(parent, createLayout(parent), viewType)
 	}
 
 	abstract fun onShow(
 		parent: ViewGroup,
 		view: LinearLayout,
 		viewType: Int,
-		changeListener: MutableStateFlow<Int>
 	): VH
 
 	private fun createLayout(viewGrope: ViewGroup): LinearLayout {
@@ -103,11 +107,7 @@ abstract class ChangeableAdapter<VH : ChangeableAdapter.ChangeableViewHolder> :
 
 	override fun onViewRecycled(holder: VH) {
 		super.onViewRecycled(holder)
-		holder.onDetached()
-	}
-
-	fun dataChanged() {
-		dataChange.value++
+		holder.onDetach()
 	}
 
 

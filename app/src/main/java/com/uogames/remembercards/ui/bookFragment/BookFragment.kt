@@ -14,10 +14,8 @@ import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentBookBinding
 import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseViewModel
-import com.uogames.remembercards.utils.observeWhile
+import com.uogames.remembercards.utils.observeWhenStarted
 import dagger.android.support.DaggerFragment
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 class BookFragment : DaggerFragment() {
@@ -53,19 +51,15 @@ class BookFragment : DaggerFragment() {
 
 		bookViewModel.reset()
 
-		bookViewModel.size.onEach {
-			adapter.dataChanged()
-		}.launchIn(lifecycleScope)
-
 		bind.recycler.layoutManager = LinearLayoutManager(requireContext()).apply {
 			orientation = LinearLayoutManager.VERTICAL
 		}
 
-		bookViewModel.size.onEach {
+		bookViewModel.size.observeWhenStarted(lifecycleScope) {
 			bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
-		}.launchIn(lifecycleScope)
+		}
 
-		globalViewModel.isShowKey.observeWhile(lifecycleScope){
+		globalViewModel.isShowKey.observeWhenStarted(lifecycleScope){
 			bind.tilSearch.visibility = if (it) View.VISIBLE else View.GONE
 			bind.btnAdd.visibility = if (it) View.GONE else View.VISIBLE
 			if (it) {

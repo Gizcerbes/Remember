@@ -3,10 +3,12 @@ package com.uogames.remembercards.utils
 import android.graphics.drawable.AnimationDrawable
 import android.graphics.drawable.Drawable
 import android.util.Base64
+import androidx.lifecycle.LifecycleCoroutineScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -42,6 +44,13 @@ fun <T> Flow<T>.observeWhile(
 	}
 }
 
+fun <T> Flow<T>.observeWhenStarted(
+	scope: LifecycleCoroutineScope,
+	listener: (T) -> Unit
+): Job = scope.launchWhenStarted {
+	collect() { listener(it) }
+}
+
 inline fun <C> C?.ifNull(defaultValue: () -> C): C =
 	this ?: defaultValue()
 
@@ -50,4 +59,4 @@ inline fun <C : CharSequence?> C.ifNullOrEmpty(defaultValue: () -> C): C {
 	else this
 }
 
-fun <C:Drawable> C.asAnimationDrawable(): AnimationDrawable = this as AnimationDrawable
+fun <C : Drawable> C.asAnimationDrawable(): AnimationDrawable = this as AnimationDrawable

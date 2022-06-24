@@ -30,6 +30,10 @@ class PhraseRepository(private val dao: PhraseDAO) {
 
 	fun getByIdFlow(id: Int) = dao.getByIdFlow(id).map { it?.toDTO() }
 
+	fun getListIdFlow(like: String, lang: String) = dao.getListIdFlow(like,lang)
+
+	fun getListIdFlow(like: String) = dao.getListIdFlow(like)
+
 	suspend fun exists(phrase: String) = dao.exists(phrase)
 
 

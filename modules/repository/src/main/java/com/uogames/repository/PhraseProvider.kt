@@ -53,4 +53,8 @@ class PhraseProvider(
 		val res = existsAsync(phrase).await()
 		launch(Dispatchers.Main) { call(res) }
 	}
+
+	fun getListId(like: String, lang: String) = database.phraseRepository.getListIdFlow(like, lang)
+
+	fun getListId(like: String) = database.phraseRepository.getListIdFlow(like)
 }

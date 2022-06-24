@@ -28,9 +28,13 @@
 		android:name="com.uogames.remembercards.ui.personFragment.PersonFragment"
 		android:label="BookFragment"
 		tools:layout="@layout/fragment_person" />
+
 	<fragment
 		android:id="@+id/card_fragment"
 		android:name="com.uogames.remembercards.ui.cardFragment.CardFragment"
-		android:label="CardFragment" />
+		android:label="CardFragment"
+		tools:layout="@layout/fragment_card" />
+
+
 
 </navigation>

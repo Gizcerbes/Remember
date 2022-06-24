@@ -5,10 +5,10 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaRecorder
-import android.util.Log
 import androidx.core.net.toFile
 import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.uogames.dto.Image
 import com.uogames.dto.Phrase
@@ -28,9 +28,8 @@ import java.util.*
 import javax.inject.Inject
 
 class EditPhraseViewModel @Inject constructor(
-	private val provider: DataProvider,
-	application: Application
-) : AndroidViewModel(application) {
+	private val provider: DataProvider
+) : ViewModel() {
 
 	private class PhraseObject() {
 		val id = MutableStateFlow(0)
@@ -91,9 +90,6 @@ class EditPhraseViewModel @Inject constructor(
 	private var _tempAudioFile = File.createTempFile("audio", ".gpp")
 	val tempAudioSource get() = MediaBytesSource(_tempAudioFile.readBytes())
 
-	fun getContext(): Context {
-		return getApplication<Application>().applicationContext
-	}
 
 	fun reset() {
 		phraseObject.set(Phrase())
@@ -103,8 +99,8 @@ class EditPhraseViewModel @Inject constructor(
 		_lang.value = Locale.getDefault()
 		_isFileWriting.value = false
 		_timeWriting.value = -1
-		_tempAudioFile = File.createTempFile("audio", ".gpp")
 		_audioChanged.value = false
+		_tempAudioFile.writeBytes(ByteArray(0))
 	}
 
 	fun loadByID(id: Int) {

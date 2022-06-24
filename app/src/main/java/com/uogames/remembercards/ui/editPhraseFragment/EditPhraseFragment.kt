@@ -6,6 +6,7 @@ import android.media.MediaRecorder
 import android.os.Build
 import android.os.Bundle
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -78,18 +79,24 @@ class EditPhraseFragment : DaggerFragment() {
 			}
 			bind.btnSave.setOnClickListener {
 				viewModel.update(id) { res ->
-					if (res) findNavController().popBackStack()
+					if (res) {
+						findNavController().popBackStack()
+					}
 				}
 			}
 			bind.btnDelete.setOnClickListener {
 				viewModel.delete(id) { res ->
-					if (res) findNavController().popBackStack()
+					if (res) {
+						findNavController().popBackStack()
+					}
 				}
 			}
 		}.ifNull {
 			bind.btnSave.setOnClickListener {
 				viewModel.save { res ->
-					if (res) findNavController().popBackStack()
+					if (res) {
+						findNavController().popBackStack()
+					}
 				}
 			}
 			cropViewModel.getData()?.let { bitmap ->

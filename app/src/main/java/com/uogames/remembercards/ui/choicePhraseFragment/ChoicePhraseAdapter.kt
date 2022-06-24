@@ -1,4 +1,4 @@
-package com.uogames.remembercards.ui.bookFragment
+package com.uogames.remembercards.ui.choicePhraseFragment
 
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -13,6 +13,7 @@ import androidx.navigation.findNavController
 import com.uogames.dto.Phrase
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardPhraseBinding
+import com.uogames.remembercards.ui.bookFragment.BookViewModel
 import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseFragment
 import com.uogames.remembercards.utils.ChangeableAdapter
 import com.uogames.remembercards.utils.asAnimationDrawable
@@ -21,33 +22,36 @@ import com.uogames.remembercards.utils.observeWhile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.*
 
-class BookAdapter(
-	private val model: BookViewModel
-) : ChangeableAdapter<BookAdapter.CardHolder>() {
+class ChoicePhraseAdapter(
+	val model: BookViewModel,
+	val selectedCall: (Phrase) -> Unit
+) : ChangeableAdapter<ChoicePhraseAdapter.PhraseHolder>() {
 
 	companion object {
 		private const val INFO_MODE = 0
 	}
 
 	private val recyclerScope = CoroutineScope(Dispatchers.Main)
-
 	private var player: MediaPlayer? = null
 
 	init {
 		model.size.onEach {
 			notifyDataSetChanged()
+			Log.e("TAG", "$it" )
 		}.launchIn(recyclerScope)
 	}
 
-	inner class CardHolder(
-		view: LinearLayout,
-		private val viewGrope: ViewGroup,
-	) : ChangeableViewHolder(view, viewGrope) {
-
+	inner class PhraseHolder(
+		layout: LinearLayout,
+		viewGrope: ViewGroup
+	) :
+		ChangeableAdapter.ChangeableViewHolder(layout, viewGrope) {
 
 		private val infoBind: CardPhraseBinding by lazy {
 			CardPhraseBinding.inflate(LayoutInflater.from(itemView.context), viewGrope, false)
@@ -69,9 +73,11 @@ class BookAdapter(
 		private fun CoroutineScope.showInfoMode() {
 			infoBind.btnEdit.visibility = View.GONE
 			infoBind.root.visibility = View.INVISIBLE
-			val position = adapterPosition
-			model.get(position).observeWhile(this) { res ->
+			model.get(adapterPosition).observeWhile(this) { res ->
 				res?.let { phrase ->
+					infoBind.root.setOnClickListener {
+						selectedCall(phrase)
+					}
 					infoBind.txtPhrase.text = phrase.phrase
 					infoBind.txtDefinition.text = phrase.definition.orEmpty()
 					showImage(phrase)
@@ -84,13 +90,13 @@ class BookAdapter(
 						})
 					}
 				}
+				infoBind.root.visibility = View.VISIBLE
 			}
-			infoBind.root.visibility = View.VISIBLE
 		}
 
 		private fun showImage(phrase: Phrase) {
-			infoBind.imgPhrase.visibility = View.INVISIBLE
 			infoBind.imgPhrase.visibility = phrase.idImage?.let {
+				infoBind.imgPhrase.setImageResource(R.drawable.noise)
 				model.getImage(phrase) {
 					infoBind.imgPhrase.setImageURI(it)
 				}
@@ -112,7 +118,7 @@ class BookAdapter(
 							Toast.makeText(itemView.context, e.toString(), Toast.LENGTH_SHORT).show()
 						}
 						player.start()
-						this@BookAdapter.player = player
+						this@ChoicePhraseAdapter.player = player
 						launch(Dispatchers.Main) {
 							infoBind.imgBtnSound.background.asAnimationDrawable().start()
 							while (player.isPlaying) delay(100)
@@ -138,19 +144,13 @@ class BookAdapter(
 		override fun onDetached() {
 			player?.stop()
 		}
-
 	}
 
-	override fun onShow(
-		parent: ViewGroup,
-		view: LinearLayout,
-		viewType: Int,
-	): CardHolder {
-		return CardHolder(view, parent)
+	override fun onShow(parent: ViewGroup, view: LinearLayout, viewType: Int): PhraseHolder {
+		return PhraseHolder(view, parent)
 	}
 
 	override fun getItemCount() = model.size.value
-
 
 
 }

@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardGameResultBinding
+import com.uogames.remembercards.utils.observeWhile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,7 +34,7 @@ class GameYesOrNoAdapter(
 			CardGameResultBinding.inflate(LayoutInflater.from(view.context), viewGroup, false)
 		}
 		init {
-			typeFragment.onEach { draw(it) }.launchIn(holderScope)
+			typeFragment.observeWhile(holderScope) { draw(it) }
 		}
 
 		fun changePosition() {

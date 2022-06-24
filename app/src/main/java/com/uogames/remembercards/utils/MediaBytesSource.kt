@@ -8,7 +8,7 @@ class MediaBytesSource(private var data: ByteArray?) : MediaDataSource() {
 		data = null
 	}
 
-	override fun readAt(position: Long, buffer: ByteArray?, offset: Int, size: Int): Int {
+	override fun readAt(position: Long, buffer: ByteArray, offset: Int, size: Int): Int {
 		data?.let {
 			synchronized(it) {
 				val len = it.size

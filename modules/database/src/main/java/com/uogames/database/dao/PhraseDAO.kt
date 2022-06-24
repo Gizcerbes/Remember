@@ -40,5 +40,11 @@ interface PhraseDAO {
 	@Query("SELECT EXISTS (SELECT * FROM phrase_table WHERE phrase = :phrase)")
 	suspend fun exists(phrase: String): Boolean
 
+	@Query("SELECT id FROM phrase_table WHERE phrase LIKE '%' || :like || '%' AND lang = :lang")
+	fun getListIdFlow(like: String, lang: String): Flow<List<Int>>
+
+	@Query("SELECT id FROM phrase_table WHERE phrase LIKE '%' || :like || '%'")
+	fun getListIdFlow(like: String): Flow<List<Int>>
+
 
 }
