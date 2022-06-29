@@ -1,29 +1,27 @@
 package com.uogames.remembercards.ui.editPhraseFragment
 
 import android.content.Context
-import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Build
 import android.os.Bundle
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.Toast
+import androidx.core.net.toUri
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentEditPhraseBinding
 import com.uogames.remembercards.ui.cropFragment.CropViewModel
+import com.uogames.remembercards.ui.editCardFragment.ImageAdapter
 import com.uogames.remembercards.utils.*
 import dagger.android.support.DaggerFragment
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
@@ -38,14 +36,18 @@ class EditPhraseFragment : DaggerFragment() {
 	@Inject
 	lateinit var cropViewModel: CropViewModel
 
+	@Inject
+	lateinit var player: ObservableMediaPlayer
+
 	private lateinit var bind: FragmentEditPhraseBinding
 
 	private val chooser = FileChooser(this, "image/*")
 
 	private var recorder: MediaRecorder? = null
-	private var player: MediaPlayer? = null
 
 	private var textWatcher: TextWatcher? = null
+
+	private lateinit var bottomSheet: BottomSheetBehavior<View>
 
 	private val imm by lazy {
 		requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -105,6 +107,34 @@ class EditPhraseFragment : DaggerFragment() {
 			}
 		}
 
+		bottomSheet = BottomSheetBehavior.from(bind.rlBehavior)
+		bottomSheet.halfExpandedRatio = 0.4f
+		bottomSheet.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+			override fun onStateChanged(bottomSheet: View, newState: Int) {
+				if (newState == BottomSheetBehavior.STATE_HIDDEN || newState == BottomSheetBehavior.STATE_COLLAPSED) {
+					bind.blind.visibility = View.GONE
+				} else {
+					bind.blind.visibility = View.VISIBLE
+				}
+			}
+			override fun onSlide(bottomSheet: View, slideOffset: Float) {
+			}
+		})
+
+		bind.rvImages.adapter = ImageAdapter(lifecycleScope, viewModel) {
+			viewModel.selectImage(it)
+			bottomSheet.state = BottomSheetBehavior.STATE_HIDDEN
+		}
+
+		bind.btnNewFile.setOnClickListener {
+			chooser.getBitmap {
+				cropViewModel.putData(it)
+				requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.cropFragment)
+			}
+		}
+		bind.blind.setOnClickListener {
+			bottomSheet.state = BottomSheetBehavior.STATE_HIDDEN
+		}
 
 		bind.btnEditAudio.setOnClickListener {
 			Permission.RECORD_AUDIO.requestPermission(requireActivity()) {
@@ -135,32 +165,26 @@ class EditPhraseFragment : DaggerFragment() {
 				}
 		}
 		bind.btnEditImage.setOnClickListener {
-			if (!viewModel.isImgPhraseNotNull) chooser.getBitmap {
-				cropViewModel.putData(it)
-				requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.cropFragment)
-			} else {
+
+			if (viewModel.imgPhrase.value == null){
+				bottomSheet.state = BottomSheetBehavior.STATE_HALF_EXPANDED
+			} else{
 				viewModel.setBitmapImage(null)
 			}
 		}
 
 		bind.btnSound.setOnClickListener {
-			player = MediaPlayer()
+			player.setStatListener {
+				when (it) {
+					ObservableMediaPlayer.Status.PLAY -> bind.imgBtnSound.background.asAnimationDrawable().start()
+					else -> {
+						bind.imgBtnSound.background.asAnimationDrawable().stop()
+						bind.imgBtnSound.background.asAnimationDrawable().selectDrawable(0)
+					}
+				}
+			}
 			val resource = viewModel.tempAudioSource
-			player?.setDataSource(resource)
-			try {
-				player?.prepare()
-			} catch (e: Exception) {
-				Toast.makeText(requireContext(), e.toString(), Toast.LENGTH_SHORT).show()
-			}
-			player?.start()
-
-			lifecycleScope.launch {
-				bind.imgBtnSound.background.asAnimationDrawable().start()
-				while (player?.isPlaying == true) delay(100)
-				bind.imgBtnSound.background.asAnimationDrawable().stop()
-				bind.imgBtnSound.background.asAnimationDrawable().selectDrawable(0)
-			}
-
+			player.play(resource)
 		}
 
 		globalViewModel.isShowKey.observeWhile(lifecycleScope) {
@@ -168,30 +192,33 @@ class EditPhraseFragment : DaggerFragment() {
 			bind.tilEdit.visibility = if (it) View.VISIBLE else View.GONE
 		}
 
-
 		viewModel.imgPhrase.observeWhile(lifecycleScope) {
 			if (it != null) {
 				bind.imgBtnImage.background.asAnimationDrawable().selectDrawable(1)
 				bind.imgPhrase.visibility = View.VISIBLE
-				bind.imgPhrase.setImageBitmap(it)
+				bind.imgPhrase.setImageURI(it.imgUri.toUri())
 			} else {
 				bind.imgBtnImage.background.asAnimationDrawable().selectDrawable(0)
 				bind.imgPhrase.visibility = View.GONE
 			}
 		}
 
-		viewModel.phrase.observeWhile(lifecycleScope) {
+		viewModel.phrase.observeWhile(lifecycleScope)
+		{
 			bind.txtPhrase.text = it.ifEmpty { requireContext().getString(R.string.phrase2) }
 		}
-		viewModel.definition.observeWhile(lifecycleScope) {
+		viewModel.definition.observeWhile(lifecycleScope)
+		{
 			bind.txtDefinition.text = it.ifNullOrEmpty { requireContext().getString(R.string.definition) }
 		}
 
-		viewModel.lang.observeWhile(lifecycleScope) {
+		viewModel.lang.observeWhile(lifecycleScope)
+		{
 			bind.txtLang.text = it.displayLanguage
 		}
 
-		viewModel.isFileWriting.observeWhile(lifecycleScope) {
+		viewModel.isFileWriting.observeWhile(lifecycleScope)
+		{
 			bind.btnSound.visibility = if (it || viewModel.tempAudioSource.size == 0L) View.GONE else View.VISIBLE
 			bind.imgMic.background.asAnimationDrawable().selectDrawable(if (it) 1 else 0)
 			if (!viewModel.isFileWriting.value) bind.txtEditor.text = requireContext().getText(R.string.editor)
@@ -199,7 +226,8 @@ class EditPhraseFragment : DaggerFragment() {
 				requireContext().getText(R.string.record_sp).toString().replace("||TIME||", viewModel.timeWriting.value.toString())
 		}
 
-		viewModel.timeWriting.observeWhile(lifecycleScope) {
+		viewModel.timeWriting.observeWhile(lifecycleScope)
+		{
 			bind.txtEditor.text =
 				if (viewModel.isFileWriting.value)
 					requireContext().getText(R.string.record_sp).toString().replace("||TIME||", it.toString())

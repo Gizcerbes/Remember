@@ -1,13 +1,10 @@
 package com.uogames.remembercards.ui.editPhraseFragment
 
-import android.app.Application
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaRecorder
 import androidx.core.net.toFile
 import androidx.core.net.toUri
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.uogames.dto.Image
@@ -18,10 +15,7 @@ import com.uogames.remembercards.utils.MediaBytesSource
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.repository.DataProvider
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.*
@@ -66,12 +60,8 @@ class EditPhraseViewModel @Inject constructor(
 	val phrase = phraseObject.phrase.asStateFlow()
 	val definition = phraseObject.definition.asStateFlow()
 
-
-	private val _imgChanged = MutableStateFlow(false)
-	private val _imgPhrase: MutableStateFlow<ByteArray?> = MutableStateFlow(null)
-	val imgPhrase = _imgPhrase.asStateFlow().map { it?.let { BitmapFactory.decodeByteArray(it, 0, it.size) } }
-	val isImgPhraseNotNull get() = _imgPhrase.value?.isNotEmpty() ?: false
-
+	private val _imgPhrase: MutableStateFlow<Image?> = MutableStateFlow(null)
+	val imgPhrase = _imgPhrase.asStateFlow()
 
 	private val _country = MutableStateFlow(Countries.UNITED_KINGDOM)
 	val country = _country.asStateFlow()
@@ -90,10 +80,16 @@ class EditPhraseViewModel @Inject constructor(
 	private var _tempAudioFile = File.createTempFile("audio", ".gpp")
 	val tempAudioSource get() = MediaBytesSource(_tempAudioFile.readBytes())
 
+	val listImageFlow = provider.images.getListFlow()
+
+	init {
+		phraseObject.idImage.onEach {
+			_imgPhrase.value = it?.let { provider.images.getById(it).first() }
+		}.launchIn(viewModelScope)
+	}
 
 	fun reset() {
 		phraseObject.set(Phrase())
-		_imgChanged.value = false
 		_imgPhrase.value = null
 		_country.value = Countries.UNITED_KINGDOM
 		_lang.value = Locale.getDefault()
@@ -110,15 +106,18 @@ class EditPhraseViewModel @Inject constructor(
 			val splitLang = phrase.lang.ifNull { "eng-gb" }.split("-")
 			_lang.value = Locale.forLanguageTag(splitLang[0])
 			_country.value = Countries.search(splitLang[1]).ifNull { Countries.UNITED_KINGDOM }
-			_imgPhrase.value = provider.images.getByPhrase(phrase).first()?.let { it.imgBase64.toUri().toFile().readBytes() }
+			_imgPhrase.value = provider.images.getByPhrase(phrase).first()
 			val audio = provider.pronounce.getByPhrase(phrase).first()
 			_isFileWriting.value = true
-			audio?.dataBase64?.let { if (it.isNotEmpty()) _tempAudioFile.writeBytes(it.toUri().toFile().readBytes()) }
-			_imgChanged.value = false
+			audio?.audioUri?.let { if (it.isNotEmpty()) _tempAudioFile.writeBytes(it.toUri().toFile().readBytes()) }
 			_audioChanged.value = false
 			_isFileWriting.value = false
 			_timeWriting.value = -1
 		}
+	}
+
+	fun selectImage(image: Image) {
+		phraseObject.idImage.value = image.id
 	}
 
 	fun setBitmapImage(bitmap: Bitmap?) {
@@ -129,12 +128,12 @@ class EditPhraseViewModel @Inject constructor(
 				val newHeight = bitmap.height * newWidth / bitmap.width
 				val newBitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
 				newBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
-				_imgPhrase.value = stream.toByteArray()
+				val id = provider.images.addAsync(Image(), stream.toByteArray()).await()
+				phraseObject.idImage.value = id
 			}
 		} else {
-			_imgPhrase.value = null
+			phraseObject.idImage.value = null
 		}
-		_imgChanged.value = true
 	}
 
 	fun startRecordAudio(recorder: MediaRecorder) {
@@ -197,7 +196,6 @@ class EditPhraseViewModel @Inject constructor(
 
 	private suspend fun build(id: Int = 0): Phrase {
 		phraseObject.id.value = id
-		phraseObject.idImage.value = saveImageToId()
 		phraseObject.idPronounce.value = savePronounceToId()
 		phraseObject.lang.value = lang.value.isO3Language + "-" + country.value.isoCode
 		return phraseObject.create()
@@ -209,16 +207,6 @@ class EditPhraseViewModel @Inject constructor(
 				provider.pronounce.addAsync(Pronunciation(0, ""), _tempAudioFile.readBytes()).await().toInt()
 			} else {
 				phraseObject.idPronounce.value
-			}
-		}.await()
-	}
-
-	private suspend fun saveImageToId(): Int? {
-		return viewModelScope.async(Dispatchers.IO) {
-			if (_imgChanged.value) {
-				_imgPhrase.value?.let { provider.images.addAsync(Image(0, ""), it).await() }
-			} else {
-				phraseObject.idImage.value
 			}
 		}.await()
 	}

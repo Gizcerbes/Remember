@@ -5,18 +5,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.lifecycle.LifecycleCoroutineScope
 import com.uogames.flags.Languages
 import com.uogames.remembercards.databinding.CardLanguageBinding
 import com.uogames.remembercards.utils.ChangeableAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 
-class ChoiceLanguageAdapter(val call: (Languages) -> Unit) : ChangeableAdapter<ChoiceLanguageAdapter.LanguageHolder>() {
+class ChoiceLanguageAdapter(scope: LifecycleCoroutineScope, val call: (Languages) -> Unit) :
+	ChangeableAdapter<ChoiceLanguageAdapter.LanguageHolder>(scope) {
 
 	private var list: Array<Languages> = Languages.values()
 
-	inner class LanguageHolder(view: LinearLayout, viewGrope: ViewGroup) :
-		ChangeableAdapter.ChangeableViewHolder(view, viewGrope) {
+	inner class LanguageHolder(view: LinearLayout, viewGrope: ViewGroup, scope: LifecycleCoroutineScope) :
+		ChangeableAdapter.ChangeableViewHolder(view, viewGrope, scope) {
 
 		private val bind by lazy { CardLanguageBinding.inflate(LayoutInflater.from(itemView.context), viewGrope, false) }
 
@@ -27,7 +29,7 @@ class ChoiceLanguageAdapter(val call: (Languages) -> Unit) : ChangeableAdapter<C
 			}
 		}
 
-		override fun CoroutineScope.show(typeFragment: Int) {
+		override fun LifecycleCoroutineScope.show(typeFragment: Int) {
 			bind.txtLanguage.text = list[adapterPosition].language
 			bind.root.setOnClickListener {
 				call(list[adapterPosition])
@@ -36,8 +38,8 @@ class ChoiceLanguageAdapter(val call: (Languages) -> Unit) : ChangeableAdapter<C
 
 	}
 
-	override fun onShow(parent: ViewGroup, view: LinearLayout, viewType: Int): LanguageHolder {
-		return LanguageHolder(view, parent)
+	override fun onShow(parent: ViewGroup, view: LinearLayout, viewType: Int, scope: LifecycleCoroutineScope): LanguageHolder {
+		return LanguageHolder(view, parent, scope)
 	}
 
 	override fun getItemCount(): Int {

@@ -22,12 +22,13 @@
 				android:layout_height="wrap_content"
 				android:layout_margin="7dp"
 				android:textAppearance="?attr/textAppearanceHeadline5"
+				app:layout_constraintBottom_toBottomOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toTopOf="parent"
-				app:layout_constraintBottom_toBottomOf="parent"
 				tools:text="Translate" />
 
 			<com.google.android.material.card.MaterialCardView
+				android:id="@+id/btn_edit_card"
 				style="@style/Theme.RememberCards.CardView.Button.Icon"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -43,20 +44,32 @@
 			</com.google.android.material.card.MaterialCardView>
 		</androidx.constraintlayout.widget.ConstraintLayout>
 
+		<com.google.android.material.divider.MaterialDivider
+			android:layout_marginStart="7dp"
+			android:layout_marginEnd="7dp"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"/>
 
 		<ImageView
-			android:id="@+id/img_phrase_first"
-			android:layout_width="wrap_content"
+			android:id="@+id/img_card"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:adjustViewBounds="true"
 			android:src="@drawable/noise"
 			android:visibility="visible" />
 
 
-		<LinearLayout
+		<com.google.android.material.card.MaterialCardView
+			android:id="@+id/mcv_first"
+			style="@style/Theme.RememberCards.CardView.Button.Icon"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:orientation="vertical">
+			android:layout_marginStart="0dp"
+			android:layout_marginEnd="0dp"
+			android:orientation="horizontal"
+			app:cardCornerRadius="0dp"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent">
 
 			<androidx.constraintlayout.widget.ConstraintLayout
 				android:layout_width="match_parent"
@@ -66,56 +79,45 @@
 					android:id="@+id/txt_lang_first"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:layout_marginStart="7dp"
-					android:layout_marginTop="7dp"
 					android:textAppearance="?attr/textAppearanceBody1"
-					app:layout_constraintBottom_toTopOf="@id/mcv_first"
 					app:layout_constraintStart_toStartOf="parent"
 					app:layout_constraintTop_toTopOf="parent"
 					tools:text="English" />
 
-				<com.google.android.material.card.MaterialCardView
-					android:id="@+id/mcv_first"
-					style="@style/Theme.RememberCards.CardView.Button.Icon"
+				<LinearLayout
+					android:id="@+id/l_first"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:layout_margin="0dp"
 					android:orientation="horizontal"
+					android:minHeight="45dp"
 					app:layout_constraintStart_toStartOf="parent"
 					app:layout_constraintTop_toBottomOf="@id/txt_lang_first">
 
-					<LinearLayout
-						android:id="@+id/l_first"
+					<ImageView
+						android:id="@+id/img_sound_first"
+						android:layout_width="@dimen/card_button"
+						android:layout_height="@dimen/card_button"
+						android:layout_marginTop="7dp"
+						android:layout_marginEnd="7dp"
+						android:layout_marginBottom="7dp"
+						android:background="@drawable/list_music_play" />
+
+					<TextView
+						android:id="@+id/txt_phrase_first"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:orientation="horizontal"
-						app:layout_constraintStart_toStartOf="parent"
-						app:layout_constraintTop_toBottomOf="@id/txt_lang_first">
+						android:layout_marginTop="7dp"
+						android:layout_marginEnd="7dp"
+						android:textAppearance="?attr/textAppearanceHeadline6"
+						app:layout_constraintBottom_toBottomOf="parent"
+						app:layout_constraintEnd_toEndOf="parent"
+						app:layout_constraintStart_toEndOf="@+id/btn_sound_second"
+						app:layout_constraintTop_toBottomOf="@id/txt_lang_second"
+						tools:text="@string/first" />
 
-						<ImageView
-							android:id="@+id/img_sound_first"
-							android:layout_width="@dimen/card_button"
-							android:layout_height="@dimen/card_button"
-							android:layout_margin="7dp"
-							android:background="@drawable/list_music_play" />
-
-						<TextView
-							android:id="@+id/txt_phrase_first"
-							android:layout_width="match_parent"
-							android:layout_height="wrap_content"
-							android:layout_marginTop="7dp"
-							android:layout_marginEnd="7dp"
-							android:textAppearance="?attr/textAppearanceHeadline6"
-							app:layout_constraintBottom_toBottomOf="parent"
-							app:layout_constraintEnd_toEndOf="parent"
-							app:layout_constraintStart_toEndOf="@+id/btn_sound_second"
-							app:layout_constraintTop_toBottomOf="@id/txt_lang_second"
-							tools:text="Noise " />
-
-					</LinearLayout>
-				</com.google.android.material.card.MaterialCardView>
+				</LinearLayout>
 			</androidx.constraintlayout.widget.ConstraintLayout>
-		</LinearLayout>
+		</com.google.android.material.card.MaterialCardView>
 
 		<com.google.android.material.divider.MaterialDivider
 			android:layout_width="wrap_content"
@@ -123,69 +125,66 @@
 			android:layout_marginStart="7dp"
 			android:layout_marginEnd="7dp" />
 
-		<LinearLayout
+		<com.google.android.material.card.MaterialCardView
+			android:id="@+id/mcv_second"
+			style="@style/Theme.RememberCards.CardView.Button.Icon"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:orientation="vertical">
+			android:layout_marginStart="0dp"
+			android:layout_marginEnd="0dp"
+			android:layout_marginBottom="0dp"
+			android:orientation="horizontal"
+			app:cardCornerRadius="0dp"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/txt_lang_second">
 
 			<androidx.constraintlayout.widget.ConstraintLayout
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content">
+				android:layout_height="wrap_content"
+				android:layout_marginBottom="7dp">
 
 				<TextView
 					android:id="@+id/txt_lang_second"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:layout_marginStart="7dp"
-					android:layout_marginTop="7dp"
 					android:textAppearance="?attr/textAppearanceBody1"
-					app:layout_constraintBottom_toTopOf="@id/mcv_second"
 					app:layout_constraintStart_toStartOf="parent"
 					app:layout_constraintTop_toTopOf="parent"
 					tools:text="English" />
 
-				<com.google.android.material.card.MaterialCardView
-					android:id="@+id/mcv_second"
-					style="@style/Theme.RememberCards.CardView.Button.Icon"
+				<LinearLayout
+					android:id="@+id/l_second"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:layout_margin="0dp"
 					android:orientation="horizontal"
+					android:minHeight="45dp"
 					app:layout_constraintStart_toStartOf="parent"
 					app:layout_constraintTop_toBottomOf="@id/txt_lang_second">
 
-					<LinearLayout
-						android:id="@+id/l_second"
+					<ImageView
+						android:id="@+id/img_sound_second"
+						android:layout_width="@dimen/card_button"
+						android:layout_height="@dimen/card_button"
+						android:layout_marginTop="7dp"
+						android:layout_marginEnd="7dp"
+						android:layout_marginBottom="7dp"
+						android:background="@drawable/list_music_play" />
+
+					<TextView
+						android:id="@+id/txt_phrase_second"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:orientation="horizontal"
-						app:layout_constraintStart_toStartOf="parent"
-						app:layout_constraintTop_toBottomOf="@id/txt_lang_first">
-
-						<ImageView
-							android:id="@+id/img_sound_second"
-							android:layout_width="@dimen/card_button"
-							android:layout_height="@dimen/card_button"
-							android:layout_margin="7dp"
-							android:background="@drawable/list_music_play" />
-
-						<TextView
-							android:id="@+id/txt_phrase_second"
-							android:layout_width="match_parent"
-							android:layout_height="wrap_content"
-							android:layout_marginTop="7dp"
-							android:layout_marginEnd="7dp"
-							android:textAppearance="?attr/textAppearanceHeadline6"
-							app:layout_constraintBottom_toBottomOf="parent"
-							app:layout_constraintEnd_toEndOf="parent"
-							app:layout_constraintStart_toEndOf="@+id/btn_sound_second"
-							app:layout_constraintTop_toBottomOf="@id/txt_lang_second"
-							tools:text="Шум" />
-					</LinearLayout>
-
-				</com.google.android.material.card.MaterialCardView>
+						android:layout_marginTop="7dp"
+						android:layout_marginEnd="7dp"
+						android:textAppearance="?attr/textAppearanceHeadline6"
+						app:layout_constraintBottom_toBottomOf="parent"
+						app:layout_constraintEnd_toEndOf="parent"
+						app:layout_constraintStart_toEndOf="@+id/btn_sound_second"
+						app:layout_constraintTop_toBottomOf="@id/txt_lang_second"
+						tools:text="@string/second" />
+				</LinearLayout>
 			</androidx.constraintlayout.widget.ConstraintLayout>
-		</LinearLayout>
+		</com.google.android.material.card.MaterialCardView>
 
 	</LinearLayout>
 

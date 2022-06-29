@@ -31,4 +31,7 @@ interface ImageDAO {
 	)
 	suspend fun freeImages(): List<ImageEntity>
 
+	@Query("SELECT * FROM images_table")
+	fun getListFlow(): Flow<List<ImageEntity>>
+
 }

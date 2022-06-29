@@ -30,4 +30,5 @@ class ImageRepository(private val imageDAO: ImageDAO) {
 
 	suspend fun freeImages() = imageDAO.freeImages().map { it.toDTO() }
 
+	fun getImageListFlow() = imageDAO.getListFlow().map { list -> list.map { it.toDTO() } }
 }

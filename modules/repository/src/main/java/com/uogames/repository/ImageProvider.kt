@@ -23,7 +23,7 @@ class ImageProvider(
 
 	fun deleteAsync(image: Image) = ioScope.async {
 		database.imageRepository.getByID(image.id).first()?.let {
-			fileRepository.deleteFile(it.imgBase64.toUri())
+			fileRepository.deleteFile(it.imgUri.toUri())
 			return@async database.imageRepository.delete(image)
 		} ?: false
 	}
@@ -43,9 +43,11 @@ class ImageProvider(
 
 	suspend fun clear(){
 		database.imageRepository.freeImages().forEach{
-			fileRepository.deleteFile(it.imgBase64.toUri())
+			fileRepository.deleteFile(it.imgUri.toUri())
 			database.imageRepository.delete(it)
 		}
 	}
+
+	fun getListFlow() = database.imageRepository.getImageListFlow()
 
 }

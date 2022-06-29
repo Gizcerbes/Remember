@@ -2,13 +2,11 @@ package com.uogames.repository
 
 import androidx.core.net.toUri
 import com.uogames.database.DatabaseRepository
-import com.uogames.dto.Image
 import com.uogames.dto.Phrase
 import com.uogames.dto.Pronunciation
 import com.uogames.repository.fileRepository.FileRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 
 class PronunciationProvider(
 	private val database: DatabaseRepository,
@@ -24,7 +22,7 @@ class PronunciationProvider(
 
 	fun deleteAsync(pronunciation: Pronunciation) = ioScope.async {
 		database.pronunciationRepository.getById(pronunciation.id).first()?.let {
-			fileRepository.deleteFile(it.dataBase64.toUri())
+			fileRepository.deleteFile(it.audioUri.toUri())
 			return@async database.pronunciationRepository.delete(pronunciation)
 		} ?: false
 	}
@@ -46,7 +44,7 @@ class PronunciationProvider(
 
 	suspend fun clear(){
 		database.pronunciationRepository.freeId().forEach{
-			fileRepository.deleteFile(it.dataBase64.toUri())
+			fileRepository.deleteFile(it.audioUri.toUri())
 			database.pronunciationRepository.delete(it)
 		}
 	}

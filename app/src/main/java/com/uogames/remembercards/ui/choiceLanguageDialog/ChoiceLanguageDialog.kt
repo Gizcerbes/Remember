@@ -7,8 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.core.widget.doOnTextChanged
+import androidx.lifecycle.lifecycleScope
 import com.uogames.flags.Languages
-import com.uogames.remembercards.databinding.FragmentChoiceDialogBinding
+import com.uogames.remembercards.databinding.FragmentChoicePhraseBinding
 import com.uogames.remembercards.utils.ObservedDaggerDialog
 
 class ChoiceLanguageDialog(call: (Languages) -> Unit) : ObservedDaggerDialog<Languages>(call) {
@@ -18,14 +19,14 @@ class ChoiceLanguageDialog(call: (Languages) -> Unit) : ObservedDaggerDialog<Lan
 	}
 
 
-	private lateinit var bind: FragmentChoiceDialogBinding
+	private lateinit var bind: FragmentChoicePhraseBinding
 
 	private val imm by lazy {
 		requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 	}
 
 	private val adapter: ChoiceLanguageAdapter by lazy {
-		ChoiceLanguageAdapter() {
+		ChoiceLanguageAdapter(lifecycleScope) {
 			call(it)
 			imm.hideSoftInputFromWindow(view?.windowToken, 0)
 			dismiss()
@@ -33,7 +34,7 @@ class ChoiceLanguageDialog(call: (Languages) -> Unit) : ObservedDaggerDialog<Lan
 	}
 
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-		bind = FragmentChoiceDialogBinding.inflate(inflater, container, false)
+		bind = FragmentChoicePhraseBinding.inflate(inflater, container, false)
 		return bind.root
 	}
 
@@ -42,9 +43,9 @@ class ChoiceLanguageDialog(call: (Languages) -> Unit) : ObservedDaggerDialog<Lan
 
 		dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT)
 
-		bind.rvChoice.adapter = adapter
+		bind.recycler.adapter = adapter
 
-		bind.tilEdit.editText?.doOnTextChanged { text, _, _, _ ->
+		bind.tilSearch.editText?.doOnTextChanged { text, _, _, _ ->
 			adapter.setMask(text.toString())
 		}
 

@@ -9,11 +9,11 @@ import android.view.inputmethod.InputMethodManager
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentBookBinding
 import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseViewModel
+import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.remembercards.utils.observeWhenStarted
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
@@ -27,7 +27,10 @@ class BookFragment : DaggerFragment() {
 	lateinit var globalViewModel: GlobalViewModel
 
 	@Inject
-	lateinit var addPhraseViewModel: EditPhraseViewModel
+	lateinit var editPhraseViewModel: EditPhraseViewModel
+
+	@Inject
+	lateinit var player: ObservableMediaPlayer
 
 	lateinit var bind: FragmentBookBinding
 
@@ -35,7 +38,7 @@ class BookFragment : DaggerFragment() {
 		requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 	}
 
-	private val adapter by lazy { BookAdapter(bookViewModel) }
+	private val adapter by lazy { BookAdapter(bookViewModel, player, lifecycleScope) }
 
 	override fun onCreateView(
 		inflater: LayoutInflater,
@@ -51,15 +54,12 @@ class BookFragment : DaggerFragment() {
 
 		bookViewModel.reset()
 
-		bind.recycler.layoutManager = LinearLayoutManager(requireContext()).apply {
-			orientation = LinearLayoutManager.VERTICAL
-		}
 
 		bookViewModel.size.observeWhenStarted(lifecycleScope) {
 			bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
 		}
 
-		globalViewModel.isShowKey.observeWhenStarted(lifecycleScope){
+		globalViewModel.isShowKey.observeWhenStarted(lifecycleScope) {
 			bind.tilSearch.visibility = if (it) View.VISIBLE else View.GONE
 			bind.btnAdd.visibility = if (it) View.GONE else View.VISIBLE
 			if (it) {
@@ -88,7 +88,7 @@ class BookFragment : DaggerFragment() {
 	}
 
 	private fun openEditFragment() {
-		addPhraseViewModel.reset()
+		editPhraseViewModel.reset()
 		requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.addPhraseFragment)
 	}
 

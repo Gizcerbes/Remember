@@ -35,8 +35,7 @@ fun <T> Flow<T>.observeWhile(
 ): Job = scope.launch {
 	collect() {
 		if (!checkBefore(it)) {
-			this.cancel()
-			return@collect
+			return@collect this.cancel()
 		} else {
 			listener(it)
 		}
@@ -53,6 +52,7 @@ fun <T> Flow<T>.observeWhenStarted(
 
 inline fun <C> C?.ifNull(defaultValue: () -> C): C =
 	this ?: defaultValue()
+
 
 inline fun <C : CharSequence?> C.ifNullOrEmpty(defaultValue: () -> C): C {
 	return if (isNullOrEmpty()) defaultValue()

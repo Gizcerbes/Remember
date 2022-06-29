@@ -20,6 +20,6 @@ class CardsProvider(
 
 	fun getCardFlow(like: String = "", number: Int) = database.cardRepository.getCardFlow(like, number)
 
-	fun getByIdFlow(id: Int) = database.phraseRepository.getByIdFlow(id)
+	fun getByIdFlow(id: Int) = database.cardRepository.getByIdFlow(id)
 
 }

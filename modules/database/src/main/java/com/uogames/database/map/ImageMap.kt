@@ -7,14 +7,14 @@ object ImageMap : Map<ImageEntity, Image> {
 	override fun ImageEntity.toDTO(): Image {
 		return Image(
 			id = id,
-			imgBase64 = imgUri
+			imgUri = imgUri
 		)
 	}
 
 	override fun Image.toEntity(): ImageEntity {
 		return ImageEntity(
 			id = id,
-			imgUri = imgBase64
+			imgUri = imgUri
 		)
 	}
 }

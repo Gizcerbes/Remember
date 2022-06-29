@@ -1,6 +1,6 @@
 package com.uogames.dto
 
 data class Image(
-	val id: Int,
-	val imgBase64: String
+	val id: Int = 0,
+	val imgUri: String = ""
 )

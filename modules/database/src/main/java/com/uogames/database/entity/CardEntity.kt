@@ -5,18 +5,19 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
 @Entity(
-	tableName = "new_cards_table", foreignKeys = [
-		ForeignKey(
-			entity = PhraseEntity::class,
-			parentColumns = ["id"],
-			childColumns = ["idPhrase"],
-			onDelete = ForeignKey.CASCADE
-		), ForeignKey(
-			entity = PhraseEntity::class,
-			parentColumns = ["id"],
-			childColumns = ["idTranslate"],
-			onDelete = ForeignKey.CASCADE
-		)]
+	tableName = "new_cards_table",
+//	foreignKeys = [
+//		ForeignKey(
+//			entity = PhraseEntity::class,
+//			parentColumns = ["id"],
+//			childColumns = ["idPhrase"],
+//			onDelete = ForeignKey.RESTRICT
+//		), ForeignKey(
+//			entity = PhraseEntity::class,
+//			parentColumns = ["id"],
+//			childColumns = ["idTranslate"],
+//			onDelete = ForeignKey.RESTRICT
+//		)]
 )
 
 data class CardEntity(

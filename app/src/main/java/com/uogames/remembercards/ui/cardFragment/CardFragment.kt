@@ -11,6 +11,8 @@ import androidx.navigation.findNavController
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentCardBinding
+import com.uogames.remembercards.ui.editCardFragment.EditCardViewModel
+import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.remembercards.utils.observeWhenStarted
 import com.uogames.remembercards.utils.observeWhile
 import dagger.android.support.DaggerFragment
@@ -20,6 +22,15 @@ class CardFragment : DaggerFragment() {
 
 	@Inject
 	lateinit var globalViewModel: GlobalViewModel
+
+	@Inject
+	lateinit var editCardViewModel: EditCardViewModel
+
+	@Inject
+	lateinit var cardViewModel: CardViewModel
+
+	@Inject
+	lateinit var player: ObservableMediaPlayer
 
 	lateinit var bind: FragmentCardBinding
 
@@ -35,7 +46,7 @@ class CardFragment : DaggerFragment() {
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
 
-		globalViewModel.isShowKey.observeWhenStarted(lifecycleScope){
+		globalViewModel.isShowKey.observeWhenStarted(lifecycleScope) {
 			bind.tilSearch.visibility = if (it) View.VISIBLE else View.GONE
 			bind.btnAdd.visibility = if (it) View.GONE else View.VISIBLE
 			if (it) {
@@ -55,8 +66,15 @@ class CardFragment : DaggerFragment() {
 		}
 
 		bind.btnAdd.setOnClickListener {
+			editCardViewModel.reset()
 			requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.editCardFragment)
 		}
+
+		cardViewModel.size.observeWhenStarted(lifecycleScope) {
+			bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
+		}
+
+		bind.recycler.adapter = CardAdapter(cardViewModel, player, lifecycleScope)
 
 	}
 

@@ -1,41 +1,35 @@
 package com.uogames.remembercards.ui.bookFragment
 
-import android.media.MediaPlayer
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.navigation.findNavController
 import com.uogames.dto.Phrase
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardPhraseBinding
 import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseFragment
-import com.uogames.remembercards.utils.ChangeableAdapter
-import com.uogames.remembercards.utils.asAnimationDrawable
-import com.uogames.remembercards.utils.ifNull
-import com.uogames.remembercards.utils.observeWhile
+import com.uogames.remembercards.utils.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
 
 class BookAdapter(
-	private val model: BookViewModel
-) : ChangeableAdapter<BookAdapter.CardHolder>() {
+	private val model: BookViewModel,
+	private val player: ObservableMediaPlayer,
+	lifecycleScope: LifecycleCoroutineScope
+) : ChangeableAdapter<BookAdapter.CardHolder>(lifecycleScope) {
 
 	companion object {
 		private const val INFO_MODE = 0
 	}
 
 	private val recyclerScope = CoroutineScope(Dispatchers.Main)
-
-	private var player: MediaPlayer? = null
 
 	init {
 		model.size.onEach {
@@ -46,7 +40,8 @@ class BookAdapter(
 	inner class CardHolder(
 		view: LinearLayout,
 		private val viewGrope: ViewGroup,
-	) : ChangeableViewHolder(view, viewGrope) {
+		lifecycleScope: LifecycleCoroutineScope
+	) : ChangeableViewHolder(view, viewGrope, lifecycleScope) {
 
 
 		private val infoBind: CardPhraseBinding by lazy {
@@ -60,17 +55,16 @@ class BookAdapter(
 			}
 		}
 
-		override fun CoroutineScope.show(typeFragment: Int) {
+		override fun LifecycleCoroutineScope.show(typeFragment: Int) {
 			when (typeFragment) {
-				INFO_MODE -> showInfoMode()
+				INFO_MODE -> this.showInfoMode()
 			}
 		}
 
-		private fun CoroutineScope.showInfoMode() {
-			infoBind.btnEdit.visibility = View.GONE
+		private fun LifecycleCoroutineScope.showInfoMode() {
 			infoBind.root.visibility = View.INVISIBLE
 			val position = adapterPosition
-			model.get(position).observeWhile(this) { res ->
+			model.get(position).observeWhenStarted(this) { res ->
 				res?.let { phrase ->
 					infoBind.txtPhrase.text = phrase.phrase
 					infoBind.txtDefinition.text = phrase.definition.orEmpty()
@@ -98,31 +92,27 @@ class BookAdapter(
 			}.ifNull { View.GONE }
 		}
 
-		private fun showPronounce(phrase: Phrase) {
-			infoBind.btnSound.visibility = phrase.idPronounce?.let {
+		private fun LifecycleCoroutineScope.showPronounce(phrase: Phrase) {
+			phrase.idPronounce?.let {
+				infoBind.btnSound.visibility = View.VISIBLE
 				infoBind.btnSound.setOnClickListener {
-					cardScope.launch(Dispatchers.IO) {
-						val audio = model.getAudio(phrase).first()
-						player?.stop()
-						val player = MediaPlayer()
-						player.setDataSource(itemView.context, audio)
-						try {
-							player.prepare()
-						} catch (e: Exception) {
-							Toast.makeText(itemView.context, e.toString(), Toast.LENGTH_SHORT).show()
-						}
-						player.start()
-						this@BookAdapter.player = player
-						launch(Dispatchers.Main) {
-							infoBind.imgBtnSound.background.asAnimationDrawable().start()
-							while (player.isPlaying) delay(100)
-							infoBind.imgBtnSound.background.asAnimationDrawable().stop()
-							infoBind.imgBtnSound.background.asAnimationDrawable().selectDrawable(0)
-						}
+					play(phrase)
+				}
+			}.ifNull { infoBind.btnSound.visibility = View.GONE }
+		}
+
+		private fun LifecycleCoroutineScope.play(phrase: Phrase) = launch(Dispatchers.IO) {
+			val audio = model.getAudio(phrase).first()
+			player.setStatListener {
+				when (it) {
+					ObservableMediaPlayer.Status.PLAY -> infoBind.imgBtnSound.background.asAnimationDrawable().start()
+					else -> {
+						infoBind.imgBtnSound.background.asAnimationDrawable().stop()
+						infoBind.imgBtnSound.background.asAnimationDrawable().selectDrawable(0)
 					}
 				}
-				View.VISIBLE
-			}.ifNull { View.GONE }
+			}
+			player.play(itemView.context, audio)
 		}
 
 		private fun showLang(phrase: Phrase) {
@@ -136,7 +126,7 @@ class BookAdapter(
 		}
 
 		override fun onDetached() {
-			player?.stop()
+			player.stop()
 		}
 
 	}
@@ -145,12 +135,12 @@ class BookAdapter(
 		parent: ViewGroup,
 		view: LinearLayout,
 		viewType: Int,
+		scope: LifecycleCoroutineScope
 	): CardHolder {
-		return CardHolder(view, parent)
+		return CardHolder(view, parent, scope)
 	}
 
 	override fun getItemCount() = model.size.value
-
 
 
 }

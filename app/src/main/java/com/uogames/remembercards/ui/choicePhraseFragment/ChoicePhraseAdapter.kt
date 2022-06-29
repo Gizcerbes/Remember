@@ -9,16 +9,14 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.navigation.findNavController
 import com.uogames.dto.Phrase
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardPhraseBinding
 import com.uogames.remembercards.ui.bookFragment.BookViewModel
 import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseFragment
-import com.uogames.remembercards.utils.ChangeableAdapter
-import com.uogames.remembercards.utils.asAnimationDrawable
-import com.uogames.remembercards.utils.ifNull
-import com.uogames.remembercards.utils.observeWhile
+import com.uogames.remembercards.utils.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -29,29 +27,32 @@ import kotlinx.coroutines.launch
 import java.util.*
 
 class ChoicePhraseAdapter(
+	scope: LifecycleCoroutineScope,
 	val model: BookViewModel,
+	val player: ObservableMediaPlayer,
 	val selectedCall: (Phrase) -> Unit
-) : ChangeableAdapter<ChoicePhraseAdapter.PhraseHolder>() {
+) : ChangeableAdapter<ChoicePhraseAdapter.PhraseHolder>(scope) {
 
 	companion object {
 		private const val INFO_MODE = 0
 	}
 
 	private val recyclerScope = CoroutineScope(Dispatchers.Main)
-	private var player: MediaPlayer? = null
+
 
 	init {
 		model.size.onEach {
 			notifyDataSetChanged()
-			Log.e("TAG", "$it" )
+			Log.e("TAG", "$it")
 		}.launchIn(recyclerScope)
 	}
 
 	inner class PhraseHolder(
 		layout: LinearLayout,
-		viewGrope: ViewGroup
+		viewGrope: ViewGroup,
+		val scope: LifecycleCoroutineScope
 	) :
-		ChangeableAdapter.ChangeableViewHolder(layout, viewGrope) {
+		ChangeableAdapter.ChangeableViewHolder(layout, viewGrope, scope) {
 
 		private val infoBind: CardPhraseBinding by lazy {
 			CardPhraseBinding.inflate(LayoutInflater.from(itemView.context), viewGrope, false)
@@ -64,13 +65,13 @@ class ChoicePhraseAdapter(
 			}
 		}
 
-		override fun CoroutineScope.show(typeFragment: Int) {
+		override fun LifecycleCoroutineScope.show(typeFragment: Int) {
 			when (typeFragment) {
-				INFO_MODE -> showInfoMode()
+				INFO_MODE -> scope.showInfoMode()
 			}
 		}
 
-		private fun CoroutineScope.showInfoMode() {
+		private fun LifecycleCoroutineScope.showInfoMode() {
 			infoBind.btnEdit.visibility = View.GONE
 			infoBind.root.visibility = View.INVISIBLE
 			model.get(adapterPosition).observeWhile(this) { res ->
@@ -104,31 +105,27 @@ class ChoicePhraseAdapter(
 			}.ifNull { View.GONE }
 		}
 
-		private fun showPronounce(phrase: Phrase) {
-			infoBind.btnSound.visibility = phrase.idPronounce?.let {
+		private fun LifecycleCoroutineScope.showPronounce(phrase: Phrase) {
+			phrase.idPronounce?.let {
 				infoBind.btnSound.setOnClickListener {
-					cardScope.launch(Dispatchers.IO) {
-						val audio = model.getAudio(phrase).first()
-						player?.stop()
-						val player = MediaPlayer()
-						player.setDataSource(itemView.context, audio)
-						try {
-							player.prepare()
-						} catch (e: Exception) {
-							Toast.makeText(itemView.context, e.toString(), Toast.LENGTH_SHORT).show()
-						}
-						player.start()
-						this@ChoicePhraseAdapter.player = player
-						launch(Dispatchers.Main) {
-							infoBind.imgBtnSound.background.asAnimationDrawable().start()
-							while (player.isPlaying) delay(100)
-							infoBind.imgBtnSound.background.asAnimationDrawable().stop()
-							infoBind.imgBtnSound.background.asAnimationDrawable().selectDrawable(0)
-						}
+					play(phrase)
+				}
+				infoBind.btnSound.visibility = View.VISIBLE
+			}.ifNull { infoBind.btnSound.visibility = View.GONE }
+		}
+
+		private fun LifecycleCoroutineScope.play(phrase: Phrase) = launch(Dispatchers.IO) {
+			val audio = model.getAudio(phrase).first()
+			player.setStatListener {
+				when (it) {
+					ObservableMediaPlayer.Status.PLAY -> infoBind.imgBtnSound.background.asAnimationDrawable().start()
+					else -> {
+						infoBind.imgBtnSound.background.asAnimationDrawable().stop()
+						infoBind.imgBtnSound.background.asAnimationDrawable().selectDrawable(0)
 					}
 				}
-				View.VISIBLE
-			}.ifNull { View.GONE }
+			}
+			player.play(itemView.context, audio)
 		}
 
 		private fun showLang(phrase: Phrase) {
@@ -146,8 +143,8 @@ class ChoicePhraseAdapter(
 		}
 	}
 
-	override fun onShow(parent: ViewGroup, view: LinearLayout, viewType: Int): PhraseHolder {
-		return PhraseHolder(view, parent)
+	override fun onShow(parent: ViewGroup, view: LinearLayout, viewType: Int, scope: LifecycleCoroutineScope): PhraseHolder {
+		return PhraseHolder(view, parent, scope)
 	}
 
 	override fun getItemCount() = model.size.value

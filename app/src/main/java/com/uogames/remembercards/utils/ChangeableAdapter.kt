@@ -1,18 +1,15 @@
 package com.uogames.remembercards.utils
 
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.RecyclerView
-import com.uogames.repository.DataProvider.Companion.get
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 
 
-abstract class ChangeableAdapter<VH : ChangeableAdapter.ChangeableViewHolder> :
+abstract class ChangeableAdapter<VH : ChangeableAdapter.ChangeableViewHolder>(private val scope: LifecycleCoroutineScope) :
 	RecyclerView.Adapter<VH>() {
 
 	private val dataChange = MutableStateFlow(0)
@@ -20,25 +17,24 @@ abstract class ChangeableAdapter<VH : ChangeableAdapter.ChangeableViewHolder> :
 	abstract class ChangeableViewHolder(
 		view: LinearLayout,
 		private val viewGrope: ViewGroup,
+		private val scope: LifecycleCoroutineScope
 	) : RecyclerView.ViewHolder(view) {
 
-		private val defHolderScope = CoroutineScope(Dispatchers.Main)
-		private var _cardScope = CoroutineScope(Dispatchers.Main)
-		val cardScope: CoroutineScope get() = _cardScope
+		private val typeFragment = MutableStateFlow(0)
+		private var cardJob: Job? = null
 		private var oldPos = -1
 
-		private val typeFragment = MutableStateFlow(0)
-
 		init {
-			typeFragment.onEach { draw(it) }.launchIn(defHolderScope)
+			typeFragment.observeWhenStarted(scope) { draw(it) }
 		}
 
 		fun changePosition() {
-			_cardScope.cancel()
-			_cardScope = CoroutineScope(Dispatchers.Main)
+			cardJob?.cancel()
 			val type = itemViewType()
 			if (typeFragment.value == type) {
-				if (adapterPosition != -1) cardScope.show(typeFragment.value)
+				if (adapterPosition != -1) {
+					cardJob = scope.launchWhenStarted { draw(typeFragment.value) }
+				}
 			} else {
 				if (adapterPosition != -1) typeFragment.value = type
 			}
@@ -59,20 +55,20 @@ abstract class ChangeableAdapter<VH : ChangeableAdapter.ChangeableViewHolder> :
 			if (adapterPosition != oldPos) {
 				view.removeAllViews()
 				view.addView(onCreateView(typeFragment, viewGrope))
-			} else {
-				Log.e("TAG", "draw: $adapterPosition $oldPosition $oldPos")
 			}
-			if (adapterPosition != -1) cardScope.launch { show(typeFragment) }
+			if (adapterPosition != -1) {
+				 scope.show(typeFragment)
+			}
 			val param = view.layoutParams
 			param.height = ViewGroup.LayoutParams.WRAP_CONTENT
 			view.layoutParams = param
 			oldPos = adapterPosition
 		}
 
-		abstract fun CoroutineScope.show(typeFragment: Int)
+		abstract fun LifecycleCoroutineScope.show(typeFragment: Int)
 
 		fun onDetach() {
-			cardScope.cancel()
+			cardJob?.cancel()
 			onDetached()
 		}
 
@@ -82,13 +78,14 @@ abstract class ChangeableAdapter<VH : ChangeableAdapter.ChangeableViewHolder> :
 	}
 
 	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-		return onShow(parent, createLayout(parent), viewType)
+		return onShow(parent, createLayout(parent), viewType, scope)
 	}
 
 	abstract fun onShow(
 		parent: ViewGroup,
 		view: LinearLayout,
 		viewType: Int,
+		scope: LifecycleCoroutineScope
 	): VH
 
 	private fun createLayout(viewGrope: ViewGroup): LinearLayout {

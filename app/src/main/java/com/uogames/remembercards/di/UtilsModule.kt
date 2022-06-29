@@ -2,14 +2,17 @@ package com.uogames.remembercards.di
 
 import android.app.Application
 import android.content.Context
+import android.media.MediaPlayer
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseViewModel
 import com.uogames.remembercards.ui.bookFragment.BookViewModel
+import com.uogames.remembercards.ui.cardFragment.CardViewModel
 import com.uogames.remembercards.ui.cropFragment.CropViewModel
 import com.uogames.remembercards.ui.editCardFragment.EditCardViewModel
 import com.uogames.remembercards.ui.gameYesOrNo.GameYesOrNotViewModel
 import com.uogames.remembercards.ui.mainNav.NavigationViewModel
 import com.uogames.remembercards.ui.selectCountry.SelectCountryViewModel
+import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.repository.DataProvider
 import dagger.Module
 import dagger.Provides
@@ -22,7 +25,7 @@ class UtilsModule {
 	fun provideContext(app: Application): Context = app.applicationContext
 
 	@Provides
-	fun provideDataProvider(context: Context):DataProvider = DataProvider.get(context)
+	fun provideDataProvider(context: Context): DataProvider = DataProvider.get(context)
 
 	@Provides
 	@Singleton
@@ -55,5 +58,13 @@ class UtilsModule {
 	@Provides
 	@Singleton
 	fun provideEditCardViewModel(provider: DataProvider): EditCardViewModel = EditCardViewModel(provider)
+
+	@Provides
+	@Singleton
+	fun provideCardViewModel(provider: DataProvider): CardViewModel = CardViewModel(provider)
+
+	@Provides
+	@Singleton
+	fun provideMediaPlayer(): ObservableMediaPlayer = ObservableMediaPlayer(MediaPlayer())
 
 }
