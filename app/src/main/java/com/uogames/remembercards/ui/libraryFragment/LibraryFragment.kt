@@ -32,32 +32,6 @@ class LibraryFragment : DaggerFragment() {
 		bind.recycler.adapter = Adapter()
 
 
-
-//		Countries.values().forEach {
-//			val ll = LinearLayout(requireContext()).apply { orientation = LinearLayout.VERTICAL }
-//			val iv = ImageView(requireContext()).apply { adjustViewBounds = true }
-//			it.country.forEach {
-//				val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-//				lp.setMargins(7)
-//				ll.addView(TextView(requireContext()).apply {
-//					text = it
-//					layoutParams = lp
-//				})
-//			}
-//			ll.addView(iv)
-//
-//			val card = MaterialCardView(requireContext())
-//			val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-//			lp.setMargins(45, 45, 45, 45)
-//			card.layoutParams = lp
-//			card.addView(ll)
-//			bind.flags.addView(card)
-//			CoroutineScope(Dispatchers.Main).launch {
-//				iv.setImageResource(it.res)
-//				//Picasso.get().load(it.res).into(iv)
-//			}
-//
-//		}
 	}
 
 }

@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import androidx.activity.OnBackPressedCallback
 import androidx.core.net.toUri
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
@@ -53,6 +54,14 @@ class EditPhraseFragment : DaggerFragment() {
 		requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 	}
 
+	private val callback by lazy {
+		object : OnBackPressedCallback(false) {
+			override fun handleOnBackPressed() {
+				bottomSheet.state = BottomSheetBehavior.STATE_HIDDEN
+			}
+		}
+	}
+
 	companion object {
 		const val ID_PHRASE = "ID_PHRASE"
 	}
@@ -69,6 +78,9 @@ class EditPhraseFragment : DaggerFragment() {
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
 		val id = arguments?.getInt(ID_PHRASE)
+
+		requireActivity().onBackPressedDispatcher.addCallback(requireActivity(), callback)
+		requireActivity().onBackPressedDispatcher
 
 		id?.let {
 			bind.txtFragmentName.text = getString(R.string.edit_card)
@@ -113,8 +125,10 @@ class EditPhraseFragment : DaggerFragment() {
 			override fun onStateChanged(bottomSheet: View, newState: Int) {
 				if (newState == BottomSheetBehavior.STATE_HIDDEN || newState == BottomSheetBehavior.STATE_COLLAPSED) {
 					bind.blind.visibility = View.GONE
+					callback.isEnabled = false
 				} else {
 					bind.blind.visibility = View.VISIBLE
+					callback.isEnabled = true
 				}
 			}
 			override fun onSlide(bottomSheet: View, slideOffset: Float) {

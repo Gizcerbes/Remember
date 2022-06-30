@@ -31,7 +31,6 @@ class ImageAdapter(
 
 		fun show(){
 			val uri = list[adapterPosition].imgUri.toUri()
-			//view.setImageURI(uri)
 			view.setOnClickListener { call(list[adapterPosition]) }
 			view.addView(ImageView(view.context).apply {
 				setImageURI(uri)
@@ -42,7 +41,6 @@ class ImageAdapter(
 
 	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageHolder {
 		val imView = MaterialCardView(parent.context).apply {
-			//scaleType = ImageView.ScaleType.CENTER_CROP
 			val layParams = ActionBar.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,250)
 			layParams.setMargins(7)
 			layoutParams = layParams

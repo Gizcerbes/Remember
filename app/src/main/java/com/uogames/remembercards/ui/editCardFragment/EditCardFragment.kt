@@ -2,6 +2,7 @@ package com.uogames.remembercards.ui.editCardFragment
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.core.net.toUri
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
@@ -60,6 +62,14 @@ class EditCardFragment : DaggerFragment() {
 		requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 	}
 
+	private val callback by lazy {
+		object : OnBackPressedCallback(false) {
+			override fun handleOnBackPressed() {
+				bottomSheet.state = BottomSheetBehavior.STATE_HIDDEN
+			}
+		}
+	}
+
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 		bind = FragmentEditCardBinding.inflate(inflater, container, false)
 		return bind.root
@@ -69,6 +79,8 @@ class EditCardFragment : DaggerFragment() {
 		super.onViewCreated(view, savedInstanceState)
 
 		val id: Int? = arguments?.getInt(EDIT_ID)
+
+		requireActivity().onBackPressedDispatcher.addCallback(requireActivity(), callback)
 
 		id?.let {
 			editCardViewModel.load(id)
@@ -92,15 +104,16 @@ class EditCardFragment : DaggerFragment() {
 			}
 		}
 
-
 		bottomSheet = BottomSheetBehavior.from(bind.rlBehavior)
 		bottomSheet.halfExpandedRatio = 0.4f
 		bottomSheet.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
 			override fun onStateChanged(bottomSheet: View, newState: Int) {
 				if (newState == BottomSheetBehavior.STATE_HIDDEN || newState == BottomSheetBehavior.STATE_COLLAPSED) {
 					bind.blind.visibility = View.GONE
+					callback.isEnabled = false
 				} else {
 					bind.blind.visibility = View.VISIBLE
+					callback.isEnabled = true
 				}
 			}
 
@@ -227,6 +240,7 @@ class EditCardFragment : DaggerFragment() {
 			cropViewModel.reset()
 			bottomSheet.state = BottomSheetBehavior.STATE_HIDDEN
 		}
+
 	}
 
 	private fun setButtonData(
