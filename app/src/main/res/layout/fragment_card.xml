@@ -11,6 +11,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_alignParentTop="true"
+		style="@style/Theme.RememberCards.AppBar"
 		app:layout_constraintBaseline_toTopOf="parent">
 
 		<TextView

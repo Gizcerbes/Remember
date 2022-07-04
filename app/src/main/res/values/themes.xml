@@ -57,6 +57,7 @@
 
 	<style name="Theme.RememberCards.AppBar" parent="">
 		<item name="android:layout_height">55dp</item>
+		<item name="android:minHeight">55dp</item>
 		<item name="android:layout_width">match_parent</item>
 	</style>
 
