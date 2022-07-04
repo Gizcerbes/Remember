@@ -43,6 +43,17 @@
 		android:name="com.uogames.remembercards.ui.choicePhraseFragment.ChoicePhraseFragment"
 		tools:layout="@layout/fragment_choice_phrase"
 		android:label="ChoicePhraseDialog" />
+	<fragment
+		android:id="@+id/editModuleFragment"
+		android:name="com.uogames.remembercards.ui.editModuleFragment.EditModuleFragment"
+		android:label="EditModuleFragment"
+		tools:layout="@layout/fragment_edit_module"
+		/>
+	<fragment
+		android:id="@+id/choiceCardFragment"
+		android:name="com.uogames.remembercards.ui.choiceCardFragment.ChoiceCardFragment"
+		android:label="ChoiceCardFragment"
+		tools:layout="@layout/fragment_card"/>
 
 
 </navigation>

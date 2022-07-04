@@ -1,11 +1,7 @@
 package com.uogames.database
 
 import android.content.Context
-import com.uogames.database.map.CardMap.toDTO
-import com.uogames.database.map.CardMap.toEntity
 import com.uogames.database.repository.*
-import com.uogames.dto.Card
-import kotlinx.coroutines.flow.map
 
 class DatabaseRepository private constructor(private val database: MyDatabase) {
 
@@ -30,5 +26,8 @@ class DatabaseRepository private constructor(private val database: MyDatabase) {
 
 	val settingRepository by lazy { SettingRepository(database.settingDAO()) }
 
+	val moduleRepository by lazy { ModuleRepository(database.moduleDAO()) }
+
+	val moduleCardRepository by lazy { ModuleCardRepository(database.moduleCardDAO()) }
 
 }

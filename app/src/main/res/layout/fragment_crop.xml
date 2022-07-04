@@ -31,17 +31,21 @@
 			app:layout_constraintTop_toTopOf="parent">
 
 			<com.google.android.material.card.MaterialCardView
-				android:id="@+id/btn_back"
+				android:id="@+id/btn_save"
 				style="@style/Theme.RememberCards.CardView.Button"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:visibility="visible">
 
-				<ImageView
-					android:layout_width="@dimen/card_button"
+				<TextView
+					android:layout_width="wrap_content"
 					android:layout_height="@dimen/card_button"
-					android:src="@drawable/ic_baseline_keyboard_backspace_24" />
+					android:gravity="center"
+					android:text="CROP" />
+
+
 			</com.google.android.material.card.MaterialCardView>
+
 
 			<com.google.android.material.card.MaterialCardView
 				android:id="@+id/btn_rotate_left"
@@ -72,20 +76,17 @@
 			</com.google.android.material.card.MaterialCardView>
 
 			<com.google.android.material.card.MaterialCardView
-				android:id="@+id/btn_save"
+				android:id="@+id/btn_back"
 				style="@style/Theme.RememberCards.CardView.Button"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_marginStart="0dp"
 				android:visibility="visible">
 
-				<TextView
-					android:layout_width="wrap_content"
+				<ImageView
+					android:layout_width="@dimen/card_button"
 					android:layout_height="@dimen/card_button"
-					android:gravity="center"
-					android:text="CROP" />
-
-
+					android:src="@drawable/ic_baseline_close_24" />
 			</com.google.android.material.card.MaterialCardView>
 
 

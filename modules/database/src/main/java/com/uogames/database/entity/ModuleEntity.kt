@@ -11,4 +11,7 @@ data class ModuleEntity(
 	@PrimaryKey(autoGenerate = true)
 	val id: Int,
 	val name: String,
+	val owner: String,
+	val like: Long,
+	val dislike: Long
 )

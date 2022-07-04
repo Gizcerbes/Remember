@@ -1,16 +1,13 @@
-package com.uogames.remembercards.ui.cardFragment
+package com.uogames.remembercards.ui.choiceCardFragment
 
-import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.lifecycle.LifecycleCoroutineScope
@@ -19,17 +16,18 @@ import com.google.android.material.card.MaterialCardView
 import com.uogames.dto.Phrase
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardCardBinding
+import com.uogames.remembercards.ui.cardFragment.CardViewModel
 import com.uogames.remembercards.ui.editCardFragment.EditCardFragment
 import com.uogames.remembercards.utils.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.*
 
-class CardAdapter(
+class ChoiceCardAdapter(
 	private val model: CardViewModel,
 	private val player: ObservableMediaPlayer,
-	scope: LifecycleCoroutineScope
-) : ChangeableAdapter<CardAdapter.CardHolder>(scope) {
+	scope: LifecycleCoroutineScope,
+	val callChoiceCardID: (Int) -> Unit
+) : ChangeableAdapter<ChoiceCardAdapter.CardHolder>(scope) {
 
 	init {
 		model.size.observeWhenStarted(scope) {
@@ -54,12 +52,9 @@ class CardAdapter(
 				it?.let { card ->
 					launch {
 						bind.txtReason.text = card.reason
-						bind.imgBtnAction.setImageResource(R.drawable.ic_baseline_change_24)
+						bind.imgBtnAction.setImageResource(R.drawable.ic_baseline_add_24)
 						bind.btnCardAction.setOnClickListener {
-							(itemView.context as AppCompatActivity).findNavController(R.id.nav_host_fragment)
-								.navigate(R.id.editCardFragment, Bundle().apply {
-									putInt(EditCardFragment.EDIT_ID, card.id)
-								})
+							callChoiceCardID(card.id)
 						}
 						model.getPhrase(card.idPhrase)?.let { phrase ->
 							setData(phrase, bind.txtLangFirst, bind.txtPhraseFirst, bind.imgSoundFirst, bind.mcvFirst, bind.imgCardFirst)

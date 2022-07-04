@@ -43,7 +43,6 @@ class ChoicePhraseAdapter(
 	init {
 		model.size.onEach {
 			notifyDataSetChanged()
-			Log.e("TAG", "$it")
 		}.launchIn(recyclerScope)
 	}
 
@@ -90,8 +89,8 @@ class ChoicePhraseAdapter(
 							putInt(EditPhraseFragment.ID_PHRASE, phrase.id)
 						})
 					}
+					infoBind.root.visibility = View.VISIBLE
 				}
-				infoBind.root.visibility = View.VISIBLE
 			}
 		}
 
@@ -139,7 +138,7 @@ class ChoicePhraseAdapter(
 		}
 
 		override fun onDetached() {
-			player?.stop()
+			player.stop()
 		}
 	}
 

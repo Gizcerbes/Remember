@@ -54,21 +54,11 @@ class EditCardFragment : DaggerFragment() {
 
 	private lateinit var bind: FragmentEditCardBinding
 
-	private lateinit var bottomSheet: BottomSheetBehavior<View>
-
-	private val fileChooser = FileChooser(this, "image/*")
 
 	private val imm by lazy {
 		requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 	}
 
-	private val callback by lazy {
-		object : OnBackPressedCallback(false) {
-			override fun handleOnBackPressed() {
-				bottomSheet.state = BottomSheetBehavior.STATE_HIDDEN
-			}
-		}
-	}
 
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 		bind = FragmentEditCardBinding.inflate(inflater, container, false)
@@ -80,7 +70,6 @@ class EditCardFragment : DaggerFragment() {
 
 		val id: Int? = arguments?.getInt(EDIT_ID)
 
-		requireActivity().onBackPressedDispatcher.addCallback(requireActivity(), callback)
 
 		id?.let {
 			editCardViewModel.load(id)
@@ -102,39 +91,6 @@ class EditCardFragment : DaggerFragment() {
 					if (it) findNavController().popBackStack()
 				}
 			}
-		}
-
-		bottomSheet = BottomSheetBehavior.from(bind.rlBehavior)
-		bottomSheet.halfExpandedRatio = 0.4f
-		bottomSheet.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-			override fun onStateChanged(bottomSheet: View, newState: Int) {
-				if (newState == BottomSheetBehavior.STATE_HIDDEN || newState == BottomSheetBehavior.STATE_COLLAPSED) {
-					bind.blind.visibility = View.GONE
-					callback.isEnabled = false
-				} else {
-					bind.blind.visibility = View.VISIBLE
-					callback.isEnabled = true
-				}
-			}
-
-			override fun onSlide(bottomSheet: View, slideOffset: Float) {
-			}
-		})
-
-		bind.rvImages.adapter = ImageAdapter(lifecycleScope, editCardViewModel) {
-			editCardViewModel.selectImage(it)
-			bottomSheet.state = BottomSheetBehavior.STATE_HIDDEN
-		}
-
-		bind.btnNewFile.setOnClickListener {
-			fileChooser.getBitmap {
-				cropViewModel.putData(it)
-				requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.cropFragment)
-			}
-		}
-
-		bind.blind.setOnClickListener {
-			bottomSheet.state = BottomSheetBehavior.STATE_HIDDEN
 		}
 
 		bind.btnBack.setOnClickListener {
@@ -159,9 +115,6 @@ class EditCardFragment : DaggerFragment() {
 			)
 		}
 
-		bind.btnEditImage.setOnClickListener {
-			bottomSheet.state = BottomSheetBehavior.STATE_HALF_EXPANDED
-		}
 
 		bind.btnEditReason.setOnClickListener {
 			bind.tilEditReason.requestFocus()
@@ -201,22 +154,27 @@ class EditCardFragment : DaggerFragment() {
 
 		editCardViewModel.firstPhrase.observeWhenStarted(lifecycleScope) {
 			it?.let { phrase ->
-				//bind.mcvFirst.visibility = View.VISIBLE
-				setButtonData(phrase, bind.mcvFirst, bind.txtPhraseFirst, bind.imgSoundFirst, bind.txtLangFirst)
+				lifecycleScope.launch {
+					setButtonData(phrase, bind.mcvFirst, bind.txtPhraseFirst, bind.imgSoundFirst, bind.txtLangFirst, bind.imgCardFirst)
+				}
 			}.ifNull {
 				bind.imgSoundFirst.visibility = View.GONE
 				bind.txtPhraseFirst.text = requireContext().getString(R.string.phrase)
 				bind.txtLangFirst.text = Locale.getDefault().displayLanguage
+				bind.imgCardFirst.visibility = View.GONE
 			}
 		}
 
 		editCardViewModel.secondPhrase.observeWhenStarted(lifecycleScope) {
 			it?.let { phrase ->
-				setButtonData(phrase, bind.mcvSecond, bind.txtPhraseSecond, bind.imgSoundSecond, bind.txtLangSecond)
+				lifecycleScope.launch {
+					setButtonData(phrase, bind.mcvSecond, bind.txtPhraseSecond, bind.imgSoundSecond, bind.txtLangSecond, bind.imgCardSecond)
+				}
 			}.ifNull {
 				bind.imgSoundSecond.visibility = View.GONE
 				bind.txtPhraseSecond.text = requireContext().getString(R.string.phrase)
 				bind.txtLangSecond.text = Locale.getDefault().displayLanguage
+				bind.imgCardSecond.visibility = View.GONE
 			}
 		}
 
@@ -226,29 +184,15 @@ class EditCardFragment : DaggerFragment() {
 			}
 		}
 
-		editCardViewModel.image.observeWhenStarted(lifecycleScope) {
-			it?.let {
-				bind.imgPhraseFirst.visibility = View.VISIBLE
-				bind.imgPhraseFirst.setImageURI(it.imgUri.toUri())
-			}.ifNull {
-				bind.imgPhraseFirst.visibility = View.GONE
-			}
-		}
-
-		cropViewModel.getData()?.let {
-			editCardViewModel.setBitmapImage(it)
-			cropViewModel.reset()
-			bottomSheet.state = BottomSheetBehavior.STATE_HIDDEN
-		}
-
 	}
 
-	private fun setButtonData(
+	private suspend fun setButtonData(
 		phrase: Phrase,
 		container: MaterialCardView,
 		txtPhrase: TextView,
 		imgSound: ImageView,
-		lang: TextView
+		lang: TextView,
+		imageCard: ImageView
 	) {
 		txtPhrase.text = phrase.phrase.ifNullOrEmpty {
 			requireContext().getString(R.string.phrase)
@@ -263,6 +207,12 @@ class EditCardFragment : DaggerFragment() {
 			}
 		}.ifNull {
 			imgSound.visibility = View.GONE
+		}
+		editCardViewModel.getImage(phrase).first()?.let {
+			imageCard.setImageURI(it)
+			imageCard.visibility = View.VISIBLE
+		}.ifNull {
+			imageCard.visibility = View.GONE
 		}
 	}
 

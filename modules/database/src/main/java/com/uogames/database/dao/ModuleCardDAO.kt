@@ -19,4 +19,7 @@ interface ModuleCardDAO {
 	@Query("SELECT * FROM module_card WHERE idModule = :id")
 	fun getByModuleID(id: Int): Flow<List<ModuleCardEntity>>
 
+	@Query("SELECT COUNT(id) FROM module_card WHERE idModule = :id")
+	fun getCountByModuleID(id: Int): Flow<Int>
+
 }

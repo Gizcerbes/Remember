@@ -10,6 +10,7 @@ import com.uogames.remembercards.utils.Permission
 import com.uogames.repository.DataProvider
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.coroutines.*
+import java.io.File
 import java.util.*
 import javax.inject.Inject
 
@@ -30,6 +31,9 @@ class MainActivity : DaggerAppCompatActivity() {
 		view.viewTreeObserver.addOnGlobalLayoutListener {
 			globalViewModel.setShowKeyboard(view)
 		}
+
+
+
 	}
 
 	override fun onRequestPermissionsResult(
@@ -46,6 +50,13 @@ class MainActivity : DaggerAppCompatActivity() {
 	}
 
 	override fun onDestroy() {
+		cacheDir?.let {
+			try {
+				it.listFiles()?.forEach { file -> file.delete() }
+			}catch (e:Exception){
+				Log.e("TAG", "onDestroy: $e", )
+			}
+		}
 		super.onDestroy()
 	}
 }

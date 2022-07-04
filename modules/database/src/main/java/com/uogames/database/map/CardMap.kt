@@ -10,7 +10,9 @@ object CardMap : Map<CardEntity, Card> {
 			idPhrase = idPhrase,
 			idTranslate = idTranslate,
 			idImage = idImage,
-			reason = reason
+			reason = reason,
+			like = like,
+			dislike = dislike
 		)
 	}
 
@@ -20,7 +22,9 @@ object CardMap : Map<CardEntity, Card> {
 			idPhrase = idPhrase,
 			idTranslate = idTranslate,
 			idImage = idImage,
-			reason = reason
+			reason = reason,
+			like = like,
+			dislike = dislike
 		)
 	}
 }

@@ -17,28 +17,20 @@ interface CardDAO {
 	suspend fun update(cardEntity: CardEntity): Int
 
 	@Query(
-		"SELECT COUNT(*) FROM (" +
-				"SELECT nct.id FROM new_cards_table nct " +
-				"INNER JOIN phrase_table pt ON nct.idPhrase = pt.id " +
-				"WHERE pt.phrase LIKE '%' || :like || '%' " +
-				"UNION " +
-				"SELECT nct.id FROM new_cards_table nct " +
-				"INNER JOIN phrase_table pt ON nct.idTranslate = pt.id " +
-				"WHERE pt.phrase LIKE '%' || :like || '%' )"
+		"SELECT COUNT(id) FROM new_cards_table nct " +
+				"WHERE EXISTS (SELECT id FROM phrase_table pt WHERE nct.idPhrase = pt.id AND pt.phrase LIKE '%' || :like || '%') " +
+				"OR EXISTS (SELECT id FROM phrase_table pt WHERE nct.idTranslate = pt.id AND pt.phrase LIKE '%' || :like || '%') "
 	)
 	fun getCountFlow(like: String): Flow<Int>
 
 	@Query(
-		"SELECT nct.* FROM new_cards_table nct " +
-				"INNER JOIN phrase_table pt ON nct.idPhrase = pt.id " +
-				"WHERE pt.phrase LIKE '%' || :like || '%' " +
-				"UNION " +
-				"SELECT nct.* FROM new_cards_table nct " +
-				"INNER JOIN phrase_table pt ON nct.idTranslate = pt.id " +
-				"WHERE pt.phrase LIKE '%' || :like || '%'" +
+		"SELECT * FROM new_cards_table nct " +
+				"WHERE EXISTS (SELECT id FROM phrase_table pt WHERE nct.idPhrase = pt.id AND pt.phrase LIKE '%' || :like || '%') " +
+				"OR EXISTS (SELECT id FROM phrase_table pt WHERE nct.idTranslate = pt.id AND pt.phrase LIKE '%' || :like || '%') " +
 				"LIMIT :number, 1"
 	)
 	fun getCardFlow(like: String, number: Int): Flow<CardEntity?>
+
 
 	@Query("SELECT * FROM new_cards_table WHERE id = :id")
 	fun getByIdFlow(id: Int): Flow<CardEntity?>

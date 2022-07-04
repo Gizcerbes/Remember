@@ -2,11 +2,10 @@ package com.uogames.repository
 
 import android.content.Context
 import com.uogames.database.DatabaseRepository
-import com.uogames.dto.Card
+import com.uogames.database.repository.ModuleCardRepository
 import com.uogames.repository.fileRepository.FileRepository
+import com.uogames.repository.providers.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class DataProvider private constructor(
@@ -36,6 +35,10 @@ class DataProvider private constructor(
 	val pronounce by lazy { PronunciationProvider(database, fileRepository) }
 
 	val setting by lazy { SettingProvider(database.settingRepository) }
+
+	val module by lazy { ModuleProvider(database.moduleRepository) }
+
+	val moduleCard by lazy { ModuleCardProvider(database.moduleCardRepository) }
 
 	fun clean() = ioScope.launch(Dispatchers.IO) {
 		images.clear()

@@ -38,17 +38,17 @@ class TestImageDAO {
 		db.imageDAO().insert(ImageEntity(3,"3"))
 		db.imageDAO().insert(ImageEntity(4,"4"))
 
-		db.phraseDAO().insert(PhraseEntity(1,"1", null,null, null, 1, 0))
-		db.phraseDAO().insert(PhraseEntity(2,"2", null,null, null, 2, 0))
+		db.phraseDAO().insert(PhraseEntity(1,"1", null,null, null, 1, 0,0,0))
+		db.phraseDAO().insert(PhraseEntity(2,"2", null,null, null, 2, 0,0,0))
 
-		db.cardDAO().insert(CardEntity(1,1,2,4))
+		db.cardDAO().insert(CardEntity(1,1,2,4,"",0,0))
 	}
 
 	@Test
 	fun getFree()= runBlocking {
 		setData()
 		Assert.assertEquals(db.imageDAO().count().first(), 4)
-		db.imageDAO().freeId()
+		//db.imageDAO().freeId()
 		Assert.assertEquals(db.imageDAO().count().first(), 3)
 	}
 

@@ -7,5 +7,7 @@ data class Phrase(
 	val lang: String? = null,
 	val idPronounce: Int? = null,
 	val idImage: Int? = null,
-	val timeChange: Long = 0
+	val timeChange: Long = 0,
+	val like: Long =0,
+	val dislike: Long = 0
 )

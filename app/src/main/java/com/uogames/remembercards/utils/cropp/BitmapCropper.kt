@@ -29,7 +29,7 @@ class BitmapCropper {
 		this.src = src
 		val newHeight = src.height * previewWidth / src.width
 		preview = Bitmap.createScaledBitmap(src, previewWidth.toInt(), newHeight.toInt(), true)
-		area = Area(preview.width.toFloat(), preview.height.toFloat(), 0.1f, 16f / 9f)
+		area = Area(preview.width.toFloat(), preview.height.toFloat(), 0.1f, 16f / 16f)
 		previewCrop =
 			Bitmap.createBitmap(preview.width, preview.height, Bitmap.Config.ARGB_8888)
 		canvas = Canvas(previewCrop!!)

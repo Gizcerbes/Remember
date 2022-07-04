@@ -3,28 +3,28 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:animateLayoutChanges="true">
+	android:layout_height="match_parent">
 
 	<androidx.constraintlayout.widget.ConstraintLayout
 		android:id="@+id/top_bar"
+		style="@style/Theme.RememberCards.AppBar"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_alignParentTop="true"
-		app:layout_constraintBaseline_toTopOf="parent">
+		app:layout_constraintTop_toTopOf="parent">
 
 		<TextView
+			android:id="@+id/txt_fragment_name"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginStart="13dp"
-			android:text="@string/your_library"
+			android:text="@string/edit_module"
 			android:textAppearance="?attr/textAppearanceHeadline6"
-			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintBottom_toBottomOf="@id/ll_parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toTopOf="parent" />
-
+			app:layout_constraintTop_toTopOf="@id/ll_parent" />
 
 		<LinearLayout
+			android:id="@+id/ll_parent"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:orientation="horizontal"
@@ -36,75 +36,59 @@
 				android:id="@+id/btn_add"
 				style="@style/Theme.RememberCards.CardView.Button"
 				android:layout_width="wrap_content"
-				android:layout_height="wrap_content">
+				android:layout_height="wrap_content"
+				android:visibility="visible">
 
 				<ImageView
 					android:layout_width="@dimen/card_button"
 					android:layout_height="@dimen/card_button"
 					android:src="@drawable/ic_baseline_add_24" />
-
 			</com.google.android.material.card.MaterialCardView>
 
 			<com.google.android.material.card.MaterialCardView
-				android:id="@+id/btn_search"
+				android:id="@+id/btn_delete"
 				style="@style/Theme.RememberCards.CardView.Button"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_marginStart="0dp">
+				android:layout_marginStart="0dp"
+				android:visibility="visible">
 
 				<ImageView
-					android:id="@+id/search_image"
 					android:layout_width="@dimen/card_button"
 					android:layout_height="@dimen/card_button"
-					android:src="@drawable/ic_baseline_search_24" />
+					android:src="@drawable/ic_baseline_delete_24" />
+			</com.google.android.material.card.MaterialCardView>
 
+			<com.google.android.material.card.MaterialCardView
+				android:id="@+id/btn_back"
+				style="@style/Theme.RememberCards.CardView.Button"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginStart="0dp"
+				android:visibility="visible">
+
+				<ImageView
+					android:layout_width="@dimen/card_button"
+					android:layout_height="@dimen/card_button"
+					android:src="@drawable/ic_baseline_close_24" />
 			</com.google.android.material.card.MaterialCardView>
 
 		</LinearLayout>
 
 
 		<com.google.android.material.divider.MaterialDivider
-			android:id="@+id/bottom_divider"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			app:layout_constraintBottom_toBottomOf="parent" />
 	</androidx.constraintlayout.widget.ConstraintLayout>
 
-	<com.google.android.material.textfield.TextInputLayout
-		android:id="@+id/til_search"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_alignParentBottom="true"
-		android:hint="@string/search"
-		android:visibility="visible"
-		app:endIconMode="clear_text"
-		app:expandedHintEnabled="false"
-		app:startIconDrawable="@drawable/ic_baseline_search_24">
-
-		<com.google.android.material.textfield.TextInputEditText
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content" />
-
-	</com.google.android.material.textfield.TextInputLayout>
-
-
 	<androidx.recyclerview.widget.RecyclerView
-		android:id="@+id/recycler"
+		android:id="@+id/rv_cards"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:layout_above="@id/til_search"
 		android:layout_below="@id/top_bar"
-		android:orientation="vertical"
+		android:layout_alignParentBottom="true"
 		app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-		tools:listitem="@layout/card_module" />
-
-
-	<TextView
-		android:id="@+id/txt_book_empty"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_centerInParent="true"
-		android:text="@string/here_is_empty" />
-
+		tools:listitem="@layout/card_card" />
 
 </RelativeLayout>

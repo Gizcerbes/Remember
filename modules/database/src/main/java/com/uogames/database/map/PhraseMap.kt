@@ -13,7 +13,9 @@ object PhraseMap : Map<PhraseEntity, Phrase> {
 			idPronounce = idPronounce,
 			idImage = idImage,
 			definition = definition,
-			timeChange = timeChange
+			timeChange = timeChange,
+			like = like,
+			dislike = dislike
 		)
 	}
 
@@ -25,7 +27,9 @@ object PhraseMap : Map<PhraseEntity, Phrase> {
 			idPronounce = idPronounce,
 			idImage = idImage,
 			definition = definition,
-			timeChange = timeChange
+			timeChange = timeChange,
+			like = like,
+			dislike = dislike
 		)
 	}
 

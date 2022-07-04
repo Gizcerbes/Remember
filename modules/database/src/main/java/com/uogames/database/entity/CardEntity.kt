@@ -29,5 +29,7 @@ data class CardEntity(
 	@ColumnInfo(index = true)
 	val idTranslate: Int,
 	val idImage: Int?,
-	val reason: String
+	val reason: String,
+	val like: Long,
+	val dislike: Long
 )

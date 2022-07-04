@@ -1,6 +1,5 @@
-package com.uogames.remembercards.ui.cardFragment
+package com.uogames.remembercards.ui.editModuleFragment
 
-import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -10,56 +9,52 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.navigation.findNavController
 import com.google.android.material.card.MaterialCardView
+import com.uogames.dto.ModuleCard
 import com.uogames.dto.Phrase
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardCardBinding
 import com.uogames.remembercards.ui.editCardFragment.EditCardFragment
 import com.uogames.remembercards.utils.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import java.util.*
 
-class CardAdapter(
-	private val model: CardViewModel,
+class EditModuleAdapter(
+	private val model: EditModuleViewModel,
 	private val player: ObservableMediaPlayer,
 	scope: LifecycleCoroutineScope
-) : ChangeableAdapter<CardAdapter.CardHolder>(scope) {
+) : ChangeableAdapter<EditModuleAdapter.CardsHolder>(scope) {
 
-	init {
-		model.size.observeWhenStarted(scope) {
-			notifyDataSetChanged()
-		}
+	private var listItems: List<ModuleCard> = arrayListOf()
+
+	fun setListItems(list: List<ModuleCard>) {
+		listItems = list
+		notifyDataSetChanged()
 	}
 
-	inner class CardHolder(view: LinearLayout, viewGrope: ViewGroup, private val scope: LifecycleCoroutineScope) :
-		ChangeableViewHolder(view, viewGrope, scope) {
+	inner class CardsHolder(view: LinearLayout, viewGroup: ViewGroup,val scope: LifecycleCoroutineScope) :
+		ChangeableAdapter.ChangeableViewHolder(view, viewGroup, scope) {
 
-		private val bind by lazy {
-			CardCardBinding.inflate(LayoutInflater.from(itemView.context), viewGrope, false)
-		}
+		private val bind by lazy { CardCardBinding.inflate(LayoutInflater.from(viewGroup.context), viewGroup, false) }
 
 		override fun onCreateView(typeFragment: Int, viewGrope: ViewGroup): View? {
 			return bind.root
 		}
 
 		override fun LifecycleCoroutineScope.show(typeFragment: Int) {
+			val moduleCard = listItems[adapterPosition]
 			bind.root.visibility = View.INVISIBLE
-			model.get(adapterPosition).observeWhenStarted(scope) {
+			model.getCard(moduleCard).observeWhenStarted(scope) {
 				it?.let { card ->
 					launch {
 						bind.txtReason.text = card.reason
-						bind.imgBtnAction.setImageResource(R.drawable.ic_baseline_change_24)
+						bind.imgBtnAction.setImageResource(R.drawable.ic_baseline_remove_24)
 						bind.btnCardAction.setOnClickListener {
-							(itemView.context as AppCompatActivity).findNavController(R.id.nav_host_fragment)
-								.navigate(R.id.editCardFragment, Bundle().apply {
-									putInt(EditCardFragment.EDIT_ID, card.id)
-								})
+							model.removeModuleCard(moduleCard){}
 						}
 						model.getPhrase(card.idPhrase)?.let { phrase ->
 							setData(phrase, bind.txtLangFirst, bind.txtPhraseFirst, bind.imgSoundFirst, bind.mcvFirst, bind.imgCardFirst)
@@ -124,14 +119,15 @@ class CardAdapter(
 			}
 			return ""
 		}
-
 	}
 
-	override fun onShow(parent: ViewGroup, view: LinearLayout, viewType: Int, scope: LifecycleCoroutineScope): CardHolder {
-		return CardHolder(view, parent, scope)
+	override fun onShow(parent: ViewGroup, view: LinearLayout, viewType: Int, scope: LifecycleCoroutineScope): CardsHolder {
+		return CardsHolder(view, parent, scope)
 	}
 
-	override fun getItemCount(): Int = model.size.value
+	override fun getItemCount(): Int {
+		return listItems.size
+	}
 
 
 }

@@ -39,9 +39,17 @@
 	<string name="record_sp">Record ||TIME||s / 60s</string>
 	<string name="crop_picture">Crop picture</string>
 	<string name="edit_card">Edit Card</string>
+	<string name="choice_card">Choice Card</string>
 	<string name="your_cards">Your Cards</string>
 	<string name="first">First</string>
 	<string name="second">Second</string>
 	<string name="reason">Reason</string>
 	<string name="image">image</string>
+	<string name="your_library">Your Library</string>
+	<string name="accept">accept</string>
+	<string name="close">close</string>
+	<string name="module_name">Module name</string>
+	<string name="edit_module">Edit Module</string>
+	<string name="count_items">||COUNT|| items</string>
+	<string name="new_phrase">New Phrase</string>
 </resources>

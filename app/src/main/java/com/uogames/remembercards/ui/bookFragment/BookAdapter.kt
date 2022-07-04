@@ -32,6 +32,9 @@ class BookAdapter(
 	private val recyclerScope = CoroutineScope(Dispatchers.Main)
 
 	init {
+		CoroutineScope(Dispatchers.IO).launch {
+
+		}
 		model.size.onEach {
 			notifyDataSetChanged()
 		}.launchIn(recyclerScope)
@@ -77,9 +80,9 @@ class BookAdapter(
 							putInt(EditPhraseFragment.ID_PHRASE, phrase.id)
 						})
 					}
+					infoBind.root.visibility = View.VISIBLE
 				}
 			}
-			infoBind.root.visibility = View.VISIBLE
 		}
 
 		private fun showImage(phrase: Phrase) {
@@ -126,7 +129,7 @@ class BookAdapter(
 		}
 
 		override fun onDetached() {
-			player.stop()
+			//player.stop()
 		}
 
 	}

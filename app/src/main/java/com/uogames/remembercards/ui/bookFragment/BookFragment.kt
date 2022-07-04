@@ -1,11 +1,13 @@
 package com.uogames.remembercards.ui.bookFragment
 
 import android.content.Context
+import android.graphics.drawable.AnimationDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.Button
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
@@ -85,6 +87,7 @@ class BookFragment : DaggerFragment() {
 		}
 
 		bind.recycler.adapter = adapter
+
 	}
 
 	private fun openEditFragment() {

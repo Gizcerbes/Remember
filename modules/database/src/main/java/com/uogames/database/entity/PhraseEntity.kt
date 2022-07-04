@@ -13,5 +13,7 @@ data class PhraseEntity(
 	val lang: String?,
 	val idPronounce: Int?,
 	val idImage: Int?,
-	val timeChange: Long
+	val timeChange: Long,
+	val like: Long,
+	val dislike: Long
 )

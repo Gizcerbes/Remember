@@ -3,9 +3,11 @@ package com.uogames.remembercards.di
 import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseFragment
 import com.uogames.remembercards.ui.bookFragment.BookFragment
 import com.uogames.remembercards.ui.cardFragment.CardFragment
+import com.uogames.remembercards.ui.choiceCardFragment.ChoiceCardFragment
 import com.uogames.remembercards.ui.choicePhraseFragment.ChoicePhraseFragment
 import com.uogames.remembercards.ui.cropFragment.CropFragment
 import com.uogames.remembercards.ui.editCardFragment.EditCardFragment
+import com.uogames.remembercards.ui.editModuleFragment.EditModuleFragment
 import com.uogames.remembercards.ui.gameYesOrNo.GameYesOrNotFragment
 import com.uogames.remembercards.ui.gameYesOrNo.ResultYesOrNotFragment
 import com.uogames.remembercards.ui.gamesFragment.GamesFragment
@@ -57,6 +59,12 @@ abstract class FragmentBuilderModule {
 	abstract fun contributeEditCardFragment(): EditCardFragment
 
 	@ContributesAndroidInjector
-	abstract fun contributeChoicePhraseFragment() : ChoicePhraseFragment
+	abstract fun contributeChoicePhraseFragment(): ChoicePhraseFragment
+
+	@ContributesAndroidInjector
+	abstract fun contributeEditModuleFragment(): EditModuleFragment
+
+	@ContributesAndroidInjector
+	abstract fun contributeChoiceCardFragment(): ChoiceCardFragment
 
 }

@@ -5,6 +5,7 @@ import android.media.MediaRecorder
 import android.os.Build
 import android.os.Bundle
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,13 +17,15 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.uogames.dto.Image
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentEditPhraseBinding
 import com.uogames.remembercards.ui.cropFragment.CropViewModel
-import com.uogames.remembercards.ui.editCardFragment.ImageAdapter
 import com.uogames.remembercards.utils.*
 import dagger.android.support.DaggerFragment
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
@@ -131,6 +134,7 @@ class EditPhraseFragment : DaggerFragment() {
 					callback.isEnabled = true
 				}
 			}
+
 			override fun onSlide(bottomSheet: View, slideOffset: Float) {
 			}
 		})
@@ -180,9 +184,9 @@ class EditPhraseFragment : DaggerFragment() {
 		}
 		bind.btnEditImage.setOnClickListener {
 
-			if (viewModel.imgPhrase.value == null){
+			if (viewModel.imgPhrase.value == null) {
 				bottomSheet.state = BottomSheetBehavior.STATE_HALF_EXPANDED
-			} else{
+			} else {
 				viewModel.setBitmapImage(null)
 			}
 		}
@@ -205,29 +209,16 @@ class EditPhraseFragment : DaggerFragment() {
 			bind.editBar.visibility = if (it) View.GONE else View.VISIBLE
 			bind.tilEdit.visibility = if (it) View.VISIBLE else View.GONE
 		}
+		
 
-		viewModel.imgPhrase.observeWhile(lifecycleScope) {
-			if (it != null) {
-				bind.imgBtnImage.background.asAnimationDrawable().selectDrawable(1)
-				bind.imgPhrase.visibility = View.VISIBLE
-				bind.imgPhrase.setImageURI(it.imgUri.toUri())
-			} else {
-				bind.imgBtnImage.background.asAnimationDrawable().selectDrawable(0)
-				bind.imgPhrase.visibility = View.GONE
-			}
-		}
-
-		viewModel.phrase.observeWhile(lifecycleScope)
-		{
+		viewModel.phrase.observeWhile(lifecycleScope) {
 			bind.txtPhrase.text = it.ifEmpty { requireContext().getString(R.string.phrase2) }
 		}
-		viewModel.definition.observeWhile(lifecycleScope)
-		{
+		viewModel.definition.observeWhile(lifecycleScope) {
 			bind.txtDefinition.text = it.ifNullOrEmpty { requireContext().getString(R.string.definition) }
 		}
 
-		viewModel.lang.observeWhile(lifecycleScope)
-		{
+		viewModel.lang.observeWhile(lifecycleScope) {
 			bind.txtLang.text = it.displayLanguage
 		}
 
@@ -273,6 +264,7 @@ class EditPhraseFragment : DaggerFragment() {
 		bind.btnBack.setOnClickListener {
 			requireActivity().findNavController(R.id.nav_host_fragment).popBackStack()
 		}
+		viewModel.imgPhrase.observeWhile(lifecycleScope) { setImagePhrase(it) }
 	}
 
 	override fun onStop() {
@@ -280,6 +272,17 @@ class EditPhraseFragment : DaggerFragment() {
 		imm.hideSoftInputFromWindow(view?.windowToken, 0)
 		bind.tilEdit.editText?.removeTextChangedListener(textWatcher)
 		recorder?.let { viewModel.stopRecordAudio(it) }
+	}
+
+	private fun setImagePhrase(image: Image?) {
+		if (image != null) {
+			bind.imgPhrase.visibility = View.VISIBLE
+			bind.imgPhrase.setImageURI(image.imgUri.toUri())
+			bind.imgBtnImage.setImageResource(R.drawable.ic_baseline_hide_image_24)
+		} else {
+			bind.imgPhrase.visibility = View.GONE
+			bind.imgBtnImage.setImageResource(R.drawable.ic_baseline_image_24)
+		}
 	}
 
 }

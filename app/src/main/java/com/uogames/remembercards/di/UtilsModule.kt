@@ -9,7 +9,9 @@ import com.uogames.remembercards.ui.bookFragment.BookViewModel
 import com.uogames.remembercards.ui.cardFragment.CardViewModel
 import com.uogames.remembercards.ui.cropFragment.CropViewModel
 import com.uogames.remembercards.ui.editCardFragment.EditCardViewModel
+import com.uogames.remembercards.ui.editModuleFragment.EditModuleViewModel
 import com.uogames.remembercards.ui.gameYesOrNo.GameYesOrNotViewModel
+import com.uogames.remembercards.ui.libraryFragment.LibraryViewModel
 import com.uogames.remembercards.ui.mainNav.NavigationViewModel
 import com.uogames.remembercards.ui.selectCountry.SelectCountryViewModel
 import com.uogames.remembercards.utils.ObservableMediaPlayer
@@ -66,5 +68,13 @@ class UtilsModule {
 	@Provides
 	@Singleton
 	fun provideMediaPlayer(): ObservableMediaPlayer = ObservableMediaPlayer(MediaPlayer())
+
+	@Provides
+	@Singleton
+	fun provideLibraryViewModel(provider: DataProvider): LibraryViewModel = LibraryViewModel(provider)
+
+	@Provides
+	@Singleton
+	fun provideEditModuleViewModel(provider: DataProvider): EditModuleViewModel = EditModuleViewModel(provider)
 
 }

@@ -10,9 +10,9 @@ import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
 import com.uogames.flags.Languages
 import com.uogames.remembercards.databinding.FragmentChoicePhraseBinding
-import com.uogames.remembercards.utils.ObservedDaggerDialog
+import com.uogames.remembercards.utils.ObservedDialog
 
-class ChoiceLanguageDialog(call: (Languages) -> Unit) : ObservedDaggerDialog<Languages>(call) {
+class ChoiceLanguageDialog(call: (Languages) -> Unit) : ObservedDialog<Languages>(call) {
 
 	companion object {
 		const val TAG = "CHOICE_LANGUAGE"

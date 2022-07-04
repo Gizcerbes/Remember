@@ -1,25 +1,35 @@
-package com.uogames.remembercards.ui.cardFragment
+package com.uogames.remembercards.ui.choiceCardFragment
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentCardBinding
+import com.uogames.remembercards.ui.cardFragment.CardViewModel
+import com.uogames.remembercards.ui.choicePhraseFragment.ChoicePhraseFragment
 import com.uogames.remembercards.ui.editCardFragment.EditCardViewModel
 import com.uogames.remembercards.utils.ObservableMediaPlayer
+import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observeWhenStarted
-import com.uogames.remembercards.utils.observeWhile
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
 
-class CardFragment : DaggerFragment() {
+class ChoiceCardFragment : DaggerFragment() {
+
+	companion object {
+		const val TAG = "CHOICE_CARD_FRAGMENT"
+
+	}
 
 	@Inject
 	lateinit var globalViewModel: GlobalViewModel
@@ -39,19 +49,38 @@ class CardFragment : DaggerFragment() {
 		requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 	}
 
+	private var receivedTAG: String? = null
+
+	private val adapter by lazy {
+		ChoiceCardAdapter(cardViewModel, player, lifecycleScope) { id ->
+			imm.hideSoftInputFromWindow(view?.windowToken, 0)
+			receivedTAG?.let {
+				globalViewModel.saveData(it, id.toString())
+			}.ifNull {
+				Toast.makeText(requireContext(), "Argument Problem", Toast.LENGTH_SHORT).show()
+			}
+			findNavController().popBackStack()
+		}
+	}
+
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 		bind = FragmentCardBinding.inflate(inflater, container, false)
 		return bind.root
 	}
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-		super.onViewCreated(view, savedInstanceState)
+		receivedTAG = arguments?.getString(TAG).ifNull { return }
 
-		bind.btnBack.visibility = View.GONE
+		bind.txtTopName.text = requireContext().getString(R.string.choice_card)
+
+		bind.btnBack.setOnClickListener {
+			findNavController().popBackStack()
+		}
 
 		globalViewModel.isShowKey.observeWhenStarted(lifecycleScope) {
 			bind.tilSearch.visibility = if (it) View.VISIBLE else View.GONE
 			bind.btnAdd.visibility = if (it) View.GONE else View.VISIBLE
+			bind.btnBack.visibility = if (it) View.GONE else View.VISIBLE
 			if (it) {
 				bind.searchImage.setImageResource(R.drawable.ic_baseline_close_24)
 			} else {
@@ -81,7 +110,7 @@ class CardFragment : DaggerFragment() {
 			cardViewModel.like.value = text.toString()
 		}
 
-		bind.recycler.adapter = CardAdapter(cardViewModel, player, lifecycleScope)
+		bind.recycler.adapter = adapter
 
 	}
 
