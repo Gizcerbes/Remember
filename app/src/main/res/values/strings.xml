@@ -17,7 +17,7 @@
 	<string name="create">create</string>
 	<string name="etymologies">Etymologies:</string>
 	<string name="enter_new_phrase">Enter new phrase</string>
-	<string name="phrase">Phrase:</string>
+	<string name="phrase_label">Phrases:</string>
 	<string name="translate">Translate:</string>
 	<string name="yes_or_no">YES or NO</string>
 	<string name="time">Time:</string>
@@ -29,7 +29,7 @@
 	<string name="your_book">Your Book</string>
 	<string name="here_is_empty">Here is empty</string>
 	<string name="cards">Cards</string>
-	<string name="enterdefinition">Enter Definition</string>
+	<string name="enter_definition">Enter Definition</string>
 	<string name="new_card">New Card</string>
 	<string name="editor">Editor</string>
 	<string name="definition">Definition</string>
@@ -52,4 +52,22 @@
 	<string name="edit_module">Edit Module</string>
 	<string name="count_items">||COUNT|| items</string>
 	<string name="new_phrase">New Phrase</string>
+	<string name="synchronize">synchronize</string>
+	<string name="statistic">Statistic</string>
+	<string name="cards_label">Cards:</string>
+	<string name="modules_label">Modules:</string>
+	<string name="data_statistic">Data Statistic</string>
+	<string name="game_statistic">Game Statistic</string>
+	<string name="yes_or_no_game_count">Yes or no games count:</string>
+	<string name="let_s_start">Let\'s Start</string>
+	<string name="we_need_a_little_information_about_you">We need a little information about you.</string>
+	<string name="how_are_we_should_call_you">How are we should call you?</string>
+	<string name="user_name">User Name</string>
+	<string name="what_are_you_from">What are you from?</string>
+	<string name="click_here">Click here</string>
+	<string name="end">end</string>
+	<string name="load">LOAD</string>
+	<string name="offline">Offline</string>
+	<string name="selected_module">Selected Module</string>
+	<string name="all_cards">All Cards</string>
 </resources>

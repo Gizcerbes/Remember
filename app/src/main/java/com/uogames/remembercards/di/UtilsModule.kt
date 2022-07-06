@@ -13,7 +13,9 @@ import com.uogames.remembercards.ui.editModuleFragment.EditModuleViewModel
 import com.uogames.remembercards.ui.gameYesOrNo.GameYesOrNotViewModel
 import com.uogames.remembercards.ui.libraryFragment.LibraryViewModel
 import com.uogames.remembercards.ui.mainNav.NavigationViewModel
-import com.uogames.remembercards.ui.selectCountry.SelectCountryViewModel
+import com.uogames.remembercards.ui.registerFragment.RegisterViewModel
+import com.uogames.remembercards.ui.choiceCountry.SelectCountryViewModel
+import com.uogames.remembercards.ui.gamesFragment.GamesViewModel
 import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.repository.DataProvider
 import dagger.Module
@@ -28,6 +30,10 @@ class UtilsModule {
 
 	@Provides
 	fun provideDataProvider(context: Context): DataProvider = DataProvider.get(context)
+
+	@Provides
+	@Singleton
+	fun provideRegisterViewModel(): RegisterViewModel = RegisterViewModel()
 
 	@Provides
 	@Singleton
@@ -76,5 +82,9 @@ class UtilsModule {
 	@Provides
 	@Singleton
 	fun provideEditModuleViewModel(provider: DataProvider): EditModuleViewModel = EditModuleViewModel(provider)
+
+	@Provides
+	@Singleton
+	fun provideGameViewModel(provider: DataProvider): GamesViewModel = GamesViewModel(provider)
 
 }

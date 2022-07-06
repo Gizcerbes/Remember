@@ -26,14 +26,10 @@ class MainActivity : DaggerAppCompatActivity() {
 
 	override fun onStart() {
 		super.onStart()
-		DataProvider.get(applicationContext)
 		val view = findViewById<FragmentContainerView>(R.id.nav_host_fragment)
 		view.viewTreeObserver.addOnGlobalLayoutListener {
 			globalViewModel.setShowKeyboard(view)
 		}
-
-
-
 	}
 
 	override fun onRequestPermissionsResult(
@@ -57,6 +53,7 @@ class MainActivity : DaggerAppCompatActivity() {
 				Log.e("TAG", "onDestroy: $e", )
 			}
 		}
+		runBlocking { globalViewModel.clean().join() }
 		super.onDestroy()
 	}
 }

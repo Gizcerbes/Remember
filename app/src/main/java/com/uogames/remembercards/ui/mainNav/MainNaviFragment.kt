@@ -38,7 +38,6 @@ class MainNaviFragment : DaggerFragment() {
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		navigationViewModel.id.value.let { if (it != -1) bind.bottomNavigation.selectedItemId = it }
-
 		globalViewModel.isShowKey.observeWhenStarted(lifecycleScope) {
 			bind.bottomNavigation.visibility = if (it) View.GONE else View.VISIBLE
 		}
@@ -47,6 +46,7 @@ class MainNaviFragment : DaggerFragment() {
 	override fun onStart() {
 		super.onStart()
 		val nav = bind.navFragment.findNavController()
+		if (navigationViewModel.id.value != -1) nav.navigate(navigationViewModel.id.value)
 		bind.bottomNavigation.setOnItemSelectedListener {
 			if (it.itemId != navigationViewModel.id.value) nav.navigate(it.itemId)
 			navigationViewModel.setId(it.itemId)

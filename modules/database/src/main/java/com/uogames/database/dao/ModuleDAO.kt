@@ -16,6 +16,9 @@ interface ModuleDAO {
 	@Delete
 	suspend fun delete(module: ModuleEntity): Int
 
+	@Query("SELECT COUNT(id) FROM modules")
+	fun getCount(): Flow<Int>
+
 	@Query("SELECT * FROM modules")
 	fun getList(): Flow<List<ModuleEntity>>
 

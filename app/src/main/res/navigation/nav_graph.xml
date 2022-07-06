@@ -3,36 +3,40 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/nav_host"
-	app:startDestination="@id/mainNaviFragment">
+	app:startDestination="@id/rootFragment">
+
+	<fragment
+		android:id="@+id/rootFragment"
+		android:name="com.uogames.remembercards.ui.rootFragment.RootFragment"
+		android:label="RootFragment"
+		tools:layout="@layout/fragment_root" />
 
 	<fragment
 		android:id="@+id/mainNaviFragment"
 		android:name="com.uogames.remembercards.ui.mainNav.MainNaviFragment"
 		android:label="MainNaviFragment"
-		tools:layout="@layout/fragment_main_navi"
-		/>
+		tools:layout="@layout/fragment_main_navi" />
 
 	<fragment
 		android:id="@+id/gameYesOrNotFragment"
 		android:name="com.uogames.remembercards.ui.gameYesOrNo.GameYesOrNotFragment"
 		android:label="GameYesOrNotFragment"
-		tools:layout="@layout/fragment_yes_or_not_game"
-		/>
+		tools:layout="@layout/fragment_yes_or_not_game" />
 	<fragment
 		android:id="@+id/resultYesOrNotFragment"
 		android:name="com.uogames.remembercards.ui.gameYesOrNo.ResultYesOrNotFragment"
 		android:label="ResultYesOrNotFragment"
-		tools:layout="@layout/fragment_result_mistakes"/>
+		tools:layout="@layout/fragment_result_mistakes" />
 	<fragment
 		android:id="@+id/addPhraseFragment"
 		android:name="com.uogames.remembercards.ui.editPhraseFragment.EditPhraseFragment"
-		tools:layout="@layout/fragment_edit_phrase"
-		android:label="AddPhraseFragment" />
+		android:label="AddPhraseFragment"
+		tools:layout="@layout/fragment_edit_phrase" />
 	<fragment
 		android:id="@+id/cropFragment"
 		android:name="com.uogames.remembercards.ui.cropFragment.CropFragment"
-		tools:layout="@layout/fragment_crop"
-		android:label="CropFragment" />
+		android:label="CropFragment"
+		tools:layout="@layout/fragment_crop" />
 	<fragment
 		android:id="@+id/editCardFragment"
 		android:name="com.uogames.remembercards.ui.editCardFragment.EditCardFragment"
@@ -41,19 +45,23 @@
 	<fragment
 		android:id="@+id/choicePhraseDialog"
 		android:name="com.uogames.remembercards.ui.choicePhraseFragment.ChoicePhraseFragment"
-		tools:layout="@layout/fragment_choice_phrase"
-		android:label="ChoicePhraseDialog" />
+		android:label="ChoicePhraseDialog"
+		tools:layout="@layout/fragment_choice_phrase" />
 	<fragment
 		android:id="@+id/editModuleFragment"
 		android:name="com.uogames.remembercards.ui.editModuleFragment.EditModuleFragment"
 		android:label="EditModuleFragment"
-		tools:layout="@layout/fragment_edit_module"
-		/>
+		tools:layout="@layout/fragment_edit_module" />
 	<fragment
 		android:id="@+id/choiceCardFragment"
 		android:name="com.uogames.remembercards.ui.choiceCardFragment.ChoiceCardFragment"
 		android:label="ChoiceCardFragment"
-		tools:layout="@layout/fragment_card"/>
+		tools:layout="@layout/fragment_card" />
+	<fragment
+		android:id="@+id/registerFragment"
+		android:name="com.uogames.remembercards.ui.registerFragment.RegisterFragment"
+		android:label="RegisterFragment"
+		tools:layout="@layout/fragment_register" />
 
 
 </navigation>

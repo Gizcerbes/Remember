@@ -27,6 +27,7 @@
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/drawable/ic_baseline_rotate_right_24.xml" value="0.4985" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/drawable/ic_baseline_save_24.xml" value="0.317" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/drawable/ic_baseline_search_24.xml" value="0.317" />
+        <entry key="..\:/androidProgect/RememberCards/app/src/main/res/drawable/ic_baseline_settings_24.xml" value="0.4315" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/drawable/ic_baseline_star_24.xml" value="0.3465" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/drawable/ic_baseline_star_rate_24.xml" value="0.3465" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/drawable/ic_baseline_thumb_up_alt_24.xml" value="0.3465" />
@@ -49,12 +50,13 @@
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/card_add.xml" value="0.33611111111111114" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/card_card.xml" value="0.21776315789473685" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/card_card_2.xml" value="0.19901315789473684" />
+        <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/card_country.xml" value="0.4077849860982391" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/card_edit.xml" value="0.3503289473684211" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/card_empty.xml" value="0.3151041666666667" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/card_game_result.xml" value="0.31302083333333336" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/card_info.xml" value="0.31302083333333336" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/card_language.xml" value="0.21776315789473685" />
-        <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/card_module.xml" value="0.22" />
+        <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/card_module.xml" value="0.4077849860982391" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/card_phrase.xml" value="0.2830269345874305" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/card_phrase_2.xml" value="0.24861111111111112" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/dialog_new_module.xml" value="0.24861111111111112" />
@@ -62,22 +64,26 @@
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_add.xml" value="0.3151041666666667" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_book.xml" value="0.19901315789473684" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_card.xml" value="0.21776315789473685" />
+        <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_choice_country.xml" value="0.4077849860982391" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_choice_dialog.xml" value="0.19901315789473684" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_choice_language.xml" value="0.21710526315789475" />
+        <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_choice_module.xml" value="0.45446772124839674" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_choice_phrase.xml" value="0.2830269345874305" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_crop.xml" value="0.21776315789473685" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_edit.xml" value="0.3503289473684211" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_edit_card.xml" value="0.24861111111111112" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_edit_module.xml" value="0.27944280287040946" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_edit_phrase.xml" value="0.2830269345874305" />
-        <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_games.xml" value="0.19835526315789473" />
+        <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_games.xml" value="0.44955677501055297" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_lbrary.xml" value="0.21563517915309446" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_main_navi.xml" value="0.3151041666666667" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_person.xml" value="0.2830269345874305" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_recycler_book.xml" value="0.3140625" />
+        <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_register.xml" value="0.45446772124839674" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_result_mistakes.xml" value="0.19835526315789473" />
+        <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_root.xml" value="0.2821718683197948" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_select_country.xml" value="0.19901315789473684" />
-        <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_yes_or_not_game.xml" value="0.19835526315789473" />
+        <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/fragment_yes_or_not_game.xml" value="0.2586575459598119" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/layout/item_word.xml" value="0.3151041666666667" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/menu/main_navi.xml" value="0.19901315789473684" />
         <entry key="..\:/androidProgect/RememberCards/app/src/main/res/menu/words_menu.xml" value="0.3151041666666667" />

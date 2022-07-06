@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	style="@style/Theme.RememberCards.CardView"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	app:contentPaddingTop="13dp">
+
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+		<com.google.android.material.card.MaterialCardView
+			android:id="@+id/mcv_flag"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_margin="7dp"
+			app:strokeColor="?attr/colorControlNormal"
+			app:strokeWidth="1dp">
+
+			<ImageView
+				android:id="@+id/img_flag"
+				android:layout_width="80dp"
+				android:layout_height="wrap_content"
+				android:adjustViewBounds="true"
+				tools:src="@drawable/ic_flag_us" />
+
+		</com.google.android.material.card.MaterialCardView>
+
+
+		<LinearLayout
+			android:id="@+id/ll_languages"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_alignParentEnd="true"
+			android:layout_marginStart="7dp"
+			android:layout_toEndOf="@id/mcv_flag"
+			android:orientation="vertical">
+
+			<TextView
+				android:text="USA"
+				android:textAppearance="?attr/textAppearanceBody2"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"/>
+
+		</LinearLayout>
+
+	</RelativeLayout>
+
+
+</com.google.android.material.card.MaterialCardView>

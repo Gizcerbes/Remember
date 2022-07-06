@@ -2,7 +2,6 @@ package com.uogames.remembercards.ui.editCardFragment
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,13 +9,10 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
-import androidx.core.net.toUri
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.card.MaterialCardView
 import com.uogames.dto.Phrase
 import com.uogames.remembercards.GlobalViewModel
@@ -159,7 +155,7 @@ class EditCardFragment : DaggerFragment() {
 				}
 			}.ifNull {
 				bind.imgSoundFirst.visibility = View.GONE
-				bind.txtPhraseFirst.text = requireContext().getString(R.string.phrase)
+				bind.txtPhraseFirst.text = requireContext().getString(R.string.phrase_label)
 				bind.txtLangFirst.text = Locale.getDefault().displayLanguage
 				bind.imgCardFirst.visibility = View.GONE
 			}
@@ -172,7 +168,7 @@ class EditCardFragment : DaggerFragment() {
 				}
 			}.ifNull {
 				bind.imgSoundSecond.visibility = View.GONE
-				bind.txtPhraseSecond.text = requireContext().getString(R.string.phrase)
+				bind.txtPhraseSecond.text = requireContext().getString(R.string.phrase_label)
 				bind.txtLangSecond.text = Locale.getDefault().displayLanguage
 				bind.imgCardSecond.visibility = View.GONE
 			}
@@ -195,7 +191,7 @@ class EditCardFragment : DaggerFragment() {
 		imageCard: ImageView
 	) {
 		txtPhrase.text = phrase.phrase.ifNullOrEmpty {
-			requireContext().getString(R.string.phrase)
+			requireContext().getString(R.string.phrase_label)
 		}
 		lang.text = showLang(phrase).orEmpty()
 		phrase.idPronounce?.let {

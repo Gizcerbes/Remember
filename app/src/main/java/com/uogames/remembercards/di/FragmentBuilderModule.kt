@@ -14,7 +14,9 @@ import com.uogames.remembercards.ui.gamesFragment.GamesFragment
 import com.uogames.remembercards.ui.libraryFragment.LibraryFragment
 import com.uogames.remembercards.ui.mainNav.MainNaviFragment
 import com.uogames.remembercards.ui.personFragment.PersonFragment
-import com.uogames.remembercards.ui.selectCountry.SelectCountryFragment
+import com.uogames.remembercards.ui.registerFragment.RegisterFragment
+import com.uogames.remembercards.ui.choiceCountry.SelectCountryFragment
+import com.uogames.remembercards.ui.rootFragment.RootFragment
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
@@ -24,6 +26,9 @@ abstract class FragmentBuilderModule {
 
 	@ContributesAndroidInjector
 	abstract fun contributeNavigationFragment(): MainNaviFragment
+
+	@ContributesAndroidInjector
+	abstract fun contributeRegisterFragment(): RegisterFragment
 
 	@ContributesAndroidInjector
 	abstract fun contributeBookFragment(): BookFragment

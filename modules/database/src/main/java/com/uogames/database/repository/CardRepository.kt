@@ -16,6 +16,8 @@ class CardRepository(private val dao: CardDAO) {
 
 	fun getCountFlow(like:String) = dao.getCountFlow(like)
 
+	fun getCountFlow() = dao.getCountFlow()
+
 	fun getCardFlow(like: String, number: Int) = dao.getCardFlow(like, number).map { it?.toDTO() }
 
 	fun getByIdFlow(id: Int) = dao.getByIdFlow(id).map { it?.toDTO() }

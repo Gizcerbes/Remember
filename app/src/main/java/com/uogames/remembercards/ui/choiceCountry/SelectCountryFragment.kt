@@ -1,4 +1,4 @@
-package com.uogames.remembercards.ui.selectCountry
+package com.uogames.remembercards.ui.choiceCountry
 
 import android.os.Bundle
 import android.view.LayoutInflater

@@ -23,6 +23,9 @@ interface CardDAO {
 	)
 	fun getCountFlow(like: String): Flow<Int>
 
+	@Query("SELECT COUNT(id) FROM new_cards_table")
+	fun getCountFlow(): Flow<Int>
+
 	@Query(
 		"SELECT * FROM new_cards_table nct " +
 				"WHERE EXISTS (SELECT id FROM phrase_table pt WHERE nct.idPhrase = pt.id AND pt.phrase LIKE '%' || :like || '%') " +
