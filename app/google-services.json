@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "572904362912",
+    "project_id": "remember-cards",
+    "storage_bucket": "remember-cards.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:572904362912:android:a4dace460f3223393d0ac5",
+        "android_client_info": {
+          "package_name": "com.uogames.remembercards"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "572904362912-bm9tiqhnj5gsjmjvudkc499be6rena5r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPrh5_q0bhUWMwUDHmGYK7_UwMZ5t_r8Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "572904362912-bm9tiqhnj5gsjmjvudkc499be6rena5r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
