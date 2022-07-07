@@ -1,7 +1,6 @@
 package com.uogames.remembercards.ui.editPhraseFragment
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.media.MediaRecorder
 import androidx.core.net.toFile
 import androidx.core.net.toUri
@@ -11,6 +10,7 @@ import com.uogames.dto.Image
 import com.uogames.dto.Phrase
 import com.uogames.dto.Pronunciation
 import com.uogames.flags.Countries
+import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.utils.MediaBytesSource
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.repository.DataProvider
@@ -64,7 +64,6 @@ class EditPhraseViewModel @Inject constructor(
 	val imgPhrase = _imgPhrase.asStateFlow()
 
 	private val _country = MutableStateFlow(Countries.UNITED_KINGDOM)
-	val country = _country.asStateFlow()
 
 	private val _lang = MutableStateFlow(Locale.getDefault())
 	val lang = _lang.asStateFlow()
@@ -84,14 +83,19 @@ class EditPhraseViewModel @Inject constructor(
 
 	init {
 		phraseObject.idImage.onEach {
-			_imgPhrase.value = it?.let { provider.images.getById(it).first() }
+			_imgPhrase.value = it?.let { provider.images.getByIdFlow(it).first() }
 		}.launchIn(viewModelScope)
+		viewModelScope.launch {
+			_country.value = Countries.valueOf(provider.setting.getFlow(GlobalViewModel.USER_NATIVE_COUNTRY).first().ifNull { "UNITED_KINGDOM" })
+		}
 	}
 
 	fun reset() {
 		phraseObject.set(Phrase())
 		_imgPhrase.value = null
-		_country.value = Countries.UNITED_KINGDOM
+		viewModelScope.launch {
+			_country.value = Countries.valueOf(provider.setting.getFlow(GlobalViewModel.USER_NATIVE_COUNTRY).first().ifNull { "UNITED_KINGDOM" })
+		}
 		_lang.value = Locale.getDefault()
 		_isFileWriting.value = false
 		_timeWriting.value = -1
@@ -197,14 +201,14 @@ class EditPhraseViewModel @Inject constructor(
 	private suspend fun build(id: Int = 0): Phrase {
 		phraseObject.id.value = id
 		phraseObject.idPronounce.value = savePronounceToId()
-		phraseObject.lang.value = lang.value.isO3Language + "-" + country.value.isoCode
+		phraseObject.lang.value = lang.value.isO3Language + "-" + _country.value.toString()
 		return phraseObject.create()
 	}
 
 	private suspend fun savePronounceToId(): Int? {
 		return viewModelScope.async(Dispatchers.IO) {
 			if (_audioChanged.value && _tempAudioFile.length() > 0) {
-				provider.pronounce.addAsync(Pronunciation(0, ""), _tempAudioFile.readBytes()).await().toInt()
+				provider.pronounce.addAsync(Pronunciation(0, ""), _tempAudioFile.readBytes()).await()
 			} else {
 				phraseObject.idPronounce.value
 			}

@@ -11,8 +11,11 @@ object CardMap : Map<CardEntity, Card> {
 			idTranslate = idTranslate,
 			idImage = idImage,
 			reason = reason,
+			timeChange = timeChange,
 			like = like,
-			dislike = dislike
+			dislike = dislike,
+			globalId = globalId,
+			globalOwner = globalOwner
 		)
 	}
 
@@ -23,8 +26,11 @@ object CardMap : Map<CardEntity, Card> {
 			idTranslate = idTranslate,
 			idImage = idImage,
 			reason = reason,
+			timeChange = timeChange,
 			like = like,
-			dislike = dislike
+			dislike = dislike,
+			globalId = globalId,
+			globalOwner = globalOwner
 		)
 	}
 }

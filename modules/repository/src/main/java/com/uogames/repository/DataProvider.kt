@@ -2,7 +2,9 @@ package com.uogames.repository
 
 import android.content.Context
 import com.uogames.database.DatabaseRepository
-import com.uogames.database.repository.ModuleCardRepository
+import com.uogames.dto.Card
+import com.uogames.dto.ModuleCard
+import com.uogames.dto.Phrase
 import com.uogames.repository.fileRepository.FileRepository
 import com.uogames.repository.providers.*
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +26,34 @@ class DataProvider private constructor(
 			)
 			return INSTANCE as DataProvider
 		}
+
+		suspend fun ModuleCard.toModule() = INSTANCE?.module?.getById(idModule)
+
+		fun ModuleCard.toModuleFlow() = INSTANCE?.module?.getByIdFlow(idModule)
+
+		suspend fun ModuleCard.toCard() = INSTANCE?.cards?.getById(idCard)
+
+		fun ModuleCard.toCardFlow() = INSTANCE?.cards?.getByIdFlow(idCard)
+
+		suspend fun Card.toPhrase() = INSTANCE?.phrase?.getById(idPhrase)
+
+		fun Card.toPhraseFlow() = INSTANCE?.phrase?.getByIdFlow(idPhrase)
+
+		suspend fun Card.toTranslate() = INSTANCE?.phrase?.getById(idTranslate)
+
+		fun Card.toTranslateFlow() = INSTANCE?.phrase?.getByIdFlow(idTranslate)
+
+		suspend fun Card.toImage() = idImage?.let { INSTANCE?.images?.getById(id) }
+
+		fun Card.toImageFlow() = idImage?.let { INSTANCE?.images?.getByIdFlow(it) }
+
+		suspend fun Phrase.toImage() = idImage?.let { INSTANCE?.images?.getById(it) }
+
+		fun Phrase.toImageFlow() = idImage?.let { INSTANCE?.images?.getByIdFlow(it) }
+
+		suspend fun Phrase.toPronounce() = idPronounce?.let { INSTANCE?.pronounce?.getById(it) }
+
+		fun Phrase.toPronounceFlow() = idPronounce?.let { INSTANCE?.pronounce?.getByIdFlow(it) }
 	}
 
 	val cards by lazy { CardsProvider(database) }

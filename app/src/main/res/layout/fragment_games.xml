@@ -48,6 +48,7 @@
 			android:textColor="?attr/colorControlNormal" />
 
 		<com.google.android.material.card.MaterialCardView
+			android:id="@+id/mcv_select_module"
 			style="@style/Theme.RememberCards.CardView.Button"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"

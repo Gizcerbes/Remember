@@ -24,7 +24,7 @@ class RootFragment : Fragment() {
 	override fun onStart() {
 		super.onStart()
 
-		lifecycleScope.launch {
+		lifecycleScope.launchWhenStarted {
 			delay(500)
 			GlobalViewModel(DataProvider.get(requireContext())).getUserName().first()?.let {
 				val graph = findNavController().navInflater.inflate(R.navigation.nav_graph).apply { setStartDestination(R.id.mainNaviFragment) }

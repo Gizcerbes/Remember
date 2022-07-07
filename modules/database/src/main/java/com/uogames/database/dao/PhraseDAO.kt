@@ -17,22 +17,43 @@ interface PhraseDAO {
 	suspend fun update(wordEntity: PhraseEntity): Int
 
 	@Query("SELECT COUNT(phrase) FROM phrase_table")
+	suspend fun count(): Int
+
+	@Query("SELECT COUNT(phrase) FROM phrase_table")
 	fun countFLOW(): Flow<Int>
+
+	@Query("SELECT COUNT(id) FROM phrase_table WHERE phrase LIKE '%' || :like || '%'")
+	suspend fun count(like: String) : Int
 
 	@Query("SELECT COUNT(id) FROM phrase_table WHERE phrase LIKE '%' || :like || '%'")
 	fun countFlow(like: String): Flow<Int>
 
 	@Query("SELECT COUNT(id) FROM phrase_table WHERE phrase LIKE '%' || :like || '%' AND lang = :lang")
+	suspend fun count(like: String, lang: String):Int
+
+	@Query("SELECT COUNT(id) FROM phrase_table WHERE phrase LIKE '%' || :like || '%' AND lang = :lang")
 	fun countFlow(like: String, lang: String): Flow<Int>
+
+	@Query("SELECT * FROM phrase_table LIMIT :position , 1 ")
+	suspend fun get(position: Int) : PhraseEntity?
 
 	@Query("SELECT * FROM phrase_table LIMIT :position , 1 ")
 	fun getFlow(position: Int): Flow<PhraseEntity?>
 
 	@Query("SELECT * FROM phrase_table WHERE phrase LIKE '%' || :like || '%' LIMIT :position, 1")
+	suspend fun get(like: String, position: Int): PhraseEntity?
+
+	@Query("SELECT * FROM phrase_table WHERE phrase LIKE '%' || :like || '%' LIMIT :position, 1")
 	fun getFlow(like: String, position: Int): Flow<PhraseEntity?>
 
 	@Query("SELECT * FROM phrase_table WHERE phrase LIKE '%' || :like || '%' AND lang = :lang LIMIT :position, 1")
+	suspend fun get(like: String, lang: String, position: Int): PhraseEntity?
+
+	@Query("SELECT * FROM phrase_table WHERE phrase LIKE '%' || :like || '%' AND lang = :lang LIMIT :position, 1")
 	fun getFlow(like: String, lang: String, position: Int): Flow<PhraseEntity?>
+
+	@Query("SELECT * FROM phrase_table WHERE id = :id")
+	suspend fun getById(id: Int): PhraseEntity?
 
 	@Query("SELECT * FROM phrase_table WHERE id = :id")
 	fun getByIdFlow(id: Int): Flow<PhraseEntity?>
@@ -41,7 +62,13 @@ interface PhraseDAO {
 	suspend fun exists(phrase: String): Boolean
 
 	@Query("SELECT id FROM phrase_table WHERE phrase LIKE '%' || :like || '%' AND lang = :lang")
+	suspend fun getListId(like: String, lang: String): List<Int>
+
+	@Query("SELECT id FROM phrase_table WHERE phrase LIKE '%' || :like || '%' AND lang = :lang")
 	fun getListIdFlow(like: String, lang: String): Flow<List<Int>>
+
+	@Query("SELECT id FROM phrase_table WHERE phrase LIKE '%' || :like || '%'")
+	suspend fun getListId(like: String): List<Int>
 
 	@Query("SELECT id FROM phrase_table WHERE phrase LIKE '%' || :like || '%'")
 	fun getListIdFlow(like: String): Flow<List<Int>>

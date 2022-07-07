@@ -13,8 +13,8 @@ interface SettingDAO {
 	@Delete
 	suspend fun delete(setting: SettingEntity): Int
 
-	@Query("SELECT * FROM settings WHERE `key`=:id")
-	suspend fun get(id: String): SettingEntity?
+	@Query("SELECT * FROM settings WHERE `key`=:key")
+	suspend fun get(key: String): SettingEntity?
 
 	@Query("SELECT * FROM settings WHERE `key`=:key")
 	fun getFlow(key: String): Flow<SettingEntity?>

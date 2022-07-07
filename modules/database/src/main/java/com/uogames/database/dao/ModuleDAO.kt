@@ -26,6 +26,9 @@ interface ModuleDAO {
 	fun getListLike(like: String): Flow<List<ModuleEntity>>
 
 	@Query("SELECT * FROM modules WHERE id = :id")
-	fun getByID(id: Int): Flow<ModuleEntity?>
+	suspend fun getById(id: Int): ModuleEntity?
+
+	@Query("SELECT * FROM modules WHERE id = :id")
+	fun getByIdFlow(id: Int): Flow<ModuleEntity?>
 
 }

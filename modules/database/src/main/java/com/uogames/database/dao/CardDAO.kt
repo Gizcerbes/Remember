@@ -34,9 +34,16 @@ interface CardDAO {
 	)
 	fun getCardFlow(like: String, number: Int): Flow<CardEntity?>
 
+	@Query("SELECT * FROM new_cards_table WHERE id = :id")
+	suspend fun getById(id: Int): CardEntity?
 
 	@Query("SELECT * FROM new_cards_table WHERE id = :id")
 	fun getByIdFlow(id: Int): Flow<CardEntity?>
 
+	@Query("SELECT * FROM new_cards_table ORDER BY RANDOM() LIMIT 1")
+	suspend fun getRandom(): CardEntity?
+
+	@Query("SELECT * FROM new_cards_table WHERE id <> :id ORDER BY RANDOM() LIMIT 1")
+	suspend fun getRandomWithOut(id: Int): CardEntity?
 
 }

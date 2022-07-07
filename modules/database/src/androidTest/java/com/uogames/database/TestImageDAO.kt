@@ -47,9 +47,9 @@ class TestImageDAO {
 	@Test
 	fun getFree()= runBlocking {
 		setData()
-		Assert.assertEquals(db.imageDAO().count().first(), 4)
+		Assert.assertEquals(db.imageDAO().countFlow().first(), 4)
 		//db.imageDAO().freeId()
-		Assert.assertEquals(db.imageDAO().count().first(), 3)
+		Assert.assertEquals(db.imageDAO().countFlow().first(), 3)
 	}
 
 

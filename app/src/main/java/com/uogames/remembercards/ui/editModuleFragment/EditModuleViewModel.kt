@@ -18,7 +18,7 @@ class EditModuleViewModel @Inject constructor(val provider: DataProvider) : View
 
 	val moduleID = MutableStateFlow(0)
 
-	val module = moduleID.flatMapLatest { provider.module.getByID(it) }
+	val module = moduleID.flatMapLatest { provider.module.getByIdFlow(it) }
 
 	val moduleCardsList = module.flatMapLatest { provider.moduleCard.getByModule(it.ifNull { Module() }) }
 

@@ -87,7 +87,7 @@ class LibraryFragment : DaggerFragment() {
 		bind.recycler.scrollToPosition(0)
 
 		bind.recycler.adapter = LibraryAdapter(lifecycleScope, libraryViewModel) {
-			navigateToEdit(it)
+			navigateToEdit(it.id)
 		}
 	}
 

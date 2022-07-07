@@ -37,7 +37,7 @@ class ChoiceCountryDialog(call: (Countries) -> Unit) : ObservedDialog<Countries>
 		bind.tilSearch.editText?.doOnTextChanged { text, _, _, _ ->
 			val cou = Countries.values().filter { country ->
 				for (it in country.country) {
-					if (it.value.contains(text.toString())) return@filter true
+					if (it.value.uppercase().contains(text.toString().uppercase())) return@filter true
 				}
 				false
 			}

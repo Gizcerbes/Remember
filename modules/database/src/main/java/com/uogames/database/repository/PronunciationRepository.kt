@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 
-class PronunciationRepository(val dao: PronunciationDAO) {
+class PronunciationRepository(private val dao: PronunciationDAO) {
 
 	suspend fun insert(pronunciation: Pronunciation) = dao.insert(pronunciation.toEntity())
 
@@ -17,14 +17,20 @@ class PronunciationRepository(val dao: PronunciationDAO) {
 
 	suspend fun update(pronunciation: Pronunciation) = dao.update(pronunciation.toEntity()) > 0
 
+	suspend fun count() = dao.count()
+
 	fun countFlow() = dao.countFlow()
 
-	fun getById(id: Int) = dao.getByIdFlow(id).map { it?.toDTO() }
+	suspend fun getById(id: Int) = dao.getById(id)?.toDTO()
 
-	fun getByNumber(number: Int) = dao.getByNumber(number).map { it?.toDTO() }
+	fun getByIdFlow(id: Int) = dao.getByIdFlow(id).map { it?.toDTO() }
+
+	suspend fun getByNumber(number: Int) = dao.getByNumber(number)?.toDTO()
+
+	fun getByNumberFlow(number: Int) = dao.getByNumberFlow(number).map { it?.toDTO() }
 
 	fun getByPhrase(phrase: Phrase) = phrase.idPronounce?.let {
-		getById(it)
+		getByIdFlow(it)
 	} ?: MutableStateFlow(null).asStateFlow()
 
 	suspend fun freeId() = dao.freePronounce().map { it.toDTO() }

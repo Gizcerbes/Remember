@@ -67,7 +67,7 @@
 	<string name="click_here">Click here</string>
 	<string name="end">end</string>
 	<string name="load">LOAD</string>
-	<string name="offline">Offline</string>
+	<string name="disconnected">Disconnected</string>
 	<string name="selected_module">Selected Module</string>
 	<string name="all_cards">All Cards</string>
 </resources>

@@ -17,10 +17,16 @@ interface ImageDAO {
 	suspend fun update(imageEntity: ImageEntity): Int
 
 	@Query("SELECT COUNT(*) FROM images_table")
-	fun count(): Flow<Int>
+	suspend fun count(): Int
+
+	@Query("SELECT COUNT(*) FROM images_table")
+	fun countFlow(): Flow<Int>
 
 	@Query("SELECT * FROM images_table WHERE id = :id")
-	fun getByID(id: Int): Flow<ImageEntity?>
+	suspend fun getById(id: Int): ImageEntity?
+
+	@Query("SELECT * FROM images_table WHERE id = :id")
+	fun getByIdFlow(id: Int): Flow<ImageEntity?>
 
 	@Query(
 		"SELECT * FROM images_table " +
@@ -30,6 +36,9 @@ interface ImageDAO {
 				"NOT EXISTS (SELECT * FROM new_cards_table nct WHERE nct.idImage = images_table.id)"
 	)
 	suspend fun freeImages(): List<ImageEntity>
+
+	@Query("SELECT * FROM images_table")
+	suspend fun getList(): List<ImageEntity>
 
 	@Query("SELECT * FROM images_table")
 	fun getListFlow(): Flow<List<ImageEntity>>

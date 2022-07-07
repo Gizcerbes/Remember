@@ -12,7 +12,7 @@ import com.uogames.remembercards.utils.ChangeableAdapter
 import com.uogames.remembercards.utils.observeWhenStarted
 import kotlinx.coroutines.launch
 
-class LibraryAdapter(scope: LifecycleCoroutineScope, val model: LibraryViewModel, val selectID: (Int) -> Unit) :
+class LibraryAdapter(scope: LifecycleCoroutineScope, val model: LibraryViewModel, val selectID: (Module) -> Unit) :
 	ChangeableAdapter<LibraryAdapter.ModuleHolder>(scope) {
 
 	private var list: List<Module> = listOf()
@@ -46,7 +46,7 @@ class LibraryAdapter(scope: LifecycleCoroutineScope, val model: LibraryViewModel
 				bind.txtLikes.text = "${(module.like / (module.like + module.dislike).toDouble() * 100).toInt()}%"
 				bind.txtOwner.text = module.owner
 				bind.root.setOnClickListener {
-					selectID(module.id)
+					selectID(module)
 				}
 				bind.root.visibility = View.VISIBLE
 			}

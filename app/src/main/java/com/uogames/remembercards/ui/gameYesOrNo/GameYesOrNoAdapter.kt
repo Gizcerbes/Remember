@@ -5,18 +5,22 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.RecyclerView
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardGameResultBinding
+import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observeWhile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class GameYesOrNoAdapter(
-	private val model: GameYesOrNotViewModel
+	private val model: GameYesOrNotViewModel,
+	private val lifecycleCoroutineScope: LifecycleCoroutineScope
 ) : RecyclerView.Adapter<GameYesOrNoAdapter.ResultHolder>() {
 
 	companion object {
@@ -59,16 +63,21 @@ class GameYesOrNoAdapter(
 		}
 
 		private fun showResult(){
-//			val answer = model.getAnswer(adapterPosition)
-//			resultBind.txtPhrase.text = answer.firs.phrase
-//			resultBind.txtTranslate.text = answer.firs.translate
-//			if (answer.truth){
-//				resultBind.txtAnswer.text = answer.firs.translate
-//				resultBind.txtAnswer.setTextColor(ContextCompat.getColor(itemView.context, R.color.darkGreen))
-//			} else {
-//				resultBind.txtAnswer.text = answer.second.translate
-//				resultBind.txtAnswer.setTextColor(ContextCompat.getColor(itemView.context, R.color.redwood))
-//			}
+			val answer = model.getAnswer(adapterPosition)
+			lifecycleCoroutineScope.launchWhenStarted {
+				val firstPhrase = model.getPhrase(answer.firs.idPhrase).first().ifNull { return@launchWhenStarted }
+				val firstTranslate = model.getPhrase(answer.firs.idTranslate).first().ifNull { return@launchWhenStarted }
+				val secondTranslate = model.getPhrase(answer.second.idTranslate).first().ifNull { return@launchWhenStarted }
+				resultBind.txtPhrase.text = firstPhrase.phrase
+				resultBind.txtTranslate.text = firstTranslate.phrase
+				if (answer.truth){
+					resultBind.txtAnswer.text = firstTranslate.phrase
+					resultBind.txtAnswer.setTextColor(ContextCompat.getColor(itemView.context, R.color.darkGreen))
+				} else {
+					resultBind.txtAnswer.text = secondTranslate.phrase
+					resultBind.txtAnswer.setTextColor(ContextCompat.getColor(itemView.context, R.color.redwood))
+				}
+			}
 		}
 
 

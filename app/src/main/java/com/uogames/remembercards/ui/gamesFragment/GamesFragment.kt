@@ -13,7 +13,10 @@ import androidx.navigation.fragment.findNavController
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentGamesBinding
+import com.uogames.remembercards.ui.choiceModuleDialog.ChoiceModuleDialog
+import com.uogames.remembercards.ui.gameYesOrNo.GameYesOrNotFragment
 import com.uogames.remembercards.ui.gameYesOrNo.GameYesOrNotViewModel
+import com.uogames.remembercards.ui.libraryFragment.LibraryViewModel
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observeWhenStarted
 import dagger.android.support.DaggerFragment
@@ -31,6 +34,9 @@ class GamesFragment : DaggerFragment() {
 	@Inject
 	lateinit var globalViewModel: GlobalViewModel
 
+	@Inject
+	lateinit var libraryViewModel: LibraryViewModel
+
 	private lateinit var bind: FragmentGamesBinding
 
 	override fun onCreateView(
@@ -44,6 +50,8 @@ class GamesFragment : DaggerFragment() {
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		val nav = requireActivity().findNavController(R.id.nav_host_fragment)
+
+		bind.gameYesOrNot.visibility = View.GONE
 
 		gamesViewModel.selectedModule.observeWhenStarted(lifecycleScope) { module ->
 			module?.let {
@@ -66,12 +74,32 @@ class GamesFragment : DaggerFragment() {
 
 		gamesViewModel.countItems.observeWhenStarted(lifecycleScope) {
 			bind.txtCountItems.text = requireContext().getString(R.string.count_items).replace("||COUNT||", it.toString())
+			if (it > 2) {
+				bind.gameYesOrNot.visibility = View.VISIBLE
+			} else {
+				bind.gameYesOrNot.visibility = View.GONE
+			}
 		}
 
 		bind.gameYesOrNot.setOnClickListener {
-			gameYesOrNotViewModel.reset()
-			nav.navigate(R.id.gameYesOrNotFragment)
+			gamesViewModel.selectedModule.value?.let {
+				nav.navigate(R.id.gameYesOrNotFragment, Bundle().apply { putInt(GameYesOrNotFragment.MODULE_ID, it.id) })
+			}.ifNull {
+				nav.navigate(R.id.gameYesOrNotFragment)
+			}
 		}
+
+		bind.mcvSelectModule.setOnClickListener {
+			val dialog = ChoiceModuleDialog(libraryViewModel) {
+				gamesViewModel.selectedModule.value = it
+			}
+			dialog.show(requireActivity().supportFragmentManager, ChoiceModuleDialog.TAG)
+		}
+
+		bind.btnClear.setOnClickListener {
+			gamesViewModel.selectedModule.value = null
+		}
+
 
 	}
 

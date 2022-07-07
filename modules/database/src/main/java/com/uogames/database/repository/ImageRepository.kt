@@ -18,14 +18,16 @@ class ImageRepository(private val imageDAO: ImageDAO) {
 
 	suspend fun update(image: Image) = imageDAO.update(image.toEntity()) > 0
 
-	fun getByID(id: Int) = imageDAO.getByID(id).map { it?.toDTO() }
+	suspend fun getById(id: Int) = imageDAO.getById(id)?.toDTO()
 
-	fun getByPhrase(phrase: Phrase) = phrase.idImage?.let { id ->
-		imageDAO.getByID(id).map { it?.toDTO() }
+	fun getByIdFlow(id: Int) = imageDAO.getByIdFlow(id).map { it?.toDTO() }
+
+	fun getByPhraseFlow(phrase: Phrase) = phrase.idImage?.let { id ->
+		imageDAO.getByIdFlow(id).map { it?.toDTO() }
 	} ?: MutableStateFlow(null).asStateFlow()
 
-	fun getByCard(card: Card) = card.idImage?.let { id ->
-		imageDAO.getByID(id).map { it?.toDTO() }
+	fun getByCardFlow(card: Card) = card.idImage?.let { id ->
+		imageDAO.getByIdFlow(id).map { it?.toDTO() }
 	} ?: MutableStateFlow(null).asStateFlow()
 
 	suspend fun freeImages() = imageDAO.freeImages().map { it.toDTO() }

@@ -12,6 +12,9 @@ data class ModuleEntity(
 	val id: Int,
 	val name: String,
 	val owner: String,
+	val timeChange: Long,
 	val like: Long,
-	val dislike: Long
+	val dislike: Long,
+	val globalId: Long?,
+	val globalOwner: String?
 )

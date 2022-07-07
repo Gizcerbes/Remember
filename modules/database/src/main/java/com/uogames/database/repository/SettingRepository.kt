@@ -12,6 +12,8 @@ class SettingRepository(val dao: SettingDAO) {
 
 	suspend fun delete(setting: Setting) = dao.delete(setting.toEntity())
 
+	suspend fun get(key: String) = dao.get(key)?.toDTO()
+
 	fun getFlow(key: String) = dao.getFlow(key).map { it?.toDTO() }
 
 }

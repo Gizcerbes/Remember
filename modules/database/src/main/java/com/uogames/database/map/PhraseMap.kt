@@ -15,7 +15,9 @@ object PhraseMap : Map<PhraseEntity, Phrase> {
 			definition = definition,
 			timeChange = timeChange,
 			like = like,
-			dislike = dislike
+			dislike = dislike,
+			globalId = globalId,
+			globalOwner = globalOwner
 		)
 	}
 
@@ -29,7 +31,9 @@ object PhraseMap : Map<PhraseEntity, Phrase> {
 			definition = definition,
 			timeChange = timeChange,
 			like = like,
-			dislike = dislike
+			dislike = dislike,
+			globalId = globalId,
+			globalOwner = globalOwner
 		)
 	}
 

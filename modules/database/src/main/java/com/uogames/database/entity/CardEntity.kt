@@ -30,6 +30,9 @@ data class CardEntity(
 	val idTranslate: Int,
 	val idImage: Int?,
 	val reason: String,
+	val timeChange: Long,
 	val like: Long,
-	val dislike: Long
+	val dislike: Long,
+	val globalId: Long?,
+	val globalOwner: String?
 )

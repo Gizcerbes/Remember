@@ -17,14 +17,22 @@ interface PronunciationDAO {
 	suspend fun update(pronunciationEntity: PronunciationEntity): Int
 
 	@Query("SELECT COUNT(id) FROM pronounce_table")
+	suspend fun count(): Int
+
+	@Query("SELECT COUNT(id) FROM pronounce_table")
 	fun countFlow(): Flow<Int>
+
+	@Query("SELECT * FROM pronounce_table WHERE id = :id")
+	suspend fun getById(id: Int): PronunciationEntity?
 
 	@Query("SELECT * FROM pronounce_table WHERE id =:id")
 	fun getByIdFlow(id: Int): Flow<PronunciationEntity?>
 
 	@Query("SELECT * FROM pronounce_table LIMIT :number, 1")
-	fun getByNumber(number: Int): Flow<PronunciationEntity?>
+	suspend fun getByNumber(number: Int): PronunciationEntity?
 
+	@Query("SELECT * FROM pronounce_table LIMIT :number, 1")
+	fun getByNumberFlow(number: Int): Flow<PronunciationEntity?>
 
 	@Query(
 		"SELECT * FROM pronounce_table " +

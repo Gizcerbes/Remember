@@ -15,5 +15,7 @@ data class PhraseEntity(
 	val idImage: Int?,
 	val timeChange: Long,
 	val like: Long,
-	val dislike: Long
+	val dislike: Long,
+	val globalId: Long?,
+	val globalOwner: String?
 )
