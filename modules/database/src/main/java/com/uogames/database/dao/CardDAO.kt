@@ -17,33 +17,33 @@ interface CardDAO {
 	suspend fun update(cardEntity: CardEntity): Int
 
 	@Query(
-		"SELECT COUNT(id) FROM new_cards_table nct " +
+		"SELECT COUNT(id) FROM cards_table nct " +
 				"WHERE EXISTS (SELECT id FROM phrase_table pt WHERE nct.idPhrase = pt.id AND pt.phrase LIKE '%' || :like || '%') " +
 				"OR EXISTS (SELECT id FROM phrase_table pt WHERE nct.idTranslate = pt.id AND pt.phrase LIKE '%' || :like || '%') "
 	)
 	fun getCountFlow(like: String): Flow<Int>
 
-	@Query("SELECT COUNT(id) FROM new_cards_table")
+	@Query("SELECT COUNT(id) FROM cards_table")
 	fun getCountFlow(): Flow<Int>
 
 	@Query(
-		"SELECT * FROM new_cards_table nct " +
+		"SELECT * FROM cards_table nct " +
 				"WHERE EXISTS (SELECT id FROM phrase_table pt WHERE nct.idPhrase = pt.id AND pt.phrase LIKE '%' || :like || '%') " +
 				"OR EXISTS (SELECT id FROM phrase_table pt WHERE nct.idTranslate = pt.id AND pt.phrase LIKE '%' || :like || '%') " +
 				"LIMIT :number, 1"
 	)
 	fun getCardFlow(like: String, number: Int): Flow<CardEntity?>
 
-	@Query("SELECT * FROM new_cards_table WHERE id = :id")
+	@Query("SELECT * FROM cards_table WHERE id = :id")
 	suspend fun getById(id: Int): CardEntity?
 
-	@Query("SELECT * FROM new_cards_table WHERE id = :id")
+	@Query("SELECT * FROM cards_table WHERE id = :id")
 	fun getByIdFlow(id: Int): Flow<CardEntity?>
 
-	@Query("SELECT * FROM new_cards_table ORDER BY RANDOM() LIMIT 1")
+	@Query("SELECT * FROM cards_table ORDER BY RANDOM() LIMIT 1")
 	suspend fun getRandom(): CardEntity?
 
-	@Query("SELECT * FROM new_cards_table WHERE id <> :id ORDER BY RANDOM() LIMIT 1")
+	@Query("SELECT * FROM cards_table WHERE id <> :id ORDER BY RANDOM() LIMIT 1")
 	suspend fun getRandomWithOut(id: Int): CardEntity?
 
 }

@@ -3,6 +3,8 @@ package com.uogames.repository.providers
 import com.uogames.database.repository.ModuleRepository
 import com.uogames.dto.Module
 import com.uogames.dto.ModuleCard
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 
 class ModuleProvider(
@@ -26,4 +28,7 @@ class ModuleProvider(
 
 	suspend fun getById(id: Int) = mr.getById(id)
 
+	fun getByIdAsync(id: Int) = ioScope.async { getById(id) }
+
+	fun getByIdAsync(id: suspend () -> Int?) = ioScope.async { id()?.let { getById(it) }  }
 }

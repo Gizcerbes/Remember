@@ -18,7 +18,8 @@ import com.uogames.database.entity.*
 		CardEntity::class,
 		SettingEntity::class,
 		ModuleEntity::class,
-		ModuleCardEntity::class
+		ModuleCardEntity::class,
+		ErrorCardEntity::class
 	],
 	version = 1
 )
@@ -37,6 +38,8 @@ abstract class MyDatabase : RoomDatabase() {
 	abstract fun moduleDAO(): ModuleDAO
 
 	abstract fun moduleCardDAO(): ModuleCardDAO
+
+	abstract fun errorCardDao(): ErrorCardDAO
 
 	companion object {
 		private var INSTANCE: MyDatabase? = null

@@ -2,7 +2,6 @@ package com.uogames.remembercards.ui.choiceCardFragment
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,7 +15,6 @@ import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentCardBinding
 import com.uogames.remembercards.ui.cardFragment.CardViewModel
-import com.uogames.remembercards.ui.choicePhraseFragment.ChoicePhraseFragment
 import com.uogames.remembercards.ui.editCardFragment.EditCardViewModel
 import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.remembercards.utils.ifNull

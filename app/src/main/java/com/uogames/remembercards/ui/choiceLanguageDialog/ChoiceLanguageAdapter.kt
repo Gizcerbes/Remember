@@ -29,11 +29,12 @@ class ChoiceLanguageAdapter(scope: LifecycleCoroutineScope, val call: (Languages
 			}
 		}
 
-		override fun LifecycleCoroutineScope.show(typeFragment: Int) {
+		override suspend fun CoroutineScope.show(typeFragment: Int, end: () -> Unit) {
 			bind.txtLanguage.text = list[adapterPosition].language
 			bind.root.setOnClickListener {
 				call(list[adapterPosition])
 			}
+			end()
 		}
 
 	}

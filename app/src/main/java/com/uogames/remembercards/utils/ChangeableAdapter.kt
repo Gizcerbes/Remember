@@ -57,7 +57,14 @@ abstract class ChangeableAdapter<VH : ChangeableAdapter.ChangeableViewHolder>(pr
 				view.addView(onCreateView(typeFragment, viewGrope))
 			}
 			if (adapterPosition != -1) {
-				 scope.show(typeFragment)
+				scope.launchWhenStarted {
+					show(typeFragment) {
+//						val param = view.layoutParams
+//						param.height = ViewGroup.LayoutParams.WRAP_CONTENT
+//						view.layoutParams = param
+//						oldPos = adapterPosition
+					}
+				}
 			}
 			val param = view.layoutParams
 			param.height = ViewGroup.LayoutParams.WRAP_CONTENT
@@ -65,7 +72,7 @@ abstract class ChangeableAdapter<VH : ChangeableAdapter.ChangeableViewHolder>(pr
 			oldPos = adapterPosition
 		}
 
-		abstract fun LifecycleCoroutineScope.show(typeFragment: Int)
+		abstract suspend fun CoroutineScope.show(typeFragment: Int, end: () -> Unit)
 
 		fun onDetach() {
 			cardJob?.cancel()

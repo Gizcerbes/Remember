@@ -17,7 +17,7 @@ class ImageProvider(
 	fun addAsync(image: Image, bytes: ByteArray) = ioScope.async {
 		val id = database.imageRepository.insert(image).toInt()
 		val uri = fileRepository.saveFile("$id.png", bytes)
-		database.imageRepository.update(Image(id,uri.toString()))
+		database.imageRepository.update(Image(id, uri.toString()))
 		return@async id
 	}
 
@@ -37,14 +37,18 @@ class ImageProvider(
 
 	suspend fun getById(id: Int) = database.imageRepository.getById(id)
 
+	fun getByIdAsync(id: Int) = ioScope.async { getById(id) }
+
+	fun getByIdAsync(id: suspend () -> Int?) = ioScope.async { id()?.let { getById(it) } }
+
 	fun getByIdFlow(id: Int) = database.imageRepository.getByIdFlow(id)
 
 	fun getByPhrase(phrase: Phrase) = database.imageRepository.getByPhraseFlow(phrase)
 
 	fun getByCard(card: Card) = database.imageRepository.getByCardFlow(card)
 
-	suspend fun clear(){
-		database.imageRepository.freeImages().forEach{
+	suspend fun clear() {
+		database.imageRepository.freeImages().forEach {
 			fileRepository.deleteFile(it.imgUri.toUri())
 			database.imageRepository.delete(it)
 		}

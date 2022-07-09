@@ -3,8 +3,9 @@ package com.uogames.database
 import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.uogames.database.entity.ImageEntity
 import com.uogames.database.entity.CardEntity
+import com.uogames.database.entity.ErrorCardEntity
+import com.uogames.database.entity.ImageEntity
 import com.uogames.database.entity.PhraseEntity
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -16,7 +17,7 @@ import org.junit.runner.RunWith
 import java.io.IOException
 
 @RunWith(AndroidJUnit4::class)
-class TestImageDAO {
+class TestErrorCardDAO {
 
 	lateinit var db: MyDatabase
 
@@ -33,24 +34,22 @@ class TestImageDAO {
 	}
 
 	private fun setData() = runBlocking {
-		db.imageDAO().insert(ImageEntity(1,"1"))
-		db.imageDAO().insert(ImageEntity(2,"2"))
-		db.imageDAO().insert(ImageEntity(3,"3"))
-		db.imageDAO().insert(ImageEntity(4,"4"))
+		db.phraseDAO().insert(PhraseEntity(1, "1", null, null, null, 1, 0, 0, 0, 0, ""))
+		db.phraseDAO().insert(PhraseEntity(2, "2", null, null, null, 2, 0, 0, 0, 0, ""))
+		db.phraseDAO().insert(PhraseEntity(3, "3", null, null, null, 2, 0, 0, 0, 0, ""))
+		db.phraseDAO().insert(PhraseEntity(4, "4", null, null, null, 2, 0, 0, 0, 0, ""))
+		db.errorCardDao().insert(ErrorCardEntity(0, 1, 2, 0, 0, 100))
+		db.errorCardDao().insert(ErrorCardEntity(0, 1, 3, 0, 0, 100))
+		db.errorCardDao().insert(ErrorCardEntity(0, 2, 3, 0, 0, 100))
+		db.errorCardDao().insert(ErrorCardEntity(0, 3, 1, 0, 0, 100))
 
-		db.phraseDAO().insert(PhraseEntity(1,"1", null,null, null, 1, 0,0,0,0,""))
-		db.phraseDAO().insert(PhraseEntity(2,"2", null,null, null, 2, 0,0,0,0,""))
 
-		db.cardDAO().insert(CardEntity(1,1,2,4,"",0,0,0,0,""))
 	}
 
 	@Test
-	fun getFree()= runBlocking {
+	fun getFree() = runBlocking {
 		setData()
-		Assert.assertEquals(db.imageDAO().countFlow().first(), 4)
-		//db.imageDAO().freeId()
-		Assert.assertEquals(db.imageDAO().countFlow().first(), 3)
+		assert(true)
 	}
-
 
 }

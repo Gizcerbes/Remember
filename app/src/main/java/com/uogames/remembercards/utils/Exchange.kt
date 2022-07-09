@@ -45,7 +45,7 @@ fun <T> Flow<T>.observeWhile(
 
 fun <T> Flow<T>.observeWhenStarted(
 	scope: LifecycleCoroutineScope,
-	listener: (T) -> Unit
+	listener: suspend CoroutineScope.(T) -> Unit
 ): Job = scope.launchWhenStarted {
 	collect() { listener(it) }
 }
@@ -53,10 +53,17 @@ fun <T> Flow<T>.observeWhenStarted(
 inline fun <C> C?.ifNull(defaultValue: () -> C): C =
 	this ?: defaultValue()
 
-
 inline fun <C : CharSequence?> C.ifNullOrEmpty(defaultValue: () -> C): C {
 	return if (isNullOrEmpty()) defaultValue()
 	else this
+}
+
+inline fun <C> safely(catcher: (Exception) -> C? = { null }, run: () -> C?): C? {
+	return try {
+		run()
+	} catch (e: Exception) {
+		catcher(e)
+	}
 }
 
 fun <C : Drawable> C.asAnimationDrawable(): AnimationDrawable = this as AnimationDrawable

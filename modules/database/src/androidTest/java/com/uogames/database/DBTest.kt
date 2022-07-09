@@ -31,16 +31,16 @@ class DBTest {
 	}
 
 	private fun setData() = runBlocking {
-		db.phraseDAO().insert(PhraseEntity(1, "Hello", "en", null, null, null, 0, 0, 0))
-		db.phraseDAO().insert(PhraseEntity(2, "World", "en", null, null, null, 0,0, 0))
-		db.phraseDAO().insert(PhraseEntity(3, "Hello World", "en", null, null, null, 0,0, 0))
-		db.phraseDAO().insert(PhraseEntity(4, "Привет", "ru", null, null, null, 0,0, 0))
-		db.phraseDAO().insert(PhraseEntity(5, "Мир", "ru", null, null, null, 0,0, 0))
-		db.phraseDAO().insert(PhraseEntity(6, "Привет Мир", "ru", null, null, null, 0,0, 0))
+		db.phraseDAO().insert(PhraseEntity(1, "Hello", "en", null, null, null, 0, 0, 0,0,""))
+		db.phraseDAO().insert(PhraseEntity(2, "World", "en", null, null, null, 0,0, 0,0,""))
+		db.phraseDAO().insert(PhraseEntity(3, "Hello World", "en", null, null, null, 0,0, 0,0,""))
+		db.phraseDAO().insert(PhraseEntity(4, "Привет", "ru", null, null, null, 0,0, 0,0,""))
+		db.phraseDAO().insert(PhraseEntity(5, "Мир", "ru", null, null, null, 0,0, 0,0,""))
+		db.phraseDAO().insert(PhraseEntity(6, "Привет Мир", "ru", null, null, null, 0,0, 0,0,""))
 
-		db.cardDAO().insert(CardEntity(1, 1, 4, null,"",0,0))
-		db.cardDAO().insert(CardEntity(2, 2, 5, null,"",0,0))
-		db.cardDAO().insert(CardEntity(3, 3, 6, null,"",0,0))
+		db.cardDAO().insert(CardEntity(1, 1, 4, null,"",0,0,0,0,""))
+		db.cardDAO().insert(CardEntity(2, 2, 5, null,"",0,0,0,0,""))
+		db.cardDAO().insert(CardEntity(3, 3, 6, null,"",0,0,0,0,""))
 
 	}
 

@@ -30,4 +30,6 @@ class DatabaseRepository private constructor(private val database: MyDatabase) {
 
 	val moduleCardRepository by lazy { ModuleCardRepository(database.moduleCardDAO()) }
 
+	//val errorCardRepository bt
+
 }

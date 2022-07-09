@@ -1,12 +1,10 @@
 package com.uogames.database.entity
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
+import androidx.room.*
+
 
 @Entity(
-	tableName = "cards_table",
+	tableName = "error_card",
 	foreignKeys = [
 		ForeignKey(
 			entity = PhraseEntity::class,
@@ -18,21 +16,16 @@ import androidx.room.PrimaryKey
 			parentColumns = ["id"],
 			childColumns = ["idTranslate"],
 			onDelete = ForeignKey.CASCADE
-		)]
+		)],
+	indices = [Index("idPhrase", "idTranslate", unique = true)]
 )
-
-data class CardEntity(
+data class ErrorCardEntity(
 	@PrimaryKey(autoGenerate = true)
-	val id: Int = 0,
-	@ColumnInfo(index = true)
+	val id: Long = 0,
 	val idPhrase: Int,
 	@ColumnInfo(index = true)
 	val idTranslate: Int,
-	val idImage: Int?,
-	val reason: String,
-	val timeChange: Long,
-	val like: Long,
-	val dislike: Long,
-	val globalId: Long?,
-	val globalOwner: String?
+	val correct: Long,
+	val incorrect: Long,
+	val percentCorrect: Byte
 )

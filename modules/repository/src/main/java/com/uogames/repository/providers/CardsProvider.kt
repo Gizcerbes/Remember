@@ -28,6 +28,8 @@ class CardsProvider(
 
 	fun getByIdAsync(id: Int) = ioScope.async { database.cardRepository.getByIdFlow(id).first() }
 
+	fun getByIdAsync(id: suspend () -> Int?) = ioScope.async { id()?.let { getById(it) } }
+
 	fun getByModuleCard(moduleCard: ModuleCard) = database.cardRepository.getByIdFlow(moduleCard.idCard)
 
 	fun getRandomAsync() = ioScope.async { database.cardRepository.getRandom() }

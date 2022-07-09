@@ -1,44 +1,27 @@
 package com.uogames.remembercards.ui.bookFragment
 
-import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.appcompat.app.AppCompatActivity
+import androidx.core.net.toUri
 import androidx.lifecycle.LifecycleCoroutineScope
-import androidx.navigation.findNavController
-import com.uogames.dto.Phrase
-import com.uogames.remembercards.R
+import com.uogames.dto.Image
+import com.uogames.dto.Pronunciation
 import com.uogames.remembercards.databinding.CardPhraseBinding
-import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseFragment
 import com.uogames.remembercards.utils.*
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
-import java.util.*
+import kotlinx.coroutines.Deferred
 
 class BookAdapter(
 	private val model: BookViewModel,
 	private val player: ObservableMediaPlayer,
-	lifecycleScope: LifecycleCoroutineScope
+	val lifecycleScope: LifecycleCoroutineScope,
+	private val editPhraseCall: (Int) -> Unit
 ) : ChangeableAdapter<BookAdapter.CardHolder>(lifecycleScope) {
 
 	companion object {
 		private const val INFO_MODE = 0
-	}
-
-	private val recyclerScope = CoroutineScope(Dispatchers.Main)
-
-	init {
-		CoroutineScope(Dispatchers.IO).launch {
-
-		}
-		model.size.onEach {
-			notifyDataSetChanged()
-		}.launchIn(recyclerScope)
 	}
 
 	inner class CardHolder(
@@ -59,78 +42,55 @@ class BookAdapter(
 			}
 		}
 
-		override fun LifecycleCoroutineScope.show(typeFragment: Int) {
+		override suspend fun CoroutineScope.show(typeFragment: Int, end: () -> Unit) {
 			when (typeFragment) {
-				INFO_MODE -> this.showInfoMode()
+				INFO_MODE -> showInfoMode()
 			}
 		}
 
-		private fun LifecycleCoroutineScope.showInfoMode() {
+		private suspend fun showInfoMode() {
 			infoBind.root.visibility = View.INVISIBLE
-			val position = adapterPosition
-			model.get(position).observeWhenStarted(this) { res ->
-				res?.let { phrase ->
+
+			model.get(adapterPosition).observeWhenStarted(lifecycleScope) { bookView ->
+				bookView?.phrase?.let { phrase ->
 					infoBind.txtPhrase.text = phrase.phrase
 					infoBind.txtDefinition.text = phrase.definition.orEmpty()
-					showImage(phrase)
-					showPronounce(phrase)
-					showLang(phrase)
+					showImage(bookView.image)
+					showPronounce(bookView.pronounce)
+					infoBind.txtLang.text = bookView.lang
 					infoBind.btnEdit.setOnClickListener {
-						val activity = itemView.context as AppCompatActivity
-						activity.findNavController(R.id.nav_host_fragment).navigate(R.id.addPhraseFragment, Bundle().apply {
-							putInt(EditPhraseFragment.ID_PHRASE, phrase.id)
-						})
+						editPhraseCall(phrase.id)
 					}
+
 					infoBind.root.visibility = View.VISIBLE
 				}
 			}
 		}
 
-		private fun showImage(phrase: Phrase) {
+		private suspend fun showImage(image: Deferred<Image?>) {
 			infoBind.imgPhrase.visibility = View.INVISIBLE
-			infoBind.imgPhrase.visibility = phrase.idImage?.let {
-				model.getImage(phrase) {
-					infoBind.imgPhrase.setImageURI(it)
-				}
-				View.VISIBLE
-			}.ifNull { View.GONE }
+			image.await()?.let {
+				val uri = it.imgUri.toUri()
+				infoBind.imgPhrase.setImageURI(uri)
+				infoBind.imgPhrase.visibility = View.VISIBLE
+			}.ifNull {
+				infoBind.imgPhrase.visibility = View.GONE
+			}
 		}
 
-		private fun LifecycleCoroutineScope.showPronounce(phrase: Phrase) {
-			phrase.idPronounce?.let {
+		private suspend fun showPronounce(pronounce: Deferred<Pronunciation?>) {
+			pronounce.await()?.let { pron ->
 				infoBind.btnSound.visibility = View.VISIBLE
 				infoBind.btnSound.setOnClickListener {
-					play(phrase)
+					player.play(
+						itemView.context,
+						pron.audioUri.toUri(),
+						infoBind.imgBtnSound.background.asAnimationDrawable()
+					)
 				}
-			}.ifNull { infoBind.btnSound.visibility = View.GONE }
-		}
-
-		private fun LifecycleCoroutineScope.play(phrase: Phrase) = launch(Dispatchers.IO) {
-			val audio = model.getAudio(phrase).first()
-			player.setStatListener {
-				when (it) {
-					ObservableMediaPlayer.Status.PLAY -> infoBind.imgBtnSound.background.asAnimationDrawable().start()
-					else -> {
-						infoBind.imgBtnSound.background.asAnimationDrawable().stop()
-						infoBind.imgBtnSound.background.asAnimationDrawable().selectDrawable(0)
-					}
-				}
+			}.ifNull {
+				infoBind.btnSound.visibility = View.GONE
 			}
-			player.play(itemView.context, audio)
-		}
-
-		private fun showLang(phrase: Phrase) {
-			phrase.lang?.let {
-				val data = it.split("-")
-				if (data.isNotEmpty()) try {
-					infoBind.txtLang.text = Locale(data[0]).displayLanguage
-				} catch (e: Exception) {
-				}
-			}
-		}
-
-		override fun onDetached() {
-			//player.stop()
 		}
 
 	}

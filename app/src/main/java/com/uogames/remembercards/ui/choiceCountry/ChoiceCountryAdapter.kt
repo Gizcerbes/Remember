@@ -11,7 +11,9 @@ import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardCountryBinding
 import java.util.zip.Inflater
 
-class ChoiceCountryAdapter(val call: (Countries) -> Unit) : RecyclerView.Adapter<ChoiceCountryAdapter.CountryHolder>() {
+class ChoiceCountryAdapter(
+	val call: (Countries) -> Unit
+) : RecyclerView.Adapter<ChoiceCountryAdapter.CountryHolder>() {
 
 	private var list: List<Countries> = arrayListOf()
 

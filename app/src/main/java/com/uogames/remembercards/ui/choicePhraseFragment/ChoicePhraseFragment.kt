@@ -15,6 +15,7 @@ import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentChoicePhraseBinding
 import com.uogames.remembercards.ui.bookFragment.BookViewModel
+import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseFragment
 import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseViewModel
 import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.remembercards.utils.ifNull
@@ -49,7 +50,11 @@ class ChoicePhraseFragment() : DaggerFragment() {
 	private var receivedTAG: String? = null
 
 	private val adapter by lazy {
-		ChoicePhraseAdapter(lifecycleScope, bookViewModel, player) { phrase ->
+		ChoicePhraseAdapter(lifecycleScope, bookViewModel, player, {
+			requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.addPhraseFragment, Bundle().apply {
+				putInt(EditPhraseFragment.ID_PHRASE, it.id)
+			})
+		}) { phrase ->
 			imm.hideSoftInputFromWindow(view?.windowToken, 0)
 			receivedTAG?.let { globalViewModel.saveData(it, phrase.id.toString()) }
 				.ifNull {
@@ -86,6 +91,7 @@ class ChoicePhraseFragment() : DaggerFragment() {
 
 		bookViewModel.size.observeWhenStarted(lifecycleScope) {
 			bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
+			adapter.notifyDataSetChanged()
 		}
 
 		globalViewModel.isShowKey.observeWhenStarted(lifecycleScope) {

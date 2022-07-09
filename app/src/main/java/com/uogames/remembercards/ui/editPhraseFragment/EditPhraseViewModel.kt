@@ -29,7 +29,7 @@ class EditPhraseViewModel @Inject constructor(
 		val id = MutableStateFlow(0)
 		val phrase = MutableStateFlow("")
 		val definition: MutableStateFlow<String?> = MutableStateFlow(null)
-		val lang: MutableStateFlow<String?> = MutableStateFlow(null)
+		val lang: MutableStateFlow<String> = MutableStateFlow("eng-gb")
 		val idPronounce: MutableStateFlow<Int?> = MutableStateFlow(null)
 		val idImage: MutableStateFlow<Int?> = MutableStateFlow(null)
 		val timeChange = MutableStateFlow(0L)

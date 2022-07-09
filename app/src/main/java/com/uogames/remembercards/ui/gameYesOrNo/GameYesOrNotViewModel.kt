@@ -27,8 +27,6 @@ class GameYesOrNotViewModel @Inject constructor(
 
 	data class AnswersCard(val firs: Card, val second: Card, var truth: Boolean)
 
-	//private val ioScope = CoroutineScope(Dispatchers.IO)
-
 	val module: MutableStateFlow<Int?> = MutableStateFlow(null)
 
 	private val _timer = MutableStateFlow(MAX_TIME)

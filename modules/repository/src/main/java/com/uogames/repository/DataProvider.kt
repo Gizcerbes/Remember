@@ -7,6 +7,7 @@ import com.uogames.dto.ModuleCard
 import com.uogames.dto.Phrase
 import com.uogames.repository.fileRepository.FileRepository
 import com.uogames.repository.providers.*
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -18,7 +19,6 @@ class DataProvider private constructor(
 	companion object {
 		private var INSTANCE: DataProvider? = null
 
-
 		fun get(context: Context): DataProvider {
 			if (INSTANCE == null) INSTANCE = DataProvider(
 				DatabaseRepository.getINSTANCE(context),
@@ -27,31 +27,46 @@ class DataProvider private constructor(
 			return INSTANCE as DataProvider
 		}
 
-		suspend fun ModuleCard.toModule() = INSTANCE?.module?.getById(idModule)
+
+		suspend fun ModuleCard.toModule() = INSTANCE?.module?.getByIdAsync(idModule)?.await()
+
+		fun Deferred<ModuleCard?>.toModuleDeferred() = INSTANCE?.module?.getByIdAsync { await()?.idModule }
 
 		fun ModuleCard.toModuleFlow() = INSTANCE?.module?.getByIdFlow(idModule)
 
-		suspend fun ModuleCard.toCard() = INSTANCE?.cards?.getById(idCard)
+		suspend fun ModuleCard.toCard() = INSTANCE?.cards?.getByIdAsync(idCard)?.await()
+
+		fun Deferred<ModuleCard?>.toCardDeferred() = INSTANCE?.cards?.getByIdAsync { await()?.idCard }
 
 		fun ModuleCard.toCardFlow() = INSTANCE?.cards?.getByIdFlow(idCard)
 
-		suspend fun Card.toPhrase() = INSTANCE?.phrase?.getById(idPhrase)
+		suspend fun Card.toPhrase() = INSTANCE?.phrase?.getByIdAsync(idPhrase)?.await()
+
+		fun Deferred<Card?>.toPhraseDeferred() = INSTANCE?.phrase?.getByIdAsync { await()?.idPhrase }
 
 		fun Card.toPhraseFlow() = INSTANCE?.phrase?.getByIdFlow(idPhrase)
 
-		suspend fun Card.toTranslate() = INSTANCE?.phrase?.getById(idTranslate)
+		suspend fun Card.toTranslate() = INSTANCE?.phrase?.getByIdAsync(idTranslate)?.await()
+
+		fun Deferred<Card?>.toTranslateDeferred() = INSTANCE?.phrase?.getByIdAsync { await()?.idTranslate }
 
 		fun Card.toTranslateFlow() = INSTANCE?.phrase?.getByIdFlow(idTranslate)
 
-		suspend fun Card.toImage() = idImage?.let { INSTANCE?.images?.getById(id) }
+		suspend fun Card.toImage() = idImage?.let { INSTANCE?.images?.getByIdAsync(id)?.await() }
+
+		fun Deferred<Card?>.cardToImageDeferred() = INSTANCE?.images?.getByIdAsync { await()?.idImage }
 
 		fun Card.toImageFlow() = idImage?.let { INSTANCE?.images?.getByIdFlow(it) }
 
-		suspend fun Phrase.toImage() = idImage?.let { INSTANCE?.images?.getById(it) }
+		suspend fun Phrase.toImage() = idImage?.let { INSTANCE?.images?.getByIdAsync(it)?.await() }
+
+		fun Deferred<Phrase?>.phraseToImageDeferred() = INSTANCE?.images?.getByIdAsync { await()?.idImage }
 
 		fun Phrase.toImageFlow() = idImage?.let { INSTANCE?.images?.getByIdFlow(it) }
 
-		suspend fun Phrase.toPronounce() = idPronounce?.let { INSTANCE?.pronounce?.getById(it) }
+		suspend fun Phrase.toPronounce() = idPronounce?.let { INSTANCE?.pronounce?.getByIdAsync(it)?.await() }
+
+		fun Deferred<Phrase?>.toPronounceDeferred() = INSTANCE?.pronounce?.getByIdAsync { await()?.idPronounce }
 
 		fun Phrase.toPronounceFlow() = idPronounce?.let { INSTANCE?.pronounce?.getByIdFlow(it) }
 	}

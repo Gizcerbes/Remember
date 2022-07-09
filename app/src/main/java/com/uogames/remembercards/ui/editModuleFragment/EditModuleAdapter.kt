@@ -20,6 +20,7 @@ import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardCardBinding
 import com.uogames.remembercards.ui.editCardFragment.EditCardFragment
 import com.uogames.remembercards.utils.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -45,7 +46,7 @@ class EditModuleAdapter(
 			return bind.root
 		}
 
-		override fun LifecycleCoroutineScope.show(typeFragment: Int) {
+		override suspend fun CoroutineScope.show(typeFragment: Int, end: () -> Unit) {
 			val moduleCard = listItems[adapterPosition]
 			bind.root.visibility = View.INVISIBLE
 			model.getCard(moduleCard).observeWhenStarted(scope) {
@@ -62,6 +63,7 @@ class EditModuleAdapter(
 						model.getPhrase(card.idTranslate)?.let { phrase ->
 							setData(phrase, bind.txtLangSecond, bind.txtPhraseSecond, bind.imgSoundSecond, bind.mcvSecond, bind.imgCardSecond)
 						}
+						end()
 						bind.root.visibility = View.VISIBLE
 					}
 				}

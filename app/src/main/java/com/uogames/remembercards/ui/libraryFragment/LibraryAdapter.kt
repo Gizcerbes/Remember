@@ -10,9 +10,10 @@ import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardModuleBinding
 import com.uogames.remembercards.utils.ChangeableAdapter
 import com.uogames.remembercards.utils.observeWhenStarted
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-class LibraryAdapter(scope: LifecycleCoroutineScope, val model: LibraryViewModel, val selectID: (Module) -> Unit) :
+class LibraryAdapter(val scope: LifecycleCoroutineScope, val model: LibraryViewModel, val selectID: (Module) -> Unit) :
 	ChangeableAdapter<LibraryAdapter.ModuleHolder>(scope) {
 
 	private var list: List<Module> = listOf()
@@ -34,22 +35,22 @@ class LibraryAdapter(scope: LifecycleCoroutineScope, val model: LibraryViewModel
 			return bind.root
 		}
 
-		override fun LifecycleCoroutineScope.show(typeFragment: Int) {
+
+		override suspend fun CoroutineScope.show(typeFragment: Int, end: () -> Unit) {
 			bind.root.visibility = View.INVISIBLE
-			launch {
-				val module = list[adapterPosition]
-				bind.txtName.text = module.name
-				model.getCountByModuleID(module.id).observeWhenStarted(this@show) {
-					bind.txtCountItems.text = itemView.context.getString(R.string.count_items).replace("||COUNT||", it.toString())
-				}
-				bind.txtCountItems.text = ""
-				bind.txtLikes.text = "${(module.like / (module.like + module.dislike).toDouble() * 100).toInt()}%"
-				bind.txtOwner.text = module.owner
-				bind.root.setOnClickListener {
-					selectID(module)
-				}
-				bind.root.visibility = View.VISIBLE
+			val module = list[adapterPosition]
+			bind.txtName.text = module.name
+			model.getCountByModuleID(module.id).observeWhenStarted(scope) {
+				bind.txtCountItems.text = itemView.context.getString(R.string.count_items).replace("||COUNT||", it.toString())
 			}
+			bind.txtCountItems.text = ""
+			bind.txtLikes.text = "${(module.like / (module.like + module.dislike).toDouble() * 100).toInt()}%"
+			bind.txtOwner.text = module.owner
+			bind.root.setOnClickListener {
+				selectID(module)
+			}
+			bind.root.visibility = View.VISIBLE
+			end()
 		}
 	}
 

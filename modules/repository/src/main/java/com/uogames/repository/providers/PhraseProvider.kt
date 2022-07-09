@@ -45,6 +45,10 @@ class PhraseProvider(
 
 	suspend fun getById(id: Int) = database.phraseRepository.getById(id)
 
+	suspend fun getByIdAsync(id: Int) = ioScope.async { getById(id) }
+
+	fun getByIdAsync(id: suspend () -> Int?) = ioScope.async { id()?.let { getById(it) } }
+
 	fun getByIdFlow(id: Int) = database.phraseRepository.getByIdFlow(id)
 
 	fun existsAsync(phrase: String) = ioScope.async { database.phraseRepository.exists(phrase) }

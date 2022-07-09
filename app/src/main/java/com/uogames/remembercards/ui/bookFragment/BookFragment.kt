@@ -1,19 +1,18 @@
 package com.uogames.remembercards.ui.bookFragment
 
 import android.content.Context
-import android.graphics.drawable.AnimationDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.Button
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentBookBinding
+import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseFragment
 import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseViewModel
 import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.remembercards.utils.observeWhenStarted
@@ -40,7 +39,13 @@ class BookFragment : DaggerFragment() {
 		requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 	}
 
-	private val adapter by lazy { BookAdapter(bookViewModel, player, lifecycleScope) }
+	private val adapter by lazy {
+		BookAdapter(bookViewModel, player, lifecycleScope) {
+			requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.addPhraseFragment, Bundle().apply {
+				putInt(EditPhraseFragment.ID_PHRASE, it)
+			})
+		}
+	}
 
 	override fun onCreateView(
 		inflater: LayoutInflater,
@@ -59,6 +64,7 @@ class BookFragment : DaggerFragment() {
 
 		bookViewModel.size.observeWhenStarted(lifecycleScope) {
 			bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
+			adapter.notifyDataSetChanged()
 		}
 
 		globalViewModel.isShowKey.observeWhenStarted(lifecycleScope) {

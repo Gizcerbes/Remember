@@ -14,7 +14,6 @@ import com.uogames.remembercards.ui.gameYesOrNo.GameYesOrNotViewModel
 import com.uogames.remembercards.ui.libraryFragment.LibraryViewModel
 import com.uogames.remembercards.ui.mainNav.NavigationViewModel
 import com.uogames.remembercards.ui.registerFragment.RegisterViewModel
-import com.uogames.remembercards.ui.choiceCountry.SelectCountryViewModel
 import com.uogames.remembercards.ui.gamesFragment.GamesViewModel
 import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.repository.DataProvider
@@ -54,10 +53,6 @@ class UtilsModule {
 	@Provides
 	@Singleton
 	fun provideGameYesOrNotViewModel(provider: DataProvider): GameYesOrNotViewModel = GameYesOrNotViewModel(provider)
-
-	@Provides
-	@Singleton
-	fun provideSelectCountryViewModel(): SelectCountryViewModel = SelectCountryViewModel()
 
 	@Provides
 	@Singleton

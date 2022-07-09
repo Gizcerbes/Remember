@@ -2,7 +2,6 @@ package com.uogames.remembercards.ui.cardFragment
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,10 +12,10 @@ import androidx.navigation.findNavController
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentCardBinding
+import com.uogames.remembercards.ui.editCardFragment.EditCardFragment
 import com.uogames.remembercards.ui.editCardFragment.EditCardViewModel
 import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.remembercards.utils.observeWhenStarted
-import com.uogames.remembercards.utils.observeWhile
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
 
@@ -82,7 +81,11 @@ class CardFragment : DaggerFragment() {
 			cardViewModel.like.value = text.toString()
 		}
 
-		bind.recycler.adapter = CardAdapter(cardViewModel, player, lifecycleScope)
+		bind.recycler.adapter = CardAdapter(cardViewModel, player, lifecycleScope) {
+			requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.editCardFragment, Bundle().apply {
+				putInt(EditCardFragment.EDIT_ID, it.id)
+			})
+		}
 
 	}
 

@@ -16,7 +16,7 @@ class PronunciationProvider(
 	fun addAsync(pronunciation: Pronunciation, bytes: ByteArray) = ioScope.async {
 		val id = database.pronunciationRepository.insert(pronunciation).toInt()
 		val uri = fileRepository.saveFile("$id.gpp", bytes)
-		database.pronunciationRepository.update(Pronunciation(id,uri.toString()))
+		database.pronunciationRepository.update(Pronunciation(id, uri.toString()))
 		return@async id
 	}
 
@@ -31,12 +31,16 @@ class PronunciationProvider(
 		database.pronunciationRepository.getByIdFlow(pronunciation.id).first()?.let {
 			val uri = fileRepository.saveFile("${it.id}.gpp", bytes)
 			return@async database.pronunciationRepository.update(Pronunciation(pronunciation.id, uri.toString()))
-		}?: false
+		} ?: false
 	}
 
 	fun getCount() = database.pronunciationRepository.countFlow()
 
 	suspend fun getById(id: Int) = database.pronunciationRepository.getById(id)
+
+	fun getByIdAsync(id: Int) = ioScope.async { getById(id) }
+
+	fun getByIdAsync(id: suspend () -> Int?) = ioScope.async { id()?.let { getById(it) } }
 
 	fun getByIdFlow(id: Int) = database.pronunciationRepository.getByIdFlow(id)
 
@@ -44,8 +48,8 @@ class PronunciationProvider(
 
 	fun getByPhrase(phrase: Phrase) = database.pronunciationRepository.getByPhrase(phrase)
 
-	suspend fun clear(){
-		database.pronunciationRepository.freeId().forEach{
+	suspend fun clear() {
+		database.pronunciationRepository.freeId().forEach {
 			fileRepository.deleteFile(it.audioUri.toUri())
 			database.pronunciationRepository.delete(it)
 		}

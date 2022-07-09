@@ -1,34 +1,28 @@
 package com.uogames.remembercards.ui.cardFragment
 
-import android.media.MediaPlayer
-import android.net.Uri
-import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.lifecycle.LifecycleCoroutineScope
-import androidx.navigation.findNavController
 import com.google.android.material.card.MaterialCardView
+import com.uogames.dto.Card
+import com.uogames.dto.Image
 import com.uogames.dto.Phrase
+import com.uogames.dto.Pronunciation
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardCardBinding
-import com.uogames.remembercards.ui.editCardFragment.EditCardFragment
 import com.uogames.remembercards.utils.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import java.util.*
 
 class CardAdapter(
 	private val model: CardViewModel,
 	private val player: ObservableMediaPlayer,
-	scope: LifecycleCoroutineScope
+	scope: LifecycleCoroutineScope,
+	val cardAction: (Card) -> Unit
 ) : ChangeableAdapter<CardAdapter.CardHolder>(scope) {
 
 	init {
@@ -48,83 +42,66 @@ class CardAdapter(
 			return bind.root
 		}
 
-		override fun LifecycleCoroutineScope.show(typeFragment: Int) {
+		override suspend fun CoroutineScope.show(typeFragment: Int, end: () -> Unit) {
 			bind.root.visibility = View.INVISIBLE
 			model.get(adapterPosition).observeWhenStarted(scope) {
-				it?.let { card ->
-					launch {
-						bind.txtReason.text = card.reason
-						bind.imgBtnAction.setImageResource(R.drawable.ic_baseline_change_24)
-						bind.btnCardAction.setOnClickListener {
-							(itemView.context as AppCompatActivity).findNavController(R.id.nav_host_fragment)
-								.navigate(R.id.editCardFragment, Bundle().apply {
-									putInt(EditCardFragment.EDIT_ID, card.id)
-								})
-						}
-						model.getPhrase(card.idPhrase)?.let { phrase ->
-							setData(phrase, bind.txtLangFirst, bind.txtPhraseFirst, bind.imgSoundFirst, bind.mcvFirst, bind.imgCardFirst)
-						}
-						model.getPhrase(card.idTranslate)?.let { phrase ->
-							setData(phrase, bind.txtLangSecond, bind.txtPhraseSecond, bind.imgSoundSecond, bind.mcvSecond, bind.imgCardSecond)
-						}
-						bind.root.visibility = View.VISIBLE
-					}
+				it?.let { cardView ->
+					bind.txtReason.text = cardView.card.reason
+					bind.imgBtnAction.setImageResource(R.drawable.ic_baseline_change_24)
+					bind.btnCardAction.setOnClickListener { cardAction(cardView.card) }
+					setData(
+						cardView.phrase.await(),
+						cardView.phrasePronounce?.await(),
+						cardView.phraseImage?.await(),
+						bind.txtLangFirst,
+						bind.txtPhraseFirst,
+						bind.imgSoundFirst,
+						bind.mcvFirst,
+						bind.imgCardFirst
+					)
+					setData(
+						cardView.translate.await(),
+						cardView.translatePronounce?.await(),
+						cardView.translateImage?.await(),
+						bind.txtLangSecond,
+						bind.txtPhraseSecond,
+						bind.imgSoundSecond,
+						bind.mcvSecond,
+						bind.imgCardSecond
+					)
+					bind.root.visibility = View.VISIBLE
 				}
+
 			}
 		}
 
-		private suspend fun setData(
-			phrase: Phrase,
+		private fun setData(
+			phrase: Phrase?,
+			pronunciation: Pronunciation?,
+			image: Image?,
 			langView: TextView,
 			phraseView: TextView,
 			soundImg: ImageView,
 			button: MaterialCardView,
 			phraseImage: ImageView
 		) {
-			langView.text = showLang(phrase)
-			phraseView.text = phrase.phrase
-			model.getImage(phrase)?.let {
+			phrase?.let {
+				langView.text = model.getDisplayLang(phrase)
+				phraseView.text = phrase.phrase
+			}
+
+			image?.let {
 				phraseImage.visibility = View.VISIBLE
 				phraseImage.setImageURI(it.imgUri.toUri())
-			}.ifNull {
-				phraseImage.visibility = View.GONE
-			}
-			phrase.idPronounce?.let {
+			}.ifNull { phraseImage.visibility = View.GONE }
+
+			pronunciation?.let { pronounce ->
 				soundImg.visibility = View.VISIBLE
-				model.getPronounce(phrase)?.let { audio ->
-					button.setOnClickListener {
-						play(soundImg, audio.audioUri.toUri())
-					}
+				button.setOnClickListener {
+					player.play(itemView.context, pronounce.audioUri.toUri(), soundImg.background.asAnimationDrawable())
 				}
-			}.ifNull {
-				soundImg.visibility = View.GONE
-			}
+			}.ifNull { soundImg.visibility = View.GONE }
 		}
-
-		private fun play(soundImg: ImageView, audioUri: Uri) {
-			player.setStatListener {
-				when (it) {
-					ObservableMediaPlayer.Status.PLAY -> soundImg.background.asAnimationDrawable().start()
-					else -> {
-						soundImg.background.asAnimationDrawable().stop()
-						soundImg.background.asAnimationDrawable().selectDrawable(0)
-					}
-				}
-			}
-			player.play(itemView.context, audioUri)
-		}
-
-		private fun showLang(phrase: Phrase): String {
-			phrase.lang?.let {
-				val data = it.split("-")
-				if (data.isNotEmpty()) try {
-					return Locale(data[0]).displayLanguage
-				} catch (e: Exception) {
-				}
-			}
-			return ""
-		}
-
 	}
 
 	override fun onShow(parent: ViewGroup, view: LinearLayout, viewType: Int, scope: LifecycleCoroutineScope): CardHolder {

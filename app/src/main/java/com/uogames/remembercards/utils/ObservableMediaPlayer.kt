@@ -1,6 +1,7 @@
 package com.uogames.remembercards.utils
 
 import android.content.Context
+import android.graphics.drawable.AnimationDrawable
 import android.media.MediaDataSource
 import android.media.MediaPlayer
 import android.net.Uri
@@ -37,6 +38,19 @@ class ObservableMediaPlayer(private val player: MediaPlayer) {
 
 	fun play(dataSource: MediaDataSource){
 		play { it.setDataSource(dataSource) }
+	}
+
+	fun play(context: Context, uri: Uri, animationDrawable: AnimationDrawable){
+		setStatListener {
+			when (it) {
+				Status.PLAY -> animationDrawable.start()
+				else -> {
+					animationDrawable.stop()
+					animationDrawable.selectDrawable(0)
+				}
+			}
+		}
+		play(context, uri)
 	}
 
 	private inline fun play(setDataSource: (MediaPlayer) -> Unit){
