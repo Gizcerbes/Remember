@@ -3,6 +3,7 @@ package com.uogames.remembercards.ui.cropFragment
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,8 +12,8 @@ import androidx.navigation.fragment.findNavController
 import com.uogames.remembercards.databinding.FragmentCropBinding
 import com.uogames.remembercards.utils.cropp.BitmapCropper
 import com.uogames.remembercards.utils.observeWhenStarted
-import com.uogames.remembercards.utils.observeWhile
 import dagger.android.support.DaggerFragment
+import kotlinx.coroutines.Job
 import javax.inject.Inject
 
 class CropFragment : DaggerFragment() {
@@ -23,6 +24,8 @@ class CropFragment : DaggerFragment() {
 	private lateinit var bind: FragmentCropBinding
 
 	private var cropper: BitmapCropper? = null
+
+	private var rotateJob: Job? = null
 
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 		bind = FragmentCropBinding.inflate(inflater, container, false)
@@ -43,6 +46,7 @@ class CropFragment : DaggerFragment() {
 		}
 
 		bind.btnSave.setOnClickListener {
+			rotateJob?.cancel()
 			cropper?.getCrop()?.let { bitmap ->
 				cropViewModel.putData(bitmap)
 			}
@@ -64,7 +68,7 @@ class CropFragment : DaggerFragment() {
 			true
 		}
 
-		cropViewModel.rotateStat.observeWhenStarted(lifecycleScope) {
+		rotateJob = cropViewModel.rotateStat.observeWhenStarted(lifecycleScope) {
 			val bitmap = cropViewModel.getData()
 			val area = cropper?.getArea()
 			if (bitmap != null && area != null) when (it % 4) {

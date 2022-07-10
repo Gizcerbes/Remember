@@ -1,11 +1,8 @@
 package com.uogames.remembercards.ui.editCardFragment
 
-import android.graphics.Bitmap
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.uogames.dto.Card
-import com.uogames.dto.Image
 import com.uogames.dto.Phrase
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.ifNullOrEmpty
@@ -13,9 +10,7 @@ import com.uogames.repository.DataProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
 class EditCardViewModel @Inject constructor(val provider: DataProvider) : ViewModel() {
@@ -27,7 +22,6 @@ class EditCardViewModel @Inject constructor(val provider: DataProvider) : ViewMo
 
 	private val _secondPhrase: MutableStateFlow<Phrase?> = MutableStateFlow(null)
 	val secondPhrase = _secondPhrase.asStateFlow()
-
 
 	private val _reason = MutableStateFlow("")
 	val reason = _reason.asStateFlow()
@@ -52,32 +46,16 @@ class EditCardViewModel @Inject constructor(val provider: DataProvider) : ViewMo
 		}
 	}
 
-	fun selectFirstPhrase(id: Int) {
-		viewModelScope.launch {
-			provider.phrase.getByIdFlow(id).first().let {
-				_firstPhrase.value = it
-			}
+	fun selectFirstPhrase(id: Int) = viewModelScope.launch {
+		provider.phrase.getByIdFlow(id).first().let {
+			_firstPhrase.value = it
 		}
 	}
 
-	fun selectSecondPhrase(id: Int) {
-		viewModelScope.launch {
-			provider.phrase.getByIdFlow(id).first().let {
-				_secondPhrase.value = it
-			}
+	fun selectSecondPhrase(id: Int) = viewModelScope.launch {
+		provider.phrase.getByIdFlow(id).first().let {
+			_secondPhrase.value = it
 		}
-	}
-
-	private suspend fun getByID(id: Int): Phrase? {
-		return provider.phrase.getByIdFlow(id).first()
-	}
-
-	fun getAudio(phrase: Phrase) = provider.pronounce.getByPhrase(phrase).map {
-		Uri.parse(it?.audioUri.orEmpty())
-	}
-
-	fun getImage(phrase: Phrase) = provider.images.getByPhrase(phrase).map {
-		Uri.parse(it?.imgUri.orEmpty())
 	}
 
 	fun setReason(reason: String) {
@@ -110,7 +88,6 @@ class EditCardViewModel @Inject constructor(val provider: DataProvider) : ViewMo
 		val reason = _reason.value.ifNullOrEmpty { return null }
 		return Card(id, firstID, secondID, null, reason)
 	}
-
 
 
 }

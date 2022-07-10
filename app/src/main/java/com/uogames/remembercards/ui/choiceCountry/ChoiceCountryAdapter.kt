@@ -1,15 +1,12 @@
 package com.uogames.remembercards.ui.choiceCountry
 
-import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.uogames.flags.Countries
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardCountryBinding
-import java.util.zip.Inflater
 
 class ChoiceCountryAdapter(
 	val call: (Countries) -> Unit

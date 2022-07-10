@@ -56,14 +56,14 @@ class ChoicePhraseFragment() : DaggerFragment() {
 			})
 		}) { phrase ->
 			imm.hideSoftInputFromWindow(view?.windowToken, 0)
-			receivedTAG?.let { globalViewModel.saveData(it, phrase.id.toString()) }
-				.ifNull {
-					Toast.makeText(requireContext(), "Argument Problem", Toast.LENGTH_SHORT).show()
-				}
+			receivedTAG?.let {
+				globalViewModel.saveData(it, phrase.id.toString())
+			}.ifNull {
+				Toast.makeText(requireContext(), "Argument Problem", Toast.LENGTH_SHORT).show()
+			}
 			findNavController().popBackStack()
 		}
 	}
-
 
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 		bind = FragmentChoicePhraseBinding.inflate(inflater, container, false)

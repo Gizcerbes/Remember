@@ -103,29 +103,28 @@ class EditPhraseViewModel @Inject constructor(
 		_tempAudioFile.writeBytes(ByteArray(0))
 	}
 
-	fun loadByID(id: Int) {
-		viewModelScope.launch(Dispatchers.IO) {
-			val phrase = provider.phrase.getByIdFlow(id).first().ifNull { Phrase() }
-			phraseObject.set(phrase)
-			val splitLang = phrase.lang.ifNull { "eng-gb" }.split("-")
-			_lang.value = Locale.forLanguageTag(splitLang[0])
-			_country.value = Countries.search(splitLang[1]).ifNull { Countries.UNITED_KINGDOM }
-			_imgPhrase.value = provider.images.getByPhrase(phrase).first()
-			val audio = provider.pronounce.getByPhrase(phrase).first()
-			_isFileWriting.value = true
-			audio?.audioUri?.let { if (it.isNotEmpty()) _tempAudioFile.writeBytes(it.toUri().toFile().readBytes()) }
-			_audioChanged.value = false
-			_isFileWriting.value = false
-			_timeWriting.value = -1
-		}
+	fun loadByID(id: Int) = viewModelScope.launch(Dispatchers.IO) {
+		val phrase = provider.phrase.getByIdFlow(id).first().ifNull { Phrase() }
+		phraseObject.set(phrase)
+		val splitLang = phrase.lang.ifNull { "eng-gb" }.split("-")
+		_lang.value = Locale.forLanguageTag(splitLang[0])
+		_country.value = Countries.search(splitLang[1]).ifNull { Countries.UNITED_KINGDOM }
+		_imgPhrase.value = provider.images.getByPhrase(phrase).first()
+		val audio = provider.pronounce.getByPhrase(phrase).first()
+		_isFileWriting.value = true
+		audio?.audioUri?.let { if (it.isNotEmpty()) _tempAudioFile.writeBytes(it.toUri().toFile().readBytes()) }
+		_audioChanged.value = false
+		_isFileWriting.value = false
+		_timeWriting.value = -1
 	}
+
 
 	fun selectImage(image: Image) {
 		phraseObject.idImage.value = image.id
 	}
 
 	fun setBitmapImage(bitmap: Bitmap?) {
-		if (bitmap != null) {
+		bitmap?.let {
 			viewModelScope.launch {
 				val stream = ByteArrayOutputStream()
 				val newWidth = 800
@@ -135,7 +134,7 @@ class EditPhraseViewModel @Inject constructor(
 				val id = provider.images.addAsync(Image(), stream.toByteArray()).await()
 				phraseObject.idImage.value = id
 			}
-		} else {
+		}.ifNull {
 			phraseObject.idImage.value = null
 		}
 	}

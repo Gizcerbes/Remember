@@ -25,12 +25,6 @@ class ChoiceCardAdapter(
 	val callChoiceCardID: (Int) -> Unit
 ) : ChangeableAdapter<ChoiceCardAdapter.CardHolder>(scope) {
 
-	init {
-		model.size.observeWhenStarted(scope) {
-			notifyDataSetChanged()
-		}
-	}
-
 	inner class CardHolder(view: LinearLayout, viewGrope: ViewGroup, private val scope: LifecycleCoroutineScope) :
 		ChangeableViewHolder(view, viewGrope, scope) {
 

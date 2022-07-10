@@ -40,21 +40,18 @@ class EditModuleFragment : DaggerFragment() {
 
 	private lateinit var bind: FragmentEditModuleBinding
 
-	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
 		bind = FragmentEditModuleBinding.inflate(inflater, container, false)
 		return bind.root
 	}
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
 		val id = arguments?.getInt(MODULE_ID)
-
 		id?.let {
 			setData(it)
 		}.ifNull {
 			findNavController().popBackStack()
 		}
-
 	}
 
 	private fun setData(id: Int) {
@@ -62,9 +59,7 @@ class EditModuleFragment : DaggerFragment() {
 			val cardID = globalViewModel.getFlow(CARD_CALL_TAG).first().ifNull { return@launchWhenStarted }.toInt()
 			globalViewModel.saveData(CARD_CALL_TAG, null)
 			val card = editModuleViewModel.getCard(cardID).first().ifNull { return@launchWhenStarted }
-			editModuleViewModel.addModuleCard(id, card) {
-
-			}
+			editModuleViewModel.addModuleCard(id, card) {}
 		}
 		editModuleViewModel.moduleID.value = id
 		bind.btnAdd.setOnClickListener {

@@ -1,17 +1,11 @@
 package com.uogames.remembercards
 
-import android.app.ActivityManager
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.FragmentContainerView
-import androidx.lifecycle.lifecycleScope
 import com.uogames.remembercards.utils.Permission
-import com.uogames.repository.DataProvider
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.coroutines.*
-import java.io.File
-import java.util.*
 import javax.inject.Inject
 
 class MainActivity : DaggerAppCompatActivity() {
@@ -54,7 +48,9 @@ class MainActivity : DaggerAppCompatActivity() {
 			}
 		}
 		runBlocking { globalViewModel.clean().join() }
+		Log.e("TAG", "onDestroy:", )
 		super.onDestroy()
 	}
+
 }
 

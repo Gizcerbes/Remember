@@ -68,12 +68,12 @@ class ChoiceCardFragment : DaggerFragment() {
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		receivedTAG = arguments?.getString(TAG).ifNull { return }
-
+		setData()
+		setListeners()
+	}
+	
+	private fun setData(){
 		bind.txtTopName.text = requireContext().getString(R.string.choice_card)
-
-		bind.btnBack.setOnClickListener {
-			findNavController().popBackStack()
-		}
 
 		globalViewModel.isShowKey.observeWhenStarted(lifecycleScope) {
 			bind.tilSearch.visibility = if (it) View.VISIBLE else View.GONE
@@ -86,12 +86,26 @@ class ChoiceCardFragment : DaggerFragment() {
 			}
 		}
 
+		cardViewModel.size.observeWhenStarted(lifecycleScope) {
+			bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
+			adapter.notifyDataSetChanged()
+		}
+
+		bind.recycler.adapter = adapter
+	}
+
+
+	private fun setListeners(){
+		bind.btnBack.setOnClickListener {
+			findNavController().popBackStack()
+		}
+
 		bind.btnSearch.setOnClickListener {
 			if (!globalViewModel.isShowKey.value) {
 				bind.tilSearch.requestFocus()
 				imm.showSoftInput(bind.tilSearch.editText, InputMethodManager.SHOW_IMPLICIT)
 			} else {
-				imm.hideSoftInputFromWindow(view.windowToken, 0)
+				imm.hideSoftInputFromWindow(view?.windowToken, 0)
 			}
 		}
 
@@ -100,16 +114,10 @@ class ChoiceCardFragment : DaggerFragment() {
 			requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.editCardFragment)
 		}
 
-		cardViewModel.size.observeWhenStarted(lifecycleScope) {
-			bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
-		}
 
 		bind.tilSearch.editText?.doOnTextChanged { text, _, _, _ ->
 			cardViewModel.like.value = text.toString()
 		}
-
-		bind.recycler.adapter = adapter
-
 	}
 
 

@@ -9,6 +9,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.net.toUri
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
@@ -21,6 +22,8 @@ import com.uogames.remembercards.databinding.FragmentEditCardBinding
 import com.uogames.remembercards.ui.choicePhraseFragment.ChoicePhraseFragment
 import com.uogames.remembercards.ui.cropFragment.CropViewModel
 import com.uogames.remembercards.utils.*
+import com.uogames.repository.DataProvider.Companion.toImage
+import com.uogames.repository.DataProvider.Companion.toPronounce
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -50,11 +53,13 @@ class EditCardFragment : DaggerFragment() {
 
 	private lateinit var bind: FragmentEditCardBinding
 
+	private val bundleFirst = Bundle().apply { putString(ChoicePhraseFragment.TAG, FIRST_PHRASE) }
+
+	private val bundleSecond = Bundle().apply { putString(ChoicePhraseFragment.TAG, SECOND_PHRASE) }
 
 	private val imm by lazy {
 		requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 	}
-
 
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 		bind = FragmentEditCardBinding.inflate(inflater, container, false)
@@ -71,21 +76,15 @@ class EditCardFragment : DaggerFragment() {
 			editCardViewModel.load(id)
 			bind.btnDelete.visibility = View.VISIBLE
 			bind.btnDelete.setOnClickListener {
-				editCardViewModel.delete {
-					if (it) findNavController().popBackStack()
-				}
+				editCardViewModel.delete { if (it) findNavController().popBackStack() }
 			}
 			bind.btnSave.setOnClickListener {
-				editCardViewModel.update {
-					if (it) findNavController().popBackStack()
-				}
+				editCardViewModel.update { if (it) findNavController().popBackStack() }
 			}
 		}.ifNull {
 			bind.btnDelete.visibility = View.GONE
 			bind.btnSave.setOnClickListener {
-				editCardViewModel.save {
-					if (it) findNavController().popBackStack()
-				}
+				editCardViewModel.save { if (it) findNavController().popBackStack() }
 			}
 		}
 
@@ -93,23 +92,9 @@ class EditCardFragment : DaggerFragment() {
 			findNavController().popBackStack()
 		}
 
-		bind.btnEditFist.setOnClickListener {
-			requireActivity().findNavController(R.id.nav_host_fragment).navigate(
-				R.id.choicePhraseDialog,
-				Bundle().apply {
-					putString(ChoicePhraseFragment.TAG, FIRST_PHRASE)
-				}
-			)
-		}
+		bind.btnEditFist.setOnClickListener { openChoicePhraseFragment(bundleFirst) }
 
-		bind.btnEditSecond.setOnClickListener {
-			requireActivity().findNavController(R.id.nav_host_fragment).navigate(
-				R.id.choicePhraseDialog,
-				Bundle().apply {
-					putString(ChoicePhraseFragment.TAG, SECOND_PHRASE)
-				}
-			)
-		}
+		bind.btnEditSecond.setOnClickListener { openChoicePhraseFragment(bundleSecond) }
 
 
 		bind.btnEditReason.setOnClickListener {
@@ -122,24 +107,20 @@ class EditCardFragment : DaggerFragment() {
 		}
 
 		globalViewModel.getFlow(FIRST_PHRASE).observeWhenStarted(lifecycleScope) {
-			it?.let {
-				try {
-					editCardViewModel.selectFirstPhrase(it.toInt())
-					globalViewModel.saveData(FIRST_PHRASE, null)
-				} catch (e: Exception) {
-					Toast.makeText(requireContext(), "Error firs id", Toast.LENGTH_SHORT).show()
-				}
+			try {
+				editCardViewModel.selectFirstPhrase(it!!.toInt())
+				globalViewModel.saveData(FIRST_PHRASE, null)
+			} catch (e: Exception) {
+				Toast.makeText(requireContext(), "Error firs id", Toast.LENGTH_SHORT).show()
 			}
 		}
 
 		globalViewModel.getFlow(SECOND_PHRASE).observeWhenStarted(lifecycleScope) {
-			it?.let {
-				try {
-					editCardViewModel.selectSecondPhrase(it.toInt())
-					globalViewModel.saveData(SECOND_PHRASE, null)
-				} catch (e: Exception) {
-					Toast.makeText(requireContext(), "Error second id", Toast.LENGTH_SHORT).show()
-				}
+			try {
+				editCardViewModel.selectSecondPhrase(it!!.toInt())
+				globalViewModel.saveData(SECOND_PHRASE, null)
+			} catch (e: Exception) {
+				Toast.makeText(requireContext(), "Error second id", Toast.LENGTH_SHORT).show()
 			}
 		}
 
@@ -150,34 +131,22 @@ class EditCardFragment : DaggerFragment() {
 
 		editCardViewModel.firstPhrase.observeWhenStarted(lifecycleScope) {
 			it?.let { phrase ->
-				lifecycleScope.launch {
-					setButtonData(phrase, bind.mcvFirst, bind.txtPhraseFirst, bind.imgSoundFirst, bind.txtLangFirst, bind.imgCardFirst)
-				}
+				setButtonData(phrase, bind.mcvFirst, bind.txtPhraseFirst, bind.imgSoundFirst, bind.txtLangFirst, bind.imgCardFirst)
 			}.ifNull {
-				bind.imgSoundFirst.visibility = View.GONE
-				bind.txtPhraseFirst.text = requireContext().getString(R.string.phrase_label)
-				bind.txtLangFirst.text = Locale.getDefault().displayLanguage
-				bind.imgCardFirst.visibility = View.GONE
+				setDefaultButtonData(bind.imgSoundFirst, bind.txtPhraseFirst, bind.txtLangFirst, bind.imgCardFirst)
 			}
 		}
 
 		editCardViewModel.secondPhrase.observeWhenStarted(lifecycleScope) {
 			it?.let { phrase ->
-				lifecycleScope.launch {
-					setButtonData(phrase, bind.mcvSecond, bind.txtPhraseSecond, bind.imgSoundSecond, bind.txtLangSecond, bind.imgCardSecond)
-				}
+				setButtonData(phrase, bind.mcvSecond, bind.txtPhraseSecond, bind.imgSoundSecond, bind.txtLangSecond, bind.imgCardSecond)
 			}.ifNull {
-				bind.imgSoundSecond.visibility = View.GONE
-				bind.txtPhraseSecond.text = requireContext().getString(R.string.phrase_label)
-				bind.txtLangSecond.text = Locale.getDefault().displayLanguage
-				bind.imgCardSecond.visibility = View.GONE
+				setDefaultButtonData(bind.imgSoundSecond, bind.txtPhraseSecond, bind.txtLangSecond, bind.imgCardSecond)
 			}
 		}
 
 		editCardViewModel.reason.observeWhenStarted(lifecycleScope) {
-			bind.txtReason.text = it.ifNullOrEmpty {
-				"Reason"
-			}
+			bind.txtReason.text = it.ifNullOrEmpty { "Reason" }
 		}
 
 	}
@@ -190,52 +159,42 @@ class EditCardFragment : DaggerFragment() {
 		lang: TextView,
 		imageCard: ImageView
 	) {
-		txtPhrase.text = phrase.phrase.ifNullOrEmpty {
-			requireContext().getString(R.string.phrase_label)
-		}
-		lang.text = showLang(phrase).orEmpty()
-		phrase.idPronounce?.let {
+		txtPhrase.text = phrase.phrase.ifNullOrEmpty { requireContext().getString(R.string.phrase_label) }
+		lang.text = showLang(phrase)
+
+		phrase.toPronounce()?.let { pronounce ->
 			imgSound.visibility = View.VISIBLE
 			container.setOnClickListener {
-				lifecycleScope.launch(Dispatchers.IO) {
-					play(phrase, imgSound)
-				}
+				player.play(requireContext(), pronounce.audioUri.toUri(), imgSound.background.asAnimationDrawable())
 			}
 		}.ifNull {
 			imgSound.visibility = View.GONE
 		}
-		editCardViewModel.getImage(phrase).first()?.let {
-			imageCard.setImageURI(it)
+
+		phrase.toImage()?.let {
+			imageCard.setImageURI(it.imgUri.toUri())
 			imageCard.visibility = View.VISIBLE
 		}.ifNull {
 			imageCard.visibility = View.GONE
 		}
 	}
 
-	private suspend fun play(phrase: Phrase, imgSound: ImageView) {
-		val audio = editCardViewModel.getAudio(phrase).first()
-		player.setStatListener {
-			when (it) {
-				ObservableMediaPlayer.Status.PLAY -> imgSound.background.asAnimationDrawable().start()
-				else -> {
-					imgSound.background.asAnimationDrawable().stop()
-					imgSound.background.asAnimationDrawable().selectDrawable(0)
-				}
-			}
-		}
-		player.play(requireContext(), audio)
+	private fun setDefaultButtonData(imgSound: ImageView, txtPhrase: TextView, txtLang: TextView, imageCard: ImageView) {
+		imgSound.visibility = View.GONE
+		txtPhrase.text = requireContext().getString(R.string.phrase_label)
+		txtLang.text = Locale.getDefault().displayLanguage
+		imageCard.visibility = View.GONE
 	}
 
-	private fun showLang(phrase: Phrase): String? {
-		return phrase.lang?.let {
-			val data = it.split("-")
-			if (data.isNotEmpty()) try {
-				Locale(data[0]).displayLanguage
-			} catch (e: Exception) {
-				null
-			} else null
-		}
+	private fun showLang(phrase: Phrase): String {
+		return safely {
+			val data = phrase.lang.split("-")
+			Locale(data[0]).displayLanguage
+		}.orEmpty()
 	}
 
+	private fun openChoicePhraseFragment(bundle: Bundle) {
+		requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.choicePhraseDialog, bundle)
+	}
 
 }

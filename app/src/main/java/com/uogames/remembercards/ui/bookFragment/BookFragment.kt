@@ -61,7 +61,6 @@ class BookFragment : DaggerFragment() {
 
 		bookViewModel.reset()
 
-
 		bookViewModel.size.observeWhenStarted(lifecycleScope) {
 			bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
 			adapter.notifyDataSetChanged()

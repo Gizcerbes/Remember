@@ -80,12 +80,9 @@ class EditPhraseFragment : DaggerFragment() {
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-		val id = arguments?.getInt(ID_PHRASE)
-
 		requireActivity().onBackPressedDispatcher.addCallback(requireActivity(), callback)
-		requireActivity().onBackPressedDispatcher
 
-		id?.let {
+		arguments?.getInt(ID_PHRASE)?.let {
 			bind.txtFragmentName.text = getString(R.string.edit_card)
 			bind.btnDelete.visibility = View.VISIBLE
 			cropViewModel.getData()?.let { bitmap ->
@@ -95,26 +92,14 @@ class EditPhraseFragment : DaggerFragment() {
 				viewModel.loadByID(it)
 			}
 			bind.btnSave.setOnClickListener {
-				viewModel.update(id) { res ->
-					if (res) {
-						findNavController().popBackStack()
-					}
-				}
+				viewModel.update(id) { res -> if (res) findNavController().popBackStack() }
 			}
 			bind.btnDelete.setOnClickListener {
-				viewModel.delete(id) { res ->
-					if (res) {
-						findNavController().popBackStack()
-					}
-				}
+				viewModel.delete(id) { res -> if (res) findNavController().popBackStack() }
 			}
 		}.ifNull {
 			bind.btnSave.setOnClickListener {
-				viewModel.save { res ->
-					if (res) {
-						findNavController().popBackStack()
-					}
-				}
+				viewModel.save { res -> if (res) findNavController().popBackStack() }
 			}
 			cropViewModel.getData()?.let { bitmap ->
 				viewModel.setBitmapImage(bitmap)
@@ -150,6 +135,7 @@ class EditPhraseFragment : DaggerFragment() {
 				requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.cropFragment)
 			}
 		}
+
 		bind.blind.setOnClickListener {
 			bottomSheet.state = BottomSheetBehavior.STATE_HIDDEN
 		}
@@ -168,22 +154,19 @@ class EditPhraseFragment : DaggerFragment() {
 				}
 			}
 		}
-		bind.btnEditPhrase.setOnClickListener {
-			textWatcher =
-				setTextWatcher(textWatcher, viewModel.phrase.value) { text, _, _, _ ->
-					text?.let { viewModel.setPhrase(it.toString()) }
-					viewModel.setLang(Locale.forLanguageTag(imm.currentInputMethodSubtype.languageTag))
 
-				}
+		bind.btnEditPhrase.setOnClickListener {
+			textWatcher = setTextWatcher(textWatcher, viewModel.phrase.value) { text, _, _, _ ->
+				text?.let { viewModel.setPhrase(it.toString()) }
+				viewModel.setLang(Locale.forLanguageTag(imm.currentInputMethodSubtype.languageTag))
+			}
 		}
 		bind.btnEditDefinition.setOnClickListener {
-			textWatcher =
-				setTextWatcher(textWatcher, viewModel.definition.value.orEmpty()) { text, _, _, _ ->
-					text?.let { viewModel.setDefinition(it.toString()) }
-				}
+			textWatcher = setTextWatcher(textWatcher, viewModel.definition.value.orEmpty()) { text, _, _, _ ->
+				text?.let { viewModel.setDefinition(it.toString()) }
+			}
 		}
 		bind.btnEditImage.setOnClickListener {
-
 			if (viewModel.imgPhrase.value == null) {
 				bottomSheet.state = BottomSheetBehavior.STATE_HALF_EXPANDED
 			} else {
@@ -192,37 +175,28 @@ class EditPhraseFragment : DaggerFragment() {
 		}
 
 		bind.btnSound.setOnClickListener {
-			player.setStatListener {
-				when (it) {
-					ObservableMediaPlayer.Status.PLAY -> bind.imgBtnSound.background.asAnimationDrawable().start()
-					else -> {
-						bind.imgBtnSound.background.asAnimationDrawable().stop()
-						bind.imgBtnSound.background.asAnimationDrawable().selectDrawable(0)
-					}
-				}
-			}
 			val resource = viewModel.tempAudioSource
-			player.play(resource)
+			player.play(resource, bind.imgBtnSound.background.asAnimationDrawable())
 		}
 
-		globalViewModel.isShowKey.observeWhile(lifecycleScope) {
+		globalViewModel.isShowKey.observeWhenStarted(lifecycleScope) {
 			bind.editBar.visibility = if (it) View.GONE else View.VISIBLE
 			bind.tilEdit.visibility = if (it) View.VISIBLE else View.GONE
 		}
-		
 
-		viewModel.phrase.observeWhile(lifecycleScope) {
+
+		viewModel.phrase.observeWhenStarted(lifecycleScope) {
 			bind.txtPhrase.text = it.ifEmpty { requireContext().getString(R.string.phrase2) }
 		}
-		viewModel.definition.observeWhile(lifecycleScope) {
+		viewModel.definition.observeWhenStarted(lifecycleScope) {
 			bind.txtDefinition.text = it.ifNullOrEmpty { requireContext().getString(R.string.definition) }
 		}
 
-		viewModel.lang.observeWhile(lifecycleScope) {
+		viewModel.lang.observeWhenStarted(lifecycleScope) {
 			bind.txtLang.text = it.displayLanguage
 		}
 
-		viewModel.isFileWriting.observeWhile(lifecycleScope)
+		viewModel.isFileWriting.observeWhenStarted(lifecycleScope)
 		{
 			bind.btnSound.visibility = if (it || viewModel.tempAudioSource.size == 0L) View.GONE else View.VISIBLE
 			bind.imgMic.background.asAnimationDrawable().selectDrawable(if (it) 1 else 0)
@@ -231,13 +205,20 @@ class EditPhraseFragment : DaggerFragment() {
 				requireContext().getText(R.string.record_sp).toString().replace("||TIME||", viewModel.timeWriting.value.toString())
 		}
 
-		viewModel.timeWriting.observeWhile(lifecycleScope)
+		viewModel.timeWriting.observeWhenStarted(lifecycleScope)
 		{
 			bind.txtEditor.text =
 				if (viewModel.isFileWriting.value)
 					requireContext().getText(R.string.record_sp).toString().replace("||TIME||", it.toString())
 				else requireContext().getText(R.string.editor)
 		}
+
+		bind.btnBack.setOnClickListener {
+			requireActivity().findNavController(R.id.nav_host_fragment).popBackStack()
+		}
+
+		viewModel.imgPhrase.observeWhenStarted(lifecycleScope) { setImagePhrase(it) }
+
 	}
 
 	private inline fun setTextWatcher(
@@ -259,14 +240,6 @@ class EditPhraseFragment : DaggerFragment() {
 		return textWatcher
 	}
 
-	override fun onStart() {
-		super.onStart()
-		bind.btnBack.setOnClickListener {
-			requireActivity().findNavController(R.id.nav_host_fragment).popBackStack()
-		}
-		viewModel.imgPhrase.observeWhile(lifecycleScope) { setImagePhrase(it) }
-	}
-
 	override fun onStop() {
 		super.onStop()
 		imm.hideSoftInputFromWindow(view?.windowToken, 0)
@@ -274,15 +247,13 @@ class EditPhraseFragment : DaggerFragment() {
 		recorder?.let { viewModel.stopRecordAudio(it) }
 	}
 
-	private fun setImagePhrase(image: Image?) {
-		if (image != null) {
-			bind.imgPhrase.visibility = View.VISIBLE
-			bind.imgPhrase.setImageURI(image.imgUri.toUri())
-			bind.imgBtnImage.setImageResource(R.drawable.ic_baseline_hide_image_24)
-		} else {
-			bind.imgPhrase.visibility = View.GONE
-			bind.imgBtnImage.setImageResource(R.drawable.ic_baseline_image_24)
-		}
+	private fun setImagePhrase(image: Image?) = image?.let {
+		bind.imgPhrase.visibility = View.VISIBLE
+		bind.imgPhrase.setImageURI(image.imgUri.toUri())
+		bind.imgBtnImage.setImageResource(R.drawable.ic_baseline_hide_image_24)
+	}.ifNull {
+		bind.imgPhrase.visibility = View.GONE
+		bind.imgBtnImage.setImageResource(R.drawable.ic_baseline_image_24)
 	}
 
 }

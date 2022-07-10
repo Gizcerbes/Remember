@@ -26,25 +26,17 @@ class EditModuleViewModel @Inject constructor(val provider: DataProvider) : View
 
 	fun getCard(id: Int) = provider.cards.getByIdFlow(id)
 
-	suspend fun getImage(phrase: Phrase) = provider.images.getByPhrase(phrase).first()
-
-	suspend fun getPhrase(id: Int) = provider.phrase.getByIdFlow(id).first()
-
-	suspend fun getPronounce(phrase: Phrase) = provider.pronounce.getByPhrase(phrase).first()
-
 	suspend fun delete(module: Module) = provider.module.deleteAsync(module).await()
 
-	fun addModuleCard(moduleID: Int,card: Card, call: (Boolean) -> Unit){
-		viewModelScope.launch {
-			val res = provider.moduleCard.insertAsync(ModuleCard(idModule = moduleID, idCard = card.id)).await()
-			call(res > 0)
-		}
+	fun addModuleCard(moduleID: Int, card: Card, call: (Boolean) -> Unit) = viewModelScope.launch {
+		val res = provider.moduleCard.insertAsync(ModuleCard(idModule = moduleID, idCard = card.id)).await()
+		call(res > 0)
 	}
 
-	fun removeModuleCard(moduleCard: ModuleCard, call: (Boolean) -> Unit){
-		viewModelScope.launch {
-			val res =provider.moduleCard.deleteAsync(moduleCard).await()
-			call(res)
-		}
+
+	fun removeModuleCard(moduleCard: ModuleCard, call: (Boolean) -> Unit) = viewModelScope.launch {
+		val res = provider.moduleCard.deleteAsync(moduleCard).await()
+		call(res)
 	}
+
 }

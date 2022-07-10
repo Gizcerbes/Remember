@@ -1,30 +1,18 @@
 package com.uogames.remembercards.ui.choicePhraseFragment
 
-import android.media.MediaPlayer
-import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.lifecycle.LifecycleCoroutineScope
-import androidx.navigation.findNavController
 import com.uogames.dto.Image
 import com.uogames.dto.Phrase
 import com.uogames.dto.Pronunciation
-import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardPhraseBinding
 import com.uogames.remembercards.ui.bookFragment.BookViewModel
-import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseFragment
 import com.uogames.remembercards.utils.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import java.util.*
 
 class ChoicePhraseAdapter(
 	val scope: LifecycleCoroutineScope,
@@ -58,11 +46,11 @@ class ChoicePhraseAdapter(
 
 		override suspend fun CoroutineScope.show(typeFragment: Int, end: () -> Unit) {
 			when (typeFragment) {
-				INFO_MODE -> scope.showInfoMode(end)
+				INFO_MODE -> showInfoMode()
 			}
 		}
 
-		private fun CoroutineScope.showInfoMode(end: () -> Unit) {
+		private fun showInfoMode() {
 			infoBind.btnEdit.visibility = View.GONE
 			infoBind.root.visibility = View.INVISIBLE
 			model.get(adapterPosition).observeWhenStarted(scope) { bookView ->

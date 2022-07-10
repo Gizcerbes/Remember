@@ -40,7 +40,7 @@ interface ImageDAO {
 	@Query("SELECT * FROM images_table")
 	suspend fun getList(): List<ImageEntity>
 
-	@Query("SELECT * FROM images_table")
+	@Query("SELECT * FROM images_table ORDER BY id DESC")
 	fun getListFlow(): Flow<List<ImageEntity>>
 
 }

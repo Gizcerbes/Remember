@@ -53,6 +53,19 @@ class ObservableMediaPlayer(private val player: MediaPlayer) {
 		play(context, uri)
 	}
 
+	fun play(dataSource: MediaDataSource,animationDrawable: AnimationDrawable){
+		setStatListener {
+			when (it) {
+				Status.PLAY -> animationDrawable.start()
+				else -> {
+					animationDrawable.stop()
+					animationDrawable.selectDrawable(0)
+				}
+			}
+		}
+		play(dataSource)
+	}
+
 	private inline fun play(setDataSource: (MediaPlayer) -> Unit){
 		observeJob?.cancel()
 		stop()

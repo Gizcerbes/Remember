@@ -1,6 +1,5 @@
 package com.uogames.remembercards.ui.choiceLanguageDialog
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +9,6 @@ import com.uogames.flags.Languages
 import com.uogames.remembercards.databinding.CardLanguageBinding
 import com.uogames.remembercards.utils.ChangeableAdapter
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableStateFlow
 
 class ChoiceLanguageAdapter(scope: LifecycleCoroutineScope, val call: (Languages) -> Unit) :
 	ChangeableAdapter<ChoiceLanguageAdapter.LanguageHolder>(scope) {
@@ -34,7 +32,6 @@ class ChoiceLanguageAdapter(scope: LifecycleCoroutineScope, val call: (Languages
 			bind.root.setOnClickListener {
 				call(list[adapterPosition])
 			}
-			end()
 		}
 
 	}
