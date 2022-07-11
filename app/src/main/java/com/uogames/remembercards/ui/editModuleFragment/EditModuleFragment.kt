@@ -70,6 +70,7 @@ class EditModuleFragment : DaggerFragment() {
 		bind.btnBack.setOnClickListener {
 			findNavController().popBackStack()
 		}
+
 		bind.btnDelete.setOnClickListener {
 			lifecycleScope.launchWhenStarted {
 				editModuleViewModel.module.first()?.let {
@@ -83,7 +84,6 @@ class EditModuleFragment : DaggerFragment() {
 			adapter.setListItems(it)
 		}
 		bind.rvCards.adapter = adapter
-
 
 	}
 

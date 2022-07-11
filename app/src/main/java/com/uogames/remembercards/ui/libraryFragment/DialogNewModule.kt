@@ -15,7 +15,7 @@ class DialogNewModule(call: (String) -> Unit) : ObservedDialog<String>(call) {
 
 	private lateinit var bind: DialogNewModuleBinding
 
-	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
 		bind = DialogNewModuleBinding.inflate(inflater, container, false)
 		return bind.root
 	}

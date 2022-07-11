@@ -73,7 +73,7 @@ class EditPhraseFragment : DaggerFragment() {
 		inflater: LayoutInflater,
 		container: ViewGroup?,
 		savedInstanceState: Bundle?
-	): View? {
+	): View {
 		bind = FragmentEditPhraseBinding.inflate(inflater, container, false)
 		return bind.root
 	}

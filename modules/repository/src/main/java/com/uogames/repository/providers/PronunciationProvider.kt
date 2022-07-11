@@ -13,8 +13,8 @@ class PronunciationProvider(
 	private val fileRepository: FileRepository
 ) : Provider() {
 
-	fun addAsync(pronunciation: Pronunciation, bytes: ByteArray) = ioScope.async {
-		val id = database.pronunciationRepository.insert(pronunciation).toInt()
+	fun addAsync(bytes: ByteArray) = ioScope.async {
+		val id = database.pronunciationRepository.insert(Pronunciation(0,"")).toInt()
 		val uri = fileRepository.saveFile("$id.gpp", bytes)
 		database.pronunciationRepository.update(Pronunciation(id, uri.toString()))
 		return@async id

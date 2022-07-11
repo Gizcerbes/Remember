@@ -31,7 +31,7 @@ class ResultYesOrNotFragment : DaggerFragment() {
 		inflater: LayoutInflater,
 		container: ViewGroup?,
 		savedInstanceState: Bundle?
-	): View? {
+	): View {
 		bind = FragmentResultMistakesBinding.inflate(inflater, container, false)
 		return bind.root
 	}

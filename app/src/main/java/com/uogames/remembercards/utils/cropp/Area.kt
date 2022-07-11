@@ -2,7 +2,7 @@ package com.uogames.remembercards.utils.cropp
 
 import kotlin.math.sqrt
 
-class Area(val wight: Float, val height: Float, minArea: Float, val ratio: Float) {
+class Area(val wight: Float, val height: Float, minArea: Float, private val ratio: Float) {
 
 	private var minDiagonal = sqrt(wight* wight + height * height)  * minArea
 

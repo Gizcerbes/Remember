@@ -91,12 +91,10 @@ class EditModuleAdapter(
 			}
 		}
 
-		private fun showLang(phrase: Phrase): String {
-			return safely {
-				val data = phrase.lang.split("-")
-				Locale(data[0]).displayLanguage
-			}.orEmpty()
-		}
+		private fun showLang(phrase: Phrase) = safely {
+			val data = phrase.lang.split("-")
+			Locale(data[0]).displayLanguage
+		}.orEmpty()
 
 	}
 

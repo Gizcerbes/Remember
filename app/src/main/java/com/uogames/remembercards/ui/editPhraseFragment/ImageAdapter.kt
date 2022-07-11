@@ -30,11 +30,10 @@ class ImageAdapter(
 	inner class ImageHolder(val view: MaterialCardView) : RecyclerView.ViewHolder(view){
 
 		fun show(){
-			val uri = list[adapterPosition].imgUri.toUri()
-			//view.setImageURI(uri)
-			view.setOnClickListener { call(list[adapterPosition]) }
+			val image = list[adapterPosition]
+			view.setOnClickListener { call(image) }
 			view.addView(ImageView(view.context).apply {
-				setImageURI(uri)
+				setImageURI(image.imgUri.toUri())
 				scaleType = ImageView.ScaleType.CENTER_CROP
 			})
 		}
@@ -42,7 +41,6 @@ class ImageAdapter(
 
 	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageHolder {
 		val imView = MaterialCardView(parent.context).apply {
-			//scaleType = ImageView.ScaleType.CENTER_CROP
 			val layParams = ActionBar.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,250)
 			layParams.setMargins(7)
 			layoutParams = layParams

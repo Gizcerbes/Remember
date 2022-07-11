@@ -13,6 +13,7 @@ import com.uogames.flags.Countries
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.utils.MediaBytesSource
 import com.uogames.remembercards.utils.ifNull
+import com.uogames.remembercards.utils.ifTrue
 import com.uogames.repository.DataProvider
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -123,21 +124,20 @@ class EditPhraseViewModel @Inject constructor(
 		phraseObject.idImage.value = image.id
 	}
 
-	fun setBitmapImage(bitmap: Bitmap?) {
-		bitmap?.let {
-			viewModelScope.launch {
-				val stream = ByteArrayOutputStream()
-				val newWidth = 800
-				val newHeight = bitmap.height * newWidth / bitmap.width
-				val newBitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
-				newBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
-				val id = provider.images.addAsync(Image(), stream.toByteArray()).await()
-				phraseObject.idImage.value = id
-			}
-		}.ifNull {
-			phraseObject.idImage.value = null
+	fun setBitmapImage(bitmap: Bitmap?) = bitmap?.let {
+		viewModelScope.launch {
+			val stream = ByteArrayOutputStream()
+			val newWidth = 800
+			val newHeight = bitmap.height * newWidth / bitmap.width
+			val newBitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
+			newBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+			val id = provider.images.addAsync(Image(), stream.toByteArray()).await()
+			phraseObject.idImage.value = id
 		}
+	}.ifNull {
+		phraseObject.idImage.value = null
 	}
+
 
 	fun startRecordAudio(recorder: MediaRecorder) {
 		jobWriting?.cancel()
@@ -159,14 +159,13 @@ class EditPhraseViewModel @Inject constructor(
 		_audioChanged.value = true
 	}
 
-	fun stopRecordAudio(recorder: MediaRecorder) {
-		if (_isFileWriting.value) {
-			recorder.stop()
-			recorder.release()
-			_isFileWriting.value = false
-			jobWriting?.cancel()
-		}
+	fun stopRecordAudio(recorder: MediaRecorder): Boolean = _isFileWriting.value.ifTrue {
+		recorder.stop()
+		recorder.release()
+		_isFileWriting.value = false
+		jobWriting?.cancel()
 	}
+
 
 	fun setPhrase(phrase: String) {
 		phraseObject.phrase.value = phrase
@@ -205,21 +204,17 @@ class EditPhraseViewModel @Inject constructor(
 	}
 
 	private suspend fun savePronounceToId(): Int? {
-		return viewModelScope.async(Dispatchers.IO) {
-			if (_audioChanged.value && _tempAudioFile.length() > 0) {
-				provider.pronounce.addAsync(Pronunciation(0, ""), _tempAudioFile.readBytes()).await()
-			} else {
-				phraseObject.idPronounce.value
-			}
-		}.await()
+		return if (_audioChanged.value && _tempAudioFile.length() > 0) {
+			provider.pronounce.addAsync(_tempAudioFile.readBytes()).await()
+		} else {
+			phraseObject.idPronounce.value
+		}
 	}
 
-	fun delete(id: Int, call: (Boolean) -> Unit) {
-		viewModelScope.launch {
-			val res = provider.phrase.deleteAsync(Phrase(id)).await()
-			call(res)
-			provider.clean()
-		}
+	fun delete(id: Int, call: (Boolean) -> Unit) = viewModelScope.launch {
+		val res = provider.phrase.deleteAsync(Phrase(id)).await()
+		call(res)
+		provider.clean()
 	}
 
 }

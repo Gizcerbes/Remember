@@ -20,9 +20,10 @@ import com.google.android.material.card.MaterialCardView
 import com.uogames.dto.Phrase
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentYesOrNotGameBinding
-import com.uogames.remembercards.utils.ObservableMediaPlayer
-import com.uogames.remembercards.utils.asAnimationDrawable
-import com.uogames.remembercards.utils.ifNull
+import com.uogames.remembercards.utils.*
+import com.uogames.repository.DataProvider.Companion.toPhrase
+import com.uogames.repository.DataProvider.Companion.toPronounce
+import com.uogames.repository.DataProvider.Companion.toTranslate
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -36,7 +37,7 @@ import javax.inject.Inject
 
 class GameYesOrNotFragment : DaggerFragment() {
 
-	companion object{
+	companion object {
 		const val MODULE_ID = "GameYesOrNotFragment_MODULE_ID"
 	}
 
@@ -58,7 +59,7 @@ class GameYesOrNotFragment : DaggerFragment() {
 		inflater: LayoutInflater,
 		container: ViewGroup?,
 		savedInstanceState: Bundle?
-	): View? {
+	): View {
 		bind = FragmentYesOrNotGameBinding.inflate(inflater, container, false)
 		return bind.root
 	}
@@ -71,7 +72,7 @@ class GameYesOrNotFragment : DaggerFragment() {
 
 		gameModel.module.value = id
 
-		gameModel.allAnswers.onEach {
+		gameModel.allAnswers.observeWhenStarted(lifecycleScope) {
 			val thrAns = gameModel.trueAnswers.value
 			bind.txtCountAnswers.text = "$thrAns/$it"
 			try {
@@ -79,13 +80,13 @@ class GameYesOrNotFragment : DaggerFragment() {
 			} catch (ex: Exception) {
 				bind.answersProgress.progress = 0
 			}
+		}
 
-		}.launchIn(lifecycleScope)
-
-		gameModel.time.onEach {
+		gameModel.time.observeWhenStarted(lifecycleScope) {
 			bind.txtTime.text = "${it / 1000}s"
 			bind.timeProgress.progress = it * 100 / GameYesOrNotViewModel.MAX_TIME
-		}.launchIn(lifecycleScope)
+		}
+
 		gameModel.getRandomAnswerCard { setData(it) }
 
 		bind.btnClose.setOnClickListener {
@@ -94,7 +95,7 @@ class GameYesOrNotFragment : DaggerFragment() {
 
 		bind.btnPause.setOnClickListener { play(!gameModel.isStarted.value) }
 
-		gameModel.isStarted.onEach {
+		gameModel.isStarted.observeWhenStarted(lifecycleScope) {
 
 			bind.imgBtnPause.setImageResource(
 				if (it) R.drawable.ic_baseline_pause_circle_outline_24
@@ -106,21 +107,22 @@ class GameYesOrNotFragment : DaggerFragment() {
 			if (it) requireActivity().window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 			else requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-		}.launchIn(lifecycleScope)
+		}
+
 		play(true)
 	}
 
 	private fun setData(card: GameYesOrNotViewModel.AnswersCard) {
 		lifecycleScope.launchWhenStarted {
 			val firstCard = card.firs
-			val firstPhrase = gameModel.getPhrase(firstCard.idPhrase).first().ifNull { return@launchWhenStarted }
-			val firstTranslate = gameModel.getPhrase(firstCard.idTranslate).first().ifNull { return@launchWhenStarted }
+			val firstPhrase = firstCard.toPhrase().ifNull { return@launchWhenStarted }
+			val firstTranslate = firstCard.toTranslate().ifNull { return@launchWhenStarted }
 			val secondCard = card.second
-			val secondTranslate = gameModel.getPhrase(secondCard.idTranslate).first().ifNull { return@launchWhenStarted }
+			val secondTranslate = secondCard.toTranslate().ifNull { return@launchWhenStarted }
 
 			bind.txtReason.text = firstCard.reason
-			bind.txtPhraseFirst.text = firstPhrase.phrase
-			bind.txtLangFirst.text = Locale.forLanguageTag(firstPhrase.lang?.split("_")?.get(0).ifNull { "eng" }).displayLanguage
+//			bind.txtPhraseFirst.text = firstPhrase.phrase
+//			bind.txtLangFirst.text = showLang(firstPhrase)
 
 			setData(firstPhrase, bind.txtLangFirst, bind.txtPhraseFirst, bind.imgSoundFirst, bind.mcvFirst)
 
@@ -190,40 +192,25 @@ class GameYesOrNotFragment : DaggerFragment() {
 	) {
 		langView.text = showLang(phrase)
 		phraseView.text = phrase.phrase
-		phrase.idPronounce?.let {
+		phrase.toPronounce()?.let { audio ->
 			soundImg.visibility = View.VISIBLE
-			gameModel.getPronounce(phrase).first()?.let { audio ->
-				button.setOnClickListener {
-					playSound(soundImg, audio.audioUri.toUri())
-				}
+			button.setOnClickListener {
+				player.play(
+					requireContext(),
+					audio.audioUri.toUri(),
+					soundImg.background.asAnimationDrawable()
+				)
 			}
 		}.ifNull {
 			soundImg.visibility = View.GONE
 		}
 	}
 
-	private fun playSound(soundImg: ImageView, audioUri: Uri) {
-		player.setStatListener {
-			when (it) {
-				ObservableMediaPlayer.Status.PLAY -> soundImg.background.asAnimationDrawable().start()
-				else -> {
-					soundImg.background.asAnimationDrawable().stop()
-					soundImg.background.asAnimationDrawable().selectDrawable(0)
-				}
-			}
-		}
-		player.play(requireContext(), audioUri)
-	}
-
 	private fun showLang(phrase: Phrase): String {
-		phrase.lang?.let {
-			val data = it.split("-")
-			if (data.isNotEmpty()) try {
-				return Locale(data[0]).displayLanguage
-			} catch (e: Exception) {
-			}
-		}
-		return ""
+		return safely {
+			val data = phrase.lang.split("-")
+			Locale(data[0]).displayLanguage
+		}.ifNull { "English" }
 	}
 
 	private fun play(boolean: Boolean) {
@@ -231,7 +218,8 @@ class GameYesOrNotFragment : DaggerFragment() {
 			gameModel.start {
 				requireActivity().findNavController(R.id.nav_host_fragment).navigate(
 					R.id.resultYesOrNotFragment,
-					null, NavOptions.Builder().setPopUpTo(R.id.mainNaviFragment, false).build()
+					null,
+					NavOptions.Builder().setPopUpTo(R.id.mainNaviFragment, false).build()
 				)
 			}
 		} else {

@@ -11,12 +11,11 @@ import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardGameResultBinding
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observeWhile
+import com.uogames.repository.DataProvider.Companion.toPhrase
+import com.uogames.repository.DataProvider.Companion.toTranslate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 
 class GameYesOrNoAdapter(
 	private val model: GameYesOrNotViewModel,
@@ -65,9 +64,9 @@ class GameYesOrNoAdapter(
 		private fun showResult(){
 			val answer = model.getAnswer(adapterPosition)
 			lifecycleCoroutineScope.launchWhenStarted {
-				val firstPhrase = model.getPhrase(answer.firs.idPhrase).first().ifNull { return@launchWhenStarted }
-				val firstTranslate = model.getPhrase(answer.firs.idTranslate).first().ifNull { return@launchWhenStarted }
-				val secondTranslate = model.getPhrase(answer.second.idTranslate).first().ifNull { return@launchWhenStarted }
+				val firstPhrase = answer.firs.toPhrase().ifNull { return@launchWhenStarted }
+				val firstTranslate = answer.firs.toTranslate().ifNull { return@launchWhenStarted }
+				val secondTranslate = answer.second.toTranslate().ifNull { return@launchWhenStarted }
 				resultBind.txtPhrase.text = firstPhrase.phrase
 				resultBind.txtTranslate.text = firstTranslate.phrase
 				if (answer.truth){

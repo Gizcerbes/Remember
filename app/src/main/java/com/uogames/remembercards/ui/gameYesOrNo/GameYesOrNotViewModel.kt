@@ -54,11 +54,6 @@ class GameYesOrNotViewModel @Inject constructor(
 
 	fun getAnswer(position: Int) = _answersList[position]
 
-	fun getCard(idCard: Int) = provider.cards.getByIdFlow(idCard)
-
-	fun getPhrase(idPhrase: Int) = provider.phrase.getByIdFlow(idPhrase)
-
-	fun getPronounce(phrase: Phrase) = provider.pronounce.getByPhrase(phrase)
 
 	fun start(endCall: () -> Unit) {
 		job?.cancel()
@@ -80,23 +75,21 @@ class GameYesOrNotViewModel @Inject constructor(
 		_isStarted.value = false
 	}
 
-	fun getRandomAnswerCard(call: (AnswersCard) -> Unit) {
-		viewModelScope.launch {
-			val firstModuleCard = module.value?.let {
-				provider.moduleCard.getRandomAsync(it).await()?.toCard()
-			}.ifNull {
-				provider.cards.getRandomAsync().await()
-			}.ifNull { return@launch }
+	fun getRandomAnswerCard(call: (AnswersCard) -> Unit) = viewModelScope.launch {
+		val firstModuleCard = module.value?.let {
+			provider.moduleCard.getRandomAsync(it).await()?.toCard()
+		}.ifNull {
+			provider.cards.getRandomAsync().await()
+		}.ifNull { return@launch }
 
-			val secondModuleCard = module.value?.let {
-				provider.moduleCard.getRandomWithoutAsync(it, firstModuleCard.id).await()?.toCard()
-			}.ifNull {
-				provider.cards.getRandomWithoutAsync(firstModuleCard.id).await()
-			}.ifNull { return@launch }
+		val secondModuleCard = module.value?.let {
+			provider.moduleCard.getRandomWithoutAsync(it, firstModuleCard.id).await()?.toCard()
+		}.ifNull {
+			provider.cards.getRandomWithoutAsync(firstModuleCard.id).await()
+		}.ifNull { return@launch }
 
-			val answerCard = AnswersCard(firstModuleCard, secondModuleCard, false)
-			launch(Dispatchers.Main) { call(answerCard) }
-		}
+		val answerCard = AnswersCard(firstModuleCard, secondModuleCard, false)
+		launch(Dispatchers.Main) { call(answerCard) }
 	}
 
 	fun addAnswer(answer: AnswersCard) {

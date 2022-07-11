@@ -50,7 +50,6 @@ class LibraryAdapter(val scope: LifecycleCoroutineScope, val model: LibraryViewM
 				selectID(module)
 			}
 			bind.root.visibility = View.VISIBLE
-			end()
 		}
 	}
 

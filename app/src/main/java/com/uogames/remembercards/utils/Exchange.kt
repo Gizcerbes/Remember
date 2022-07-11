@@ -58,6 +58,16 @@ inline fun <C : CharSequence?> C.ifNullOrEmpty(defaultValue: () -> C): C {
 	else this
 }
 
+inline fun Boolean.ifTrue(body: () -> Unit): Boolean {
+	if (this) body()
+	return this
+}
+
+inline fun Boolean.ifFalse(body: () -> Unit): Boolean {
+	if (!this) body()
+	return this
+}
+
 inline fun <C> safely(catcher: (Exception) -> C? = { null }, run: () -> C?): C? {
 	return try {
 		run()

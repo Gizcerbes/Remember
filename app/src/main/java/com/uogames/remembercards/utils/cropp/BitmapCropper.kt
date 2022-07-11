@@ -25,6 +25,16 @@ class BitmapCropper {
 	private var cropChange = true
 	private var previewChange = true
 
+	private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+		style = Paint.Style.FILL
+		color = Color.argb(200, 0, 0, 0)
+	}
+
+	private val linePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+		style = Paint.Style.STROKE
+		color = Color.WHITE
+	}
+
 	constructor(src: Bitmap) {
 		this.src = src
 		val newHeight = src.height * previewWidth / src.width
@@ -57,10 +67,7 @@ class BitmapCropper {
 		area.resize()
 		if (previewChange) {
 			canvas.drawBitmap(preview, 0f, 0f, null)
-			val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-				style = Paint.Style.FILL
-				color = Color.argb(200, 0, 0, 0)
-			}
+
 			canvas.drawRect(0f, 0f, preview.width.toFloat(), area.top.toInt().toFloat(), paint)
 			canvas.drawRect(
 				0f,
@@ -69,6 +76,7 @@ class BitmapCropper {
 				preview.height.toFloat(),
 				paint
 			)
+
 			canvas.drawRect(
 				0f,
 				area.top.toInt().toFloat(),
@@ -76,6 +84,7 @@ class BitmapCropper {
 				area.bottom.toInt().toFloat(),
 				paint
 			)
+
 			canvas.drawRect(
 				area.right.toInt().toFloat(),
 				area.top.toInt().toFloat(),
@@ -84,10 +93,6 @@ class BitmapCropper {
 				paint
 			)
 
-			val linePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-				style = Paint.Style.STROKE
-				color = Color.WHITE
-			}
 			canvas.drawRect(area.left, area.top, area.right, area.bottom, linePaint)
 			previewChange = false
 		}

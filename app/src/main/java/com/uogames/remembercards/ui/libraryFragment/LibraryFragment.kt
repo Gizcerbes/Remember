@@ -91,10 +91,11 @@ class LibraryFragment : DaggerFragment() {
 		}
 	}
 
-	private fun navigateToEdit(moduleID: Int){
-		requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.editModuleFragment, Bundle().apply {
-			putInt(EditModuleFragment.MODULE_ID, moduleID)
-		})
+	private fun navigateToEdit(moduleID: Int) {
+		requireActivity().findNavController(R.id.nav_host_fragment)
+			.navigate(R.id.editModuleFragment, Bundle().apply {
+				putInt(EditModuleFragment.MODULE_ID, moduleID)
+			})
 	}
 
 }
