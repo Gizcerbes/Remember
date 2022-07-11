@@ -64,7 +64,7 @@
 
 				<com.google.android.material.card.MaterialCardView
 					android:id="@+id/btn_back"
-					style="@style/Theme.RememberCards.CardView.Button"
+					style="@style/Theme.RememberCards.CardView.Button.Close"
 					android:layout_width="wrap_content"
 					android:layout_marginStart="0dp"
 					android:layout_height="wrap_content"

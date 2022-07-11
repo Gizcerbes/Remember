@@ -2,6 +2,7 @@ package com.uogames.remembercards.ui.editCardFragment
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,6 +37,8 @@ class EditCardFragment : DaggerFragment() {
 	companion object {
 		private const val FIRST_PHRASE = "EditCardFragment_FIRST_PHRASE"
 		private const val SECOND_PHRASE = "EditCardFragment_SECOND_PHRASE"
+		const val CREATE_FOR = "EditCardFragment_CREATE_FOR"
+		const val POP_BACK_TO = "EditCardFragment_POP_BACK_TO"
 		const val EDIT_ID = "EditCardFragment_EDIT_ID"
 	}
 
@@ -69,8 +72,9 @@ class EditCardFragment : DaggerFragment() {
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
 
-		val id: Int? = arguments?.getInt(EDIT_ID)
-
+		val id = arguments?.getInt(EDIT_ID)?.let { if (it == 0) null else it }
+		val createFor = arguments?.getString(CREATE_FOR)
+		val popBackTo = arguments?.getInt(POP_BACK_TO)
 
 		id?.let {
 			editCardViewModel.load(id)
@@ -84,7 +88,17 @@ class EditCardFragment : DaggerFragment() {
 		}.ifNull {
 			bind.btnDelete.visibility = View.GONE
 			bind.btnSave.setOnClickListener {
-				editCardViewModel.save { if (it) findNavController().popBackStack() }
+				editCardViewModel.save { res ->
+					res?.let {
+						if (!createFor.isNullOrEmpty() && popBackTo != null && popBackTo != 0) {
+							globalViewModel.saveData(createFor, res.toString()) {
+								findNavController().popBackStack(popBackTo, true)
+							}
+						} else {
+							findNavController().popBackStack()
+						}
+					}
+				}
 			}
 		}
 
@@ -111,7 +125,6 @@ class EditCardFragment : DaggerFragment() {
 				editCardViewModel.selectFirstPhrase(it!!.toInt())
 				globalViewModel.saveData(FIRST_PHRASE, null)
 			} catch (e: Exception) {
-				Toast.makeText(requireContext(), "Error firs id", Toast.LENGTH_SHORT).show()
 			}
 		}
 
@@ -120,7 +133,6 @@ class EditCardFragment : DaggerFragment() {
 				editCardViewModel.selectSecondPhrase(it!!.toInt())
 				globalViewModel.saveData(SECOND_PHRASE, null)
 			} catch (e: Exception) {
-				Toast.makeText(requireContext(), "Error second id", Toast.LENGTH_SHORT).show()
 			}
 		}
 

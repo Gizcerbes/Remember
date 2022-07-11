@@ -63,10 +63,10 @@ class EditCardViewModel @Inject constructor(val provider: DataProvider) : ViewMo
 	}
 
 
-	fun save(call: (Boolean) -> Unit) = viewModelScope.launch {
-		val card = build().ifNull { return@launch call(false) }
+	fun save(call: (Long?) -> Unit) = viewModelScope.launch {
+		val card = build().ifNull { return@launch call(null) }
 		val res = provider.cards.addAsync(card).await()
-		call(res > 0)
+		call(res)
 	}
 
 

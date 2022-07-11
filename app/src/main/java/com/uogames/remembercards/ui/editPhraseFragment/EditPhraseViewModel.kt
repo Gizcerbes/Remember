@@ -2,6 +2,7 @@ package com.uogames.remembercards.ui.editPhraseFragment
 
 import android.graphics.Bitmap
 import android.media.MediaRecorder
+import android.util.Log
 import androidx.core.net.toFile
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
@@ -179,12 +180,12 @@ class EditPhraseViewModel @Inject constructor(
 		_lang.value = if (tag.isO3Language.isNotEmpty()) tag else Locale.getDefault()
 	}
 
-	fun save(call: (Boolean) -> Unit) {
+	fun save(call: (Long?) -> Unit) {
 		if (phrase.value.isNotEmpty()) viewModelScope.launch {
 			val phrase = build(0)
 			val res = provider.phrase.addAsync(phrase).await()
-			call(res > 0)
-		} else call(false)
+			call(res)
+		} else call(null)
 	}
 
 	fun update(id: Int, call: (Boolean) -> Unit) {
@@ -212,9 +213,9 @@ class EditPhraseViewModel @Inject constructor(
 	}
 
 	fun delete(id: Int, call: (Boolean) -> Unit) = viewModelScope.launch {
-		val res = provider.phrase.deleteAsync(Phrase(id)).await()
+		val phrase = provider.phrase.getById(id).ifNull { return@launch }
+		val res = provider.phrase.deleteAsync(phrase).await()
 		call(res)
-		provider.clean()
 	}
 
 }

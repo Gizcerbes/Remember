@@ -97,6 +97,8 @@
 					android:layout_height="wrap_content"
 					android:layout_marginStart="7dp"
 					app:cardCornerRadius="7dp"
+					app:strokeColor="?attr/colorControlNormal"
+					app:strokeWidth="1dp"
 					app:layout_constraintEnd_toEndOf="parent"
 					app:layout_constraintTop_toTopOf="parent">
 

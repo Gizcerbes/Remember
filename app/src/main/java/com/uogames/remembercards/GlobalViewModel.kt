@@ -40,9 +40,10 @@ class GlobalViewModel @Inject constructor(val provider: DataProvider) : ViewMode
 		}
 	}
 
-	fun saveData(key: String, value: String?) {
+	fun saveData(key: String, value: String?, finishCall: () -> Unit = {}) {
 		viewModelScope.launch {
 			provider.setting.saveAsync(key, value).await()
+			finishCall()
 		}
 	}
 

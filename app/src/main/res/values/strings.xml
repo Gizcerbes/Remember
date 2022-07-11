@@ -39,6 +39,7 @@
 	<string name="record_sp">Record ||TIME||s / 60s</string>
 	<string name="crop_picture">Crop picture</string>
 	<string name="edit_card">Edit Card</string>
+	<string name="edit_phrase">Edit Phrase</string>
 	<string name="choice_card">Choice Card</string>
 	<string name="your_cards">Your Cards</string>
 	<string name="first">First</string>

@@ -13,7 +13,7 @@
 
 		<com.google.android.material.card.MaterialCardView
 			android:id="@+id/btn_close"
-			style="@style/Theme.RememberCards.CardView.Button"
+			style="@style/Theme.RememberCards.CardView.Button.Close"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			app:layout_constraintBottom_toTopOf="@id/bottom_divider"

@@ -15,6 +15,7 @@ import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentCardBinding
 import com.uogames.remembercards.ui.cardFragment.CardViewModel
+import com.uogames.remembercards.ui.editCardFragment.EditCardFragment
 import com.uogames.remembercards.ui.editCardFragment.EditCardViewModel
 import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.remembercards.utils.ifNull
@@ -111,7 +112,10 @@ class ChoiceCardFragment : DaggerFragment() {
 
 		bind.btnAdd.setOnClickListener {
 			editCardViewModel.reset()
-			requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.editCardFragment)
+			requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.editCardFragment, Bundle().apply {
+				putString(EditCardFragment.CREATE_FOR, receivedTAG)
+				putInt(EditCardFragment.POP_BACK_TO, findNavController().currentDestination?.id.ifNull { 0 })
+			})
 		}
 
 

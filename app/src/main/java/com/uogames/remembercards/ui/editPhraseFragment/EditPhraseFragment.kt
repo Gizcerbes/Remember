@@ -24,8 +24,6 @@ import com.uogames.remembercards.databinding.FragmentEditPhraseBinding
 import com.uogames.remembercards.ui.cropFragment.CropViewModel
 import com.uogames.remembercards.utils.*
 import dagger.android.support.DaggerFragment
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
@@ -67,6 +65,8 @@ class EditPhraseFragment : DaggerFragment() {
 
 	companion object {
 		const val ID_PHRASE = "ID_PHRASE"
+		const val CREATE_FOR = "EditPhraseFragment_CREATE_FOR"
+		const val POP_BACK_TO = "EditPhraseFragment_POP_BACK_TO"
 	}
 
 	override fun onCreateView(
@@ -82,14 +82,18 @@ class EditPhraseFragment : DaggerFragment() {
 
 		requireActivity().onBackPressedDispatcher.addCallback(requireActivity(), callback)
 
-		arguments?.getInt(ID_PHRASE)?.let {
-			bind.txtFragmentName.text = getString(R.string.edit_card)
+		val createForCard = arguments?.getString(CREATE_FOR)
+		val popBackTo = arguments?.getInt(POP_BACK_TO)
+
+		arguments?.getInt(ID_PHRASE)?.let { id ->
+			if (id == 0) return@let null
+			bind.txtFragmentName.text = getString(R.string.edit_phrase)
 			bind.btnDelete.visibility = View.VISIBLE
 			cropViewModel.getData()?.let { bitmap ->
 				viewModel.setBitmapImage(bitmap)
 				cropViewModel.reset()
 			}.ifNull {
-				viewModel.loadByID(it)
+				viewModel.loadByID(id)
 			}
 			bind.btnSave.setOnClickListener {
 				viewModel.update(id) { res -> if (res) findNavController().popBackStack() }
@@ -99,7 +103,17 @@ class EditPhraseFragment : DaggerFragment() {
 			}
 		}.ifNull {
 			bind.btnSave.setOnClickListener {
-				viewModel.save { res -> if (res) findNavController().popBackStack() }
+				viewModel.save { res ->
+					res?.let {
+						if (createForCard != null && popBackTo != null && popBackTo != 0) {
+							globalViewModel.saveData(createForCard, res.toString()) {
+								findNavController().popBackStack(popBackTo, true)
+							}
+						} else {
+							findNavController().popBackStack()
+						}
+					}
+				}
 			}
 			cropViewModel.getData()?.let { bitmap ->
 				viewModel.setBitmapImage(bitmap)

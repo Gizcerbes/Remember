@@ -2,6 +2,7 @@ package com.uogames.remembercards.ui.choicePhraseFragment
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.whenStarted
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.uogames.remembercards.GlobalViewModel
@@ -21,6 +23,7 @@ import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observeWhenStarted
 import dagger.android.support.DaggerFragment
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 class ChoicePhraseFragment() : DaggerFragment() {
@@ -78,6 +81,12 @@ class ChoicePhraseFragment() : DaggerFragment() {
 		receivedTAG = arguments?.getString(TAG)
 
 		receivedTAG?.let {
+			lifecycleScope.launchWhenStarted {
+				globalViewModel.getFlow(it).first()?.let {
+					findNavController().popBackStack()
+				}
+			}
+
 			bookViewModel.size.observeWhenStarted(lifecycleScope) {
 				adapter.notifyDataSetChanged()
 			}
@@ -88,6 +97,8 @@ class ChoicePhraseFragment() : DaggerFragment() {
 				bookViewModel.like.value = text.toString()
 			}
 		}
+
+
 
 		bookViewModel.size.observeWhenStarted(lifecycleScope) {
 			bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
@@ -114,11 +125,16 @@ class ChoicePhraseFragment() : DaggerFragment() {
 		}
 
 		bind.btnAdd.setOnClickListener { openEditFragment() }
+
+		bind.btnBack.setOnClickListener { findNavController().popBackStack() }
 	}
 
 	private fun openEditFragment() {
 		editPhraseViewModel.reset()
-		requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.addPhraseFragment)
+		requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.addPhraseFragment, Bundle().apply {
+			putString(EditPhraseFragment.CREATE_FOR, receivedTAG)
+			putInt(EditPhraseFragment.POP_BACK_TO, findNavController().currentDestination?.id.ifNull { 0 })
+		})
 	}
 
 }
