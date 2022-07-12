@@ -27,7 +27,7 @@ class ChoiceLanguageDialog(call: (Languages) -> Unit) : ObservedDialog<Languages
 
 	private val adapter: ChoiceLanguageAdapter by lazy {
 		ChoiceLanguageAdapter(lifecycleScope) {
-			call(it)
+			//call(it)
 			imm.hideSoftInputFromWindow(view?.windowToken, 0)
 			dismiss()
 		}
@@ -46,7 +46,7 @@ class ChoiceLanguageDialog(call: (Languages) -> Unit) : ObservedDialog<Languages
 		bind.recycler.adapter = adapter
 
 		bind.tilSearch.editText?.doOnTextChanged { text, _, _, _ ->
-			adapter.setMask(text.toString())
+			//adapter.setMask(text.toString())
 		}
 
 	}

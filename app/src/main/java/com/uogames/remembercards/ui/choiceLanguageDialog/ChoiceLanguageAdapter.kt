@@ -9,11 +9,12 @@ import com.uogames.flags.Languages
 import com.uogames.remembercards.databinding.CardLanguageBinding
 import com.uogames.remembercards.utils.ChangeableAdapter
 import kotlinx.coroutines.CoroutineScope
+import java.util.*
 
-class ChoiceLanguageAdapter(scope: LifecycleCoroutineScope, val call: (Languages) -> Unit) :
+class ChoiceLanguageAdapter(scope: LifecycleCoroutineScope, val callIso: (String) -> Unit) :
 	ChangeableAdapter<ChoiceLanguageAdapter.LanguageHolder>(scope) {
 
-	private var list: Array<Languages> = Languages.values()
+	private var list: Array<String> = Locale.getISOLanguages()
 
 	inner class LanguageHolder(view: LinearLayout, viewGrope: ViewGroup, scope: LifecycleCoroutineScope) :
 		ChangeableAdapter.ChangeableViewHolder(view, viewGrope, scope) {
@@ -28,10 +29,10 @@ class ChoiceLanguageAdapter(scope: LifecycleCoroutineScope, val call: (Languages
 		}
 
 		override suspend fun CoroutineScope.show(typeFragment: Int, end: () -> Unit) {
-			bind.txtLanguage.text = list[adapterPosition].language
-			bind.root.setOnClickListener {
-				call(list[adapterPosition])
-			}
+//			bind.txtLanguage.text = list[adapterPosition].language
+//			bind.root.setOnClickListener {
+//				call(list[adapterPosition])
+//			}
 		}
 
 	}
@@ -44,11 +45,11 @@ class ChoiceLanguageAdapter(scope: LifecycleCoroutineScope, val call: (Languages
 		return list.size
 	}
 
-	fun setMask(string: String) {
-		list = Languages.values().filter {
-			it.language.uppercase().contains(string.uppercase())
-		}.toTypedArray()
-		notifyDataSetChanged()
-	}
+//	fun setMask(string: String) {
+//		list = Languages.values().filter {
+//			it.language.uppercase().contains(string.uppercase())
+//		}.toTypedArray()
+//		notifyDataSetChanged()
+//	}
 
 }

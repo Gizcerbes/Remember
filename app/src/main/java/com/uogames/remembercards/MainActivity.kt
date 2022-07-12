@@ -6,6 +6,7 @@ import androidx.fragment.app.FragmentContainerView
 import com.uogames.remembercards.utils.Permission
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.coroutines.*
+import java.util.*
 import javax.inject.Inject
 
 class MainActivity : DaggerAppCompatActivity() {
@@ -16,6 +17,17 @@ class MainActivity : DaggerAppCompatActivity() {
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_main)
+
+//		Locale.getAvailableLocales().forEach {
+//			Log.e("TAG", "${it.toLanguageTag()} ", )
+//		}
+//
+//		Locale.getDefault()
+
+//		Locale.getISOLanguages().map { Locale(it) }.forEach {
+//			Log.e("TAG", "${it.displayLanguage} ", )
+//		}
+
 	}
 
 	override fun onStart() {

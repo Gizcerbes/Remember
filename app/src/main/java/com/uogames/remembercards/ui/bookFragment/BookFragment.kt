@@ -1,6 +1,7 @@
 package com.uogames.remembercards.ui.bookFragment
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,6 +11,9 @@ import android.view.inputmethod.InputMethodManager
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
+import com.google.mlkit.nl.languageid.LanguageIdentification
+import com.google.mlkit.nl.languageid.LanguageIdentificationOptions
+import com.uogames.flags.Languages
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentBookBinding
@@ -18,6 +22,7 @@ import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseViewModel
 import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.remembercards.utils.observeWhenStarted
 import dagger.android.support.DaggerFragment
+import java.util.*
 import javax.inject.Inject
 
 class BookFragment : DaggerFragment() {
@@ -89,6 +94,30 @@ class BookFragment : DaggerFragment() {
 		bind.btnAdd.setOnClickListener { openEditFragment() }
 
 		bind.tilSearch.editText?.doOnTextChanged { text, _, _, _ ->
+			//Log.e("TAG", "${System.getProperty("user.language", "de")} ", )
+//			val locale = imm.currentInputMethodSubtype.locale
+//			Log.e("TAG", "${locale} ", )
+
+			val languageIdentifier = LanguageIdentification.getClient()
+//			val languageIdentifier = LanguageIdentification
+//				.getClient(LanguageIdentificationOptions.Builder()
+//					.setConfidenceThreshold(0.34f)
+//					.build())
+
+			languageIdentifier.identifyPossibleLanguages(text.toString())
+				.addOnSuccessListener { languageCode ->
+					Log.e("TAG", "size: ${languageCode.size} ", )
+					languageCode.forEach {
+						Log.e("TAG", "$it ", )
+					}
+				}
+				.addOnFailureListener {
+					// Model couldn’t be loaded or other internal error.
+					// ...
+				}
+
+
+
 			bookViewModel.like.value = text.toString()
 		}
 
