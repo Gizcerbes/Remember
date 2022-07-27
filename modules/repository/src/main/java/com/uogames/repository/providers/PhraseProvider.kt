@@ -1,67 +1,41 @@
 package com.uogames.repository.providers
 
 import com.uogames.database.DatabaseRepository
+import com.uogames.database.repository.PhraseRepository
 import com.uogames.dto.Phrase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 class PhraseProvider(
-	private val database: DatabaseRepository
-) : Provider() {
+	private val pr: PhraseRepository
+) {
+	suspend fun add(phrase: Phrase) = pr.add(phrase)
 
-	fun addAsync(phrase: Phrase) = ioScope.async { database.phraseRepository.add(phrase) }
+	suspend fun delete(phrase: Phrase) = pr.delete(phrase)
 
-	fun add(phrase: Phrase, callId: (Long) -> Unit) = ioScope.launch {
-		val id = addAsync(phrase).await()
-		launch(Dispatchers.Main) { callId(id) }
-	}
+	suspend fun update(phrase: Phrase) = pr.update(phrase)
 
-	fun deleteAsync(phrase: Phrase) = ioScope.async { database.phraseRepository.delete(phrase) }
+	fun countFlow() = pr.countFlow()
 
-	fun delete(phrase: Phrase, call: (Boolean) -> Unit) = ioScope.launch {
-		val res = deleteAsync(phrase).await()
-		launch(Dispatchers.Main) { call(res) }
-	}
+	fun countFlow(like: String) = pr.countFlow(like)
 
-	fun updateAsync(phrase: Phrase) = ioScope.async { database.phraseRepository.update(phrase) }
+	fun countFlow(like: String, lang: String) = pr.countFlow(like, lang)
 
-	fun update(phrase: Phrase, call: (Boolean) -> Unit) = ioScope.launch {
-		val res = updateAsync(phrase).await()
-		launch(Dispatchers.Main) { call(res) }
-	}
+	fun getFlow(position: Int) = pr.getFlow(position)
 
-	fun countFlow() = database.phraseRepository.countFlow()
+	fun getFlow(like: String, position: Int) = pr.getFlow(like, position)
 
-	fun countFlow(like: String) = database.phraseRepository.countFlow(like)
+	fun getFlow(like: String, lang: String, position: Int) = pr.getFlow(like, lang, position)
 
-	fun countFlow(like: String, lang: String) = database.phraseRepository.countFlow(like, lang)
+	suspend fun getById(id: Int) = pr.getById(id)
 
-	fun getFlow(position: Int) = database.phraseRepository.getFlow(position)
+	fun getByIdFlow(id: Int) = pr.getByIdFlow(id)
 
-	fun getFlow(like: String, position: Int) = database.phraseRepository.getFlow(like, position)
+	suspend fun exists(phrase: String) = pr.exists(phrase)
 
-	fun getFlow(like: String, lang: String, position: Int) = database.phraseRepository.getFlow(like, lang, position)
+	fun getListId(like: String, lang: String) = pr.getListIdFlow(like, lang)
 
-	suspend fun getById(id: Int) = database.phraseRepository.getById(id)
-
-	suspend fun getByIdAsync(id: Int) = ioScope.async { getById(id) }
-
-	fun getByIdAsync(id: suspend () -> Int?) = ioScope.async { id()?.let { getById(it) } }
-
-	fun getByIdFlow(id: Int) = database.phraseRepository.getByIdFlow(id)
-
-	fun existsAsync(phrase: String) = ioScope.async { database.phraseRepository.exists(phrase) }
-
-	fun exists(phrase: String, call: (Boolean) -> Unit) = ioScope.launch {
-		val res = existsAsync(phrase).await()
-		launch(Dispatchers.Main) { call(res) }
-	}
-
-	fun getListId(like: String, lang: String) = database.phraseRepository.getListIdFlow(like, lang)
-
-	fun getListId(like: String) = database.phraseRepository.getListIdFlow(like)
-
-	suspend fun Phrase.toPronounce() = database.pronunciationRepository.getByPhrase(this)
+	fun getListId(like: String) = pr.getListIdFlow(like)
 
 }

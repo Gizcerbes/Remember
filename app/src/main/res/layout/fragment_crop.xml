@@ -32,7 +32,7 @@
 
 			<com.google.android.material.card.MaterialCardView
 				android:id="@+id/btn_save"
-				style="@style/Theme.RememberCards.CardView.Button"
+				style="@style/Theme.RememberCards.CardView.Button.Positive"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:visibility="visible">
@@ -77,7 +77,7 @@
 
 			<com.google.android.material.card.MaterialCardView
 				android:id="@+id/btn_back"
-				style="@style/Theme.RememberCards.CardView.Button.Close"
+				style="@style/Theme.RememberCards.CardView.Button.Negative"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_marginStart="0dp"

@@ -1,10 +1,11 @@
 package com.uogames.remembercards
 
 import android.graphics.Rect
-import android.util.Log
 import android.view.View
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavDestination
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.repository.DataProvider
 import kotlinx.coroutines.Dispatchers
@@ -28,11 +29,17 @@ class GlobalViewModel @Inject constructor(val provider: DataProvider) : ViewMode
 	private val _isShowKey = MutableStateFlow(false)
 	val isShowKey = _isShowKey.asStateFlow()
 
+	private var lastDestination: NavDestination? = null
+	private var _backSize: Int = 0
+	val backSize get() = _backSize
+	private var _shouldReset: Boolean = false
+	val shouldReset get() = _shouldReset
+
 	private var job: Job? = null
 
 	fun setShowKeyboard(view: View) {
 		job?.cancel()
-		job = viewModelScope.launch {
+		job = viewModelScope.launch(Dispatchers.IO) {
 			delay(10)
 			val r = Rect()
 			view.getWindowVisibleDisplayFrame(r)
@@ -40,30 +47,41 @@ class GlobalViewModel @Inject constructor(val provider: DataProvider) : ViewMode
 		}
 	}
 
+	fun setBackQueue(arrBackStack: ArrayDeque<NavBackStackEntry>?) {
+		arrBackStack?.let {
+			val lastDest = it.last().destination
+			_shouldReset = it.size > _backSize || (it.size == _backSize && lastDestination != lastDest)
+			_backSize = it.size
+			lastDestination = lastDest
+		}.ifNull {
+			_shouldReset = false
+		}
+	}
+
 	fun saveData(key: String, value: String?, finishCall: () -> Unit = {}) {
 		viewModelScope.launch {
-			provider.setting.saveAsync(key, value).await()
+			provider.setting.save(key, value)
 			finishCall()
 		}
 	}
 
 	fun removeData(key: String) {
 		viewModelScope.launch {
-			provider.setting.removeAsync(key).await()
+			provider.setting.remove(key)
 		}
 	}
 
 	fun getFlow(key: String) = provider.setting.getFlow(key)
 
-	fun saveUserName(name: String) = viewModelScope.launch { provider.setting.saveAsync(USER_NAME, name).await() }
+	fun saveUserName(name: String) = viewModelScope.launch { provider.setting.save(USER_NAME, name) }
 
 	fun getUserName() = provider.setting.getFlow(USER_NAME)
 
-	fun saveGlobalName(name: String) = viewModelScope.launch { provider.setting.saveAsync(GLOBAL_NAME, name).await() }
+	fun saveGlobalName(name: String) = viewModelScope.launch { provider.setting.save(GLOBAL_NAME, name) }
 
 	fun getGlobalName() = provider.setting.getFlow(GLOBAL_NAME)
 
-	fun saveUserNativeCountry(name: String) = viewModelScope.launch { provider.setting.saveAsync(USER_NATIVE_COUNTRY, name).await() }
+	fun saveUserNativeCountry(name: String) = viewModelScope.launch { provider.setting.save(USER_NATIVE_COUNTRY, name) }
 
 	fun getUserNativeCountry() = provider.setting.getFlow(USER_NATIVE_COUNTRY)
 
@@ -75,14 +93,14 @@ class GlobalViewModel @Inject constructor(val provider: DataProvider) : ViewMode
 
 	fun addGameYesOrNoGameCount() = viewModelScope.launch {
 		val count = provider.setting.getFlow(GAME_YES_OR_NO_COUNT).first()?.toInt().ifNull { 0 }
-		provider.setting.saveAsync(GAME_YES_OR_NO_COUNT, (count + 1).toString()).await()
+		provider.setting.save(GAME_YES_OR_NO_COUNT, (count + 1).toString())
 	}
 
-	fun setGameYesOrNotCount(count: Int) = viewModelScope.launch { provider.setting.saveAsync(GAME_YES_OR_NO_COUNT, count.toString()).await() }
+	fun setGameYesOrNotCount(count: Int) = viewModelScope.launch { provider.setting.save(GAME_YES_OR_NO_COUNT, count.toString()) }
 
 	fun getGameYesOrNotGameCount() = provider.setting.getFlow(GAME_YES_OR_NO_COUNT)
 
-	fun clean() = provider.clean()
+	fun clean() = viewModelScope.launch(Dispatchers.IO) { provider.clean() }
 
 
 }

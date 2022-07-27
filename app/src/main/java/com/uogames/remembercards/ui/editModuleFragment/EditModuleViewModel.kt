@@ -5,11 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.uogames.dto.Card
 import com.uogames.dto.Module
 import com.uogames.dto.ModuleCard
-import com.uogames.dto.Phrase
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.repository.DataProvider
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -22,20 +20,24 @@ class EditModuleViewModel @Inject constructor(val provider: DataProvider) : View
 
 	val moduleCardsList = module.flatMapLatest { provider.moduleCard.getByModule(it.ifNull { Module() }) }
 
-	fun getCard(moduleCard: ModuleCard) = provider.cards.getByModuleCard(moduleCard)
+	fun reset(){
+		moduleID.value = 0
+	}
+
+	fun getCard(moduleCard: ModuleCard) = provider.cards.getByModuleCardFlow(moduleCard)
 
 	fun getCard(id: Int) = provider.cards.getByIdFlow(id)
 
-	suspend fun delete(module: Module) = provider.module.deleteAsync(module).await()
+	suspend fun delete(module: Module) = provider.module.delete(module)
 
 	fun addModuleCard(moduleID: Int, card: Card, call: (Boolean) -> Unit) = viewModelScope.launch {
-		val res = provider.moduleCard.insertAsync(ModuleCard(idModule = moduleID, idCard = card.id)).await()
+		val res = provider.moduleCard.insert(ModuleCard(idModule =  moduleID, idCard = card.id))
 		call(res > 0)
 	}
 
 
 	fun removeModuleCard(moduleCard: ModuleCard, call: (Boolean) -> Unit) = viewModelScope.launch {
-		val res = provider.moduleCard.deleteAsync(moduleCard).await()
+		val res = provider.moduleCard.delete(moduleCard)
 		call(res)
 	}
 

@@ -18,8 +18,8 @@
         <item name="android:textColor">@color/black</item>
     </style>
 
-	<style name="Theme.RememberCards.CardView.Button.Close" parent="Theme.RememberCards.CardView.Button">
-		<item name="cardBackgroundColor">@color/btn_back</item>
+	<style name="Theme.RememberCards.CardView.Button.Negative" parent="Theme.RememberCards.CardView.Button">
+		<item name="cardBackgroundColor">@color/btn_negative</item>
 	</style>
 
 </resources>

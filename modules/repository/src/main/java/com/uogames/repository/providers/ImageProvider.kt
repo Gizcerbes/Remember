@@ -12,34 +12,31 @@ import kotlinx.coroutines.flow.first
 class ImageProvider(
 	private val database: DatabaseRepository,
 	private val fileRepository: FileRepository
-) : Provider() {
+) {
 
-	fun addAsync(image: Image, bytes: ByteArray) = ioScope.async {
-		val id = database.imageRepository.insert(image).toInt()
+
+	suspend fun add(bytes: ByteArray): Int {
+		val id = database.imageRepository.insert(Image()).toInt()
 		val uri = fileRepository.saveFile("$id.png", bytes)
 		database.imageRepository.update(Image(id, uri.toString()))
-		return@async id
+		return id
 	}
 
-	fun deleteAsync(image: Image) = ioScope.async {
-		database.imageRepository.getByIdFlow(image.id).first()?.let {
+	suspend fun delete(image: Image): Boolean {
+		return database.imageRepository.getByIdFlow(image.id).first()?.let {
 			fileRepository.deleteFile(it.imgUri.toUri())
-			return@async database.imageRepository.delete(image)
+			database.imageRepository.delete(image)
 		} ?: false
 	}
 
-	fun updateAsync(image: Image, bytes: ByteArray) = ioScope.async {
-		database.imageRepository.getByIdFlow(image.id).first()?.let {
+	suspend fun update(image: Image, bytes: ByteArray): Boolean {
+		return database.imageRepository.getByIdFlow(image.id).first()?.let {
 			val uri = fileRepository.saveFile("${it.id}.png", bytes)
-			return@async database.imageRepository.update(Image(image.id, uri.toString()))
+			return database.imageRepository.update(Image(image.id, uri.toString()))
 		} ?: false
 	}
 
 	suspend fun getById(id: Int) = database.imageRepository.getById(id)
-
-	fun getByIdAsync(id: Int) = ioScope.async { getById(id) }
-
-	fun getByIdAsync(id: suspend () -> Int?) = ioScope.async { id()?.let { getById(it) } }
 
 	fun getByIdFlow(id: Int) = database.imageRepository.getByIdFlow(id)
 

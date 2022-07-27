@@ -7,8 +7,9 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.net.toUri
-import androidx.lifecycle.LifecycleCoroutineScope
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
+import com.squareup.picasso.Picasso
 import com.uogames.dto.ModuleCard
 import com.uogames.dto.Phrase
 import com.uogames.remembercards.R
@@ -19,13 +20,18 @@ import com.uogames.repository.DataProvider.Companion.toPhrase
 import com.uogames.repository.DataProvider.Companion.toPronounce
 import com.uogames.repository.DataProvider.Companion.toTranslate
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import java.util.*
+import kotlin.math.PI
 
 class EditModuleAdapter(
 	private val model: EditModuleViewModel,
-	private val player: ObservableMediaPlayer,
-	scope: LifecycleCoroutineScope
-) : ChangeableAdapter<EditModuleAdapter.CardsHolder>(scope) {
+	private val player: ObservableMediaPlayer
+) : RecyclerView.Adapter<EditModuleAdapter.CardHolder>() {
+
+	private val recyclerScope = CoroutineScope(Dispatchers.Main)
 
 	private var listItems: List<ModuleCard> = arrayListOf()
 
@@ -34,19 +40,21 @@ class EditModuleAdapter(
 		notifyDataSetChanged()
 	}
 
-	inner class CardsHolder(view: LinearLayout, viewGroup: ViewGroup, val scope: LifecycleCoroutineScope) :
-		ChangeableAdapter.ChangeableViewHolder(view, viewGroup, scope) {
+	inner class CardHolder(view: View) : RecyclerView.ViewHolder(view) {
 
-		private val bind by lazy { CardCardBinding.inflate(LayoutInflater.from(viewGroup.context), viewGroup, false) }
+		private var _bind: CardCardBinding? = null
+		private val bind get() = _bind!!
 
-		override fun onCreateView(typeFragment: Int, viewGrope: ViewGroup): View? {
-			return bind.root
-		}
+		private var cardObserver: Job? = null
 
-		override suspend fun CoroutineScope.show(typeFragment: Int, end: () -> Unit) {
-			val moduleCard = listItems[adapterPosition]
+		fun onShow() {
+			_bind = CardCardBinding.inflate(LayoutInflater.from(itemView.context), itemView as ViewGroup, false)
+			val linearLayout = itemView as LinearLayout
+			linearLayout.removeAllViews()
+			linearLayout.addView(bind.root)
 			bind.root.visibility = View.INVISIBLE
-			model.getCard(moduleCard).observeWhenStarted(scope) {
+			val moduleCard = listItems[adapterPosition]
+			model.getCard(moduleCard).observeWhile(recyclerScope) {
 				it?.let { card ->
 					bind.txtReason.text = card.reason
 					bind.imgBtnAction.setImageResource(R.drawable.ic_baseline_remove_24)
@@ -75,8 +83,8 @@ class EditModuleAdapter(
 			langView.text = showLang(phrase)
 			phraseView.text = phrase.phrase
 			phrase.toImage()?.let {
+				Picasso.get().load(it.imgUri.toUri()).placeholder(R.drawable.noise).into(phraseImage)
 				phraseImage.visibility = View.VISIBLE
-				phraseImage.setImageURI(it.imgUri.toUri())
 			}.ifNull {
 				phraseImage.visibility = View.GONE
 			}
@@ -96,14 +104,44 @@ class EditModuleAdapter(
 			Locale(data[0]).displayLanguage
 		}.orEmpty()
 
+		fun onDestroy(){
+			cardObserver?.cancel()
+			_bind = null
+		}
+
 	}
 
-	override fun onShow(parent: ViewGroup, view: LinearLayout, viewType: Int, scope: LifecycleCoroutineScope): CardsHolder {
-		return CardsHolder(view, parent, scope)
+	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardHolder {
+		return  CardHolder(LinearLayout(parent.context).apply {
+			layoutParams = LinearLayout.LayoutParams(
+				LinearLayout.LayoutParams.MATCH_PARENT,
+				LinearLayout.LayoutParams.MATCH_PARENT
+			)
+			orientation = LinearLayout.VERTICAL
+		})
+	}
+
+	override fun onBindViewHolder(holder: CardHolder, position: Int) {
+		holder.onShow()
+		(holder.itemView as LinearLayout).apply {
+			layoutParams = LinearLayout.LayoutParams(
+				LinearLayout.LayoutParams.MATCH_PARENT,
+				LinearLayout.LayoutParams.WRAP_CONTENT
+			)
+		}
 	}
 
 	override fun getItemCount(): Int {
 		return listItems.size
+	}
+
+	override fun onViewRecycled(holder: CardHolder) {
+		super.onViewRecycled(holder)
+		holder.onDestroy()
+	}
+
+	fun onDestroy(){
+		recyclerScope.cancel()
 	}
 
 

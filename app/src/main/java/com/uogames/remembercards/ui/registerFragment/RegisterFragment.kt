@@ -17,76 +17,90 @@ import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.ifNullOrEmpty
 import com.uogames.remembercards.utils.observeWhenStarted
 import dagger.android.support.DaggerFragment
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class RegisterFragment : DaggerFragment() {
 
-	@Inject
-	lateinit var globalViewModel: GlobalViewModel
+    @Inject
+    lateinit var globalViewModel: GlobalViewModel
 
-	@Inject
-	lateinit var registerViewModel: RegisterViewModel
+    @Inject
+    lateinit var registerViewModel: RegisterViewModel
 
-	private lateinit var bind: FragmentRegisterBinding
+    private var _bind: FragmentRegisterBinding? = null
+    private val bind get() = _bind!!
 
-	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-		bind = FragmentRegisterBinding.inflate(inflater, container, false)
-		return bind.root
-	}
+    private var isRegisterObserver: Job? = null
+    private var countryObserver: Job? = null
 
-	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-		super.onViewCreated(view, savedInstanceState)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        if (_bind == null) _bind = FragmentRegisterBinding.inflate(inflater, container, false)
+        return bind.root
+    }
 
-		registerViewModel.isRegister.observeWhenStarted(lifecycleScope) {
-			if (it) {
-				val graph = findNavController().navInflater.inflate(R.navigation.nav_graph).apply { setStartDestination(R.id.mainNaviFragment) }
-				findNavController().setGraph(graph, null)
-			}
-		}
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-		lifecycleScope.launch {
-			globalViewModel.getUserName().first()?.let {
-				registerViewModel.isRegister.value = true
-			}
-		}
+        isRegisterObserver = createIsRegisterObserver()
+        countryObserver = createCountryObserver()
 
-		registerViewModel.country.observeWhenStarted(lifecycleScope){
-			it?.let {
-				bind.clLanguageEmpty.visibility = View.GONE
-				bind.rlLanguageNotEmpty.visibility = View.VISIBLE
-				bind.imgFlag.setImageResource(it.res)
-				bind.llLanguages.removeAllViews()
-				it.country.forEach { countryText ->
-					val tv = TextView(requireContext())
-					tv.setTextAppearance(R.attr.textAppearanceBody2)
-					tv.text = countryText.value
-					bind.llLanguages.addView(tv)
-				}
-			}.ifNull {
-				bind.clLanguageEmpty.visibility = View.VISIBLE
-				bind.rlLanguageNotEmpty.visibility = View.GONE
-			}
-		}
+        lifecycleScope.launchWhenStarted {
+            globalViewModel.getUserName().first()?.let {
+                registerViewModel.isRegister.value = true
+            }
+        }
 
-		bind.btnChoiceLanguage.setOnClickListener {
-			val dialog = ChoiceCountryDialog {
-				registerViewModel.country.value = it
-			}
-			dialog.show(requireActivity().supportFragmentManager, ChoiceCountryDialog.TAG)
-		}
+        bind.btnChoiceLanguage.setOnClickListener {
+            val dialog = ChoiceCountryDialog {
+                registerViewModel.country.value = it
+            }
+            dialog.show(requireActivity().supportFragmentManager, ChoiceCountryDialog.TAG)
+        }
 
-		bind.btnEnd.setOnClickListener {
-			val txt = bind.tilName.editText?.text.toString()
-				.ifNullOrEmpty { return@setOnClickListener }
-				.also { if (it.length > bind.tilName.counterMaxLength) return@setOnClickListener }
-			globalViewModel.saveUserName(txt)
-			globalViewModel.saveUserNativeCountry(registerViewModel.country.value.toString())
-			registerViewModel.isRegister.value = true
-		}
+        bind.btnEnd.setOnClickListener {
+            val txt = bind.tilName.editText?.text.toString()
+                .ifNullOrEmpty { return@setOnClickListener }
+                .also { if (it.length > bind.tilName.counterMaxLength) return@setOnClickListener }
+            globalViewModel.saveUserName(txt)
+            globalViewModel.saveUserNativeCountry(registerViewModel.country.value.toString())
+            registerViewModel.isRegister.value = true
+        }
 
-	}
+    }
 
+    private fun createIsRegisterObserver() =  registerViewModel.isRegister.observeWhenStarted(lifecycleScope) {
+        if (it) {
+            val graph = findNavController().navInflater.inflate(R.navigation.nav_graph).apply { setStartDestination(R.id.mainNaviFragment) }
+            findNavController().setGraph(graph, null)
+        }
+    }
+
+    private fun createCountryObserver() = registerViewModel.country.observeWhenStarted(lifecycleScope) {
+        it?.let {
+            bind.clLanguageEmpty.visibility = View.GONE
+            bind.rlLanguageNotEmpty.visibility = View.VISIBLE
+            bind.imgFlag.setImageResource(it.res)
+            bind.llLanguages.removeAllViews()
+            it.country.forEach { countryText ->
+                val tv = TextView(requireContext())
+                tv.setTextAppearance(R.attr.textAppearanceBody2)
+                tv.text = countryText.value
+                bind.llLanguages.addView(tv)
+            }
+        }.ifNull {
+            bind.clLanguageEmpty.visibility = View.VISIBLE
+            bind.rlLanguageNotEmpty.visibility = View.GONE
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        isRegisterObserver?.cancel()
+        countryObserver?.cancel()
+        _bind = null
+    }
 
 }

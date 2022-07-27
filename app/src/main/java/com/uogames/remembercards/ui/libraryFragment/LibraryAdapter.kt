@@ -4,43 +4,48 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.lifecycle.LifecycleCoroutineScope
+import androidx.recyclerview.widget.RecyclerView
 import com.uogames.dto.Module
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardModuleBinding
-import com.uogames.remembercards.utils.ChangeableAdapter
-import com.uogames.remembercards.utils.observeWhenStarted
+import com.uogames.remembercards.utils.observeWhile
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 
-class LibraryAdapter(val scope: LifecycleCoroutineScope, val model: LibraryViewModel, val selectID: (Module) -> Unit) :
-	ChangeableAdapter<LibraryAdapter.ModuleHolder>(scope) {
+class LibraryAdapter(
+	val model: LibraryViewModel,
+	val selectID: (Module) -> Unit
+):RecyclerView.Adapter<LibraryAdapter.ModuleHolder>() {
+
 
 	private var list: List<Module> = listOf()
+	private val recyclerScope = CoroutineScope(Dispatchers.Main)
 
 	init {
-		model.list.observeWhenStarted(scope) {
+		model.list.observeWhile(recyclerScope) {
 			list = it
 			notifyDataSetChanged()
 		}
 	}
 
+	inner class ModuleHolder(view:View): RecyclerView.ViewHolder(view){
 
-	inner class ModuleHolder(view: LinearLayout, viewGrope: ViewGroup, scope: LifecycleCoroutineScope) :
-		ChangeableAdapter.ChangeableViewHolder(view, viewGrope, scope) {
+		private var moduleObserver: Job? = null
 
-		private val bind by lazy { CardModuleBinding.inflate(LayoutInflater.from(viewGrope.context), viewGrope, false) }
+		private var _bind: CardModuleBinding? = null
+		private val bind get() = _bind!!
 
-		override fun onCreateView(typeFragment: Int, viewGrope: ViewGroup): View? {
-			return bind.root
-		}
-
-
-		override suspend fun CoroutineScope.show(typeFragment: Int, end: () -> Unit) {
+		fun onShow(){
+			_bind = CardModuleBinding.inflate(LayoutInflater.from(itemView.context), itemView as ViewGroup, false)
+			val linearLayout = itemView as LinearLayout
+			linearLayout.removeAllViews()
+			linearLayout.addView(bind.root)
 			bind.root.visibility = View.INVISIBLE
 			val module = list[adapterPosition]
 			bind.txtName.text = module.name
-			model.getCountByModuleID(module.id).observeWhenStarted(scope) {
+			moduleObserver = model.getCountByModuleID(module.id).observeWhile(recyclerScope) {
 				bind.txtCountItems.text = itemView.context.getString(R.string.count_items).replace("||COUNT||", it.toString())
 			}
 			bind.txtCountItems.text = ""
@@ -51,14 +56,44 @@ class LibraryAdapter(val scope: LifecycleCoroutineScope, val model: LibraryViewM
 			}
 			bind.root.visibility = View.VISIBLE
 		}
+
+		fun onDestroy(){
+			moduleObserver?.cancel()
+			_bind = null
+		}
 	}
 
-	override fun onShow(parent: ViewGroup, view: LinearLayout, viewType: Int, scope: LifecycleCoroutineScope): ModuleHolder {
-		return ModuleHolder(view, parent, scope)
+	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ModuleHolder {
+		return ModuleHolder(LinearLayout(parent.context).apply {
+			layoutParams = LinearLayout.LayoutParams(
+				LinearLayout.LayoutParams.MATCH_PARENT,
+				LinearLayout.LayoutParams.MATCH_PARENT
+			)
+			orientation = LinearLayout.VERTICAL
+		})
+	}
+
+	override fun onBindViewHolder(holder: ModuleHolder, position: Int) {
+		holder.onShow()
+		(holder.itemView as LinearLayout).apply {
+			layoutParams = LinearLayout.LayoutParams(
+				LinearLayout.LayoutParams.MATCH_PARENT,
+				LinearLayout.LayoutParams.WRAP_CONTENT
+			)
+		}
 	}
 
 	override fun getItemCount(): Int {
 		return list.size
+	}
+
+	override fun onViewRecycled(holder: ModuleHolder) {
+		super.onViewRecycled(holder)
+		holder.onDestroy()
+	}
+
+	fun onDestroy(){
+		recyclerScope.cancel()
 	}
 
 

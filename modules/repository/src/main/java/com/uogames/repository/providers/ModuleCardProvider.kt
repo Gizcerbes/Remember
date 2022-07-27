@@ -7,13 +7,13 @@ import kotlinx.coroutines.async
 
 class ModuleCardProvider(
 	private val mcr: ModuleCardRepository
-) : Provider() {
+) {
 
-	fun insertAsync(moduleCard: ModuleCard) = ioScope.async { mcr.insert(moduleCard) }
+	suspend fun insert(moduleCard: ModuleCard) = mcr.insert(moduleCard)
 
-	fun deleteAsync(moduleCard: ModuleCard) = ioScope.async { mcr.delete(moduleCard) }
+	suspend fun delete(moduleCard: ModuleCard) = mcr.delete(moduleCard)
 
-	fun updateAsync(moduleCard: ModuleCard) = ioScope.async { mcr.update(moduleCard) }
+	suspend fun update(moduleCard: ModuleCard) = mcr.update(moduleCard)
 
 	fun getByModuleID(id: Int) = mcr.getByModuleID(id)
 
@@ -21,11 +21,11 @@ class ModuleCardProvider(
 
 	fun getByModule(module: Module) = mcr.getByModule(module)
 
-	fun getRandomAsync() = ioScope.async { mcr.getRandomModule() }
+	suspend fun getRandom() = mcr.getRandomModule()
 
-	fun getRandomWithoutAsync(idCard: Int) = ioScope.async { mcr.getRandomModuleWithout(idCard) }
+	suspend fun getRandomWithout(idModule: Int) = mcr.getRandomModuleWithout(idModule)
 
-	fun getRandomAsync(idModule: Int) = ioScope.async { mcr.getRandomModule(idModule) }
+	suspend fun getRandom(idModule: Int) = mcr.getRandomModule(idModule)
 
-	fun getRandomWithoutAsync(idModule: Int, idCard: Int) = ioScope.async { mcr.getRandomModuleWithout(idModule, idCard) }
+	suspend fun getRandomWithout(idModule: Int, idCard: Int) = mcr.getRandomModuleWithout(idModule, idCard)
 }

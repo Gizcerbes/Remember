@@ -1,133 +1,133 @@
 package com.uogames.remembercards.ui.bookFragment
 
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
-import android.util.Log
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import androidx.core.widget.doOnTextChanged
+import androidx.core.os.bundleOf
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
-import com.google.mlkit.nl.languageid.LanguageIdentification
-import com.google.mlkit.nl.languageid.LanguageIdentificationOptions
-import com.uogames.flags.Languages
+import androidx.navigation.navOptions
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentBookBinding
 import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseFragment
 import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseViewModel
 import com.uogames.remembercards.utils.ObservableMediaPlayer
+import com.uogames.remembercards.utils.ShortTextWatcher
+import com.uogames.remembercards.utils.ifTrue
 import com.uogames.remembercards.utils.observeWhenStarted
 import dagger.android.support.DaggerFragment
-import java.util.*
+import kotlinx.coroutines.Job
 import javax.inject.Inject
 
 class BookFragment : DaggerFragment() {
 
-	@Inject
-	lateinit var bookViewModel: BookViewModel
+    @Inject
+    lateinit var bookViewModel: BookViewModel
 
-	@Inject
-	lateinit var globalViewModel: GlobalViewModel
+    @Inject
+    lateinit var globalViewModel: GlobalViewModel
 
-	@Inject
-	lateinit var editPhraseViewModel: EditPhraseViewModel
+    @Inject
+    lateinit var editPhraseViewModel: EditPhraseViewModel
 
-	@Inject
-	lateinit var player: ObservableMediaPlayer
+    @Inject
+    lateinit var player: ObservableMediaPlayer
 
-	lateinit var bind: FragmentBookBinding
+    private var _bind: FragmentBookBinding? = null
+    private val bind get() = _bind!!
 
-	private val imm by lazy {
-		requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-	}
+    private var imm: InputMethodManager? = null
 
-	private val adapter by lazy {
-		BookAdapter(bookViewModel, player, lifecycleScope) {
-			requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.addPhraseFragment, Bundle().apply {
-				putInt(EditPhraseFragment.ID_PHRASE, it)
-			})
-		}
-	}
+    private var sizeObserver: Job? = null
+    private var keyObserver: Job? = null
+    private val textWatcher = createTextWatcher()
 
-	override fun onCreateView(
-		inflater: LayoutInflater,
-		container: ViewGroup?,
-		savedInstanceState: Bundle?
-	): View {
-		bind = FragmentBookBinding.inflate(inflater, container, false)
-		return bind.root
-	}
+    private var adapter: BookAdapter? = null
 
-	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-		super.onViewCreated(view, savedInstanceState)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        if (_bind == null) _bind = FragmentBookBinding.inflate(inflater, container, false)
+        return bind.root
+    }
 
-		bookViewModel.reset()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-		bookViewModel.size.observeWhenStarted(lifecycleScope) {
-			bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
-			adapter.notifyDataSetChanged()
-		}
+        globalViewModel.shouldReset.ifTrue {
+            bookViewModel.reset()
+        }
 
-		globalViewModel.isShowKey.observeWhenStarted(lifecycleScope) {
-			bind.tilSearch.visibility = if (it) View.VISIBLE else View.GONE
-			bind.btnAdd.visibility = if (it) View.GONE else View.VISIBLE
-			if (it) {
-				bind.searchImage.setImageResource(R.drawable.ic_baseline_close_24)
-			} else {
-				bind.searchImage.setImageResource(R.drawable.ic_baseline_search_24)
-			}
-		}
+        init()
 
-		bind.btnSearch.setOnClickListener {
-			if (!globalViewModel.isShowKey.value) {
-				bind.tilSearch.requestFocus()
-				imm.showSoftInput(bind.tilSearch.editText, InputMethodManager.SHOW_IMPLICIT)
-			} else {
-				imm.hideSoftInputFromWindow(view.windowToken, 0)
-			}
-		}
+        bind.btnSearch.setOnClickListener {
+            if (!globalViewModel.isShowKey.value) {
+                bind.tilSearch.requestFocus()
+                imm?.showSoftInput(bind.tilSearch.editText, InputMethodManager.SHOW_IMPLICIT)
+            } else {
+                imm?.hideSoftInputFromWindow(view.windowToken, 0)
+            }
+        }
 
-		bind.btnAdd.setOnClickListener { openEditFragment() }
+        bind.btnAdd.setOnClickListener { openEditFragment() }
 
-		bind.tilSearch.editText?.doOnTextChanged { text, _, _, _ ->
-			//Log.e("TAG", "${System.getProperty("user.language", "de")} ", )
-//			val locale = imm.currentInputMethodSubtype.locale
-//			Log.e("TAG", "${locale} ", )
+        bind.tilSearch.editText?.addTextChangedListener(textWatcher)
 
-			val languageIdentifier = LanguageIdentification.getClient()
-//			val languageIdentifier = LanguageIdentification
-//				.getClient(LanguageIdentificationOptions.Builder()
-//					.setConfidenceThreshold(0.34f)
-//					.build())
+        bind.recycler.adapter = adapter
 
-			languageIdentifier.identifyPossibleLanguages(text.toString())
-				.addOnSuccessListener { languageCode ->
-					Log.e("TAG", "size: ${languageCode.size} ", )
-					languageCode.forEach {
-						Log.e("TAG", "$it ", )
-					}
-				}
-				.addOnFailureListener {
-					// Model couldn’t be loaded or other internal error.
-					// ...
-				}
+    }
 
+    private fun init(){
+        imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 
+        adapter = BookAdapter(bookViewModel, player) {
+            requireActivity().findNavController(R.id.nav_host_fragment).navigate(
+                R.id.addPhraseFragment,
+                bundleOf(EditPhraseFragment.ID_PHRASE to it)
+            )
+        }
 
-			bookViewModel.like.value = text.toString()
-		}
+        sizeObserver = createSizeObserver()
+        keyObserver = createKeyObserver()
+    }
 
-		bind.recycler.adapter = adapter
+    private fun createTextWatcher(): TextWatcher = ShortTextWatcher {
+        bookViewModel.like.value = it.toString()
+    }
 
-	}
+    private fun createSizeObserver(): Job = bookViewModel.size.observeWhenStarted(lifecycleScope) {
+        bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
+        adapter?.notifyDataSetChanged()
+    }
 
-	private fun openEditFragment() {
-		editPhraseViewModel.reset()
-		requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.addPhraseFragment)
-	}
+    private fun createKeyObserver(): Job = globalViewModel.isShowKey.observeWhenStarted(lifecycleScope) {
+        bind.tilSearch.visibility = if (it) View.VISIBLE else View.GONE
+        bind.btnAdd.visibility = if (it) View.GONE else View.VISIBLE
+        if (it) bind.searchImage.setImageResource(R.drawable.ic_baseline_close_24)
+        else bind.searchImage.setImageResource(R.drawable.ic_baseline_search_24)
+    }
+
+    private fun openEditFragment() {
+        requireActivity().findNavController(R.id.nav_host_fragment)
+            .navigate(R.id.addPhraseFragment, null, navOptions { anim { enter = R.anim.show } })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        sizeObserver?.cancel()
+        keyObserver?.cancel()
+        bind.tilSearch.editText?.removeTextChangedListener(textWatcher)
+        adapter?.onDestroy()
+        adapter = null
+        imm = null
+        _bind = null
+    }
 
 }

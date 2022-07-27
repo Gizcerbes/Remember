@@ -2,6 +2,7 @@ package com.uogames.remembercards.ui.editCardFragment
 
 import android.content.Context
 import android.os.Bundle
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -9,13 +10,15 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.net.toUri
-import androidx.core.widget.doOnTextChanged
+import androidx.core.os.bundleOf
+import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.card.MaterialCardView
+import com.squareup.picasso.Picasso
 import com.uogames.dto.Phrase
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
@@ -26,9 +29,7 @@ import com.uogames.remembercards.utils.*
 import com.uogames.repository.DataProvider.Companion.toImage
 import com.uogames.repository.DataProvider.Companion.toPronounce
 import dagger.android.support.DaggerFragment
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.util.*
 import javax.inject.Inject
 
@@ -54,56 +55,60 @@ class EditCardFragment : DaggerFragment() {
 	@Inject
 	lateinit var player: ObservableMediaPlayer
 
-	private lateinit var bind: FragmentEditCardBinding
+	private var _bind: FragmentEditCardBinding? = null
+	private val bind get() = _bind!!
 
 	private val bundleFirst = Bundle().apply { putString(ChoicePhraseFragment.TAG, FIRST_PHRASE) }
-
 	private val bundleSecond = Bundle().apply { putString(ChoicePhraseFragment.TAG, SECOND_PHRASE) }
 
-	private val imm by lazy {
-		requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-	}
+	private var imm: InputMethodManager? = null
+
+
+	private var keyObserver: Job? = null
+	private var firstPhraseObserver: Job? = null
+	private var secondPhraseObserver: Job? = null
+	private var reasonObserver: Job? = null
+	private val reasonTextWatcher: TextWatcher by lazy { createReasonTextWatcher() }
+
 
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-		bind = FragmentEditCardBinding.inflate(inflater, container, false)
+		if (_bind == null) _bind = FragmentEditCardBinding.inflate(inflater, container, false)
 		return bind.root
 	}
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
 
+		globalViewModel.shouldReset.ifTrue {
+			editCardViewModel.reset()
+		}
+
+		imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+
+
 		val id = arguments?.getInt(EDIT_ID)?.let { if (it == 0) null else it }
+		val idChanged = editCardViewModel.setArgCardId(id)
+
 		val createFor = arguments?.getString(CREATE_FOR)
 		val popBackTo = arguments?.getInt(POP_BACK_TO)
 
+		setFragmentResultListener(FIRST_PHRASE) { _, b ->
+			editCardViewModel.selectFirstPhrase(b.getInt("ID"))
+		}
+
+		setFragmentResultListener(SECOND_PHRASE) { _, b ->
+			editCardViewModel.selectSecondPhrase(b.getInt("ID"))
+		}
+
 		id?.let {
-			editCardViewModel.load(id)
-			bind.btnDelete.visibility = View.VISIBLE
-			bind.btnDelete.setOnClickListener {
-				editCardViewModel.delete { if (it) findNavController().popBackStack() }
-			}
-			bind.btnSave.setOnClickListener {
-				editCardViewModel.update { if (it) findNavController().popBackStack() }
-			}
+			loadDataWithID(id, idChanged)
 		}.ifNull {
-			bind.btnDelete.visibility = View.GONE
-			bind.btnSave.setOnClickListener {
-				editCardViewModel.save { res ->
-					res?.let {
-						if (!createFor.isNullOrEmpty() && popBackTo != null && popBackTo != 0) {
-							globalViewModel.saveData(createFor, res.toString()) {
-								findNavController().popBackStack(popBackTo, true)
-							}
-						} else {
-							findNavController().popBackStack()
-						}
-					}
-				}
-			}
+			loadData(createFor, popBackTo)
 		}
 
 		bind.btnBack.setOnClickListener {
 			findNavController().popBackStack()
+			editCardViewModel.resetID()
 		}
 
 		bind.btnEditFist.setOnClickListener { openChoicePhraseFragment(bundleFirst) }
@@ -113,54 +118,84 @@ class EditCardFragment : DaggerFragment() {
 
 		bind.btnEditReason.setOnClickListener {
 			bind.tilEditReason.requestFocus()
-			imm.showSoftInput(bind.tilEditReason.editText, InputMethodManager.SHOW_IMPLICIT)
+			bind.tilEditReason.editText?.setText(editCardViewModel.reason.value)
+			bind.tilEditReason.editText?.setSelection(editCardViewModel.reason.value.length)
+			imm?.showSoftInput(bind.tilEditReason.editText, InputMethodManager.SHOW_IMPLICIT)
 		}
 
-		bind.tilEditReason.editText?.doOnTextChanged { text, _, _, _ ->
-			editCardViewModel.setReason(text.toString())
-		}
+		bind.tilEditReason.editText?.removeTextChangedListener(reasonTextWatcher)
+		bind.tilEditReason.editText?.addTextChangedListener(reasonTextWatcher)
 
-		globalViewModel.getFlow(FIRST_PHRASE).observeWhenStarted(lifecycleScope) {
-			try {
-				editCardViewModel.selectFirstPhrase(it!!.toInt())
-				globalViewModel.saveData(FIRST_PHRASE, null)
-			} catch (e: Exception) {
+		keyObserver = createKeyObserveJob()
+		firstPhraseObserver = createFirstPhraseObserveJob()
+		secondPhraseObserver = createSecondPhraseObserverJob()
+		reasonObserver = createReasonObserveJob()
+	}
+
+
+	private fun loadDataWithID(id: Int, idChanged: Boolean) {
+		globalViewModel.shouldReset.ifTrue { editCardViewModel.load(id) }
+		bind.btnDelete.visibility = View.VISIBLE
+		bind.btnDelete.setOnClickListener {
+			editCardViewModel.delete {
+				if (it) {
+					findNavController().popBackStack()
+				}
 			}
 		}
-
-		globalViewModel.getFlow(SECOND_PHRASE).observeWhenStarted(lifecycleScope) {
-			try {
-				editCardViewModel.selectSecondPhrase(it!!.toInt())
-				globalViewModel.saveData(SECOND_PHRASE, null)
-			} catch (e: Exception) {
+		bind.btnSave.setOnClickListener {
+			editCardViewModel.update {
+				if (it) {
+					findNavController().popBackStack()
+				}
 			}
 		}
+	}
 
-		globalViewModel.isShowKey.observeWhenStarted(lifecycleScope) {
-			bind.editBar.visibility = if (it) View.GONE else View.VISIBLE
-			bind.tilEditReason.visibility = if (it) View.VISIBLE else View.GONE
-		}
-
-		editCardViewModel.firstPhrase.observeWhenStarted(lifecycleScope) {
-			it?.let { phrase ->
-				setButtonData(phrase, bind.mcvFirst, bind.txtPhraseFirst, bind.imgSoundFirst, bind.txtLangFirst, bind.imgCardFirst)
-			}.ifNull {
-				setDefaultButtonData(bind.imgSoundFirst, bind.txtPhraseFirst, bind.txtLangFirst, bind.imgCardFirst)
+	private fun loadData(createFor: String?, popBackTo: Int?) {
+		bind.btnDelete.visibility = View.GONE
+		bind.btnSave.setOnClickListener {
+			editCardViewModel.save { res ->
+				if (res == null) return@save
+				if (!createFor.isNullOrEmpty() && popBackTo != null && popBackTo != 0) {
+					setFragmentResult(createFor, bundleOf("ID" to res.toInt()))
+					findNavController().popBackStack(popBackTo, true)
+					editCardViewModel.resetID()
+				} else {
+					findNavController().popBackStack()
+					editCardViewModel.resetID()
+				}
 			}
 		}
+	}
 
-		editCardViewModel.secondPhrase.observeWhenStarted(lifecycleScope) {
-			it?.let { phrase ->
-				setButtonData(phrase, bind.mcvSecond, bind.txtPhraseSecond, bind.imgSoundSecond, bind.txtLangSecond, bind.imgCardSecond)
-			}.ifNull {
-				setDefaultButtonData(bind.imgSoundSecond, bind.txtPhraseSecond, bind.txtLangSecond, bind.imgCardSecond)
-			}
+	private fun createKeyObserveJob(): Job = globalViewModel.isShowKey.observeWhenStarted(lifecycleScope) {
+		bind.editBar.visibility = if (it) View.GONE else View.VISIBLE
+		bind.tilEditReason.visibility = if (it) View.VISIBLE else View.GONE
+	}
+
+	private fun createReasonObserveJob(): Job = editCardViewModel.reason.observeWhenStarted(lifecycleScope) {
+		bind.txtReason.text = it.ifNullOrEmpty { "*Reason" }
+	}
+
+	private fun createFirstPhraseObserveJob(): Job = editCardViewModel.firstPhrase.observeWhenStarted(lifecycleScope) {
+		it?.let { phrase ->
+			setButtonData(phrase, bind.mcvFirst, bind.txtPhraseFirst, bind.imgSoundFirst, bind.txtLangFirst, bind.imgCardFirst)
+		}.ifNull {
+			setDefaultButtonData(bind.imgSoundFirst, bind.txtPhraseFirst, bind.txtLangFirst, bind.imgCardFirst)
 		}
+	}
 
-		editCardViewModel.reason.observeWhenStarted(lifecycleScope) {
-			bind.txtReason.text = it.ifNullOrEmpty { "Reason" }
+	private fun createSecondPhraseObserverJob(): Job = editCardViewModel.secondPhrase.observeWhenStarted(lifecycleScope) {
+		it?.let { phrase ->
+			setButtonData(phrase, bind.mcvSecond, bind.txtPhraseSecond, bind.imgSoundSecond, bind.txtLangSecond, bind.imgCardSecond)
+		}.ifNull {
+			setDefaultButtonData(bind.imgSoundSecond, bind.txtPhraseSecond, bind.txtLangSecond, bind.imgCardSecond)
 		}
+	}
 
+	private fun createReasonTextWatcher(): TextWatcher = ShortTextWatcher {
+		editCardViewModel.setReason(it.toString())
 	}
 
 	private suspend fun setButtonData(
@@ -184,7 +219,7 @@ class EditCardFragment : DaggerFragment() {
 		}
 
 		phrase.toImage()?.let {
-			imageCard.setImageURI(it.imgUri.toUri())
+			Picasso.get().load(it.imgUri.toUri()).placeholder(R.drawable.noise).into(imageCard)
 			imageCard.visibility = View.VISIBLE
 		}.ifNull {
 			imageCard.visibility = View.GONE
@@ -207,6 +242,16 @@ class EditCardFragment : DaggerFragment() {
 
 	private fun openChoicePhraseFragment(bundle: Bundle) {
 		requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.choicePhraseDialog, bundle)
+	}
+
+	override fun onDestroyView() {
+		super.onDestroyView()
+		keyObserver?.cancel()
+		firstPhraseObserver?.cancel()
+		secondPhraseObserver?.cancel()
+		reasonObserver?.cancel()
+		bind.tilEditReason.editText?.removeTextChangedListener(reasonTextWatcher)
+		_bind = null
 	}
 
 }

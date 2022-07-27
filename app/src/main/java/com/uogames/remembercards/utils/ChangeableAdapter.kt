@@ -58,12 +58,7 @@ abstract class ChangeableAdapter<VH : ChangeableAdapter.ChangeableViewHolder>(pr
 			}
 			if (adapterPosition != -1) {
 				scope.launchWhenStarted {
-					show(typeFragment) {
-//						val param = view.layoutParams
-//						param.height = ViewGroup.LayoutParams.WRAP_CONTENT
-//						view.layoutParams = param
-//						oldPos = adapterPosition
-					}
+					show(typeFragment) {}
 				}
 			}
 			val param = view.layoutParams

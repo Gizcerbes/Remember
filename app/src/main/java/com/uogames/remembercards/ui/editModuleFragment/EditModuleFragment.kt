@@ -1,10 +1,11 @@
 package com.uogames.remembercards.ui.editModuleFragment
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
@@ -12,11 +13,12 @@ import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentEditModuleBinding
 import com.uogames.remembercards.ui.choiceCardFragment.ChoiceCardFragment
-import com.uogames.remembercards.ui.editCardFragment.EditCardFragment
 import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.remembercards.utils.ifNull
+import com.uogames.remembercards.utils.ifTrue
 import com.uogames.remembercards.utils.observeWhenStarted
 import dagger.android.support.DaggerFragment
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
@@ -36,16 +38,25 @@ class EditModuleFragment : DaggerFragment() {
 	@Inject
 	lateinit var player: ObservableMediaPlayer
 
-	private val adapter by lazy {  EditModuleAdapter(editModuleViewModel, player, lifecycleScope)}
+	private var _bind: FragmentEditModuleBinding? = null
+	private val bind get() = _bind!!
 
-	private lateinit var bind: FragmentEditModuleBinding
+	private var adapter: EditModuleAdapter? = null
+
+	private var moduleCardObserver: Job? = null
 
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-		bind = FragmentEditModuleBinding.inflate(inflater, container, false)
+		if (_bind == null) _bind = FragmentEditModuleBinding.inflate(inflater, container, false)
 		return bind.root
 	}
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+		globalViewModel.shouldReset.ifTrue {
+			editModuleViewModel.reset()
+		}
+
+		adapter = EditModuleAdapter(editModuleViewModel, player)
 		val id = arguments?.getInt(MODULE_ID)
 		id?.let {
 			setData(it)
@@ -55,17 +66,20 @@ class EditModuleFragment : DaggerFragment() {
 	}
 
 	private fun setData(id: Int) {
-		lifecycleScope.launchWhenStarted {
-			val cardID = globalViewModel.getFlow(CARD_CALL_TAG).first().ifNull { return@launchWhenStarted }.toInt()
-			globalViewModel.saveData(CARD_CALL_TAG, null)
-			val card = editModuleViewModel.getCard(cardID).first().ifNull { return@launchWhenStarted }
-			editModuleViewModel.addModuleCard(id, card) {}
+		setFragmentResultListener(CARD_CALL_TAG) { _, b ->
+			lifecycleScope.launchWhenStarted {
+				val cardID = b.getInt("ID")
+				val card = editModuleViewModel.getCard(cardID).first().ifNull { return@launchWhenStarted }
+				editModuleViewModel.addModuleCard(id, card) {}
+			}
 		}
+
 		editModuleViewModel.moduleID.value = id
 		bind.btnAdd.setOnClickListener {
-			requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.choiceCardFragment, Bundle().apply {
-				putString(ChoiceCardFragment.TAG, CARD_CALL_TAG)
-			})
+			requireActivity().findNavController(R.id.nav_host_fragment).navigate(
+				R.id.choiceCardFragment,
+				bundleOf(ChoiceCardFragment.TAG to CARD_CALL_TAG)
+			)
 		}
 		bind.btnBack.setOnClickListener {
 			findNavController().popBackStack()
@@ -80,12 +94,22 @@ class EditModuleFragment : DaggerFragment() {
 			}
 		}
 
-		editModuleViewModel.moduleCardsList.observeWhenStarted(lifecycleScope) {
-			adapter.setListItems(it)
-		}
+		moduleCardObserver = createModuleCardObserver()
+
 		bind.rvCards.adapter = adapter
 
 	}
 
+	private fun createModuleCardObserver(): Job = editModuleViewModel.moduleCardsList.observeWhenStarted(lifecycleScope) {
+		adapter?.setListItems(it)
+	}
+
+	override fun onDestroyView() {
+		super.onDestroyView()
+		moduleCardObserver?.cancel()
+		adapter?.onDestroy()
+		adapter = null
+		_bind = null
+	}
 
 }

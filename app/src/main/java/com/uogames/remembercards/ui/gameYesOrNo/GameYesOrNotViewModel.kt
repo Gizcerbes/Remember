@@ -1,16 +1,11 @@
 package com.uogames.remembercards.ui.gameYesOrNo
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.uogames.dto.Card
-import com.uogames.dto.Module
-import com.uogames.dto.ModuleCard
-import com.uogames.dto.Phrase
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.repository.DataProvider
 import com.uogames.repository.DataProvider.Companion.toCard
-import com.uogames.repository.DataProvider.Companion.toModule
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -77,15 +72,15 @@ class GameYesOrNotViewModel @Inject constructor(
 
 	fun getRandomAnswerCard(call: (AnswersCard) -> Unit) = viewModelScope.launch {
 		val firstModuleCard = module.value?.let {
-			provider.moduleCard.getRandomAsync(it).await()?.toCard()
+			provider.moduleCard.getRandom(it)?.toCard()
 		}.ifNull {
-			provider.cards.getRandomAsync().await()
+			provider.cards.getRandom()
 		}.ifNull { return@launch }
 
 		val secondModuleCard = module.value?.let {
-			provider.moduleCard.getRandomWithoutAsync(it, firstModuleCard.id).await()?.toCard()
+			provider.moduleCard.getRandomWithout(it, firstModuleCard.id)?.toCard()
 		}.ifNull {
-			provider.cards.getRandomWithoutAsync(firstModuleCard.id).await()
+			provider.cards.getRandomWithout(firstModuleCard.id)
 		}.ifNull { return@launch }
 
 		val answerCard = AnswersCard(firstModuleCard, secondModuleCard, false)

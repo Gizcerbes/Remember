@@ -9,7 +9,8 @@
 		android:id="@+id/game_fragment"
 		android:name="com.uogames.remembercards.ui.gamesFragment.GamesFragment"
 		android:label="GamesFragment"
-		tools:layout="@layout/fragment_games" />
+		tools:layout="@layout/fragment_games" >
+	</fragment>
 
 	<fragment
 		android:id="@+id/book_fragment"

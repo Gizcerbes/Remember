@@ -5,106 +5,119 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.core.net.toUri
-import androidx.lifecycle.LifecycleCoroutineScope
+import androidx.recyclerview.widget.RecyclerView
+import com.squareup.picasso.Picasso
 import com.uogames.dto.Image
 import com.uogames.dto.Phrase
 import com.uogames.dto.Pronunciation
+import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardPhraseBinding
 import com.uogames.remembercards.ui.bookFragment.BookViewModel
 import com.uogames.remembercards.utils.*
 import kotlinx.coroutines.*
 
 class ChoicePhraseAdapter(
-	val scope: LifecycleCoroutineScope,
 	val model: BookViewModel,
 	val player: ObservableMediaPlayer,
 	val editCall: (Phrase) -> Unit,
 	val selectedCall: (Phrase) -> Unit
-) : ChangeableAdapter<ChoicePhraseAdapter.PhraseHolder>(scope) {
+) : RecyclerView.Adapter<ChoicePhraseAdapter.PhraseHolder>() {
 
-	companion object {
-		private const val INFO_MODE = 0
-	}
+	private val recyclerScope = CoroutineScope(Dispatchers.Main)
 
-	inner class PhraseHolder(
-		layout: LinearLayout,
-		viewGrope: ViewGroup,
-		val scope: LifecycleCoroutineScope
-	) :
-		ChangeableAdapter.ChangeableViewHolder(layout, viewGrope, scope) {
+	inner class PhraseHolder(view: View) : RecyclerView.ViewHolder(view) {
 
-		private val infoBind: CardPhraseBinding by lazy {
-			CardPhraseBinding.inflate(LayoutInflater.from(itemView.context), viewGrope, false)
-		}
+		private var modelObserver: Job? = null
 
-		override fun onCreateView(typeFragment: Int, viewGrope: ViewGroup): View? {
-			return when (typeFragment) {
-				0 -> infoBind.root
-				else -> null
-			}
-		}
+		private var _bind: CardPhraseBinding? = null
+		private val bind get() = _bind!!
 
-		override suspend fun CoroutineScope.show(typeFragment: Int, end: () -> Unit) {
-			when (typeFragment) {
-				INFO_MODE -> showInfoMode()
-			}
-		}
-
-		private fun showInfoMode() {
-			infoBind.btnEdit.visibility = View.GONE
-			infoBind.root.visibility = View.INVISIBLE
-			model.get(adapterPosition).observeWhenStarted(scope) { bookView ->
+		fun onShow() {
+			_bind = CardPhraseBinding.inflate(LayoutInflater.from(itemView.context), itemView as ViewGroup, false)
+			val linearLayout = itemView as LinearLayout
+			linearLayout.removeAllViews()
+			linearLayout.addView(bind.root)
+			bind.btnEdit.visibility = View.GONE
+			bind.root.visibility = View.INVISIBLE
+			modelObserver = model.get(adapterPosition).observeWhile(recyclerScope) { bookView ->
 				bookView?.phrase?.let { phrase ->
-					infoBind.root.setOnClickListener {
+					bind.root.setOnClickListener {
 						selectedCall(phrase)
 					}
-					infoBind.txtPhrase.text = phrase.phrase
-					infoBind.txtDefinition.text = phrase.definition.orEmpty()
+					bind.txtPhrase.text = phrase.phrase
+					bind.txtDefinition.text = phrase.definition.orEmpty()
 					showImage(bookView.image)
 					showPronounce(bookView.pronounce)
-					infoBind.txtLang.text = bookView.lang
-					infoBind.btnEdit.setOnClickListener { editCall(phrase) }
-					infoBind.root.visibility = View.VISIBLE
+					bind.txtLang.text = bookView.lang
+					bind.btnEdit.setOnClickListener { editCall(phrase) }
+					bind.root.visibility = View.VISIBLE
 				}
 			}
+
 		}
 
 		private suspend fun showImage(image: Deferred<Image?>) {
-			infoBind.imgPhrase.visibility = View.INVISIBLE
+			bind.imgPhrase.visibility = View.INVISIBLE
 			image.await()?.let {
 				val uri = it.imgUri.toUri()
-				infoBind.imgPhrase.setImageURI(uri)
-				infoBind.imgPhrase.visibility = View.VISIBLE
+				Picasso.get().load(uri).placeholder(R.drawable.noise).into(bind.imgPhrase)
+				bind.imgPhrase.visibility = View.VISIBLE
 			}.ifNull {
-				infoBind.imgPhrase.visibility = View.GONE
+				bind.imgPhrase.visibility = View.GONE
 			}
 		}
 
 		private suspend fun showPronounce(pronounce: Deferred<Pronunciation?>) {
 			pronounce.await()?.let { pron ->
-				infoBind.btnSound.visibility = View.VISIBLE
-				infoBind.btnSound.setOnClickListener {
+				bind.btnSound.visibility = View.VISIBLE
+				bind.btnSound.setOnClickListener {
 					player.play(
 						itemView.context,
 						pron.audioUri.toUri(),
-						infoBind.imgBtnSound.background.asAnimationDrawable()
+						bind.imgBtnSound.background.asAnimationDrawable()
 					)
 				}
 			}.ifNull {
-				infoBind.btnSound.visibility = View.GONE
+				bind.btnSound.visibility = View.GONE
 			}
 		}
 
-		override fun onDetached() {
-			player.stop()
+		fun onDestroy() {
+			modelObserver?.cancel()
+			_bind = null
+		}
+
+	}
+
+	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhraseHolder {
+		return PhraseHolder(LinearLayout(parent.context).apply {
+			layoutParams = LinearLayout.LayoutParams(
+				LinearLayout.LayoutParams.MATCH_PARENT,
+				LinearLayout.LayoutParams.MATCH_PARENT
+			)
+			orientation = LinearLayout.VERTICAL
+		})
+	}
+
+	override fun onBindViewHolder(holder: PhraseHolder, position: Int) {
+		holder.onShow()
+		(holder.itemView as LinearLayout).apply {
+			layoutParams = LinearLayout.LayoutParams(
+				LinearLayout.LayoutParams.MATCH_PARENT,
+				LinearLayout.LayoutParams.WRAP_CONTENT
+			)
 		}
 	}
 
-	override fun onShow(parent: ViewGroup, view: LinearLayout, viewType: Int, scope: LifecycleCoroutineScope): PhraseHolder {
-		return PhraseHolder(view, parent, scope)
+	override fun getItemCount(): Int = model.size.value
+
+	override fun onViewRecycled(holder: PhraseHolder) {
+		super.onViewRecycled(holder)
+		holder.onDestroy()
 	}
 
-	override fun getItemCount() = model.size.value
-
+	fun onDestroy() {
+		recyclerScope.cancel()
+	}
 
 }

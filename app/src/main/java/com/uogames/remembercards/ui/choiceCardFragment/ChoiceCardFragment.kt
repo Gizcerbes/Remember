@@ -2,12 +2,14 @@ package com.uogames.remembercards.ui.choiceCardFragment
 
 import android.content.Context
 import android.os.Bundle
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import androidx.core.widget.doOnTextChanged
+import androidx.core.os.bundleOf
+import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
@@ -16,25 +18,19 @@ import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentCardBinding
 import com.uogames.remembercards.ui.cardFragment.CardViewModel
 import com.uogames.remembercards.ui.editCardFragment.EditCardFragment
-import com.uogames.remembercards.ui.editCardFragment.EditCardViewModel
-import com.uogames.remembercards.utils.ObservableMediaPlayer
-import com.uogames.remembercards.utils.ifNull
-import com.uogames.remembercards.utils.observeWhenStarted
+import com.uogames.remembercards.utils.*
 import dagger.android.support.DaggerFragment
+import kotlinx.coroutines.Job
 import javax.inject.Inject
 
 class ChoiceCardFragment : DaggerFragment() {
 
 	companion object {
-		const val TAG = "CHOICE_CARD_FRAGMENT"
-
+		const val TAG = "ChoiceCardFragment_CHOICE_CARD_FRAGMENT"
 	}
 
 	@Inject
 	lateinit var globalViewModel: GlobalViewModel
-
-	@Inject
-	lateinit var editCardViewModel: EditCardViewModel
 
 	@Inject
 	lateinit var cardViewModel: CardViewModel
@@ -42,19 +38,44 @@ class ChoiceCardFragment : DaggerFragment() {
 	@Inject
 	lateinit var player: ObservableMediaPlayer
 
-	lateinit var bind: FragmentCardBinding
+	private var _bind: FragmentCardBinding? = null
+	private val bind get() = _bind!!
 
-	private val imm by lazy {
-		requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-	}
+	private var imm: InputMethodManager? = null
+
+	private var keyObserver: Job? = null
+	private var sizeObserver: Job? = null
+	private val searchTextWatcher = createSearchTextWatcher()
 
 	private var receivedTAG: String? = null
 
-	private val adapter by lazy {
-		ChoiceCardAdapter(cardViewModel, player, lifecycleScope) { id ->
-			imm.hideSoftInputFromWindow(view?.windowToken, 0)
+	private var adapter: ChoiceCardAdapter? = null
+
+	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+		if (_bind == null) _bind = FragmentCardBinding.inflate(inflater, container, false)
+		return bind.root
+	}
+
+	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+		globalViewModel.shouldReset.ifTrue { cardViewModel.reset() }
+
+		receivedTAG = arguments?.getString(TAG).ifNull { return }
+		init()
+		bind.txtTopName.text = requireContext().getString(R.string.choice_card)
+		keyObserver = createKeyObserver()
+		sizeObserver = createSizeObserver()
+		bind.recycler.adapter = adapter
+		setListeners()
+	}
+
+	private fun init() {
+		imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+
+		adapter = ChoiceCardAdapter(cardViewModel, player) { id ->
+			imm?.hideSoftInputFromWindow(view?.windowToken, 0)
 			receivedTAG?.let {
-				globalViewModel.saveData(it, id.toString())
+				setFragmentResult(it, bundleOf("ID" to id))
 			}.ifNull {
 				Toast.makeText(requireContext(), "Argument Problem", Toast.LENGTH_SHORT).show()
 			}
@@ -62,41 +83,21 @@ class ChoiceCardFragment : DaggerFragment() {
 		}
 	}
 
-	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-		bind = FragmentCardBinding.inflate(inflater, container, false)
-		return bind.root
+	private fun createKeyObserver(): Job = globalViewModel.isShowKey.observeWhenStarted(lifecycleScope) {
+		bind.tilSearch.visibility = if (it) View.VISIBLE else View.GONE
+		bind.btnAdd.visibility = if (it) View.GONE else View.VISIBLE
+		bind.btnBack.visibility = if (it) View.GONE else View.VISIBLE
+		if (it) bind.searchImage.setImageResource(R.drawable.ic_baseline_close_24)
+		else bind.searchImage.setImageResource(R.drawable.ic_baseline_search_24)
 	}
 
-	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-		receivedTAG = arguments?.getString(TAG).ifNull { return }
-		setData()
-		setListeners()
-	}
-	
-	private fun setData(){
-		bind.txtTopName.text = requireContext().getString(R.string.choice_card)
-
-		globalViewModel.isShowKey.observeWhenStarted(lifecycleScope) {
-			bind.tilSearch.visibility = if (it) View.VISIBLE else View.GONE
-			bind.btnAdd.visibility = if (it) View.GONE else View.VISIBLE
-			bind.btnBack.visibility = if (it) View.GONE else View.VISIBLE
-			if (it) {
-				bind.searchImage.setImageResource(R.drawable.ic_baseline_close_24)
-			} else {
-				bind.searchImage.setImageResource(R.drawable.ic_baseline_search_24)
-			}
-		}
-
-		cardViewModel.size.observeWhenStarted(lifecycleScope) {
-			bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
-			adapter.notifyDataSetChanged()
-		}
-
-		bind.recycler.adapter = adapter
+	private fun createSizeObserver(): Job = cardViewModel.size.observeWhenStarted(lifecycleScope) {
+		bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
+		adapter?.notifyDataSetChanged()
 	}
 
 
-	private fun setListeners(){
+	private fun setListeners() {
 		bind.btnBack.setOnClickListener {
 			findNavController().popBackStack()
 		}
@@ -104,25 +105,35 @@ class ChoiceCardFragment : DaggerFragment() {
 		bind.btnSearch.setOnClickListener {
 			if (!globalViewModel.isShowKey.value) {
 				bind.tilSearch.requestFocus()
-				imm.showSoftInput(bind.tilSearch.editText, InputMethodManager.SHOW_IMPLICIT)
+				imm?.showSoftInput(bind.tilSearch.editText, InputMethodManager.SHOW_IMPLICIT)
 			} else {
-				imm.hideSoftInputFromWindow(view?.windowToken, 0)
+				imm?.hideSoftInputFromWindow(view?.windowToken, 0)
 			}
 		}
 
 		bind.btnAdd.setOnClickListener {
-			editCardViewModel.reset()
 			requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.editCardFragment, Bundle().apply {
 				putString(EditCardFragment.CREATE_FOR, receivedTAG)
 				putInt(EditCardFragment.POP_BACK_TO, findNavController().currentDestination?.id.ifNull { 0 })
 			})
 		}
 
-
-		bind.tilSearch.editText?.doOnTextChanged { text, _, _, _ ->
-			cardViewModel.like.value = text.toString()
-		}
+		bind.tilSearch.editText?.addTextChangedListener(searchTextWatcher)
 	}
 
+	private fun createSearchTextWatcher(): TextWatcher = ShortTextWatcher {
+		cardViewModel.like.value = it.toString()
+	}
+
+	override fun onDestroyView() {
+		super.onDestroyView()
+		keyObserver?.cancel()
+		sizeObserver?.cancel()
+		bind.tilSearch.editText?.removeTextChangedListener(searchTextWatcher)
+		adapter?.onDestroy()
+		adapter = null
+		imm = null
+		_bind = null
+	}
 
 }

@@ -10,18 +10,22 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import com.uogames.dto.Image
 import com.uogames.remembercards.utils.observeWhenStarted
+import com.uogames.remembercards.utils.observeWhile
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 
 class ImageAdapter(
-	lifecycleCoroutineScope: LifecycleCoroutineScope,
 	editCardViewModel: EditPhraseViewModel,
 	val call: (Image) -> Unit
-) :
-	RecyclerView.Adapter<ImageAdapter.ImageHolder>() {
+) :	RecyclerView.Adapter<ImageAdapter.ImageHolder>() {
+
+	private val recyclerScope = CoroutineScope(Dispatchers.Main)
 
 	private var list = listOf<Image>()
 
 	init {
-		editCardViewModel.listImageFlow.observeWhenStarted(lifecycleCoroutineScope){
+		editCardViewModel.listImageFlow.observeWhile(recyclerScope){
 			list = it
 			notifyDataSetChanged()
 		}
@@ -54,6 +58,10 @@ class ImageAdapter(
 
 	override fun getItemCount(): Int {
 		return list.size
+	}
+
+	fun onDestroy(){
+		recyclerScope.cancel()
 	}
 
 

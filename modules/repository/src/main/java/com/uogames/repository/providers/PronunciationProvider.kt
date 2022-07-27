@@ -11,26 +11,47 @@ import kotlinx.coroutines.flow.first
 class PronunciationProvider(
 	private val database: DatabaseRepository,
 	private val fileRepository: FileRepository
-) : Provider() {
+) {
 
-	fun addAsync(bytes: ByteArray) = ioScope.async {
+//	fun addAsync(bytes: ByteArray) = ioScope.async {
+//		val id = database.pronunciationRepository.insert(Pronunciation(0,"")).toInt()
+//		val uri = fileRepository.saveFile("$id.gpp", bytes)
+//		database.pronunciationRepository.update(Pronunciation(id, uri.toString()))
+//		return@async id
+//	}
+
+	suspend fun add(bytes: ByteArray): Int{
 		val id = database.pronunciationRepository.insert(Pronunciation(0,"")).toInt()
 		val uri = fileRepository.saveFile("$id.gpp", bytes)
 		database.pronunciationRepository.update(Pronunciation(id, uri.toString()))
-		return@async id
+		return id
 	}
 
-	fun deleteAsync(pronunciation: Pronunciation) = ioScope.async {
-		database.pronunciationRepository.getByIdFlow(pronunciation.id).first()?.let {
+//	fun deleteAsync(pronunciation: Pronunciation) = ioScope.async {
+//		database.pronunciationRepository.getByIdFlow(pronunciation.id).first()?.let {
+//			fileRepository.deleteFile(it.audioUri.toUri())
+//			return@async database.pronunciationRepository.delete(pronunciation)
+//		} ?: false
+//	}
+
+	suspend fun delete(pronunciation: Pronunciation): Boolean{
+		return database.pronunciationRepository.getByIdFlow(pronunciation.id).first()?.let {
 			fileRepository.deleteFile(it.audioUri.toUri())
-			return@async database.pronunciationRepository.delete(pronunciation)
+			return database.pronunciationRepository.delete(pronunciation)
 		} ?: false
 	}
 
-	fun updateAsync(pronunciation: Pronunciation, bytes: ByteArray) = ioScope.async {
-		database.pronunciationRepository.getByIdFlow(pronunciation.id).first()?.let {
+//	fun updateAsync(pronunciation: Pronunciation, bytes: ByteArray) = ioScope.async {
+//		database.pronunciationRepository.getByIdFlow(pronunciation.id).first()?.let {
+//			val uri = fileRepository.saveFile("${it.id}.gpp", bytes)
+//			return@async database.pronunciationRepository.update(Pronunciation(pronunciation.id, uri.toString()))
+//		} ?: false
+//	}
+
+	suspend fun update(pronunciation: Pronunciation, bytes: ByteArray): Boolean{
+		return database.pronunciationRepository.getByIdFlow(pronunciation.id).first()?.let {
 			val uri = fileRepository.saveFile("${it.id}.gpp", bytes)
-			return@async database.pronunciationRepository.update(Pronunciation(pronunciation.id, uri.toString()))
+			return database.pronunciationRepository.update(Pronunciation(pronunciation.id, uri.toString()))
 		} ?: false
 	}
 
@@ -38,9 +59,9 @@ class PronunciationProvider(
 
 	suspend fun getById(id: Int) = database.pronunciationRepository.getById(id)
 
-	fun getByIdAsync(id: Int) = ioScope.async { getById(id) }
+	//fun getByIdAsync(id: Int) = ioScope.async { getById(id) }
 
-	fun getByIdAsync(id: suspend () -> Int?) = ioScope.async { id()?.let { getById(it) } }
+	//fun getByIdAsync(id: suspend () -> Int?) = ioScope.async { id()?.let { getById(it) } }
 
 	fun getByIdFlow(id: Int) = database.pronunciationRepository.getByIdFlow(id)
 

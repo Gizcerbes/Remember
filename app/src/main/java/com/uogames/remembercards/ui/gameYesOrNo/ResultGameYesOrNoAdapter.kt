@@ -15,16 +15,19 @@ import com.uogames.repository.DataProvider.Companion.toPhrase
 import com.uogames.repository.DataProvider.Companion.toTranslate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 
-class GameYesOrNoAdapter(
+class ResultGameYesOrNoAdapter(
 	private val model: GameYesOrNotViewModel,
-	private val lifecycleCoroutineScope: LifecycleCoroutineScope
-) : RecyclerView.Adapter<GameYesOrNoAdapter.ResultHolder>() {
+) : RecyclerView.Adapter<ResultGameYesOrNoAdapter.ResultHolder>() {
 
 	companion object {
 		private const val RESULT_FRAGMENT = "RESULT_FRAGMENT"
 	}
+
+	private val recyclerScope = CoroutineScope(Dispatchers.Main)
 
 	inner class ResultHolder(view: View, private val viewGroup: ViewGroup) :
 		RecyclerView.ViewHolder(view) {
@@ -63,10 +66,10 @@ class GameYesOrNoAdapter(
 
 		private fun showResult(){
 			val answer = model.getAnswer(adapterPosition)
-			lifecycleCoroutineScope.launchWhenStarted {
-				val firstPhrase = answer.firs.toPhrase().ifNull { return@launchWhenStarted }
-				val firstTranslate = answer.firs.toTranslate().ifNull { return@launchWhenStarted }
-				val secondTranslate = answer.second.toTranslate().ifNull { return@launchWhenStarted }
+			recyclerScope.launch {
+				val firstPhrase = answer.firs.toPhrase().ifNull { return@launch }
+				val firstTranslate = answer.firs.toTranslate().ifNull { return@launch }
+				val secondTranslate = answer.second.toTranslate().ifNull { return@launch }
 				resultBind.txtPhrase.text = firstPhrase.phrase
 				resultBind.txtTranslate.text = firstTranslate.phrase
 				if (answer.truth){
@@ -101,5 +104,8 @@ class GameYesOrNoAdapter(
 
 	override fun getItemCount() = model.allAnswers.value
 
+	fun onDestroy(){
+		recyclerScope.cancel()
+	}
 
 }

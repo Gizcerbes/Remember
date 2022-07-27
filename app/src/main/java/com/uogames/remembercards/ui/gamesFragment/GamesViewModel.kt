@@ -1,6 +1,5 @@
 package com.uogames.remembercards.ui.gamesFragment
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.uogames.dto.Module
 import com.uogames.remembercards.GlobalViewModel
@@ -8,7 +7,6 @@ import com.uogames.remembercards.utils.ifNull
 import com.uogames.repository.DataProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flatMapLatest
 
 class GamesViewModel constructor(val provider: DataProvider) : ViewModel() {

@@ -13,7 +13,7 @@
 
 		<com.google.android.material.card.MaterialCardView
 			android:id="@+id/btn_close"
-			style="@style/Theme.RememberCards.CardView.Button.Close"
+			style="@style/Theme.RememberCards.CardView.Button.Negative"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			app:layout_constraintBottom_toTopOf="@id/bottom_divider"
@@ -106,7 +106,7 @@
 		style="@style/Theme.RememberCards.CardView"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		app:contentPaddingTop="13dp"
+		app:contentPadding="0dp"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@id/card_info">
@@ -114,19 +114,22 @@
 		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:minHeight="169dp"
 			android:orientation="vertical">
 
 			<androidx.constraintlayout.widget.ConstraintLayout
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:minHeight="56dp">
+				android:minHeight="40dp">
 
 				<TextView
 					android:id="@+id/txt_reason"
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
-					android:layout_margin="7dp"
-					android:textAppearance="?attr/textAppearanceHeadline5"
+					android:layout_marginStart="5dp"
+					android:layout_marginTop="0dp"
+					android:layout_marginBottom="0dp"
+					android:textAppearance="?attr/textAppearanceHeadline6"
 					app:layout_constraintBottom_toBottomOf="parent"
 					app:layout_constraintEnd_toStartOf="@id/ll_btns"
 					app:layout_constraintStart_toStartOf="parent"
@@ -140,6 +143,21 @@
 					app:layout_constraintBottom_toBottomOf="parent"
 					app:layout_constraintEnd_toEndOf="parent"
 					app:layout_constraintTop_toTopOf="parent">
+
+
+					<com.google.android.material.card.MaterialCardView
+						android:id="@+id/btn_card_action"
+						style="@style/Theme.RememberCards.CardView.Button.Icon"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_margin="0dp"
+						app:layout_constraintBottom_toBottomOf="parent"
+						app:layout_constraintEnd_toEndOf="parent"
+						app:layout_constraintTop_toTopOf="parent">
+
+
+					</com.google.android.material.card.MaterialCardView>
+
 
 				</LinearLayout>
 
@@ -169,10 +187,11 @@
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:layout_marginStart="0dp"
+						android:layout_marginTop="0dp"
 						android:layout_marginEnd="0dp"
+						android:layout_marginBottom="0dp"
 						android:orientation="horizontal"
 						app:cardCornerRadius="0dp"
-						app:contentPadding="7dp"
 						app:layout_constraintStart_toStartOf="parent"
 						app:layout_constraintTop_toTopOf="parent">
 
@@ -184,7 +203,8 @@
 								android:id="@+id/txt_lang_first"
 								android:layout_width="wrap_content"
 								android:layout_height="wrap_content"
-								android:textAppearance="?attr/textAppearanceBody1"
+								android:minHeight="19dp"
+								android:textAppearance="?attr/textAppearanceBody2"
 								app:layout_constraintStart_toStartOf="parent"
 								app:layout_constraintTop_toTopOf="parent"
 								tools:text="English" />
@@ -193,7 +213,6 @@
 								android:id="@+id/l_first"
 								android:layout_width="0dp"
 								android:layout_height="wrap_content"
-								android:minHeight="45dp"
 								android:orientation="horizontal"
 								app:layout_constraintEnd_toEndOf="parent"
 								app:layout_constraintStart_toStartOf="parent"
@@ -203,18 +222,20 @@
 									android:id="@+id/img_sound_first"
 									android:layout_width="@dimen/card_button"
 									android:layout_height="@dimen/card_button"
-									android:layout_marginTop="7dp"
-									android:layout_marginEnd="7dp"
-									android:layout_marginBottom="7dp"
+									android:layout_marginTop="2dp"
+									android:layout_marginEnd="2dp"
+									android:layout_marginBottom="2dp"
 									android:background="@drawable/list_music_play" />
 
 								<TextView
 									android:id="@+id/txt_phrase_first"
 									android:layout_width="match_parent"
 									android:layout_height="wrap_content"
-									android:layout_marginTop="7dp"
-									android:layout_marginEnd="7dp"
-									android:textAppearance="?attr/textAppearanceHeadline6"
+									android:layout_marginTop="2dp"
+									android:layout_marginEnd="2dp"
+									android:gravity="fill"
+									android:minHeight="32dp"
+									android:textAppearance="?attr/textAppearanceBody1"
 									app:layout_constraintBottom_toBottomOf="parent"
 									app:layout_constraintEnd_toEndOf="parent"
 									app:layout_constraintStart_toEndOf="@+id/btn_sound_second"
@@ -222,6 +243,7 @@
 									tools:text="@string/first" />
 
 							</LinearLayout>
+
 
 						</androidx.constraintlayout.widget.ConstraintLayout>
 					</com.google.android.material.card.MaterialCardView>
@@ -238,24 +260,24 @@
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:layout_marginStart="0dp"
+						android:layout_marginTop="0dp"
 						android:layout_marginEnd="0dp"
 						android:layout_marginBottom="0dp"
 						android:orientation="horizontal"
 						app:cardCornerRadius="0dp"
-						app:contentPadding="7dp"
 						app:layout_constraintStart_toStartOf="parent"
 						app:layout_constraintTop_toBottomOf="@id/txt_lang_second">
 
 						<androidx.constraintlayout.widget.ConstraintLayout
 							android:layout_width="match_parent"
-							android:layout_height="wrap_content"
-							android:layout_marginBottom="7dp">
+							android:layout_height="wrap_content">
 
 							<TextView
 								android:id="@+id/txt_lang_second"
 								android:layout_width="wrap_content"
 								android:layout_height="wrap_content"
-								android:textAppearance="?attr/textAppearanceBody1"
+								android:minHeight="19dp"
+								android:textAppearance="?attr/textAppearanceBody2"
 								app:layout_constraintStart_toStartOf="parent"
 								app:layout_constraintTop_toTopOf="parent"
 								tools:text="English" />
@@ -264,7 +286,6 @@
 								android:id="@+id/l_second"
 								android:layout_width="0dp"
 								android:layout_height="wrap_content"
-								android:minHeight="45dp"
 								android:orientation="horizontal"
 								app:layout_constraintEnd_toEndOf="parent"
 								app:layout_constraintStart_toStartOf="parent"
@@ -274,24 +295,27 @@
 									android:id="@+id/img_sound_second"
 									android:layout_width="@dimen/card_button"
 									android:layout_height="@dimen/card_button"
-									android:layout_marginTop="7dp"
-									android:layout_marginEnd="7dp"
-									android:layout_marginBottom="7dp"
+									android:layout_marginTop="2dp"
+									android:layout_marginEnd="2dp"
+									android:layout_marginBottom="2dp"
 									android:background="@drawable/list_music_play" />
 
 								<TextView
 									android:id="@+id/txt_phrase_second"
 									android:layout_width="match_parent"
 									android:layout_height="wrap_content"
-									android:layout_marginTop="7dp"
-									android:layout_marginEnd="7dp"
-									android:textAppearance="?attr/textAppearanceHeadline6"
+									android:layout_marginTop="2dp"
+									android:layout_marginEnd="2dp"
+									android:gravity="fill"
+									android:minHeight="32dp"
+									android:textAppearance="?attr/textAppearanceBody1"
 									app:layout_constraintBottom_toBottomOf="parent"
 									app:layout_constraintEnd_toEndOf="parent"
 									app:layout_constraintStart_toEndOf="@+id/btn_sound_second"
 									app:layout_constraintTop_toBottomOf="@id/txt_lang_second"
 									tools:text="@string/second" />
 							</LinearLayout>
+
 
 						</androidx.constraintlayout.widget.ConstraintLayout>
 					</com.google.android.material.card.MaterialCardView>
@@ -306,7 +330,8 @@
 		style="@style/Theme.RememberCards.CardView"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		app:contentPaddingTop="13dp"
+		app:contentPaddingTop="5dp"
+		app:contentPadding="5dp"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@id/top_app_bar">

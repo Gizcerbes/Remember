@@ -57,6 +57,8 @@ class EditPhraseViewModel @Inject constructor(
 		}
 	}
 
+	private val argPhraseId: MutableStateFlow<Int?> = MutableStateFlow(null)
+
 	private val phraseObject = PhraseObject()
 
 	val phrase = phraseObject.phrase.asStateFlow()
@@ -79,7 +81,8 @@ class EditPhraseViewModel @Inject constructor(
 
 	private var _audioChanged = MutableStateFlow(false)
 	private var _tempAudioFile = File.createTempFile("audio", ".gpp")
-	val tempAudioSource get() = MediaBytesSource(_tempAudioFile.readBytes())
+	private var _tempAudioBytes: ByteArray? = null
+	val tempAudioSource get() = MediaBytesSource(_tempAudioBytes)
 
 	val listImageFlow = provider.images.getListFlow()
 
@@ -92,6 +95,12 @@ class EditPhraseViewModel @Inject constructor(
 		}
 	}
 
+	fun setArgPhraseId(id: Int?): Boolean {
+		val res = id != argPhraseId.value
+		argPhraseId.value = id
+		return res
+	}
+
 	fun reset() {
 		phraseObject.set(Phrase())
 		_imgPhrase.value = null
@@ -102,7 +111,7 @@ class EditPhraseViewModel @Inject constructor(
 		_isFileWriting.value = false
 		_timeWriting.value = -1
 		_audioChanged.value = false
-		_tempAudioFile.writeBytes(ByteArray(0))
+		_tempAudioBytes = ByteArray(0)
 	}
 
 	fun loadByID(id: Int) = viewModelScope.launch(Dispatchers.IO) {
@@ -132,7 +141,7 @@ class EditPhraseViewModel @Inject constructor(
 			val newHeight = bitmap.height * newWidth / bitmap.width
 			val newBitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
 			newBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
-			val id = provider.images.addAsync(Image(), stream.toByteArray()).await()
+			val id = provider.images.add(stream.toByteArray())
 			phraseObject.idImage.value = id
 		}
 	}.ifNull {
@@ -141,7 +150,8 @@ class EditPhraseViewModel @Inject constructor(
 
 
 	fun startRecordAudio(recorder: MediaRecorder) {
-		jobWriting?.cancel()
+		stopRecordAudio(recorder)
+		_tempAudioFile = File.createTempFile("audio", ".gpp")
 		_timeWriting.value = 0
 		recorder.setAudioSource(MediaRecorder.AudioSource.MIC)
 		recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
@@ -163,6 +173,8 @@ class EditPhraseViewModel @Inject constructor(
 	fun stopRecordAudio(recorder: MediaRecorder): Boolean = _isFileWriting.value.ifTrue {
 		recorder.stop()
 		recorder.release()
+		val bytes = _tempAudioFile.readBytes()
+		if (bytes.isNotEmpty()) _tempAudioBytes = bytes
 		_isFileWriting.value = false
 		jobWriting?.cancel()
 	}
@@ -183,7 +195,7 @@ class EditPhraseViewModel @Inject constructor(
 	fun save(call: (Long?) -> Unit) {
 		if (phrase.value.isNotEmpty()) viewModelScope.launch {
 			val phrase = build(0)
-			val res = provider.phrase.addAsync(phrase).await()
+			val res = provider.phrase.add(phrase)
 			call(res)
 		} else call(null)
 	}
@@ -191,7 +203,7 @@ class EditPhraseViewModel @Inject constructor(
 	fun update(id: Int, call: (Boolean) -> Unit) {
 		if (phrase.value.isNotEmpty()) viewModelScope.launch {
 			val phrase = build(id)
-			val res = provider.phrase.updateAsync(phrase).await()
+			val res = provider.phrase.update(phrase)
 			call(res)
 			provider.clean()
 		} else call(false)
@@ -205,8 +217,9 @@ class EditPhraseViewModel @Inject constructor(
 	}
 
 	private suspend fun savePronounceToId(): Int? {
-		return if (_audioChanged.value && _tempAudioFile.length() > 0) {
-			provider.pronounce.addAsync(_tempAudioFile.readBytes()).await()
+		val bytes = _tempAudioBytes.ifNull { ByteArray(0) }
+		return if (_audioChanged.value && bytes.isNotEmpty()) {
+			provider.pronounce.add(bytes)
 		} else {
 			phraseObject.idPronounce.value
 		}
@@ -214,8 +227,7 @@ class EditPhraseViewModel @Inject constructor(
 
 	fun delete(id: Int, call: (Boolean) -> Unit) = viewModelScope.launch {
 		val phrase = provider.phrase.getById(id).ifNull { return@launch }
-		val res = provider.phrase.deleteAsync(phrase).await()
+		val res = provider.phrase.delete(phrase)
 		call(res)
 	}
-
 }

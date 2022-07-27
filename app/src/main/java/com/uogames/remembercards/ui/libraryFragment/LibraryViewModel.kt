@@ -15,11 +15,17 @@ class LibraryViewModel @Inject constructor(val provider: DataProvider) : ViewMod
 
 	val list = like.flatMapLatest { provider.module.getListLike(it) }
 
+	fun reset(){
+		like.value = ""
+	}
+
 	fun createModule(name: String, call: (Int) -> Unit) = viewModelScope.launch {
-		val res = provider.module.addAsync(Module(name = name)).await()
+		val res = provider.module.add(Module(name = name))
 		call(res.toInt())
 	}
 
 	fun getCountByModuleID(id: Int) = provider.moduleCard.getCountByModuleID(id)
+
+
 
 }

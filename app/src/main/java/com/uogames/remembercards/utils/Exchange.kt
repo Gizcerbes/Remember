@@ -31,7 +31,7 @@ fun <T> Flow<T>.observeWhile(
 	scope: CoroutineScope,
 	checkBefore: (T) -> Boolean = { true },
 	checkAfter: (T) -> Boolean = { true },
-	listener: (T) -> Unit
+	listener: suspend (T) -> Unit
 ): Job = scope.launch {
 	collect() {
 		if (!checkBefore(it)) {

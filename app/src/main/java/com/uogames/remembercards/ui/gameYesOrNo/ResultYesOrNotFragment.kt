@@ -10,9 +10,8 @@ import androidx.navigation.findNavController
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentResultMistakesBinding
+import com.uogames.remembercards.utils.ifTrue
 import dagger.android.support.DaggerFragment
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class ResultYesOrNotFragment : DaggerFragment() {
@@ -23,21 +22,24 @@ class ResultYesOrNotFragment : DaggerFragment() {
 	@Inject
 	lateinit var globalViewModel: GlobalViewModel
 
-	private lateinit var bind: FragmentResultMistakesBinding
+	private var _bind: FragmentResultMistakesBinding? = null
+	private val bind get() = _bind!!
 
-	private val adapter : GameYesOrNoAdapter by lazy { GameYesOrNoAdapter(model,lifecycleScope) }
+	private var adapter : ResultGameYesOrNoAdapter?  = null
 
 	override fun onCreateView(
 		inflater: LayoutInflater,
 		container: ViewGroup?,
 		savedInstanceState: Bundle?
 	): View {
-		bind = FragmentResultMistakesBinding.inflate(inflater, container, false)
+		if (_bind == null) _bind = FragmentResultMistakesBinding.inflate(inflater, container, false)
 		return bind.root
 	}
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
+
+		adapter = ResultGameYesOrNoAdapter(model)
 
 		bind.recycler.adapter = adapter
 
@@ -52,6 +54,13 @@ class ResultYesOrNotFragment : DaggerFragment() {
 
 		globalViewModel.addGameYesOrNoGameCount()
 
+	}
+
+	override fun onDestroyView() {
+		super.onDestroyView()
+		adapter?.onDestroy()
+		adapter = null
+		_bind = null
 	}
 
 }

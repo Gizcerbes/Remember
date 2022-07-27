@@ -39,8 +39,12 @@
 		<item name="android:clickable">true</item>
 	</style>
 
-	<style name="Theme.RememberCards.CardView.Button.Close" parent="Theme.RememberCards.CardView.Button">
-		<item name="cardBackgroundColor">@color/btn_back</item>
+	<style name="Theme.RememberCards.CardView.Button.Negative" parent="Theme.RememberCards.CardView.Button">
+		<item name="cardBackgroundColor">@color/btn_negative</item>
+	</style>
+
+	<style name="Theme.RememberCards.CardView.Button.Positive" parent="Theme.RememberCards.CardView.Button">
+		<item name="cardBackgroundColor">@color/btn_positive</item>
 	</style>
 
 	<style name="Theme.RememberCards.CardView.Button.Icon" parent="Theme.RememberCards.CardView.Button">

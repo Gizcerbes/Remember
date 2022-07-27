@@ -9,14 +9,13 @@ import kotlinx.coroutines.async
 
 class ModuleProvider(
 	private val mr: ModuleRepository,
-) : Provider() {
+) {
 
+	suspend fun add(module: Module) = mr.insert(module)
 
-	fun addAsync(module: Module) = ioScope.async { mr.insert(module) }
+	suspend fun delete(module: Module) = mr.delete(module)
 
-	fun deleteAsync(module: Module) = ioScope.async { mr.delete(module) }
-
-	fun updateAsync(module: Module) = ioScope.async { mr.update(module) }
+	suspend fun update(module: Module) = mr.update(module)
 
 	fun getList() = mr.getList()
 
@@ -28,7 +27,7 @@ class ModuleProvider(
 
 	suspend fun getById(id: Int) = mr.getById(id)
 
-	fun getByIdAsync(id: Int) = ioScope.async { getById(id) }
+	//fun getByIdAsync(id: Int) = ioScope.async { getById(id) }
 
-	fun getByIdAsync(id: suspend () -> Int?) = ioScope.async { id()?.let { getById(it) }  }
+	//fun getByIdAsync(id: suspend () -> Int?) = ioScope.async { id()?.let { getById(it) }  }
 }

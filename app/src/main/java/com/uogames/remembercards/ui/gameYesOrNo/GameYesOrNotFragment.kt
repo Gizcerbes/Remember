@@ -1,10 +1,7 @@
 package com.uogames.remembercards.ui.gameYesOrNo
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.net.Uri
 import android.os.*
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,9 +12,9 @@ import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
-import androidx.navigation.navOptions
 import com.google.android.material.card.MaterialCardView
 import com.uogames.dto.Phrase
+import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentYesOrNotGameBinding
 import com.uogames.remembercards.utils.*
@@ -28,9 +25,6 @@ import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
@@ -45,14 +39,21 @@ class GameYesOrNotFragment : DaggerFragment() {
 	lateinit var gameModel: GameYesOrNotViewModel
 
 	@Inject
+	lateinit var globalViewModel: GlobalViewModel
+
+	@Inject
 	lateinit var player: ObservableMediaPlayer
 
-	private lateinit var bind: FragmentYesOrNotGameBinding
+	private var _bind: FragmentYesOrNotGameBinding? = null
+	private val bind get() = _bind!!
 
 	private var reactionJob: Job? = null
 
-	private val goodReactions =
-		listOf(R.drawable.ic_good_vibes, R.drawable.ic_super, R.drawable.ic_wow)
+	private var allAnswerObserver: Job? = null
+	private var timeObserver: Job? = null
+	private var startObserver: Job? = null
+
+	private val goodReactions = listOf(R.drawable.ic_good_vibes, R.drawable.ic_super, R.drawable.ic_wow)
 	private val badReactions = listOf(R.drawable.ic_crash, R.drawable.ic_boom, R.drawable.ic_wtf)
 
 	override fun onCreateView(
@@ -60,32 +61,25 @@ class GameYesOrNotFragment : DaggerFragment() {
 		container: ViewGroup?,
 		savedInstanceState: Bundle?
 	): View {
-		bind = FragmentYesOrNotGameBinding.inflate(inflater, container, false)
+		if (_bind == null) _bind = FragmentYesOrNotGameBinding.inflate(inflater, container, false)
 		return bind.root
 	}
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-		val id = arguments?.getInt(MODULE_ID)
+		globalViewModel.shouldReset.ifTrue {
+			gameModel.reset()
+		}
 
-		gameModel.reset()
+		val id = arguments?.getInt(MODULE_ID)
 
 		gameModel.module.value = id
 
-		gameModel.allAnswers.observeWhenStarted(lifecycleScope) {
-			val thrAns = gameModel.trueAnswers.value
-			bind.txtCountAnswers.text = "$thrAns/$it"
-			try {
-				bind.answersProgress.progress = thrAns * 100 / it
-			} catch (ex: Exception) {
-				bind.answersProgress.progress = 0
-			}
-		}
+		allAnswerObserver = createAllAnswersObserver()
 
-		gameModel.time.observeWhenStarted(lifecycleScope) {
-			bind.txtTime.text = "${it / 1000}s"
-			bind.timeProgress.progress = it * 100 / GameYesOrNotViewModel.MAX_TIME
-		}
+		timeObserver = createTimeObserver()
+
+		startObserver = createStartObserver()
 
 		gameModel.getRandomAnswerCard { setData(it) }
 
@@ -95,21 +89,34 @@ class GameYesOrNotFragment : DaggerFragment() {
 
 		bind.btnPause.setOnClickListener { play(!gameModel.isStarted.value) }
 
-		gameModel.isStarted.observeWhenStarted(lifecycleScope) {
-
-			bind.imgBtnPause.setImageResource(
-				if (it) R.drawable.ic_baseline_pause_circle_outline_24
-				else R.drawable.ic_baseline_play_circle_outline_24
-			)
-			bind.btnYes.visibility = if (it) View.VISIBLE else View.GONE
-			bind.btnNo.visibility = if (it) View.VISIBLE else View.GONE
-
-			if (it) requireActivity().window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-			else requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-
-		}
-
 		play(true)
+	}
+
+	private fun createAllAnswersObserver() = gameModel.allAnswers.observeWhenStarted(lifecycleScope) {
+		val thrAns = gameModel.trueAnswers.value
+		bind.txtCountAnswers.text = "$thrAns/$it"
+		try {
+			bind.answersProgress.progress = thrAns * 100 / it
+		} catch (ex: Exception) {
+			bind.answersProgress.progress = 0
+		}
+	}
+
+	private fun createTimeObserver() = gameModel.time.observeWhenStarted(lifecycleScope) {
+		bind.txtTime.text = "${it / 1000}s"
+		bind.timeProgress.progress = it * 100 / GameYesOrNotViewModel.MAX_TIME
+	}
+
+	private fun createStartObserver() = gameModel.isStarted.observeWhenStarted(lifecycleScope) {
+		bind.imgBtnPause.setImageResource(
+			if (it) R.drawable.ic_baseline_pause_circle_outline_24
+			else R.drawable.ic_baseline_play_circle_outline_24
+		)
+		bind.btnYes.visibility = if (it) View.VISIBLE else View.GONE
+		bind.btnNo.visibility = if (it) View.VISIBLE else View.GONE
+
+		if (it) requireActivity().window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+		else requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 	}
 
 	private fun setData(card: GameYesOrNotViewModel.AnswersCard) {
@@ -121,8 +128,6 @@ class GameYesOrNotFragment : DaggerFragment() {
 			val secondTranslate = secondCard.toTranslate().ifNull { return@launchWhenStarted }
 
 			bind.txtReason.text = firstCard.reason
-//			bind.txtPhraseFirst.text = firstPhrase.phrase
-//			bind.txtLangFirst.text = showLang(firstPhrase)
 
 			setData(firstPhrase, bind.txtLangFirst, bind.txtPhraseFirst, bind.imgSoundFirst, bind.mcvFirst)
 
@@ -145,9 +150,7 @@ class GameYesOrNotFragment : DaggerFragment() {
 				gameModel.getRandomAnswerCard { setData(it) }
 				reaction(card.truth)
 			}
-
 		}
-
 	}
 
 	private fun reaction(boolean: Boolean) {
@@ -231,6 +234,14 @@ class GameYesOrNotFragment : DaggerFragment() {
 	override fun onStop() {
 		super.onStop()
 		play(false)
+	}
+
+	override fun onDestroyView() {
+		super.onDestroyView()
+		allAnswerObserver?.cancel()
+		timeObserver?.cancel()
+		startObserver?.cancel()
+		_bind = null
 	}
 
 }

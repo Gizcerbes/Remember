@@ -7,44 +7,45 @@ import com.uogames.dto.Phrase
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.safely
 import com.uogames.repository.DataProvider
-import com.uogames.repository.DataProvider.Companion.phraseToImageDeferred
-import com.uogames.repository.DataProvider.Companion.toPronounceDeferred
+import com.uogames.repository.DataProvider.Companion.toImage
+import com.uogames.repository.DataProvider.Companion.toPronounce
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import java.util.*
 
 class CardViewModel(val provider: DataProvider) : ViewModel() {
+
 
 	private val _size = MutableStateFlow(0)
 	val size = _size.asStateFlow()
 
 	val like = MutableStateFlow("")
 
+	@ExperimentalCoroutinesApi
 	private val likeSize = like.flatMapLatest { provider.cards.getCountFlow(it) }
 
 	inner class CardModel(val card: Card) {
-		val phrase by lazy { provider.phrase.getByIdAsync { card.idPhrase } }
-		val translate by lazy { provider.phrase.getByIdAsync { card.idTranslate } }
-		val image by lazy { provider.images.getByIdAsync { card.idImage } }
-		val phrasePronounce by lazy { phrase.toPronounceDeferred() }
-		val phraseImage by lazy { phrase.phraseToImageDeferred() }
-		val translatePronounce by lazy { translate.toPronounceDeferred() }
-		val translateImage by lazy { translate.phraseToImageDeferred() }
+		val phrase by lazy { viewModelScope.async { provider.phrase.getById(card.idPhrase) } }
+		val translate by lazy { viewModelScope.async { provider.phrase.getById(card.idTranslate) } }
+		val image by lazy { viewModelScope.async(Dispatchers.IO) { card.toImage() } }
+		val phrasePronounce by lazy { viewModelScope.async(Dispatchers.IO) { phrase.await()?.toPronounce() } }
+		val phraseImage by lazy { viewModelScope.async(Dispatchers.IO) { phrase.await()?.toImage() } }
+		val translatePronounce by lazy { viewModelScope.async(Dispatchers.IO) { translate.await()?.toPronounce() } }
+		val translateImage by lazy { viewModelScope.async(Dispatchers.IO) { translate.await()?.toImage() } }
 	}
 
 	init {
-		likeSize.onEach { _size.value = it }.launchIn(viewModelScope)
+		viewModelScope.launch(Dispatchers.IO) { likeSize.collect { _size.value = it } }
+	}
+
+	fun reset() {
+		like.value = ""
 	}
 
 	fun get(number: Int) = provider.cards.getCardFlow(like.value, number).map { it?.let { CardModel(it) } }
 
-	suspend fun getImage(phrase: Phrase) = provider.images.getByPhrase(phrase).first()
-
-	suspend fun getPhrase(id: Int) = provider.phrase.getByIdFlow(id).first()
-
-	suspend fun getPronounce(phrase: Phrase) = provider.pronounce.getByPhrase(phrase).first()
-
 	fun getDisplayLang(phrase: Phrase): String {
-		return safely{
+		return safely {
 			val data = phrase.lang.split("-")
 			Locale(data[0]).displayLanguage
 		}.ifNull { "" }
