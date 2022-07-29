@@ -2,15 +2,14 @@ package com.uogames.remembercards.utils
 
 import android.graphics.drawable.AnimationDrawable
 import android.graphics.drawable.Drawable
-import android.util.Base64
 import androidx.lifecycle.LifecycleCoroutineScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
 inline fun <T> loop(init: () -> T, check: (T) -> Boolean, step: (T) -> T, body: (T) -> Unit) {
 	var i = init()
@@ -29,10 +28,11 @@ suspend fun <T> Flow<T>.next(skip: Int = 1): T {
 
 fun <T> Flow<T>.observeWhile(
 	scope: CoroutineScope,
+	dispatcher: CoroutineContext = scope.coroutineContext,
 	checkBefore: (T) -> Boolean = { true },
 	checkAfter: (T) -> Boolean = { true },
 	listener: suspend (T) -> Unit
-): Job = scope.launch {
+): Job = scope.launch(dispatcher) {
 	collect() {
 		if (!checkBefore(it)) {
 			return@collect this.cancel()

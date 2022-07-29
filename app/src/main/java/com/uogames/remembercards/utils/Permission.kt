@@ -7,8 +7,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 
 enum class Permission constructor(private val permission: String) {
 	ACCESS_FINE_LOCATION(Manifest.permission.ACCESS_FINE_LOCATION),

@@ -4,52 +4,79 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.lifecycle.LifecycleCoroutineScope
-import com.uogames.flags.Languages
+import androidx.recyclerview.widget.RecyclerView
 import com.uogames.remembercards.databinding.CardLanguageBinding
-import com.uogames.remembercards.utils.ChangeableAdapter
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import java.util.*
 
-class ChoiceLanguageAdapter(scope: LifecycleCoroutineScope, val callIso: (String) -> Unit) :
-	ChangeableAdapter<ChoiceLanguageAdapter.LanguageHolder>(scope) {
+class ChoiceLanguageAdapter(
+	private val call: (Locale) -> Unit
+) : RecyclerView.Adapter<ChoiceLanguageAdapter.LanguageHolder>() {
 
-	private var list: Array<String> = Locale.getISOLanguages()
+	private val recyclerScope = CoroutineScope(Dispatchers.Main)
+	private var list: List<Locale> = listOf()
 
-	inner class LanguageHolder(view: LinearLayout, viewGrope: ViewGroup, scope: LifecycleCoroutineScope) :
-		ChangeableAdapter.ChangeableViewHolder(view, viewGrope, scope) {
-
-		private val bind by lazy { CardLanguageBinding.inflate(LayoutInflater.from(itemView.context), viewGrope, false) }
-
-		override fun onCreateView(typeFragment: Int, viewGrope: ViewGroup): View? {
-			return when (typeFragment) {
-				0 -> bind.root
-				else -> null
-			}
-		}
-
-		override suspend fun CoroutineScope.show(typeFragment: Int, end: () -> Unit) {
-//			bind.txtLanguage.text = list[adapterPosition].language
-//			bind.root.setOnClickListener {
-//				call(list[adapterPosition])
-//			}
-		}
-
+	fun setItemList(list: List<Locale>) {
+		this.list = list
+		notifyDataSetChanged()
 	}
 
-	override fun onShow(parent: ViewGroup, view: LinearLayout, viewType: Int, scope: LifecycleCoroutineScope): LanguageHolder {
-		return LanguageHolder(view, parent, scope)
+
+	inner class LanguageHolder(view: View) : RecyclerView.ViewHolder(view) {
+
+		private var _bind: CardLanguageBinding? = null
+		private val bind get() =  _bind!!
+
+		fun onShow() {
+			_bind = CardLanguageBinding.inflate(LayoutInflater.from(itemView.context), itemView as ViewGroup, false)
+			val linearLayout = itemView as LinearLayout
+			linearLayout.removeAllViews()
+			linearLayout.addView(bind.root)
+			val item = list[adapterPosition]
+			bind.txtLanguage.text = item.displayLanguage
+			bind.root.setOnClickListener { call(item) }
+		}
+
+		fun onDestroy() {
+			_bind = null
+		}
+
 	}
 
 	override fun getItemCount(): Int {
 		return list.size
 	}
 
-//	fun setMask(string: String) {
-//		list = Languages.values().filter {
-//			it.language.uppercase().contains(string.uppercase())
-//		}.toTypedArray()
-//		notifyDataSetChanged()
-//	}
+	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LanguageHolder {
+		return LanguageHolder(LinearLayout(parent.context).apply {
+			layoutParams = LinearLayout.LayoutParams(
+				LinearLayout.LayoutParams.MATCH_PARENT,
+				LinearLayout.LayoutParams.MATCH_PARENT
+			)
+			orientation = LinearLayout.VERTICAL
+		})
+	}
+
+	override fun onBindViewHolder(holder: LanguageHolder, position: Int) {
+		holder.onShow()
+		(holder.itemView as LinearLayout).apply {
+			layoutParams = LinearLayout.LayoutParams(
+				LinearLayout.LayoutParams.MATCH_PARENT,
+				LinearLayout.LayoutParams.WRAP_CONTENT
+			)
+		}
+	}
+
+	override fun onViewRecycled(holder: LanguageHolder) {
+		super.onViewRecycled(holder)
+		holder.onDestroy()
+	}
+
+	fun onDestroy() {
+		recyclerScope.cancel()
+	}
+
 
 }

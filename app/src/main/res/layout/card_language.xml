@@ -15,7 +15,7 @@
 		android:id="@+id/txt_language"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:textAppearance="?attr/textAppearanceHeadline5"
+		android:textAppearance="?attr/textAppearanceBody1"
 		tools:text="English" />
 
 

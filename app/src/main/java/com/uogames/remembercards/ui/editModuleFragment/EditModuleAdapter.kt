@@ -24,7 +24,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import java.util.*
-import kotlin.math.PI
 
 class EditModuleAdapter(
 	private val model: EditModuleViewModel,

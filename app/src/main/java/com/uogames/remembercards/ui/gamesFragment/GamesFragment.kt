@@ -14,7 +14,6 @@ import com.uogames.remembercards.ui.gameYesOrNo.GameYesOrNotFragment
 import com.uogames.remembercards.ui.gameYesOrNo.GameYesOrNotViewModel
 import com.uogames.remembercards.ui.libraryFragment.LibraryViewModel
 import com.uogames.remembercards.utils.ifNull
-import com.uogames.remembercards.utils.ifTrue
 import com.uogames.remembercards.utils.observeWhenStarted
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.Job
@@ -51,8 +50,6 @@ class GamesFragment : DaggerFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
-
 
         val nav = requireActivity().findNavController(R.id.nav_host_fragment)
 

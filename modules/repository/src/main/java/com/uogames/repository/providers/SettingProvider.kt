@@ -3,6 +3,7 @@ package com.uogames.repository.providers
 import com.uogames.database.repository.SettingRepository
 import com.uogames.dto.Setting
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 class SettingProvider(
@@ -14,5 +15,7 @@ class SettingProvider(
 	suspend fun remove(key: String) = repository.delete(Setting(key, ""))
 
 	fun getFlow(key: String) = repository.getFlow(key).map { it?.value }
+
+	suspend fun get(key: String) = repository.get(key)?.value
 
 }

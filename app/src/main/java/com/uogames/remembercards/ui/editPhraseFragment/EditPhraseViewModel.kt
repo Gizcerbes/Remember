@@ -2,19 +2,17 @@ package com.uogames.remembercards.ui.editPhraseFragment
 
 import android.graphics.Bitmap
 import android.media.MediaRecorder
-import android.util.Log
 import androidx.core.net.toFile
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.mlkit.nl.languageid.LanguageIdentification
+import com.google.mlkit.nl.languageid.LanguageIdentificationOptions
 import com.uogames.dto.Image
 import com.uogames.dto.Phrase
-import com.uogames.dto.Pronunciation
 import com.uogames.flags.Countries
 import com.uogames.remembercards.GlobalViewModel
-import com.uogames.remembercards.utils.MediaBytesSource
-import com.uogames.remembercards.utils.ifNull
-import com.uogames.remembercards.utils.ifTrue
+import com.uogames.remembercards.utils.*
 import com.uogames.repository.DataProvider
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -69,6 +67,12 @@ class EditPhraseViewModel @Inject constructor(
 
 	private val _country = MutableStateFlow(Countries.UNITED_KINGDOM)
 
+	private val _languages: MutableStateFlow<List<Locale>> = MutableStateFlow(listOf())
+	val languages = _languages.asStateFlow()
+
+	private val _enableLanguageChoice = MutableStateFlow(false)
+	val enableLanguageChoice = _enableLanguageChoice.asStateFlow()
+
 	private val _lang = MutableStateFlow(Locale.getDefault())
 	val lang = _lang.asStateFlow()
 
@@ -87,11 +91,22 @@ class EditPhraseViewModel @Inject constructor(
 	val listImageFlow = provider.images.getListFlow()
 
 	init {
-		phraseObject.idImage.onEach {
+		phraseObject.idImage.observeWhile(viewModelScope, Dispatchers.IO) {
 			_imgPhrase.value = it?.let { provider.images.getByIdFlow(it).first() }
-		}.launchIn(viewModelScope)
-		viewModelScope.launch {
-			_country.value = Countries.valueOf(provider.setting.getFlow(GlobalViewModel.USER_NATIVE_COUNTRY).first().ifNull { "UNITED_KINGDOM" })
+		}
+		viewModelScope.launch(Dispatchers.IO) {
+			_country.value = Countries.valueOf(provider.setting.get(GlobalViewModel.USER_NATIVE_COUNTRY).ifNull { "UNITED_KINGDOM" })
+		}
+		phraseObject.phrase.observeWhile(viewModelScope, Dispatchers.IO){
+			val languageIdentifier = LanguageIdentification.getClient(
+				LanguageIdentificationOptions.Builder()
+					.setConfidenceThreshold(0.1f)
+					.build()
+			)
+			languageIdentifier.identifyPossibleLanguages(it)
+				.addOnSuccessListener { identifiedLanguages ->
+					_languages.value = identifiedLanguages.map { Locale.forLanguageTag(it.languageTag) }
+				}
 		}
 	}
 
@@ -104,14 +119,16 @@ class EditPhraseViewModel @Inject constructor(
 	fun reset() {
 		phraseObject.set(Phrase())
 		_imgPhrase.value = null
-		viewModelScope.launch {
-			_country.value = Countries.valueOf(provider.setting.getFlow(GlobalViewModel.USER_NATIVE_COUNTRY).first().ifNull { "UNITED_KINGDOM" })
+		viewModelScope.launch(Dispatchers.IO) {
+			_country.value = Countries.valueOf(provider.setting.get(GlobalViewModel.USER_NATIVE_COUNTRY).ifNull { "UNITED_KINGDOM" })
 		}
 		_lang.value = Locale.getDefault()
 		_isFileWriting.value = false
 		_timeWriting.value = -1
 		_audioChanged.value = false
 		_tempAudioBytes = ByteArray(0)
+		_languages.value = listOf()
+		_enableLanguageChoice.value = false
 	}
 
 	fun loadByID(id: Int) = viewModelScope.launch(Dispatchers.IO) {
@@ -132,6 +149,7 @@ class EditPhraseViewModel @Inject constructor(
 
 	fun selectImage(image: Image) {
 		phraseObject.idImage.value = image.id
+
 	}
 
 	fun setBitmapImage(bitmap: Bitmap?) = bitmap?.let {
@@ -189,7 +207,14 @@ class EditPhraseViewModel @Inject constructor(
 	}
 
 	fun setLang(tag: Locale) {
-		_lang.value = if (tag.isO3Language.isNotEmpty()) tag else Locale.getDefault()
+		_enableLanguageChoice.value.ifFalse {
+			_lang.value = if (tag.isO3Language.isNotEmpty()) tag else Locale.getDefault()
+		}
+	}
+
+	fun forceSetLang(locale: Locale){
+		_lang.value = if (locale.isO3Language.isNotEmpty()) locale else Locale.getDefault()
+		_enableLanguageChoice.value = true
 	}
 
 	fun save(call: (Long?) -> Unit) {

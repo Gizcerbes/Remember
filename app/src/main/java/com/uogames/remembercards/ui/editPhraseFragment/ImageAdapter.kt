@@ -5,11 +5,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.net.toUri
 import androidx.core.view.setMargins
-import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import com.uogames.dto.Image
-import com.uogames.remembercards.utils.observeWhenStarted
 import com.uogames.remembercards.utils.observeWhile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

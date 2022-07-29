@@ -71,4 +71,6 @@
 	<string name="disconnected">Disconnected</string>
 	<string name="selected_module">Selected Module</string>
 	<string name="all_cards">All Cards</string>
+	<string name="recommend">Recommend</string>
+	<string name="see_all">See All</string>
 </resources>

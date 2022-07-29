@@ -14,7 +14,6 @@ class ImageProvider(
 	private val fileRepository: FileRepository
 ) {
 
-
 	suspend fun add(bytes: ByteArray): Int {
 		val id = database.imageRepository.insert(Image()).toInt()
 		val uri = fileRepository.saveFile("$id.png", bytes)
@@ -34,6 +33,10 @@ class ImageProvider(
 			val uri = fileRepository.saveFile("${it.id}.png", bytes)
 			return database.imageRepository.update(Image(image.id, uri.toString()))
 		} ?: false
+	}
+
+	suspend fun readDataByImage(image: Image): ByteArray? {
+		return fileRepository.readFile(image.imgUri.toUri())
 	}
 
 	suspend fun getById(id: Int) = database.imageRepository.getById(id)

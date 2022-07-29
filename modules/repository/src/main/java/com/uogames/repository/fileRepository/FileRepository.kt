@@ -38,6 +38,10 @@ class FileRepository private constructor(private val context: WeakReference<Cont
 		}
 	}
 
+	fun readFile(uri: Uri): ByteArray?{
+		return context.get()?.openFileInput(uri.toFile().name)?.readBytes()
+	}
+
 	override fun close() {
 		context.clear()
 	}

@@ -5,7 +5,6 @@ import android.util.Log
 import com.uogames.remembercards.di.DaggerAppComponent
 import dagger.android.AndroidInjector
 import dagger.android.DaggerApplication
-import kotlinx.coroutines.runBlocking
 
 class App: DaggerApplication() {
 	override fun applicationInjector(): AndroidInjector<out DaggerApplication> {

@@ -24,10 +24,12 @@ import com.uogames.dto.Image
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentEditPhraseBinding
+import com.uogames.remembercards.ui.choiceLanguageDialog.ChoiceLanguageDialog
 import com.uogames.remembercards.ui.cropFragment.CropViewModel
 import com.uogames.remembercards.utils.*
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import java.util.*
 import javax.inject.Inject
 
@@ -51,6 +53,14 @@ class EditPhraseFragment : DaggerFragment() {
 	@Inject
 	lateinit var player: ObservableMediaPlayer
 
+	private var keyObserver: Job? = null
+	private var phraseObserver: Job? = null
+	private var definitionObserver: Job? = null
+	private var langObserver: Job? = null
+	private var fileWriteObserver: Job? = null
+	private var timeWriteObserver: Job? = null
+	private var imageObserver: Job? = null
+
 	private var _bind: FragmentEditPhraseBinding? = null
 	private val bind get() = _bind!!
 
@@ -67,14 +77,6 @@ class EditPhraseFragment : DaggerFragment() {
 	}
 
 	private var adapter: ImageAdapter? = null
-
-	private var keyObserver: Job? = null
-	private var phraseObserver: Job? = null
-	private var definitionObserver: Job? = null
-	private var langObserver: Job? = null
-	private var fileWriteObserver: Job? = null
-	private var timeWriteObserver: Job? = null
-	private var imageObserver: Job? = null
 
 	private val callback by lazy {
 		object : OnBackPressedCallback(false) {
@@ -97,7 +99,6 @@ class EditPhraseFragment : DaggerFragment() {
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
 		globalViewModel.shouldReset.ifTrue {
-			Log.e("TAG", "onViewCreated: ", )
 			editPhraseViewModel.reset()
 		}
 
@@ -193,7 +194,9 @@ class EditPhraseFragment : DaggerFragment() {
 		bind.btnEditPhrase.setOnClickListener {
 			textWatcher = setTextWatcher(textWatcher, editPhraseViewModel.phrase.value) { text, _, _, _ ->
 				text?.let { editPhraseViewModel.setPhrase(it.toString()) }
-				editPhraseViewModel.setLang(Locale.forLanguageTag(imm.currentInputMethodSubtype.languageTag))
+				imm.currentInputMethodSubtype.languageTag.isEmpty().ifFalse {
+					editPhraseViewModel.setLang(Locale.forLanguageTag(imm.currentInputMethodSubtype.languageTag))
+				}
 			}
 		}
 		bind.btnEditDefinition.setOnClickListener {
@@ -218,6 +221,13 @@ class EditPhraseFragment : DaggerFragment() {
 			requireActivity().findNavController(R.id.nav_host_fragment).popBackStack()
 		}
 
+		bind.btnEditLanguage.setOnClickListener {
+			val dialog = ChoiceLanguageDialog(editPhraseViewModel.languages.value){
+				editPhraseViewModel.forceSetLang(it)
+			}
+			dialog.show(requireActivity().supportFragmentManager, ChoiceLanguageDialog.TAG)
+		}
+
 		createObservers()
 	}
 
@@ -227,7 +237,7 @@ class EditPhraseFragment : DaggerFragment() {
 			bind.tilEdit.visibility = if (it) View.VISIBLE else View.GONE
 		}
 
-		phraseObserver = editPhraseViewModel.phrase.observeWhenStarted(lifecycleScope) {
+		 phraseObserver = editPhraseViewModel.phrase.observeWhenStarted(lifecycleScope) {
 			bind.txtPhrase.text = it.ifEmpty { requireContext().getString(R.string.phrase2) }
 		}
 
@@ -240,7 +250,6 @@ class EditPhraseFragment : DaggerFragment() {
 		}
 
 		fileWriteObserver = editPhraseViewModel.isFileWriting.observeWhenStarted(lifecycleScope) {
-
 			val size = editPhraseViewModel.tempAudioSource.size.ifNull { 0L }
 			bind.btnSound.visibility = if (it || size <= 0L) View.GONE else View.VISIBLE
 			bind.imgMic.background.asAnimationDrawable().selectDrawable(if (it) 1 else 0)
@@ -257,7 +266,6 @@ class EditPhraseFragment : DaggerFragment() {
 		}
 
 		imageObserver = editPhraseViewModel.imgPhrase.observeWhenStarted(lifecycleScope) { setImagePhrase(it) }
-
 	}
 
 	private inline fun setTextWatcher(

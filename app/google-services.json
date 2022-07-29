@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "572904362912-upi7ct72ju9g9808nb5houpqa2mubjgk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.uogames.remembercards",
+            "certificate_hash": "cdabfc185f66b05b25defd68900c52741993fa5c"
+          }
+        },
+        {
           "client_id": "572904362912-bm9tiqhnj5gsjmjvudkc499be6rena5r.apps.googleusercontent.com",
           "client_type": 3
         }
