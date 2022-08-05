@@ -104,8 +104,8 @@ class EditPhraseViewModel @Inject constructor(
 					.build()
 			)
 			languageIdentifier.identifyPossibleLanguages(it)
-				.addOnSuccessListener { identifiedLanguages ->
-					_languages.value = identifiedLanguages.map { Locale.forLanguageTag(it.languageTag) }
+				.addOnSuccessListener { identifiedLang ->
+					_languages.value = identifiedLang.map { loc -> Locale.forLanguageTag(loc.languageTag) }
 				}
 		}
 	}
@@ -149,7 +149,6 @@ class EditPhraseViewModel @Inject constructor(
 
 	fun selectImage(image: Image) {
 		phraseObject.idImage.value = image.id
-
 	}
 
 	fun setBitmapImage(bitmap: Bitmap?) = bitmap?.let {
