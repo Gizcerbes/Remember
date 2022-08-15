@@ -1,7 +1,8 @@
 package com.uogames.network.provider
 
+import com.uogames.dto.global.Card
 import com.uogames.network.map.CardMap.toDTO
-import com.uogames.network.response.CardResponse
+import com.uogames.network.map.CardMap.toResponse
 import com.uogames.network.service.CardService
 
 class CardProvider(private val service: CardService) {
@@ -12,7 +13,7 @@ class CardProvider(private val service: CardService) {
 
 	suspend fun count(like: String) = service.count(like)
 
-	suspend fun post(cardResponse: CardResponse) = service.post(cardResponse).toDTO()
+	suspend fun post(cardResponse: Card) = service.post(cardResponse.toResponse()).toDTO()
 
 
 }
