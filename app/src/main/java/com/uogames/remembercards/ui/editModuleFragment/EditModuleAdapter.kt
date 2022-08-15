@@ -10,8 +10,8 @@ import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import com.squareup.picasso.Picasso
-import com.uogames.dto.ModuleCard
-import com.uogames.dto.Phrase
+import com.uogames.dto.local.ModuleCard
+import com.uogames.dto.local.Phrase
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardCardBinding
 import com.uogames.remembercards.utils.*

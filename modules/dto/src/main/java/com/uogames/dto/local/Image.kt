@@ -1,4 +1,4 @@
-package com.uogames.dto
+package com.uogames.dto.local
 
 data class Image(
 	val id: Int = 0,

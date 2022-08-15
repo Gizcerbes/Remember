@@ -2,14 +2,11 @@ package com.uogames.repository
 
 import android.content.Context
 import com.uogames.database.DatabaseRepository
-import com.uogames.dto.Card
-import com.uogames.dto.ModuleCard
-import com.uogames.dto.Phrase
+import com.uogames.dto.local.Card
+import com.uogames.dto.local.ModuleCard
+import com.uogames.dto.local.Phrase
 import com.uogames.repository.fileRepository.FileRepository
 import com.uogames.repository.providers.*
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class DataProvider private constructor(
 	private val database: DatabaseRepository,

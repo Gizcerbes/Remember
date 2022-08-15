@@ -2,7 +2,7 @@ package com.uogames.remembercards.ui.gameYesOrNo
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.uogames.dto.Card
+import com.uogames.dto.local.Card
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.repository.DataProvider
 import com.uogames.repository.DataProvider.Companion.toCard

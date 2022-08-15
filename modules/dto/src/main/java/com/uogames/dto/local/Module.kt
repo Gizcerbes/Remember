@@ -1,13 +1,11 @@
-package com.uogames.dto
+package com.uogames.dto.local
 
 import java.util.*
 
-data class Card(
+data class Module(
 	val id: Int = 0,
-	val idPhrase: Int = 0,
-	val idTranslate: Int = 0,
-	val idImage: Int? = null,
-	val reason: String = "",
+	val name: String = "",
+	val owner: String = "",
 	val timeChange: Long = Date().time,
 	val like: Long = 0,
 	val dislike: Long = 0,

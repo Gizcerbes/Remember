@@ -3,8 +3,8 @@ package com.uogames.database.repository
 import com.uogames.database.dao.ModuleCardDAO
 import com.uogames.database.map.ModuleCardMap.toDTO
 import com.uogames.database.map.ModuleCardMap.toEntity
-import com.uogames.dto.Module
-import com.uogames.dto.ModuleCard
+import com.uogames.dto.local.Module
+import com.uogames.dto.local.ModuleCard
 import kotlinx.coroutines.flow.map
 
 class ModuleCardRepository(private val moduleCardDAO: ModuleCardDAO) {

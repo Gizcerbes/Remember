@@ -7,9 +7,9 @@ import android.widget.LinearLayout
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
-import com.uogames.dto.Image
-import com.uogames.dto.Phrase
-import com.uogames.dto.Pronunciation
+import com.uogames.dto.local.Image
+import com.uogames.dto.local.Phrase
+import com.uogames.dto.local.Pronunciation
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardPhraseBinding
 import com.uogames.remembercards.ui.bookFragment.BookViewModel

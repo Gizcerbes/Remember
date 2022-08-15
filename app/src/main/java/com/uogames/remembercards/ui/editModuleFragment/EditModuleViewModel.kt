@@ -2,9 +2,9 @@ package com.uogames.remembercards.ui.editModuleFragment
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.uogames.dto.Card
-import com.uogames.dto.Module
-import com.uogames.dto.ModuleCard
+import com.uogames.dto.local.Card
+import com.uogames.dto.local.Module
+import com.uogames.dto.local.ModuleCard
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.repository.DataProvider
 import kotlinx.coroutines.flow.MutableStateFlow

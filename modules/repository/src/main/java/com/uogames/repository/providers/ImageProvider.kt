@@ -2,11 +2,10 @@ package com.uogames.repository.providers
 
 import androidx.core.net.toUri
 import com.uogames.database.DatabaseRepository
-import com.uogames.dto.Image
-import com.uogames.dto.Card
-import com.uogames.dto.Phrase
+import com.uogames.dto.local.Image
+import com.uogames.dto.local.Card
+import com.uogames.dto.local.Phrase
 import com.uogames.repository.fileRepository.FileRepository
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 
 class ImageProvider(

@@ -3,7 +3,7 @@ package com.uogames.database.repository
 import com.uogames.database.dao.ErrorCardDAO
 import com.uogames.database.map.ErrorCardMap.toDTO
 import com.uogames.database.map.ErrorCardMap.toEntity
-import com.uogames.dto.ErrorCard
+import com.uogames.dto.local.ErrorCard
 
 class ErrorCardRepository(private val dao: ErrorCardDAO) {
 

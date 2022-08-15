@@ -1,7 +1,7 @@
 package com.uogames.database.map
 
 import com.uogames.database.entity.PhraseEntity
-import com.uogames.dto.Phrase
+import com.uogames.dto.local.Phrase
 
 object PhraseMap : Map<PhraseEntity, Phrase> {
 

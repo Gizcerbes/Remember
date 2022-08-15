@@ -1,7 +1,7 @@
 package com.uogames.database.map
 
 import com.uogames.database.entity.ErrorCardEntity
-import com.uogames.dto.ErrorCard
+import com.uogames.dto.local.ErrorCard
 
 object ErrorCardMap : Map<ErrorCardEntity, ErrorCard> {
 	override fun ErrorCardEntity.toDTO(): ErrorCard {

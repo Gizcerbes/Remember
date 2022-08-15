@@ -1,7 +1,7 @@
 package com.uogames.database.map
 
 import com.uogames.database.entity.ImageEntity
-import com.uogames.dto.Image
+import com.uogames.dto.local.Image
 
 object ImageMap : Map<ImageEntity, Image> {
 	override fun ImageEntity.toDTO(): Image {

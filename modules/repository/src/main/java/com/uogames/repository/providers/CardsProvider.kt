@@ -1,10 +1,8 @@
 package com.uogames.repository.providers
 
 import com.uogames.database.DatabaseRepository
-import com.uogames.dto.Card
-import com.uogames.dto.ModuleCard
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.first
+import com.uogames.dto.local.Card
+import com.uogames.dto.local.ModuleCard
 
 class CardsProvider(
 	private val database: DatabaseRepository

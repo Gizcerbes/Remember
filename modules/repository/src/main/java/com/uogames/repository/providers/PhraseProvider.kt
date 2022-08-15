@@ -1,11 +1,7 @@
 package com.uogames.repository.providers
 
-import com.uogames.database.DatabaseRepository
 import com.uogames.database.repository.PhraseRepository
-import com.uogames.dto.Phrase
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
+import com.uogames.dto.local.Phrase
 
 class PhraseProvider(
 	private val pr: PhraseRepository

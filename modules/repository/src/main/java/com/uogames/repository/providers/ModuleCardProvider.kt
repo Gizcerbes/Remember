@@ -1,9 +1,8 @@
 package com.uogames.repository.providers
 
 import com.uogames.database.repository.ModuleCardRepository
-import com.uogames.dto.Module
-import com.uogames.dto.ModuleCard
-import kotlinx.coroutines.async
+import com.uogames.dto.local.Module
+import com.uogames.dto.local.ModuleCard
 
 class ModuleCardProvider(
 	private val mcr: ModuleCardRepository

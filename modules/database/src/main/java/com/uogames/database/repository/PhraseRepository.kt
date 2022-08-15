@@ -3,10 +3,8 @@ package com.uogames.database.repository
 import com.uogames.database.dao.PhraseDAO
 import com.uogames.database.map.PhraseMap.toDTO
 import com.uogames.database.map.PhraseMap.toEntity
-import com.uogames.dto.Phrase
-import kotlinx.coroutines.flow.Flow
+import com.uogames.dto.local.Phrase
 import kotlinx.coroutines.flow.map
-import java.net.IDN
 
 class PhraseRepository(private val dao: PhraseDAO) {
 

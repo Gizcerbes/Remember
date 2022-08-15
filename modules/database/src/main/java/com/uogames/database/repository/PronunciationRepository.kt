@@ -3,8 +3,8 @@ package com.uogames.database.repository
 import com.uogames.database.dao.PronunciationDAO
 import com.uogames.database.map.PronunciationMap.toDTO
 import com.uogames.database.map.PronunciationMap.toEntity
-import com.uogames.dto.Phrase
-import com.uogames.dto.Pronunciation
+import com.uogames.dto.local.Phrase
+import com.uogames.dto.local.Pronunciation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map

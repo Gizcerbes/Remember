@@ -1,9 +1,7 @@
 package com.uogames.repository.providers
 
 import com.uogames.database.repository.SettingRepository
-import com.uogames.dto.Setting
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.first
+import com.uogames.dto.local.Setting
 import kotlinx.coroutines.flow.map
 
 class SettingProvider(

@@ -18,7 +18,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.card.MaterialCardView
 import com.squareup.picasso.Picasso
-import com.uogames.dto.Phrase
+import com.uogames.dto.local.Phrase
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentEditCardBinding

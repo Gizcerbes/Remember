@@ -1,7 +1,7 @@
 package com.uogames.database.map
 
 import com.uogames.database.entity.ModuleCardEntity
-import com.uogames.dto.ModuleCard
+import com.uogames.dto.local.ModuleCard
 
 object ModuleCardMap : Map<ModuleCardEntity, ModuleCard> {
 	override fun ModuleCardEntity.toDTO(): ModuleCard {

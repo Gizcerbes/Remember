@@ -2,8 +2,8 @@ package com.uogames.remembercards.ui.cardFragment
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.uogames.dto.Card
-import com.uogames.dto.Phrase
+import com.uogames.dto.local.Card
+import com.uogames.dto.local.Phrase
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.safely
 import com.uogames.repository.DataProvider

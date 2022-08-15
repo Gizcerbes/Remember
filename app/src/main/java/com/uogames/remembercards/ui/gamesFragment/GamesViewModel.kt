@@ -1,7 +1,7 @@
 package com.uogames.remembercards.ui.gamesFragment
 
 import androidx.lifecycle.ViewModel
-import com.uogames.dto.Module
+import com.uogames.dto.local.Module
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.repository.DataProvider

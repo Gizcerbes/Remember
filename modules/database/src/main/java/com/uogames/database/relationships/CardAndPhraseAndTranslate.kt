@@ -4,7 +4,7 @@ package com.uogames.database.relationships
 import androidx.room.Embedded
 import androidx.room.Relation
 import com.uogames.database.entity.CardEntity
-import com.uogames.dto.Phrase
+import com.uogames.dto.local.Phrase
 
 data class CardAndPhraseAndTranslate(
 	@Embedded

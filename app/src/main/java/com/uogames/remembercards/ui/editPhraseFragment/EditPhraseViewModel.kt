@@ -8,8 +8,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.mlkit.nl.languageid.LanguageIdentification
 import com.google.mlkit.nl.languageid.LanguageIdentificationOptions
-import com.uogames.dto.Image
-import com.uogames.dto.Phrase
+import com.uogames.dto.local.Image
+import com.uogames.dto.local.Phrase
 import com.uogames.flags.Countries
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.utils.*
@@ -84,7 +84,7 @@ class EditPhraseViewModel @Inject constructor(
 	private var jobWriting: Job? = null
 
 	private var _audioChanged = MutableStateFlow(false)
-	private var _tempAudioFile = File.createTempFile("audio", ".gpp")
+	private var _tempAudioFile = File.createTempFile("audio", ".mp4")
 	private var _tempAudioBytes: ByteArray? = null
 	val tempAudioSource get() = MediaBytesSource(_tempAudioBytes)
 
@@ -168,10 +168,10 @@ class EditPhraseViewModel @Inject constructor(
 
 	fun startRecordAudio(recorder: MediaRecorder) {
 		stopRecordAudio(recorder)
-		_tempAudioFile = File.createTempFile("audio", ".gpp")
+		_tempAudioFile = File.createTempFile("audio", ".mp4")
 		_timeWriting.value = 0
 		recorder.setAudioSource(MediaRecorder.AudioSource.MIC)
-		recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+		recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
 		recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
 		recorder.setOutputFile(_tempAudioFile)
 		recorder.prepare()

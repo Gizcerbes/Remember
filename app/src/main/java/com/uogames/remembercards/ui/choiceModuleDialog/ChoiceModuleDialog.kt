@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.uogames.dto.Module
+import com.uogames.dto.local.Module
 import com.uogames.remembercards.databinding.FragmentChoiceModuleBinding
 import com.uogames.remembercards.ui.libraryFragment.LibraryAdapter
 import com.uogames.remembercards.ui.libraryFragment.LibraryViewModel

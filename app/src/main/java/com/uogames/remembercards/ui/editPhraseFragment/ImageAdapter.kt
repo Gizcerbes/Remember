@@ -7,7 +7,7 @@ import androidx.core.net.toUri
 import androidx.core.view.setMargins
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
-import com.uogames.dto.Image
+import com.uogames.dto.local.Image
 import com.uogames.remembercards.utils.observeWhile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

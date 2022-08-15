@@ -2,7 +2,6 @@ package com.uogames.database.dao
 
 import androidx.room.*
 import com.uogames.database.entity.ModuleCardEntity
-import com.uogames.dto.ModuleCard
 import kotlinx.coroutines.flow.Flow
 
 @Dao

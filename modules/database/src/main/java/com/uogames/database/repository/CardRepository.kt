@@ -3,7 +3,7 @@ package com.uogames.database.repository
 import com.uogames.database.dao.CardDAO
 import com.uogames.database.map.CardMap.toDTO
 import com.uogames.database.map.CardMap.toEntity
-import com.uogames.dto.Card
+import com.uogames.dto.local.Card
 import kotlinx.coroutines.flow.map
 
 class CardRepository(private val dao: CardDAO) {

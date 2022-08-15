@@ -2,7 +2,7 @@ package com.uogames.remembercards.ui.bookFragment
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.uogames.dto.Phrase
+import com.uogames.dto.local.Phrase
 import com.uogames.remembercards.utils.safely
 import com.uogames.repository.DataProvider
 import kotlinx.coroutines.*

@@ -1,27 +1,27 @@
 package com.uogames.network.service
 
+import com.uogames.network.ifSuccess
 import com.uogames.network.response.ModuleResponse
-import io.ktor.client.*
-import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import com.uogames.network.HttpClient
 
 class ModuleService(private val client: HttpClient) {
 
-	suspend fun get(like:String):ModuleResponse = client.get("/module"){
+	suspend fun get(like: String, number: Long): ModuleResponse = client.get("/module") {
 		parameter("like", like)
-	}.body()
+		parameter("number", number)
+	}.ifSuccess()
 
-	suspend fun get(globalId: Long): ModuleResponse = client.get("/module/$globalId").body()
+	suspend fun count(like: String): Long = client.get("/module/count"){
+		parameter("like", like)
+	}.ifSuccess()
 
-	suspend fun post(module: ModuleResponse): ModuleResponse = client.post("/module"){
+	suspend fun get(globalId: Long): ModuleResponse = client.get("/module/$globalId").ifSuccess()
+
+	suspend fun post(module: ModuleResponse): ModuleResponse = client.post("/module") {
 		contentType(ContentType.Application.Json)
 		setBody(module)
-	}.body()
-
-	suspend fun put(module:ModuleResponse): ModuleResponse = client.put("/module"){
-		contentType(ContentType.Application.Json)
-		setBody(module)
-	}.body()
+	}.ifSuccess()
 
 }

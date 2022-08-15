@@ -3,7 +3,7 @@ package com.uogames.database.repository
 import com.uogames.database.dao.ModuleDAO
 import com.uogames.database.map.ModuleMap.toDTO
 import com.uogames.database.map.ModuleMap.toEntity
-import com.uogames.dto.Module
+import com.uogames.dto.local.Module
 import kotlinx.coroutines.flow.map
 
 class ModuleRepository(private val moduleDAO: ModuleDAO) {

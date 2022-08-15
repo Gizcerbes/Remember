@@ -2,10 +2,9 @@ package com.uogames.repository.providers
 
 import androidx.core.net.toUri
 import com.uogames.database.DatabaseRepository
-import com.uogames.dto.Phrase
-import com.uogames.dto.Pronunciation
+import com.uogames.dto.local.Phrase
+import com.uogames.dto.local.Pronunciation
 import com.uogames.repository.fileRepository.FileRepository
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 
 class PronunciationProvider(
@@ -22,7 +21,7 @@ class PronunciationProvider(
 
 	suspend fun add(bytes: ByteArray): Int{
 		val id = database.pronunciationRepository.insert(Pronunciation(0,"")).toInt()
-		val uri = fileRepository.saveFile("$id.gpp", bytes)
+		val uri = fileRepository.saveFile("$id.mp4", bytes)
 		database.pronunciationRepository.update(Pronunciation(id, uri.toString()))
 		return id
 	}

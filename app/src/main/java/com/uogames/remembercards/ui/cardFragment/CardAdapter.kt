@@ -10,10 +10,10 @@ import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import com.squareup.picasso.Picasso
-import com.uogames.dto.Card
-import com.uogames.dto.Image
-import com.uogames.dto.Phrase
-import com.uogames.dto.Pronunciation
+import com.uogames.dto.local.Card
+import com.uogames.dto.local.Image
+import com.uogames.dto.local.Phrase
+import com.uogames.dto.local.Pronunciation
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardCardBinding
 import com.uogames.remembercards.utils.*
@@ -73,14 +73,14 @@ class CardAdapter(
         }
 
         private fun setData(
-            phrase: Phrase?,
-            pronunciation: Pronunciation?,
-            image: Image?,
-            langView: TextView,
-            phraseView: TextView,
-            soundImg: ImageView,
-            button: MaterialCardView,
-            phraseImage: ImageView
+	        phrase: Phrase?,
+	        pronunciation: Pronunciation?,
+	        image: Image?,
+	        langView: TextView,
+	        phraseView: TextView,
+	        soundImg: ImageView,
+	        button: MaterialCardView,
+	        phraseImage: ImageView
         ) {
             phrase?.let {
                 langView.text = model.getDisplayLang(phrase)

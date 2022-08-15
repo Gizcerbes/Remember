@@ -1,4 +1,4 @@
-package com.uogames.dto
+package com.uogames.dto.local
 
 import java.util.*
 

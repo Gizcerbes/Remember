@@ -3,7 +3,7 @@ package com.uogames.database.repository
 import com.uogames.database.dao.SettingDAO
 import com.uogames.database.map.SettingMapper.toDTO
 import com.uogames.database.map.SettingMapper.toEntity
-import com.uogames.dto.Setting
+import com.uogames.dto.local.Setting
 import kotlinx.coroutines.flow.map
 
 class SettingRepository(val dao: SettingDAO) {

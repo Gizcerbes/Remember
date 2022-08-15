@@ -5,7 +5,6 @@ import android.media.MediaRecorder
 import android.os.Build
 import android.os.Bundle
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +19,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.squareup.picasso.Picasso
-import com.uogames.dto.Image
+import com.uogames.dto.local.Image
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentEditPhraseBinding
@@ -29,7 +28,6 @@ import com.uogames.remembercards.ui.cropFragment.CropViewModel
 import com.uogames.remembercards.utils.*
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import java.util.*
 import javax.inject.Inject
 

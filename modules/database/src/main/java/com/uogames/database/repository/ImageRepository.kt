@@ -3,9 +3,9 @@ package com.uogames.database.repository
 import com.uogames.database.dao.ImageDAO
 import com.uogames.database.map.ImageMap.toDTO
 import com.uogames.database.map.ImageMap.toEntity
-import com.uogames.dto.Image
-import com.uogames.dto.Card
-import com.uogames.dto.Phrase
+import com.uogames.dto.local.Image
+import com.uogames.dto.local.Card
+import com.uogames.dto.local.Phrase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map

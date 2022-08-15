@@ -44,7 +44,6 @@ android {
     buildFeatures{
         viewBinding = true
     }
-    buildToolsVersion '1.0.0'
     ndkVersion '1'
 
 }

@@ -2,7 +2,7 @@ package com.uogames.remembercards.ui.libraryFragment
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.uogames.dto.Module
+import com.uogames.dto.local.Module
 import com.uogames.repository.DataProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flatMapLatest

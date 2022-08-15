@@ -1,7 +1,7 @@
 package com.uogames.database.map
 
 import com.uogames.database.entity.SettingEntity
-import com.uogames.dto.Setting
+import com.uogames.dto.local.Setting
 
 object SettingMapper : Map<SettingEntity, Setting> {
 

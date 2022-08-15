@@ -1,11 +1,7 @@
 package com.uogames.repository.providers
 
 import com.uogames.database.repository.ModuleRepository
-import com.uogames.dto.Module
-import com.uogames.dto.ModuleCard
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
+import com.uogames.dto.local.Module
 
 class ModuleProvider(
 	private val mr: ModuleRepository,
