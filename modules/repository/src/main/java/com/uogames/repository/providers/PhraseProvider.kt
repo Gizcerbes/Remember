@@ -1,10 +1,17 @@
 package com.uogames.repository.providers
 
+import android.util.Log
 import com.uogames.database.repository.PhraseRepository
 import com.uogames.dto.local.Phrase
+import com.uogames.map.PhraseMap.toGlobal
+import com.uogames.map.PhraseMap.update
+import com.uogames.network.NetworkProvider
+import com.uogames.repository.DataProvider
 
 class PhraseProvider(
-	private val pr: PhraseRepository
+	private val dataProvider: DataProvider,
+	private val pr: PhraseRepository,
+	private val network: NetworkProvider
 ) {
 	suspend fun add(phrase: Phrase) = pr.add(phrase)
 
@@ -33,5 +40,24 @@ class PhraseProvider(
 	fun getListId(like: String, lang: String) = pr.getListIdFlow(like, lang)
 
 	fun getListId(like: String) = pr.getListIdFlow(like)
+
+	suspend fun countGlobal(like: String) = network.phrase.count(like)
+
+	suspend fun getGlobal(like: String, number: Long) = network.phrase.get(like,number)
+
+	suspend fun getGlobalById(globalId: Long) = network.phrase.get(globalId)
+
+	suspend fun share(id: Int): Phrase? {
+		val phrase = getById(id)
+		return phrase?.let {
+			val image = it.idImage?.let { image -> dataProvider.images.share(image) }
+			val pronounce = it.idPronounce?.let { pronounce -> dataProvider.pronounce.share(pronounce) }
+			val globalPhrase = it.toGlobal(image, pronounce)
+			val res = network.phrase.post(globalPhrase)
+			val updatedPhrase = it.update(res)
+			update(updatedPhrase)
+			return@let updatedPhrase
+		}
+	}
 
 }

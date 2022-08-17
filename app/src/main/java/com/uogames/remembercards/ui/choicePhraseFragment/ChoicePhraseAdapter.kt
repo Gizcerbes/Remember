@@ -37,7 +37,7 @@ class ChoicePhraseAdapter(
 			val linearLayout = itemView as LinearLayout
 			linearLayout.removeAllViews()
 			linearLayout.addView(bind.root)
-			bind.btnEdit.visibility = View.GONE
+			bind.btns.visibility = View.GONE
 			bind.root.visibility = View.INVISIBLE
 			modelObserver = model.get(adapterPosition).observeWhile(recyclerScope) { bookView ->
 				bookView?.phrase?.let { phrase ->

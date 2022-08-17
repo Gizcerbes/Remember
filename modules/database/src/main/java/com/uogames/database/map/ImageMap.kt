@@ -4,17 +4,18 @@ import com.uogames.database.entity.ImageEntity
 import com.uogames.dto.local.Image
 
 object ImageMap : Map<ImageEntity, Image> {
-	override fun ImageEntity.toDTO(): Image {
-		return Image(
-			id = id,
-			imgUri = imgUri
-		)
-	}
+	override fun ImageEntity.toDTO() = Image(
+		id = id,
+		imgUri = imgUri,
+		globalId = globalId,
+		globalOwner = globalOwner
+	)
 
-	override fun Image.toEntity(): ImageEntity {
-		return ImageEntity(
-			id = id,
-			imgUri = imgUri
-		)
-	}
+	override fun Image.toEntity() = ImageEntity(
+		id = id,
+		imgUri = imgUri,
+		globalId = globalId,
+		globalOwner = globalOwner
+	)
+
 }

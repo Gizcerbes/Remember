@@ -29,4 +29,6 @@ class ModuleCardRepository(private val moduleCardDAO: ModuleCardDAO) {
 
 	suspend fun getRandomModuleWithout(idModule: Int, idCard: Int) = moduleCardDAO.getRandomWithout(idModule, idCard)?.toDTO()
 
+	suspend fun getById(id: Int) = moduleCardDAO.getById(id)?.toDTO()
+
 }

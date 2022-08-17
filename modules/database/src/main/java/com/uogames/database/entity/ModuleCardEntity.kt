@@ -8,22 +8,27 @@ import androidx.room.*
 		ForeignKey(
 			entity = ModuleEntity::class,
 			parentColumns = ["id"],
-			childColumns = ["idModule"],
+			childColumns = ["id_module"],
 			onDelete = ForeignKey.CASCADE
 		),
 		ForeignKey(
 			entity = CardEntity::class,
 			parentColumns = ["id"],
-			childColumns = ["idCard"],
+			childColumns = ["id_card"],
 			onDelete = ForeignKey.CASCADE
 		)
 	]
 )
 data class ModuleCardEntity(
 	@PrimaryKey(autoGenerate = true)
+	@ColumnInfo(name = "id")
 	val id: Int,
-	@ColumnInfo(index = true)
+	@ColumnInfo(name = "id_module", index = true)
 	val idModule: Int,
-	@ColumnInfo(index = true)
-	val idCard: Int
+	@ColumnInfo(name = "id_card", index = true)
+	val idCard: Int,
+	@ColumnInfo(name = "global_id")
+	val globalId: Long?,
+	@ColumnInfo(name = "global_owner")
+	val globalOwner: String?
 )

@@ -37,7 +37,7 @@ interface PronunciationDAO {
 	@Query(
 		"SELECT * FROM pronounce_table " +
 				"WHERE " +
-				"NOT EXISTS (SELECT * FROM phrase_table pt WHERE pt.idPronounce = pronounce_table.id )"
+				"NOT EXISTS (SELECT * FROM phrase_table pt WHERE pt.id_pronounce = pronounce_table.id )"
 	)
 	suspend fun freePronounce(): List<PronunciationEntity>
 

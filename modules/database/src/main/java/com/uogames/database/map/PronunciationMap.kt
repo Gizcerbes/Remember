@@ -4,17 +4,19 @@ import com.uogames.database.entity.PronunciationEntity
 import com.uogames.dto.local.Pronunciation
 
 object PronunciationMap : Map<PronunciationEntity, Pronunciation> {
-	override fun PronunciationEntity.toDTO(): Pronunciation {
-		return Pronunciation(
-			id = id,
-			audioUri = audioUri
-		)
-	}
+	override fun PronunciationEntity.toDTO() = Pronunciation(
+		id = id,
+		audioUri = audioUri,
+		globalId = globalId,
+		globalOwner = globalOwner
+	)
 
-	override fun Pronunciation.toEntity(): PronunciationEntity {
-		return PronunciationEntity(
-			id = id,
-			audioUri = audioUri
-		)
-	}
+
+	override fun Pronunciation.toEntity() = PronunciationEntity(
+		id = id,
+		audioUri = audioUri,
+		globalId = globalId,
+		globalOwner = globalOwner
+	)
+
 }

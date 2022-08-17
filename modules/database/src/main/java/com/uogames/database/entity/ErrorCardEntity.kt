@@ -9,23 +9,28 @@ import androidx.room.*
 		ForeignKey(
 			entity = PhraseEntity::class,
 			parentColumns = ["id"],
-			childColumns = ["idPhrase"],
+			childColumns = ["id_phrase"],
 			onDelete = ForeignKey.CASCADE
 		), ForeignKey(
 			entity = PhraseEntity::class,
 			parentColumns = ["id"],
-			childColumns = ["idTranslate"],
+			childColumns = ["id_translate"],
 			onDelete = ForeignKey.CASCADE
 		)],
-	indices = [Index("idPhrase", "idTranslate", unique = true)]
+	indices = [Index("id_phrase", "id_translate", unique = true)]
 )
 data class ErrorCardEntity(
 	@PrimaryKey(autoGenerate = true)
+	@ColumnInfo(name = "id")
 	val id: Long = 0,
+	@ColumnInfo(name = "id_phrase")
 	val idPhrase: Int,
-	@ColumnInfo(index = true)
+	@ColumnInfo(name = "id_translate")
 	val idTranslate: Int,
+	@ColumnInfo(name = "correct")
 	val correct: Long,
+	@ColumnInfo(name = "incorrect")
 	val incorrect: Long,
+	@ColumnInfo(name = "percent_correct")
 	val percentCorrect: Byte
 )

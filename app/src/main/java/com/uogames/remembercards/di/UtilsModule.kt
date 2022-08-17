@@ -3,6 +3,9 @@ package com.uogames.remembercards.di
 import android.app.Application
 import android.content.Context
 import android.media.MediaPlayer
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseViewModel
 import com.uogames.remembercards.ui.bookFragment.BookViewModel
@@ -27,8 +30,24 @@ class UtilsModule {
 	@Provides
 	fun provideContext(app: Application): Context = app.applicationContext
 
+	@Singleton
 	@Provides
-	fun provideDataProvider(context: Context): DataProvider = DataProvider.get(context)
+	fun provideAuth(): FirebaseAuth = Firebase.auth
+
+	@Provides
+	@Singleton
+	fun provideDataProvider(context: Context, auth: FirebaseAuth): DataProvider = DataProvider
+		.get(
+			context,
+			{ "secret" },
+			{
+				mapOf(
+					"Identifier" to (auth.currentUser?.displayName ?: ""),
+					"User UID" to (auth.currentUser?.uid ?: ""),
+					"UTC" to System.currentTimeMillis().toString()
+				)
+			}
+		)
 
 	@Provides
 	@Singleton

@@ -2,6 +2,7 @@ package com.uogames.remembercards.ui.editPhraseFragment
 
 import android.graphics.Bitmap
 import android.media.MediaRecorder
+import android.util.Log
 import androidx.core.net.toFile
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
@@ -33,6 +34,8 @@ class EditPhraseViewModel @Inject constructor(
 		val idPronounce: MutableStateFlow<Int?> = MutableStateFlow(null)
 		val idImage: MutableStateFlow<Int?> = MutableStateFlow(null)
 		val timeChange = MutableStateFlow(0L)
+		private var globalId: Long? = null
+		private var globalOwner: String? = null
 
 		fun create() = Phrase(
 			id = id.value,
@@ -41,7 +44,9 @@ class EditPhraseViewModel @Inject constructor(
 			lang = lang.value,
 			idPronounce = idPronounce.value,
 			idImage = idImage.value,
-			timeChange = Date().time
+			timeChange = Date().time,
+			globalId = globalId,
+			globalOwner = globalOwner
 		)
 
 		fun set(obj: Phrase) {
@@ -52,10 +57,10 @@ class EditPhraseViewModel @Inject constructor(
 			idPronounce.value = obj.idPronounce
 			idImage.value = obj.idImage
 			timeChange.value = obj.timeChange
+			globalId = obj.globalId
+			globalOwner = obj.globalOwner
 		}
 	}
-
-	private val argPhraseId: MutableStateFlow<Int?> = MutableStateFlow(null)
 
 	private val phraseObject = PhraseObject()
 
@@ -94,10 +99,10 @@ class EditPhraseViewModel @Inject constructor(
 		phraseObject.idImage.observeWhile(viewModelScope, Dispatchers.IO) {
 			_imgPhrase.value = it?.let { provider.images.getByIdFlow(it).first() }
 		}
-		viewModelScope.launch(Dispatchers.IO) {
-			_country.value = Countries.valueOf(provider.setting.get(GlobalViewModel.USER_NATIVE_COUNTRY).ifNull { "UNITED_KINGDOM" })
-		}
-		phraseObject.phrase.observeWhile(viewModelScope, Dispatchers.IO){
+//		viewModelScope.launch(Dispatchers.IO) {
+//			_country.value = Countries.valueOf(provider.setting.get(GlobalViewModel.USER_NATIVE_COUNTRY).ifNull { "UNITED_KINGDOM" })
+//		}
+		phraseObject.phrase.observeWhile(viewModelScope, Dispatchers.IO) {
 			val languageIdentifier = LanguageIdentification.getClient(
 				LanguageIdentificationOptions.Builder()
 					.setConfidenceThreshold(0.1f)
@@ -108,12 +113,6 @@ class EditPhraseViewModel @Inject constructor(
 					_languages.value = identifiedLang.map { loc -> Locale.forLanguageTag(loc.languageTag) }
 				}
 		}
-	}
-
-	fun setArgPhraseId(id: Int?): Boolean {
-		val res = id != argPhraseId.value
-		argPhraseId.value = id
-		return res
 	}
 
 	fun reset() {
@@ -131,19 +130,22 @@ class EditPhraseViewModel @Inject constructor(
 		_enableLanguageChoice.value = false
 	}
 
-	fun loadByID(id: Int) = viewModelScope.launch(Dispatchers.IO) {
-		val phrase = provider.phrase.getByIdFlow(id).first().ifNull { Phrase() }
-		phraseObject.set(phrase)
-		val splitLang = phrase.lang.ifNull { "eng-gb" }.split("-")
-		_lang.value = Locale.forLanguageTag(splitLang[0])
-		_country.value = Countries.search(splitLang[1]).ifNull { Countries.UNITED_KINGDOM }
-		_imgPhrase.value = provider.images.getByPhrase(phrase).first()
-		val audio = provider.pronounce.getByPhrase(phrase).first()
+	fun loadByID(id: Int): Job {
 		_isFileWriting.value = true
-		audio?.audioUri?.let { if (it.isNotEmpty()) _tempAudioFile.writeBytes(it.toUri().toFile().readBytes()) }
-		_audioChanged.value = false
-		_isFileWriting.value = false
-		_timeWriting.value = -1
+		return viewModelScope.launch(Dispatchers.IO) {
+			val phrase = provider.phrase.getByIdFlow(id).first().ifNull { Phrase() }
+			phraseObject.set(phrase)
+			val splitLang = phrase.lang.ifNull { "eng-UNITED_KINGDOM" }.split("-")
+			_lang.value = Locale.forLanguageTag(splitLang[0])
+			_country.value = Countries.valueOf(splitLang[1])
+			_imgPhrase.value = provider.images.getByPhrase(phrase).first()
+			val audio = provider.pronounce.getByPhrase(phrase).first()
+			_tempAudioBytes = audio?.audioUri?.let { if (it.isNotEmpty()) it.toUri().toFile().readBytes() else null }
+			_tempAudioBytes?.let { _tempAudioFile.writeBytes(it) }
+			_audioChanged.value = false
+			_isFileWriting.value = false
+			_timeWriting.value = -1
+		}
 	}
 
 
@@ -211,7 +213,7 @@ class EditPhraseViewModel @Inject constructor(
 		}
 	}
 
-	fun forceSetLang(locale: Locale){
+	fun forceSetLang(locale: Locale) {
 		_lang.value = if (locale.isO3Language.isNotEmpty()) locale else Locale.getDefault()
 		_enableLanguageChoice.value = true
 	}
@@ -254,4 +256,5 @@ class EditPhraseViewModel @Inject constructor(
 		val res = provider.phrase.delete(phrase)
 		call(res)
 	}
+
 }

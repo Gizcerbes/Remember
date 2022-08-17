@@ -18,8 +18,8 @@ interface CardDAO {
 
 	@Query(
 		"SELECT COUNT(id) FROM cards_table nct " +
-				"WHERE EXISTS (SELECT id FROM phrase_table pt WHERE nct.idPhrase = pt.id AND pt.phrase LIKE '%' || :like || '%') " +
-				"OR EXISTS (SELECT id FROM phrase_table pt WHERE nct.idTranslate = pt.id AND pt.phrase LIKE '%' || :like || '%') "
+				"WHERE EXISTS (SELECT id FROM phrase_table pt WHERE nct.id_phrase = pt.id AND pt.phrase LIKE '%' || :like || '%') " +
+				"OR EXISTS (SELECT id FROM phrase_table pt WHERE nct.id_translate = pt.id AND pt.phrase LIKE '%' || :like || '%') "
 	)
 	fun getCountFlow(like: String): Flow<Int>
 
@@ -28,8 +28,8 @@ interface CardDAO {
 
 	@Query(
 		"SELECT * FROM cards_table nct " +
-				"WHERE EXISTS (SELECT id FROM phrase_table pt WHERE nct.idPhrase = pt.id AND pt.phrase LIKE '%' || :like || '%') " +
-				"OR EXISTS (SELECT id FROM phrase_table pt WHERE nct.idTranslate = pt.id AND pt.phrase LIKE '%' || :like || '%') " +
+				"WHERE EXISTS (SELECT id FROM phrase_table pt WHERE nct.id_phrase = pt.id AND pt.phrase LIKE '%' || :like || '%') " +
+				"OR EXISTS (SELECT id FROM phrase_table pt WHERE nct.id_translate = pt.id AND pt.phrase LIKE '%' || :like || '%') " +
 				"LIMIT :number, 1"
 	)
 	fun getCardFlow(like: String, number: Int): Flow<CardEntity?>

@@ -5,29 +5,31 @@ import com.uogames.database.DatabaseRepository
 import com.uogames.dto.local.Card
 import com.uogames.dto.local.ModuleCard
 import com.uogames.dto.local.Phrase
+import com.uogames.network.NetworkProvider
 import com.uogames.repository.fileRepository.FileRepository
 import com.uogames.repository.providers.*
 
 class DataProvider private constructor(
 	private val database: DatabaseRepository,
-	private val fileRepository: FileRepository
+	private val fileRepository: FileRepository,
+	private val networkProvider: NetworkProvider
 ) {
 
 	companion object {
 		private var INSTANCE: DataProvider? = null
 
-		fun get(context: Context): DataProvider {
-			if (INSTANCE == null) INSTANCE = DataProvider(
-				DatabaseRepository.getINSTANCE(context),
-				FileRepository.getINSTANCE(context)
-			)
+		fun get(context: Context, secret: () -> String, data: () -> Map<String, String>): DataProvider {
+			if (INSTANCE == null) synchronized(this) {
+				if (INSTANCE == null) INSTANCE = DataProvider(
+					DatabaseRepository.getINSTANCE(context),
+					FileRepository.getINSTANCE(context),
+					NetworkProvider.getInstance(context, secret, data)
+				)
+			}
 			return INSTANCE as DataProvider
 		}
 
-
 		suspend fun ModuleCard.toModule() = INSTANCE?.module?.getById(idModule)
-
-		//fun Deferred<ModuleCard?>.toModuleDeferred() = INSTANCE?.module?.getByIdAsync { await()?.idModule }
 
 		fun ModuleCard.toModuleFlow() = INSTANCE?.module?.getByIdFlow(idModule)
 
@@ -37,52 +39,38 @@ class DataProvider private constructor(
 
 		suspend fun Card.toPhrase() = INSTANCE?.phrase?.getById(idPhrase)
 
-		//fun Deferred<Card?>.toPhraseDeferred() = INSTANCE?.phrase?.getByIdAsync { await()?.idPhrase }
-
 		fun Card.toPhraseFlow() = INSTANCE?.phrase?.getByIdFlow(idPhrase)
 
 		suspend fun Card.toTranslate() = INSTANCE?.phrase?.getById(idTranslate)
 
-		//fun Deferred<Card?>.toTranslateDeferred() = INSTANCE?.phrase?.getByIdAsync { await()?.idTranslate }
-
 		fun Card.toTranslateFlow() = INSTANCE?.phrase?.getByIdFlow(idTranslate)
-
-		//suspend fun Card.toImage() = idImage?.let { INSTANCE?.images?.getByIdAsync(id)?.await() }
 
 		suspend fun Card.toImage() = INSTANCE?.images?.getById(id)
 
-		//fun Deferred<Card?>.cardToImageDeferred() = INSTANCE?.images?.getByIdAsync { await()?.idImage }
-
 		fun Card.toImageFlow() = idImage?.let { INSTANCE?.images?.getByIdFlow(it) }
 
-		//suspend fun Phrase.toImage() = idImage?.let { INSTANCE?.images?.getByIdAsync(it)?.await() }
-
 		suspend fun Phrase.toImage() = idImage?.let { INSTANCE?.images?.getById(it) }
-
-		//fun Deferred<Phrase?>.phraseToImageDeferred() = INSTANCE?.images?.getByIdAsync { await()?.idImage }
 
 		fun Phrase.toImageFlow() = idImage?.let { INSTANCE?.images?.getByIdFlow(it) }
 
 		suspend fun Phrase.toPronounce() = idPronounce?.let { INSTANCE?.pronounce?.getById(it) }
 
-		//fun Deferred<Phrase?>.toPronounceDeferred() = INSTANCE?.pronounce?.getByIdAsync { await()?.idPronounce }
-
 		fun Phrase.toPronounceFlow() = idPronounce?.let { INSTANCE?.pronounce?.getByIdFlow(it) }
 	}
 
-	val cards by lazy { CardsProvider(database) }
+	val cards by lazy { CardsProvider(this, database.cardRepository, networkProvider) }
 
-	val phrase by lazy { PhraseProvider(database.phraseRepository) }
+	val phrase by lazy { PhraseProvider(this, database.phraseRepository, networkProvider) }
 
-	val images by lazy { ImageProvider(database, fileRepository) }
+	val images by lazy { ImageProvider(this, database.imageRepository, fileRepository, networkProvider) }
 
-	val pronounce by lazy { PronunciationProvider(database, fileRepository) }
+	val pronounce by lazy { PronunciationProvider(this, database.pronunciationRepository, fileRepository, networkProvider) }
 
-	val setting by lazy { SettingProvider(database.settingRepository) }
+	val setting by lazy { SettingProvider(this, database.settingRepository) }
 
-	val module by lazy { ModuleProvider(database.moduleRepository) }
+	val module by lazy { ModuleProvider(this, database.moduleRepository, networkProvider) }
 
-	val moduleCard by lazy { ModuleCardProvider(database.moduleCardRepository) }
+	val moduleCard by lazy { ModuleCardProvider(this, database.moduleCardRepository, networkProvider) }
 
 	suspend fun clean() {
 		images.clear()

@@ -5,36 +5,34 @@ import com.uogames.dto.local.Phrase
 
 object PhraseMap : Map<PhraseEntity, Phrase> {
 
-	override fun PhraseEntity.toDTO(): Phrase {
-		return Phrase(
-			id = id,
-			phrase = phrase,
-			lang = lang,
-			idPronounce = idPronounce,
-			idImage = idImage,
-			definition = definition,
-			timeChange = timeChange,
-			like = like,
-			dislike = dislike,
-			globalId = globalId,
-			globalOwner = globalOwner
-		)
-	}
+	override fun PhraseEntity.toDTO() = Phrase(
+		id = id,
+		phrase = phrase,
+		lang = lang,
+		idPronounce = idPronounce,
+		idImage = idImage,
+		definition = definition,
+		timeChange = timeChange,
+		like = like,
+		dislike = dislike,
+		globalId = globalId,
+		globalOwner = globalOwner
+	)
 
-	override fun Phrase.toEntity(): PhraseEntity {
-		return PhraseEntity(
-			id = id,
-			phrase = phrase,
-			lang = lang,
-			idPronounce = idPronounce,
-			idImage = idImage,
-			definition = definition,
-			timeChange = timeChange,
-			like = like,
-			dislike = dislike,
-			globalId = globalId,
-			globalOwner = globalOwner
-		)
-	}
+
+	override fun Phrase.toEntity() = PhraseEntity(
+		id = id,
+		phrase = phrase,
+		lang = lang,
+		idPronounce = idPronounce,
+		idImage = idImage,
+		definition = definition,
+		timeChange = timeChange,
+		like = like,
+		dislike = dislike,
+		globalId = globalId,
+		globalOwner = globalOwner
+	)
+
 
 }

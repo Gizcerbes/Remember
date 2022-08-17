@@ -46,4 +46,16 @@ class BookViewModel @Inject constructor(
 
 	fun get(position: Int) = provider.phrase.getFlow(like.value, position).map { it?.let { BookModel(it) } }
 
+	fun share(id: Int, loading: (String) -> Unit) {
+		viewModelScope.launch(Dispatchers.IO) {
+			runCatching {
+				provider.phrase.share(id)
+			}.onSuccess {
+				launch(Dispatchers.Main) { loading("Ok") }
+			}.onFailure {
+				launch(Dispatchers.Main) { loading(it.message?: "Error") }
+			}
+		}
+	}
+
 }

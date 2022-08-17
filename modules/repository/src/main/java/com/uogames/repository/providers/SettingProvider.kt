@@ -2,9 +2,11 @@ package com.uogames.repository.providers
 
 import com.uogames.database.repository.SettingRepository
 import com.uogames.dto.local.Setting
+import com.uogames.repository.DataProvider
 import kotlinx.coroutines.flow.map
 
 class SettingProvider(
+	private val dataProvider: DataProvider,
 	private val repository: SettingRepository
 ) {
 

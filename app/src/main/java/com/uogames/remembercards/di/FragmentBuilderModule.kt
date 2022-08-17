@@ -15,12 +15,15 @@ import com.uogames.remembercards.ui.libraryFragment.LibraryFragment
 import com.uogames.remembercards.ui.mainNav.MainNaviFragment
 import com.uogames.remembercards.ui.personFragment.PersonFragment
 import com.uogames.remembercards.ui.registerFragment.RegisterFragment
+import com.uogames.remembercards.ui.rootFragment.RootFragment
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
 @Module
 abstract class FragmentBuilderModule {
 
+	@ContributesAndroidInjector
+	abstract fun contributeRootFragment(): RootFragment
 
 	@ContributesAndroidInjector
 	abstract fun contributeNavigationFragment(): MainNaviFragment

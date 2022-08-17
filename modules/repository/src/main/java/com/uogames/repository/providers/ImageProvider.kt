@@ -2,35 +2,42 @@ package com.uogames.repository.providers
 
 import androidx.core.net.toUri
 import com.uogames.database.DatabaseRepository
+import com.uogames.database.repository.ImageRepository
 import com.uogames.dto.local.Image
 import com.uogames.dto.local.Card
 import com.uogames.dto.local.Phrase
+import com.uogames.network.NetworkProvider
+import com.uogames.network.provider.ImageProvider
+import com.uogames.network.response.ImageResponse
+import com.uogames.repository.DataProvider
 import com.uogames.repository.fileRepository.FileRepository
 import kotlinx.coroutines.flow.first
 
 class ImageProvider(
-	private val database: DatabaseRepository,
-	private val fileRepository: FileRepository
+	private val dataProvider: DataProvider,
+	private val database: ImageRepository,
+	private val fileRepository: FileRepository,
+	private val network: NetworkProvider
 ) {
 
 	suspend fun add(bytes: ByteArray): Int {
-		val id = database.imageRepository.insert(Image()).toInt()
+		val id = database.insert(Image()).toInt()
 		val uri = fileRepository.saveFile("$id.png", bytes)
-		database.imageRepository.update(Image(id, uri.toString()))
+		database.update(Image(id, uri.toString()))
 		return id
 	}
 
 	suspend fun delete(image: Image): Boolean {
-		return database.imageRepository.getByIdFlow(image.id).first()?.let {
+		return database.getByIdFlow(image.id).first()?.let {
 			fileRepository.deleteFile(it.imgUri.toUri())
-			database.imageRepository.delete(image)
+			database.delete(image)
 		} ?: false
 	}
 
 	suspend fun update(image: Image, bytes: ByteArray): Boolean {
-		return database.imageRepository.getByIdFlow(image.id).first()?.let {
+		return database.getByIdFlow(image.id).first()?.let {
 			val uri = fileRepository.saveFile("${it.id}.png", bytes)
-			return database.imageRepository.update(Image(image.id, uri.toString()))
+			return database.update(Image(image.id, uri.toString()))
 		} ?: false
 	}
 
@@ -38,21 +45,36 @@ class ImageProvider(
 		return fileRepository.readFile(image.imgUri.toUri())
 	}
 
-	suspend fun getById(id: Int) = database.imageRepository.getById(id)
+	suspend fun getById(id: Int) = database.getById(id)
 
-	fun getByIdFlow(id: Int) = database.imageRepository.getByIdFlow(id)
+	fun getByIdFlow(id: Int) = database.getByIdFlow(id)
 
-	fun getByPhrase(phrase: Phrase) = database.imageRepository.getByPhraseFlow(phrase)
+	fun getByPhrase(phrase: Phrase) = database.getByPhraseFlow(phrase)
 
-	fun getByCard(card: Card) = database.imageRepository.getByCardFlow(card)
+	fun getByCard(card: Card) = database.getByCardFlow(card)
+
+	suspend fun getByGlobalId(id: Long) = network.image.get(id)
+
 
 	suspend fun clear() {
-		database.imageRepository.freeImages().forEach {
+		database.freeImages().forEach {
 			fileRepository.deleteFile(it.imgUri.toUri())
-			database.imageRepository.delete(it)
+			database.delete(it)
 		}
 	}
 
-	fun getListFlow() = database.imageRepository.getImageListFlow()
+	fun getListFlow() = database.getImageListFlow()
+
+	suspend fun share(id: Int): Image? {
+		val image = getById(id)
+		val res = image?.let {
+			if (it.globalId == null) it
+			else null
+		}?.let {
+			fileRepository.readFile(image.imgUri.toUri())?.let { network.image.upload(it) }
+		}?.let { Image(image.id, image.imgUri, it.globalId, it.globalOwner) }
+		res?.let { database.update(it) }
+		return res ?: image
+	}
 
 }

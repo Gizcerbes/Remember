@@ -5,6 +5,7 @@ import android.media.MediaRecorder
 import android.os.Build
 import android.os.Bundle
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -106,7 +107,6 @@ class EditPhraseFragment : DaggerFragment() {
 		val popBackTo = arguments?.getInt(POP_BACK_TO)
 
 		val idPhrase = arguments?.getInt(ID_PHRASE)
-		val idChanged = editPhraseViewModel.setArgPhraseId(idPhrase)
 
 		cropViewModel.getData()?.let { bitmap ->
 			editPhraseViewModel.setBitmapImage(bitmap)
@@ -117,7 +117,7 @@ class EditPhraseFragment : DaggerFragment() {
 			if (id == 0) return@let null
 			bind.txtFragmentName.text = getString(R.string.edit_phrase)
 			bind.btnDelete.visibility = View.VISIBLE
-			idChanged.ifTrue { editPhraseViewModel.loadByID(id) }
+			globalViewModel.shouldReset.ifTrue { editPhraseViewModel.loadByID(id) }
 			bind.btnSave.setOnClickListener {
 				editPhraseViewModel.update(id) { res -> if (res) findNavController().popBackStack() }
 			}
@@ -249,6 +249,7 @@ class EditPhraseFragment : DaggerFragment() {
 
 		fileWriteObserver = editPhraseViewModel.isFileWriting.observeWhenStarted(lifecycleScope) {
 			val size = editPhraseViewModel.tempAudioSource.size.ifNull { 0L }
+			Log.e("TAG", "$it: $size ", )
 			bind.btnSound.visibility = if (it || size <= 0L) View.GONE else View.VISIBLE
 			bind.imgMic.background.asAnimationDrawable().selectDrawable(if (it) 1 else 0)
 			if (!editPhraseViewModel.isFileWriting.value) bind.txtEditor.text = requireContext().getText(R.string.editor)

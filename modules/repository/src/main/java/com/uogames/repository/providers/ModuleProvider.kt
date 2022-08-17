@@ -2,9 +2,15 @@ package com.uogames.repository.providers
 
 import com.uogames.database.repository.ModuleRepository
 import com.uogames.dto.local.Module
+import com.uogames.map.ModuleMap.toGlobal
+import com.uogames.map.ModuleMap.update
+import com.uogames.network.NetworkProvider
+import com.uogames.repository.DataProvider
 
 class ModuleProvider(
+	private val dataProvider: DataProvider,
 	private val mr: ModuleRepository,
+	private val network: NetworkProvider
 ) {
 
 	suspend fun add(module: Module) = mr.insert(module)
@@ -23,7 +29,20 @@ class ModuleProvider(
 
 	suspend fun getById(id: Int) = mr.getById(id)
 
-	//fun getByIdAsync(id: Int) = ioScope.async { getById(id) }
+	suspend fun countGlobal(like: String) = network.module.count(like)
 
-	//fun getByIdAsync(id: suspend () -> Int?) = ioScope.async { id()?.let { getById(it) }  }
+	suspend fun getGlobal(like: String, number: Long) = network.module.get(like, number)
+
+	suspend fun getGlobalById(globalId: Long) = network.module.get(globalId)
+
+	suspend fun share(id: Int): Module? {
+		val module = getById(id)
+		return module?.let {
+			val res = network.module.post(it.toGlobal())
+			val updatedModule = it.update(res)
+			update(updatedModule)
+			return@let updatedModule
+		}
+	}
+
 }

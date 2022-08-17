@@ -9,8 +9,8 @@ class DatabaseRepository private constructor(private val database: MyDatabase) {
 		private var INSTANCE: DatabaseRepository? = null
 
 		fun getINSTANCE(context: Context): DatabaseRepository {
-			if (INSTANCE == null) {
-				INSTANCE = DatabaseRepository(MyDatabase.get(context))
+			if (INSTANCE == null) synchronized(this) {
+				if (INSTANCE == null) INSTANCE = DatabaseRepository(MyDatabase.get(context))
 			}
 			return INSTANCE as DatabaseRepository
 		}
@@ -30,6 +30,5 @@ class DatabaseRepository private constructor(private val database: MyDatabase) {
 
 	val moduleCardRepository by lazy { ModuleCardRepository(database.moduleCardDAO()) }
 
-	//val errorCardRepository bt
 
 }

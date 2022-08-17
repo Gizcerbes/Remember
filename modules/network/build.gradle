@@ -34,12 +34,12 @@ dependencies {
     implementation project(path: ':modules:dto')
     testImplementation 'junit:junit:4.13.2'
 
-    implementation "io.ktor:ktor-client-core:2.0.3"
-    implementation "io.ktor:ktor-client-okhttp:2.0.3"
-    implementation "io.ktor:ktor-client-content-negotiation:2.0.3"
-    implementation "io.ktor:ktor-client-logging:2.0.3"
-    implementation "io.ktor:ktor-serialization-gson:2.0.3"
-    implementation 'io.ktor:ktor-server-auth-jwt:2.0.3'
+    implementation "io.ktor:ktor-client-core:2.1.0"
+    implementation "io.ktor:ktor-client-okhttp:2.1.0"
+    implementation "io.ktor:ktor-client-content-negotiation:2.1.0"
+    implementation "io.ktor:ktor-client-logging:2.1.0"
+    implementation "io.ktor:ktor-serialization-gson:2.1.0"
+    implementation 'io.ktor:ktor-server-auth-jwt:2.1.0'
 
 
     implementation"com.squareup.okhttp3:logging-interceptor:4.10.0"

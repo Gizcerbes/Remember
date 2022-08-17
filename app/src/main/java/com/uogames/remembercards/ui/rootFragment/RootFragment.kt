@@ -11,10 +11,15 @@ import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.repository.DataProvider
+import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import javax.inject.Inject
 
-class RootFragment : Fragment() {
+class RootFragment : DaggerFragment() {
+
+	@Inject
+	lateinit var globalViewModel: GlobalViewModel
 
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 		return inflater.inflate(R.layout.fragment_root, container, false)
@@ -25,7 +30,7 @@ class RootFragment : Fragment() {
 
 		lifecycleScope.launchWhenStarted {
 			delay(500)
-			GlobalViewModel(DataProvider.get(requireContext())).getUserName().first()?.let {
+			globalViewModel.getUserName().first()?.let {
 				val graph = findNavController().navInflater.inflate(R.navigation.nav_graph).apply { setStartDestination(R.id.mainNaviFragment) }
 				findNavController().setGraph(graph, null)
 			}.ifNull {
@@ -33,7 +38,6 @@ class RootFragment : Fragment() {
 				findNavController().setGraph(graph, null)
 			}
 		}
-
 
 	}
 
