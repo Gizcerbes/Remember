@@ -34,7 +34,7 @@ class MainNaviFragment : DaggerFragment() {
 		container: ViewGroup?,
 		savedInstanceState: Bundle?
 	): View {
-		if (_bind == null)_bind = FragmentMainNaviBinding.inflate(inflater, container, false)
+		if (_bind == null) _bind = FragmentMainNaviBinding.inflate(inflater, container, false)
 		return bind.root
 	}
 
@@ -50,7 +50,12 @@ class MainNaviFragment : DaggerFragment() {
 		val nav = bind.navFragment.findNavController()
 		if (navigationViewModel.id.value != -1) nav.navigate(navigationViewModel.id.value)
 		bind.bottomNavigation.setOnItemSelectedListener {
-			if (it.itemId != navigationViewModel.id.value) nav.navigate(it.itemId,null, navOptions { anim { enter = R.anim.show }})
+			if (it.itemId != navigationViewModel.id.value) nav.navigate(it.itemId, null, navOptions {
+				anim {
+					enter = R.anim.from_bottom
+					exit = R.anim.hide
+				}
+			})
 			navigationViewModel.setId(it.itemId)
 		}
 	}

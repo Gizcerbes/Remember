@@ -13,6 +13,7 @@ import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.navOptions
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentChoicePhraseBinding
@@ -73,7 +74,9 @@ class ChoicePhraseFragment() : DaggerFragment() {
 
 		receivedTAG?.let {
 			sizeObserver = createSizeObserver()
-			bind.recycler.adapter = adapter
+			lifecycleScope.launchWhenStarted {
+				bind.recycler.adapter = adapter
+			}
 			bind.tilSearch.editText?.addTextChangedListener(searchWatcher)
 		}
 
@@ -94,9 +97,19 @@ class ChoicePhraseFragment() : DaggerFragment() {
 	}
 
 	private fun createAdapter(): ChoicePhraseAdapter = ChoicePhraseAdapter(bookViewModel, player, {
-		requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.addPhraseFragment, Bundle().apply {
-			putInt(EditPhraseFragment.ID_PHRASE, it.id)
-		})
+		requireActivity().findNavController(R.id.nav_host_fragment).navigate(
+			R.id.addPhraseFragment,
+			Bundle().apply {
+				putInt(EditPhraseFragment.ID_PHRASE, it.id)
+			},
+			navOptions {
+				anim {
+					enter = R.anim.from_bottom
+					exit = R.anim.hide
+					popEnter = R.anim.show
+					popExit = R.anim.to_bottom
+				}
+			})
 	}) { phrase ->
 		imm?.hideSoftInputFromWindow(view?.windowToken, 0)
 		receivedTAG?.let {
@@ -125,10 +138,21 @@ class ChoicePhraseFragment() : DaggerFragment() {
 
 
 	private fun openEditFragment() {
-		requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.addPhraseFragment, Bundle().apply {
-			putString(EditPhraseFragment.CREATE_FOR, receivedTAG)
-			putInt(EditPhraseFragment.POP_BACK_TO, findNavController().currentDestination?.id.ifNull { 0 })
-		})
+		requireActivity().findNavController(R.id.nav_host_fragment).navigate(
+			R.id.addPhraseFragment,
+			Bundle().apply {
+				putString(EditPhraseFragment.CREATE_FOR, receivedTAG)
+				putInt(EditPhraseFragment.POP_BACK_TO, findNavController().currentDestination?.id.ifNull { 0 })
+			},
+			navOptions {
+				anim {
+					enter = R.anim.from_bottom
+					exit = R.anim.hide
+					popEnter = R.anim.show
+					popExit = R.anim.to_bottom
+				}
+			}
+		)
 	}
 
 	override fun onDestroyView() {

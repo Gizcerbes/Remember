@@ -9,6 +9,7 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.navOptions
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentEditModuleBinding
@@ -78,7 +79,15 @@ class EditModuleFragment : DaggerFragment() {
 		bind.btnAdd.setOnClickListener {
 			requireActivity().findNavController(R.id.nav_host_fragment).navigate(
 				R.id.choiceCardFragment,
-				bundleOf(ChoiceCardFragment.TAG to CARD_CALL_TAG)
+				bundleOf(ChoiceCardFragment.TAG to CARD_CALL_TAG),
+				navOptions {
+					anim {
+						enter = R.anim.from_bottom
+						exit = R.anim.hide
+						popEnter = R.anim.show
+						popExit =R.anim.to_bottom
+					}
+				}
 			)
 		}
 		bind.btnBack.setOnClickListener {

@@ -9,9 +9,9 @@
 
 
 	<LinearLayout
-		android:animateLayoutChanges="true"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:animateLayoutChanges="true"
 		android:orientation="vertical">
 
 		<androidx.constraintlayout.widget.ConstraintLayout
@@ -139,46 +139,59 @@
 
 		<LinearLayout
 			android:id="@+id/btns"
-			android:layout_width="wrap_content"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_gravity="end"
-			android:orientation="horizontal"
-			android:visibility="visible">
+			android:orientation="vertical">
 
-			<com.google.android.material.card.MaterialCardView
-				android:id="@+id/btn_share"
-				style="@style/Theme.RememberCards.CardView.Button.Icon"
+			<com.google.android.material.divider.MaterialDivider
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginStart="7dp"
+				android:layout_marginEnd="7dp" />
+
+			<LinearLayout
+
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_margin="0dp"
-				android:visibility="visible"
-				app:layout_constraintBottom_toBottomOf="parent"
-				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintTop_toTopOf="parent">
+				android:layout_gravity="end"
+				android:orientation="horizontal"
+				android:visibility="visible">
 
-				<ImageView
-					android:layout_width="@dimen/card_button"
-					android:layout_height="@dimen/card_button"
-					android:src="@drawable/ic_baseline_share_24" />
-			</com.google.android.material.card.MaterialCardView>
+				<com.google.android.material.card.MaterialCardView
+					android:id="@+id/btn_share"
+					style="@style/Theme.RememberCards.CardView.Button.Icon"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_margin="0dp"
+					android:visibility="visible"
+					app:layout_constraintBottom_toBottomOf="parent"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintTop_toTopOf="parent">
 
-			<com.google.android.material.card.MaterialCardView
-				android:id="@+id/btn_edit"
-				style="@style/Theme.RememberCards.CardView.Button.Icon"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_margin="0dp"
-				android:visibility="visible"
-				app:layout_constraintBottom_toBottomOf="parent"
-				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintTop_toTopOf="parent">
+					<ImageView
+						android:layout_width="@dimen/card_button"
+						android:layout_height="@dimen/card_button"
+						android:src="@drawable/ic_baseline_share_24" />
+				</com.google.android.material.card.MaterialCardView>
 
-				<ImageView
-					android:layout_width="@dimen/card_button"
-					android:layout_height="@dimen/card_button"
-					android:src="@drawable/ic_baseline_change_24" />
-			</com.google.android.material.card.MaterialCardView>
+				<com.google.android.material.card.MaterialCardView
+					android:id="@+id/btn_edit"
+					style="@style/Theme.RememberCards.CardView.Button.Icon"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_margin="0dp"
+					android:visibility="visible"
+					app:layout_constraintBottom_toBottomOf="parent"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintTop_toTopOf="parent">
 
+					<ImageView
+						android:layout_width="@dimen/card_button"
+						android:layout_height="@dimen/card_button"
+						android:src="@drawable/ic_baseline_change_24" />
+				</com.google.android.material.card.MaterialCardView>
+
+			</LinearLayout>
 		</LinearLayout>
 
 	</LinearLayout>

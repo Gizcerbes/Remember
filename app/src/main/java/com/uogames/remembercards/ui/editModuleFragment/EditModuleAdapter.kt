@@ -48,6 +48,13 @@ class EditModuleAdapter(
 
 		fun onShow() {
 			_bind = CardCardBinding.inflate(LayoutInflater.from(itemView.context), itemView as ViewGroup, false)
+			bind.txtDefinitionFirst.visibility = View.GONE
+			bind.txtDefinitionSecond.visibility = View.GONE
+			bind.imgCardFirst.visibility = View.GONE
+			bind.imgCardSecond.visibility = View.GONE
+			bind.btns.visibility = View.GONE
+			bind.imgBtnAction.setImageResource(R.drawable.ic_baseline_remove_24)
+
 			val linearLayout = itemView as LinearLayout
 			linearLayout.removeAllViews()
 			linearLayout.addView(bind.root)
@@ -56,7 +63,6 @@ class EditModuleAdapter(
 			model.getCard(moduleCard).observeWhile(recyclerScope) {
 				it?.let { card ->
 					bind.txtReason.text = card.reason
-					bind.imgBtnAction.setImageResource(R.drawable.ic_baseline_remove_24)
 					bind.btnCardAction.setOnClickListener {
 						model.removeModuleCard(moduleCard) {}
 					}

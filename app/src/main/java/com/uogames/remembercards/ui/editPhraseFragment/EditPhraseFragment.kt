@@ -18,6 +18,7 @@ import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.navOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.squareup.picasso.Picasso
 import com.uogames.dto.local.Image
@@ -29,6 +30,7 @@ import com.uogames.remembercards.ui.cropFragment.CropViewModel
 import com.uogames.remembercards.utils.*
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import java.util.*
 import javax.inject.Inject
 
@@ -161,12 +163,26 @@ class EditPhraseFragment : DaggerFragment() {
 			bottomSheet?.state = BottomSheetBehavior.STATE_HIDDEN
 		}
 
-		bind.rvImages.adapter = adapter
+		lifecycleScope.launchWhenStarted {
+			delay(300)
+			bind.rvImages.adapter = adapter
+		}
 
 		bind.btnNewFile.setOnClickListener {
 			chooser.getBitmap {
 				cropViewModel.putData(it)
-				requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.cropFragment)
+				requireActivity().findNavController(R.id.nav_host_fragment).navigate(
+					R.id.cropFragment,
+					null,
+					navOptions {
+						anim {
+							enter = R.anim.from_bottom
+							exit = R.anim.hide
+							popEnter = R.anim.show
+							popExit = R.anim.to_bottom
+						}
+					}
+				)
 			}
 		}
 
@@ -220,7 +236,7 @@ class EditPhraseFragment : DaggerFragment() {
 		}
 
 		bind.btnEditLanguage.setOnClickListener {
-			val dialog = ChoiceLanguageDialog(editPhraseViewModel.languages.value){
+			val dialog = ChoiceLanguageDialog(editPhraseViewModel.languages.value) {
 				editPhraseViewModel.forceSetLang(it)
 			}
 			dialog.show(requireActivity().supportFragmentManager, ChoiceLanguageDialog.TAG)
@@ -235,7 +251,7 @@ class EditPhraseFragment : DaggerFragment() {
 			bind.tilEdit.visibility = if (it) View.VISIBLE else View.GONE
 		}
 
-		 phraseObserver = editPhraseViewModel.phrase.observeWhenStarted(lifecycleScope) {
+		phraseObserver = editPhraseViewModel.phrase.observeWhenStarted(lifecycleScope) {
 			bind.txtPhrase.text = it.ifEmpty { requireContext().getString(R.string.phrase2) }
 		}
 
@@ -249,7 +265,7 @@ class EditPhraseFragment : DaggerFragment() {
 
 		fileWriteObserver = editPhraseViewModel.isFileWriting.observeWhenStarted(lifecycleScope) {
 			val size = editPhraseViewModel.tempAudioSource.size.ifNull { 0L }
-			Log.e("TAG", "$it: $size ", )
+			Log.e("TAG", "$it: $size ")
 			bind.btnSound.visibility = if (it || size <= 0L) View.GONE else View.VISIBLE
 			bind.imgMic.background.asAnimationDrawable().selectDrawable(if (it) 1 else 0)
 			if (!editPhraseViewModel.isFileWriting.value) bind.txtEditor.text = requireContext().getText(R.string.editor)

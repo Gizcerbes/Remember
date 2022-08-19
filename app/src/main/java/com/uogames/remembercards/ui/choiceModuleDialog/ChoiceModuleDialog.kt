@@ -4,11 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import com.uogames.dto.local.Module
 import com.uogames.remembercards.databinding.FragmentChoiceModuleBinding
 import com.uogames.remembercards.ui.libraryFragment.LibraryAdapter
 import com.uogames.remembercards.ui.libraryFragment.LibraryViewModel
 import com.uogames.remembercards.utils.ObservedDialog
+import kotlinx.coroutines.delay
 
 class ChoiceModuleDialog(private val libraryViewModel: LibraryViewModel, call: (Module) -> Unit) : ObservedDialog<Module>(call) {
 
@@ -36,7 +38,11 @@ class ChoiceModuleDialog(private val libraryViewModel: LibraryViewModel, call: (
 
 		dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
 
-		bind.rvModules.adapter = adapter
+		lifecycleScope.launchWhenCreated {
+			delay(300)
+			bind.rvModules.adapter = adapter
+		}
+
 	}
 
 	override fun onDestroyView() {

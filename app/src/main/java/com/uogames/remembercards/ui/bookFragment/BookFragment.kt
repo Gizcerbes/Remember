@@ -22,112 +22,136 @@ import com.uogames.remembercards.utils.ifTrue
 import com.uogames.remembercards.utils.observeWhenStarted
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class BookFragment : DaggerFragment() {
 
-    @Inject
-    lateinit var bookViewModel: BookViewModel
+	@Inject
+	lateinit var bookViewModel: BookViewModel
 
-    @Inject
-    lateinit var globalViewModel: GlobalViewModel
+	@Inject
+	lateinit var globalViewModel: GlobalViewModel
 
-    @Inject
-    lateinit var editPhraseViewModel: EditPhraseViewModel
+	@Inject
+	lateinit var editPhraseViewModel: EditPhraseViewModel
 
-    @Inject
-    lateinit var player: ObservableMediaPlayer
+	@Inject
+	lateinit var player: ObservableMediaPlayer
 
-    private var _bind: FragmentBookBinding? = null
-    private val bind get() = _bind!!
+	private var _bind: FragmentBookBinding? = null
+	private val bind get() = _bind!!
 
-    private var imm: InputMethodManager? = null
+	private var imm: InputMethodManager? = null
 
-    private var sizeObserver: Job? = null
-    private var keyObserver: Job? = null
-    private val textWatcher = createTextWatcher()
+	private var sizeObserver: Job? = null
+	private var keyObserver: Job? = null
+	private val textWatcher = createTextWatcher()
 
-    private var adapter: BookAdapter? = null
+	private var adapter: BookAdapter? = null
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        if (_bind == null) _bind = FragmentBookBinding.inflate(inflater, container, false)
-        return bind.root
-    }
+	override fun onCreateView(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+		savedInstanceState: Bundle?
+	): View {
+		if (_bind == null) _bind = FragmentBookBinding.inflate(inflater, container, false)
+		return bind.root
+	}
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+		super.onViewCreated(view, savedInstanceState)
+		globalViewModel.shouldReset.ifTrue {
+			bookViewModel.reset()
+		}
 
-        globalViewModel.shouldReset.ifTrue {
-            bookViewModel.reset()
-        }
+		init()
 
-        init()
+		bind.btnSearch.setOnClickListener {
+			if (!globalViewModel.isShowKey.value) {
+				bind.tilSearch.requestFocus()
+				imm?.showSoftInput(bind.tilSearch.editText, InputMethodManager.SHOW_IMPLICIT)
+			} else {
+				imm?.hideSoftInputFromWindow(view?.windowToken, 0)
+			}
+		}
 
-        bind.btnSearch.setOnClickListener {
-            if (!globalViewModel.isShowKey.value) {
-                bind.tilSearch.requestFocus()
-                imm?.showSoftInput(bind.tilSearch.editText, InputMethodManager.SHOW_IMPLICIT)
-            } else {
-                imm?.hideSoftInputFromWindow(view.windowToken, 0)
-            }
-        }
+		bind.btnAdd.setOnClickListener { openEditFragment() }
 
-        bind.btnAdd.setOnClickListener { openEditFragment() }
+		bind.tilSearch.editText?.addTextChangedListener(textWatcher)
 
-        bind.tilSearch.editText?.addTextChangedListener(textWatcher)
+		lifecycleScope.launchWhenStarted {
+			delay(300)
+			bind.recycler.adapter = adapter
+		}
 
-        bind.recycler.adapter = adapter
+	}
 
-    }
+	override fun onStart() {
+		super.onStart()
 
-    private fun init(){
-        imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+	}
 
-        adapter = BookAdapter(bookViewModel, player) {
-            requireActivity().findNavController(R.id.nav_host_fragment).navigate(
-                R.id.addPhraseFragment,
-                bundleOf(EditPhraseFragment.ID_PHRASE to it)
-            )
-        }
+	private fun init() {
+		imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 
-        sizeObserver = createSizeObserver()
-        keyObserver = createKeyObserver()
-    }
+		adapter = BookAdapter(bookViewModel, player) {
+			requireActivity().findNavController(R.id.nav_host_fragment).navigate(
+				R.id.addPhraseFragment,
+				bundleOf(EditPhraseFragment.ID_PHRASE to it),
+				navOptions {
+					anim {
+						enter = R.anim.from_bottom
+						exit = R.anim.hide
+						popEnter = R.anim.show
+						popExit =R.anim.to_bottom
+					}
+				}
+			)
+		}
 
-    private fun createTextWatcher(): TextWatcher = ShortTextWatcher {
-        bookViewModel.like.value = it.toString()
-    }
+		sizeObserver = createSizeObserver()
+		keyObserver = createKeyObserver()
+	}
 
-    private fun createSizeObserver(): Job = bookViewModel.size.observeWhenStarted(lifecycleScope) {
-        bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
-        adapter?.notifyDataSetChanged()
-    }
+	private fun createTextWatcher(): TextWatcher = ShortTextWatcher {
+		bookViewModel.like.value = it.toString()
+	}
 
-    private fun createKeyObserver(): Job = globalViewModel.isShowKey.observeWhenStarted(lifecycleScope) {
-        bind.tilSearch.visibility = if (it) View.VISIBLE else View.GONE
-        bind.btnAdd.visibility = if (it) View.GONE else View.VISIBLE
-        if (it) bind.searchImage.setImageResource(R.drawable.ic_baseline_close_24)
-        else bind.searchImage.setImageResource(R.drawable.ic_baseline_search_24)
-    }
+	private fun createSizeObserver(): Job = bookViewModel.size.observeWhenStarted(lifecycleScope) {
+		bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
+		adapter?.notifyDataSetChanged()
+	}
 
-    private fun openEditFragment() {
-        requireActivity().findNavController(R.id.nav_host_fragment)
-            .navigate(R.id.addPhraseFragment, null, navOptions { anim { enter = R.anim.show } })
-    }
+	private fun createKeyObserver(): Job = globalViewModel.isShowKey.observeWhenStarted(lifecycleScope) {
+		bind.tilSearch.visibility = if (it) View.VISIBLE else View.GONE
+		bind.btnAdd.visibility = if (it) View.GONE else View.VISIBLE
+		if (it) bind.searchImage.setImageResource(R.drawable.ic_baseline_close_24)
+		else bind.searchImage.setImageResource(R.drawable.ic_baseline_search_24)
+	}
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        sizeObserver?.cancel()
-        keyObserver?.cancel()
-        bind.tilSearch.editText?.removeTextChangedListener(textWatcher)
-        adapter?.onDestroy()
-        adapter = null
-        imm = null
-        _bind = null
-    }
+	private fun openEditFragment() {
+		requireActivity().findNavController(R.id.nav_host_fragment)
+			.navigate(R.id.addPhraseFragment, null, navOptions {
+				anim {
+					enter = R.anim.from_bottom
+					exit = R.anim.hide
+					popEnter = R.anim.show
+					popExit =R.anim.to_bottom
+				}
+			})
+	}
+
+	override fun onDestroyView() {
+		super.onDestroyView()
+		sizeObserver?.cancel()
+		keyObserver?.cancel()
+		bind.tilSearch.editText?.removeTextChangedListener(textWatcher)
+		adapter?.onDestroy()
+		adapter = null
+		imm = null
+		_bind = null
+	}
 
 }

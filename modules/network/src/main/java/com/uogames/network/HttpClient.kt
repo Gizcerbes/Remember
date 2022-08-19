@@ -1,6 +1,5 @@
 package com.uogames.network
 
-import android.util.Log
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.*
@@ -10,6 +9,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.gson.*
 import okhttp3.OkHttpClient
+import java.util.concurrent.TimeUnit
 
 class HttpClient(
 	private val secret: () -> String,
@@ -22,11 +22,12 @@ class HttpClient(
 	private val okHttpClient = OkHttpClient.Builder().build()
 	val client = HttpClient(OkHttp) {
 		engine {
+			preconfigured = okHttpClient
 			config {
+				connectTimeout(10, TimeUnit.SECONDS)
 				followRedirects(false)
 				setSsl(ssl)
 			}
-			preconfigured = okHttpClient
 		}
 		install(DefaultRequest) {
 			bearerAuth(JWTBuilder.create(secret(), data()))

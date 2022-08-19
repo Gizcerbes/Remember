@@ -5,10 +5,12 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import com.uogames.flags.Countries
 import com.uogames.remembercards.databinding.FragmentChoiceCountryBinding
 import com.uogames.remembercards.utils.ObservedDialog
 import com.uogames.remembercards.utils.ShortTextWatcher
+import kotlinx.coroutines.delay
 
 class ChoiceCountryDialog(call: (Countries) -> Unit) : ObservedDialog<Countries>(call) {
 
@@ -36,7 +38,11 @@ class ChoiceCountryDialog(call: (Countries) -> Unit) : ObservedDialog<Countries>
             dismiss()
         }
 
-        bind.rvCountries.adapter = adapter
+        lifecycleScope.launchWhenStarted {
+            delay(300)
+            bind.rvCountries.adapter = adapter
+        }
+
 
         dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
 

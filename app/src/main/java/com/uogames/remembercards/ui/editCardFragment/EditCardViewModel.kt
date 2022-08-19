@@ -1,6 +1,5 @@
 package com.uogames.remembercards.ui.editCardFragment
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.uogames.dto.local.Card
@@ -29,6 +28,8 @@ class EditCardViewModel @Inject constructor(val provider: DataProvider) : ViewMo
 	private val _reason = MutableStateFlow("")
 	val reason = _reason.asStateFlow()
 
+	private var loadedCard: Card? = null
+
 	fun setArgCardId(int: Int?): Boolean {
 		val res = argCardId.value != int
 		argCardId.value = int
@@ -40,7 +41,7 @@ class EditCardViewModel @Inject constructor(val provider: DataProvider) : ViewMo
 		_secondPhrase.value = null
 		_reason.value = ""
 		_cardID.value = 0
-		//argCardId.value = null
+		loadedCard = null
 	}
 
 	fun resetID() {
@@ -51,6 +52,7 @@ class EditCardViewModel @Inject constructor(val provider: DataProvider) : ViewMo
 		reset()
 		val card = provider.cards.getByIdFlow(id).first()
 		card?.let {
+			loadedCard = it
 			_cardID.value = card.id
 			_firstPhrase.value = provider.phrase.getByIdFlow(card.idPhrase).first()
 			_secondPhrase.value = provider.phrase.getByIdFlow(card.idTranslate).first()
@@ -61,7 +63,6 @@ class EditCardViewModel @Inject constructor(val provider: DataProvider) : ViewMo
 	fun selectFirstPhrase(id: Int?) = viewModelScope.launch {
 		if (id == null) return@launch
 		provider.phrase.getByIdFlow(id).first().let {
-			Log.e("TAG", "selectFirstPhrase: $it", )
 			_firstPhrase.value = it
 		}
 	}
@@ -79,7 +80,6 @@ class EditCardViewModel @Inject constructor(val provider: DataProvider) : ViewMo
 
 	fun save(call: (Long?) -> Unit) = viewModelScope.launch {
 		val card = build().ifNull { return@launch call(null) }
-		//val res = provider.cards.addAsync(card).await()
 		val res = provider.cards.add(card)
 		call(res)
 	}
@@ -87,13 +87,11 @@ class EditCardViewModel @Inject constructor(val provider: DataProvider) : ViewMo
 
 	fun update(call: (Boolean) -> Unit) = viewModelScope.launch {
 		val card = build().ifNull { return@launch call(false) }
-		//val res = provider.cards.updateAsync(card).await()
 		val res = provider.cards.update(card)
 		call(res)
 	}
 
 	fun delete(call: (Boolean) -> Unit) = viewModelScope.launch {
-		//val res = provider.cards.deleteAsync(Card(_cardID.value, 0, 0, null, "")).await()
 		val res = provider.cards.delete(Card(_cardID.value))
 		call(res)
 	}
@@ -103,7 +101,15 @@ class EditCardViewModel @Inject constructor(val provider: DataProvider) : ViewMo
 		val firstID = _firstPhrase.value?.id.ifNull { return null }
 		val secondID = _secondPhrase.value?.id.ifNull { return null }
 		val reason = _reason.value.ifNullOrEmpty { return null }
-		return Card(id, firstID, secondID, null, reason)
+		return Card(
+			id =id,
+			idPhrase = firstID,
+			idTranslate = secondID,
+			idImage = null,
+			reason = reason,
+			globalOwner = loadedCard?.globalOwner,
+			globalId = loadedCard?.globalId
+		)
 	}
 
 

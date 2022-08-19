@@ -8,8 +8,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import androidx.lifecycle.lifecycleScope
 import com.uogames.remembercards.databinding.FragmentChoiceLanguageBinding
 import com.uogames.remembercards.utils.*
+import kotlinx.coroutines.delay
 import java.util.*
 
 class ChoiceLanguageDialog(val list: List<Locale>,  call: (Locale) -> Unit) : ObservedDialog<Locale>(call) {
@@ -62,7 +64,11 @@ class ChoiceLanguageDialog(val list: List<Locale>,  call: (Locale) -> Unit) : Ob
 
         dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
 
-        bind.rvCountries.adapter = adapter
+        lifecycleScope.launchWhenStarted {
+            delay(300)
+            bind.rvCountries.adapter = adapter
+        }
+
 
         bind.tilSearch.editText?.addTextChangedListener(searchWatcher)
 

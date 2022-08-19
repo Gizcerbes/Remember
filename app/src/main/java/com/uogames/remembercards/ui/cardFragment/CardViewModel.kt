@@ -51,4 +51,16 @@ class CardViewModel(val provider: DataProvider) : ViewModel() {
 		}.ifNull { "" }
 	}
 
+	fun share(moduleID: Int, result: (String) -> Unit) {
+		viewModelScope.launch(Dispatchers.IO) {
+			runCatching {
+				provider.cards.share(moduleID)
+			}.onSuccess {
+				launch(Dispatchers.Main) { result("Ok") }
+			}.onFailure {
+				launch(Dispatchers.Main) { result(it.message ?: it.toString()) }
+			}
+		}
+	}
+
 }

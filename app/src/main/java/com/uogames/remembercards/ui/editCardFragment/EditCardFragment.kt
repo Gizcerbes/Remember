@@ -16,6 +16,7 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.navOptions
 import com.google.android.material.card.MaterialCardView
 import com.squareup.picasso.Picasso
 import com.uogames.dto.local.Phrase
@@ -86,7 +87,7 @@ class EditCardFragment : DaggerFragment() {
 
 
 		val id = arguments?.getInt(EDIT_ID)?.let { if (it == 0) null else it }
-		val idChanged = editCardViewModel.setArgCardId(id)
+		//val idChanged = editCardViewModel.setArgCardId(id)
 
 		val createFor = arguments?.getString(CREATE_FOR)
 		val popBackTo = arguments?.getInt(POP_BACK_TO)
@@ -100,7 +101,7 @@ class EditCardFragment : DaggerFragment() {
 		}
 
 		id?.let {
-			loadDataWithID(id, idChanged)
+			loadDataWithID(id, globalViewModel.shouldReset)
 		}.ifNull {
 			loadData(createFor, popBackTo)
 		}
@@ -240,7 +241,18 @@ class EditCardFragment : DaggerFragment() {
 	}
 
 	private fun openChoicePhraseFragment(bundle: Bundle) {
-		requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.choicePhraseDialog, bundle)
+		requireActivity().findNavController(R.id.nav_host_fragment).navigate(
+			R.id.choicePhraseDialog,
+			bundle,
+			navOptions {
+				anim {
+					enter = R.anim.from_bottom
+					exit = R.anim.hide
+					popEnter = R.anim.show
+					popExit = R.anim.to_bottom
+				}
+			}
+		)
 	}
 
 	override fun onDestroyView() {

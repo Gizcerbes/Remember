@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
+import androidx.navigation.navOptions
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentCardBinding
@@ -19,6 +20,7 @@ import com.uogames.remembercards.utils.ifTrue
 import com.uogames.remembercards.utils.observeWhenStarted
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import javax.inject.Inject
 
 class CardFragment : DaggerFragment() {
@@ -58,7 +60,15 @@ class CardFragment : DaggerFragment() {
         adapter = CardAdapter(cardViewModel, player) {
             requireActivity().findNavController(R.id.nav_host_fragment).navigate(
                 R.id.editCardFragment,
-                Bundle().apply { putInt(EditCardFragment.EDIT_ID, it.id) }
+                Bundle().apply { putInt(EditCardFragment.EDIT_ID, it.id) },
+                navOptions {
+                    anim {
+                        enter = R.anim.from_bottom
+                        exit = R.anim.hide
+                        popEnter = R.anim.show
+                        popExit =R.anim.to_bottom
+                    }
+                }
             )
         }
 
@@ -80,11 +90,20 @@ class CardFragment : DaggerFragment() {
         }
 
         bind.btnAdd.setOnClickListener {
-            requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.editCardFragment)
+            requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.editCardFragment, null, navOptions {
+                anim {
+                    enter = R.anim.from_bottom
+                    exit = R.anim.hide
+                    popEnter = R.anim.show
+                    popExit =R.anim.to_bottom
+                }
+            })
         }
 
-        bind.recycler.adapter = adapter
-
+        lifecycleScope.launchWhenStarted {
+            delay(300)
+            bind.recycler.adapter = adapter
+        }
     }
 
     private fun createKeyObserver(): Job = globalViewModel.isShowKey.observeWhenStarted(lifecycleScope) {

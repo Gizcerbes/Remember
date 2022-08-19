@@ -37,8 +37,13 @@ class LibraryAdapter(
 		private var _bind: CardModuleBinding? = null
 		private val bind get() = _bind!!
 
+		private var full = false
+
 		fun onShow(){
+			full = false
 			_bind = CardModuleBinding.inflate(LayoutInflater.from(itemView.context), itemView as ViewGroup, false)
+			bind.btns.visibility = View.GONE
+			bind.imgAction.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
 			val linearLayout = itemView as LinearLayout
 			linearLayout.removeAllViews()
 			linearLayout.addView(bind.root)
@@ -51,10 +56,15 @@ class LibraryAdapter(
 			bind.txtCountItems.text = ""
 			bind.txtLikes.text = "${(module.like / (module.like + module.dislike).toDouble() * 100).toInt()}%"
 			bind.txtOwner.text = module.owner
-			bind.root.setOnClickListener {
-				selectID(module)
-			}
+			bind.btnEdit.setOnClickListener { selectID(module) }
 			bind.root.visibility = View.VISIBLE
+
+			bind.btnAction.setOnClickListener {
+				full = !full
+				bind.btns.visibility = if (full) View.VISIBLE else View.GONE
+				val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
+				bind.imgAction.setImageResource(img)
+			}
 		}
 
 		fun onDestroy(){
