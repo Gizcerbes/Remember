@@ -47,6 +47,21 @@
 			</com.google.android.material.card.MaterialCardView>
 
 			<com.google.android.material.card.MaterialCardView
+				android:id="@+id/btn_network"
+				style="@style/Theme.RememberCards.CardView.Button"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginStart="0dp">
+
+				<ImageView
+					android:id="@+id/img_network"
+					android:layout_width="@dimen/card_button"
+					android:layout_height="@dimen/card_button"
+					android:src="@drawable/ic_baseline_cloud_24" />
+
+			</com.google.android.material.card.MaterialCardView>
+
+			<com.google.android.material.card.MaterialCardView
 				android:id="@+id/btn_search"
 				style="@style/Theme.RememberCards.CardView.Button"
 				android:layout_width="wrap_content"

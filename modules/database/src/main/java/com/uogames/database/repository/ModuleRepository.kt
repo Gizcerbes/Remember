@@ -16,11 +16,17 @@ class ModuleRepository(private val moduleDAO: ModuleDAO) {
 
 	fun getCount() = moduleDAO.getCount()
 
+	fun getCountLike(like: String) = moduleDAO.getCountLike(like)
+
 	fun getList() = moduleDAO.getList().map { it.map { module -> module.toDTO() } }
 
 	fun getListLike(like: String) = moduleDAO.getListLike(like).map { it.map { module -> module.toDTO() } }
 
 	suspend fun getById(id: Int) = moduleDAO.getById(id)?.toDTO()
+
+	suspend fun getByGlobalId(globalId: Long) = moduleDAO.getByGlobalId(globalId)?.toDTO()
+
+	suspend fun getByPosition(like: String, position: Int) = moduleDAO.getByPosition(like, position)?.toDTO()
 
 	fun getByIdFlow(id: Int) = moduleDAO.getByIdFlow(id).map { it?.toDTO() }
 

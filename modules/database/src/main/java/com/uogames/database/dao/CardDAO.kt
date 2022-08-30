@@ -34,8 +34,19 @@ interface CardDAO {
 	)
 	fun getCardFlow(like: String, number: Int): Flow<CardEntity?>
 
+	@Query(
+		"SELECT * FROM cards_table nct " +
+				"WHERE EXISTS (SELECT id FROM phrase_table pt WHERE nct.id_phrase = pt.id AND pt.phrase LIKE '%' || :like || '%') " +
+				"OR EXISTS (SELECT id FROM phrase_table pt WHERE nct.id_translate = pt.id AND pt.phrase LIKE '%' || :like || '%') " +
+				"LIMIT :number, 1"
+	)
+	suspend fun getCard(like: String, number: Int): CardEntity?
+
 	@Query("SELECT * FROM cards_table WHERE id = :id")
 	suspend fun getById(id: Int): CardEntity?
+
+	@Query("SELECT * FROM cards_table WHERE global_id = :id")
+	suspend fun getByGlobalId(id: Long): CardEntity?
 
 	@Query("SELECT * FROM cards_table WHERE id = :id")
 	fun getByIdFlow(id: Int): Flow<CardEntity?>

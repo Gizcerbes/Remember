@@ -23,11 +23,15 @@ class ModuleProvider(
 
 	fun getCount() = mr.getCount()
 
+	fun getCountLike(like: String) = mr.getCountLike(like)
+
 	fun getListLike(like: String) = mr.getListLike(like)
 
 	fun getByIdFlow(id: Int) = mr.getByIdFlow(id)
 
 	suspend fun getById(id: Int) = mr.getById(id)
+
+	suspend fun getByPosition(like: String, position: Int) = mr.getByPosition(like, position)
 
 	suspend fun countGlobal(like: String) = network.module.count(like)
 
@@ -43,6 +47,16 @@ class ModuleProvider(
 			update(updatedModule)
 			return@let updatedModule
 		}
+	}
+
+	suspend fun download(globalId: Long): Module? {
+		val local = mr.getByGlobalId(globalId)
+		if (local == null) {
+			val nm = network.module.get(globalId)
+			val localId = add(Module().update(nm))
+			return mr.getById(localId.toInt())
+		}
+		return local
 	}
 
 }

@@ -15,14 +15,12 @@ import com.uogames.dto.local.Phrase
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardCardBinding
 import com.uogames.remembercards.utils.*
+import com.uogames.repository.DataProvider.Companion.toCard
 import com.uogames.repository.DataProvider.Companion.toImage
 import com.uogames.repository.DataProvider.Companion.toPhrase
 import com.uogames.repository.DataProvider.Companion.toPronounce
 import com.uogames.repository.DataProvider.Companion.toTranslate
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.*
 import java.util.*
 
 class EditModuleAdapter(
@@ -39,29 +37,16 @@ class EditModuleAdapter(
 		notifyDataSetChanged()
 	}
 
-	inner class CardHolder(view: View) : RecyclerView.ViewHolder(view) {
-
-		private var _bind: CardCardBinding? = null
-		private val bind get() = _bind!!
+	inner class CardHolder(val bind: CardCardBinding) : RecyclerView.ViewHolder(bind.root) {
 
 		private var cardObserver: Job? = null
 
 		fun onShow() {
-			_bind = CardCardBinding.inflate(LayoutInflater.from(itemView.context), itemView as ViewGroup, false)
-			bind.txtDefinitionFirst.visibility = View.GONE
-			bind.txtDefinitionSecond.visibility = View.GONE
-			bind.imgCardFirst.visibility = View.GONE
-			bind.imgCardSecond.visibility = View.GONE
-			bind.btns.visibility = View.GONE
-			bind.imgBtnAction.setImageResource(R.drawable.ic_baseline_remove_24)
-
-			val linearLayout = itemView as LinearLayout
-			linearLayout.removeAllViews()
-			linearLayout.addView(bind.root)
-			bind.root.visibility = View.INVISIBLE
+			clear()
 			val moduleCard = listItems[adapterPosition]
-			model.getCard(moduleCard).observeWhile(recyclerScope) {
-				it?.let { card ->
+			cardObserver = recyclerScope.launch(Dispatchers.IO) {
+				val card = moduleCard.toCard().ifNull { return@launch }
+				launch(Dispatchers.Main) {
 					bind.txtReason.text = card.reason
 					bind.btnCardAction.setOnClickListener {
 						model.removeModuleCard(moduleCard) {}
@@ -72,9 +57,25 @@ class EditModuleAdapter(
 					card.toTranslate()?.let { phrase ->
 						setData(phrase, bind.txtLangSecond, bind.txtPhraseSecond, bind.imgSoundSecond, bind.mcvSecond, bind.imgCardSecond)
 					}
-					bind.root.visibility = View.VISIBLE
 				}
 			}
+		}
+
+		private fun clear() {
+			bind.txtDefinitionFirst.visibility = View.GONE
+			bind.txtDefinitionSecond.visibility = View.GONE
+			bind.imgCardFirst.visibility = View.GONE
+			bind.imgSoundFirst.visibility = View.GONE
+			bind.txtDefinitionFirst.text = ""
+			bind.txtLangFirst.text = ""
+			bind.txtPhraseFirst.text = ""
+			bind.imgCardSecond.visibility = View.GONE
+			bind.imgSoundSecond.visibility = View.GONE
+			bind.txtDefinitionSecond.text = ""
+			bind.txtLangSecond.text = ""
+			bind.txtPhraseSecond.text = ""
+			bind.btns.visibility = View.GONE
+			bind.imgBtnAction.setImageResource(R.drawable.ic_baseline_remove_24)
 		}
 
 		private suspend fun setData(
@@ -109,43 +110,30 @@ class EditModuleAdapter(
 			Locale(data[0]).displayLanguage
 		}.orEmpty()
 
-		fun onDestroy(){
+		fun onDestroy() {
 			cardObserver?.cancel()
-			_bind = null
 		}
 
 	}
 
 	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardHolder {
-		return  CardHolder(LinearLayout(parent.context).apply {
-			layoutParams = LinearLayout.LayoutParams(
-				LinearLayout.LayoutParams.MATCH_PARENT,
-				LinearLayout.LayoutParams.MATCH_PARENT
-			)
-			orientation = LinearLayout.VERTICAL
-		})
+		return CardHolder(
+			CardCardBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+		)
 	}
 
-	override fun onBindViewHolder(holder: CardHolder, position: Int) {
-		holder.onShow()
-		(holder.itemView as LinearLayout).apply {
-			layoutParams = LinearLayout.LayoutParams(
-				LinearLayout.LayoutParams.MATCH_PARENT,
-				LinearLayout.LayoutParams.WRAP_CONTENT
-			)
-		}
-	}
+	override fun onBindViewHolder(holder: CardHolder, position: Int) = holder.onShow()
 
-	override fun getItemCount(): Int {
-		return listItems.size
-	}
+
+	override fun getItemCount() = listItems.size
+
 
 	override fun onViewRecycled(holder: CardHolder) {
 		super.onViewRecycled(holder)
 		holder.onDestroy()
 	}
 
-	fun onDestroy(){
+	fun onDestroy() {
 		recyclerScope.cancel()
 	}
 

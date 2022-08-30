@@ -31,4 +31,17 @@ object CardMap {
 		globalOwner = card.globalOwner
 	)
 
+	fun Card.update(card: com.uogames.dto.global.Card, idPhrase: Int, idTranslate: Int, idImage: Int?) = Card(
+		id = id,
+		idPhrase = idPhrase,
+		idTranslate = idTranslate,
+		idImage = idImage,
+		reason = card.reason,
+		timeChange = card.timeChange,
+		like = card.like,
+		dislike = card.dislike,
+		globalId = card.globalId,
+		globalOwner = card.globalOwner
+	)
+
 }

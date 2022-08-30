@@ -5,6 +5,7 @@ import com.uogames.database.DatabaseRepository
 import com.uogames.database.repository.PronunciationRepository
 import com.uogames.dto.local.Phrase
 import com.uogames.dto.local.Pronunciation
+import com.uogames.map.PronunciationMap.update
 import com.uogames.network.NetworkProvider
 import com.uogames.network.provider.PronunciationProvider
 import com.uogames.repository.DataProvider
@@ -51,6 +52,8 @@ class PronunciationProvider(
 
 	suspend fun getByGlobalId(id: Long) = network.pronounce.get(id)
 
+	suspend fun downloadData(id: Long) = network.pronounce.load(id)
+
 	suspend fun clear() {
 		database.freeId().forEach {
 			fileRepository.deleteFile(it.audioUri.toUri())
@@ -69,4 +72,17 @@ class PronunciationProvider(
 		res?.let { database.update(it) }
 		return res ?: pronounce
 	}
+
+	suspend fun download(id: Long): Pronunciation? {
+		val local = database.getByGlobalId(id)
+		if (local == null) {
+			val localId = add(network.pronounce.load(id))
+			val l = database.getById(localId) ?: return null
+			l.update(network.pronounce.get(id))
+			database.update(l)
+			return l
+		}
+		return local
+	}
+
 }

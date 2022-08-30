@@ -101,7 +101,7 @@ class EditCardFragment : DaggerFragment() {
 		}
 
 		id?.let {
-			loadDataWithID(id, globalViewModel.shouldReset)
+			loadDataWithID(id)
 		}.ifNull {
 			loadData(createFor, popBackTo)
 		}
@@ -133,7 +133,7 @@ class EditCardFragment : DaggerFragment() {
 	}
 
 
-	private fun loadDataWithID(id: Int, idChanged: Boolean) {
+	private fun loadDataWithID(id: Int) {
 		globalViewModel.shouldReset.ifTrue { editCardViewModel.load(id) }
 		bind.btnDelete.visibility = View.VISIBLE
 		bind.btnDelete.setOnClickListener {

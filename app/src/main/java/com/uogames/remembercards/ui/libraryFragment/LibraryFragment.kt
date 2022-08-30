@@ -14,9 +14,7 @@ import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentLbraryBinding
 import com.uogames.remembercards.ui.editModuleFragment.EditModuleFragment
-import com.uogames.remembercards.utils.ShortTextWatcher
-import com.uogames.remembercards.utils.ifTrue
-import com.uogames.remembercards.utils.observeWhenStarted
+import com.uogames.remembercards.utils.*
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.*
 import javax.inject.Inject
@@ -27,16 +25,20 @@ class LibraryFragment : DaggerFragment() {
 	lateinit var libraryViewModel: LibraryViewModel
 
 	@Inject
+	lateinit var networkLibraryViewModel: NetworkLibraryViewModel
+
+	@Inject
 	lateinit var globalViewModel: GlobalViewModel
 
 	private var _bind: FragmentLbraryBinding? = null
 	private val bind get() = _bind!!
 
 	private var keyObserver: Job? = null
-
+	private var sizeObserver: Job? = null
 	private val searchWatcher: TextWatcher = createSearchWatcher()
 
-	private var adapter: LibraryAdapter? = null
+	private var adapter: ClosableAdapter<*>? = null
+	private var cloud = false
 
 	private val dialog = DialogNewModule {
 		libraryViewModel.createModule(it) { moduleID ->
@@ -57,19 +59,18 @@ class LibraryFragment : DaggerFragment() {
 			libraryViewModel.reset()
 		}
 
-		adapter = LibraryAdapter(libraryViewModel) {
-			navigateToEdit(it.id)
-		}
-
 		imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 
-
 		keyObserver = createKeyObserver()
+		sizeObserver = createSizeObserver()
+		bind.tilSearch.editText?.addTextChangedListener(searchWatcher)
+
+		bind.tilSearch.visibility = View.GONE
 
 		bind.btnSearch.setOnClickListener {
 			if (!globalViewModel.isShowKey.value) {
 				bind.tilSearch.requestFocus()
-				imm?.showSoftInput(bind.tilSearch.editText, InputMethodManager.SHOW_IMPLICIT)
+			    imm?.showSoftInput(bind.tilSearch.editText, InputMethodManager.SHOW_FORCED)
 			} else {
 				imm?.hideSoftInputFromWindow(view.windowToken, 0)
 			}
@@ -79,11 +80,34 @@ class LibraryFragment : DaggerFragment() {
 			dialog.show(requireActivity().supportFragmentManager, DialogNewModule.TAG)
 		}
 
-		bind.tilSearch.editText?.addTextChangedListener(searchWatcher)
+		adapter = LibraryAdapter(libraryViewModel) { navigateToEdit(it.id) }
 
 		lifecycleScope.launchWhenStarted {
 			delay(300)
 			bind.recycler.adapter = adapter
+		}
+
+		bind.btnNetwork.setOnClickListener {
+			lifecycleScope.launchWhenStarted {
+				cloud = !cloud
+				if (cloud) {
+					adapter = NetworkLibraryAdapter(networkLibraryViewModel) {}
+					bind.imgNetwork.setImageResource(R.drawable.ic_baseline_cloud_off_24)
+					bind.btnAdd.visibility = View.GONE
+					bind.recycler.adapter = null
+					delay(300)
+					bind.txtBookEmpty.visibility = if (networkLibraryViewModel.size.value == 0L) View.VISIBLE else View.GONE
+					bind.recycler.adapter = adapter
+				} else {
+					adapter = LibraryAdapter(libraryViewModel) { navigateToEdit(it.id) }
+					bind.imgNetwork.setImageResource(R.drawable.ic_baseline_cloud_24)
+					bind.btnAdd.visibility = View.VISIBLE
+					bind.recycler.adapter = null
+					delay(300)
+					bind.txtBookEmpty.visibility = if (libraryViewModel.size.value == 0) View.VISIBLE else View.GONE
+					bind.recycler.adapter = adapter
+				}
+			}
 		}
 
 	}
@@ -96,8 +120,18 @@ class LibraryFragment : DaggerFragment() {
 		else bind.searchImage.setImageResource(R.drawable.ic_baseline_search_24)
 	}
 
+	private fun createSizeObserver(): Job = lifecycleScope.launchWhenStarted {
+		libraryViewModel.size.observeWhile(this) {
+			bind.txtBookEmpty.visibility = if (!cloud && it == 0) View.VISIBLE else View.GONE
+		}
+		networkLibraryViewModel.size.observeWhile(this) {
+			bind.txtBookEmpty.visibility = if (!cloud && it == 0L) View.VISIBLE else View.GONE
+		}
+	}
+
 	private fun createSearchWatcher(): TextWatcher = ShortTextWatcher {
 		libraryViewModel.like.value = it.toString()
+		networkLibraryViewModel.like.value = it.toString()
 	}
 
 	private fun navigateToEdit(moduleID: Int) {
@@ -120,8 +154,9 @@ class LibraryFragment : DaggerFragment() {
 	override fun onDestroyView() {
 		super.onDestroyView()
 		keyObserver?.cancel()
+		sizeObserver?.cancel()
 		bind.tilSearch.editText?.removeTextChangedListener(searchWatcher)
-		adapter?.onDestroy()
+		adapter?.close()
 		adapter = null
 		imm = null
 		_bind = null

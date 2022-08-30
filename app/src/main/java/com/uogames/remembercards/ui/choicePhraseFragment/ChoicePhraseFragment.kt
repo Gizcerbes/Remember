@@ -126,7 +126,6 @@ class ChoicePhraseFragment() : DaggerFragment() {
 
 	private fun createSizeObserver(): Job = bookViewModel.size.observeWhenStarted(lifecycleScope) {
 		bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
-		adapter?.notifyDataSetChanged()
 	}
 
 	private fun createKeyObserver(): Job = globalViewModel.isShowKey.observeWhenStarted(lifecycleScope) {

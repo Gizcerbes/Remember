@@ -20,6 +20,8 @@ class CardsProvider(
 
 	suspend fun update(card: Card) = repository.update(card)
 
+	suspend fun getCard(like: String = "", number: Int) = repository.getCard(like, number)
+
 	fun getCountFlow(like: String = "") = repository.getCountFlow(like)
 
 	fun getCountFlow() = repository.getCountFlow()
@@ -53,6 +55,23 @@ class CardsProvider(
 			update(updatedCard)
 			return@let updatedCard
 		}
+	}
+
+	suspend fun download(globalId: Long): Card? {
+		val local = repository.getByGlobalId(globalId)
+		if (local == null) {
+			val nc = network.card.get(globalId)
+			val phrase = dataProvider.phrase.download(nc.idPhrase)
+			val translate = dataProvider.phrase.download(nc.idTranslate)
+			val image = nc.idImage?.let { dataProvider.images.download(it) }
+			return if (phrase != null && translate != null) {
+				val localId = add(Card().update(nc, phrase.id, translate.id, image?.id))
+				repository.getById(localId.toInt())
+			} else {
+				null
+			}
+		}
+		return local
 	}
 
 }

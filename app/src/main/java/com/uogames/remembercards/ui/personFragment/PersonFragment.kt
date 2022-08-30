@@ -43,7 +43,7 @@ class PersonFragment : DaggerFragment() {
 
 	private val signInLauncher = registerForActivityResult(
 		FirebaseAuthUIActivityResultContract()
-	) { res ->
+	) { _ ->
 
 	}
 

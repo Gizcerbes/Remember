@@ -2,6 +2,7 @@ package com.uogames.database.dao
 
 import androidx.room.*
 import com.uogames.database.entity.ModuleCardEntity
+import com.uogames.dto.local.ModuleCard
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -20,7 +21,13 @@ interface ModuleCardDAO {
 	fun getByModuleID(id: Int): Flow<List<ModuleCardEntity>>
 
 	@Query("SELECT COUNT(id) FROM module_card WHERE id_module = :id")
-	fun getCountByModuleID(id: Int): Flow<Int>
+	fun getCountByModuleIdFlow(id: Int): Flow<Int>
+
+	@Query("SELECT COUNT(id) FROM module_card WHERE id_module = :id")
+	suspend fun getCountByModuleId(id: Int): Int
+
+	@Query("SELECT * FROM module_card WHERE id_module = :idModule LIMIT :position, 1")
+	suspend fun getByPositionOfModule(idModule: Int, position: Int): ModuleCardEntity?
 
 	@Query("SELECT * FROM module_card ORDER BY RANDOM() LIMIT 1")
 	suspend fun getRandomModuleCard(): ModuleCardEntity?
@@ -36,4 +43,8 @@ interface ModuleCardDAO {
 
 	@Query("SELECT * FROM module_card WHERE id = :moduleCardId")
 	suspend fun getById(moduleCardId: Int): ModuleCardEntity?
+
+	@Query("SELECT * FROM module_card WHERE global_id = :globalId")
+	suspend fun getByGlobalId(globalId: Long): ModuleCardEntity?
+
 }

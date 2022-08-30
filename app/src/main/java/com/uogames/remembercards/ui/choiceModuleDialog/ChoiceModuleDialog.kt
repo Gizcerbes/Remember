@@ -21,7 +21,7 @@ class ChoiceModuleDialog(private val libraryViewModel: LibraryViewModel, call: (
 	private var _bind: FragmentChoiceModuleBinding? = null
 	private val bind get() = _bind!!
 
-	private var adapter: LibraryAdapter? = null
+	private var adapter: ChoiceModuleAdapter? = null
 
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 		if (_bind == null) _bind = FragmentChoiceModuleBinding.inflate(inflater, container, false)
@@ -31,7 +31,7 @@ class ChoiceModuleDialog(private val libraryViewModel: LibraryViewModel, call: (
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
 
-		adapter = LibraryAdapter(libraryViewModel) {
+		adapter = ChoiceModuleAdapter(libraryViewModel) {
 			setData(it)
 			dismiss()
 		}

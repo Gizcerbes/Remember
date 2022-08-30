@@ -1,6 +1,7 @@
 package com.uogames.remembercards
 
 import android.graphics.Rect
+import android.util.Log
 import android.view.View
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -28,6 +29,9 @@ class GlobalViewModel @Inject constructor(val provider: DataProvider) : ViewMode
 
 	private val _isShowKey = MutableStateFlow(false)
 	val isShowKey = _isShowKey.asStateFlow()
+
+	private val _screenDifferent = MutableStateFlow(0.0)
+	val  screenDifferent = _screenDifferent.asStateFlow()
 
 	private var lastDestination: NavDestination? = null
 	private var _backSize: Int = 0

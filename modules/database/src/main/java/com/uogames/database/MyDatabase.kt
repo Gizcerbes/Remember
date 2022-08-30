@@ -44,7 +44,6 @@ abstract class MyDatabase : RoomDatabase() {
 	companion object {
 		private var INSTANCE: MyDatabase? = null
 
-		@Synchronized
 		fun get(context: Context): MyDatabase {
 			if (INSTANCE == null) synchronized(this) {
 				if (INSTANCE == null) INSTANCE = Room.databaseBuilder(context, MyDatabase::class.java, "cardBase").build()

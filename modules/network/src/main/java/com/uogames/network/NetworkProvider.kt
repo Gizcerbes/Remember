@@ -2,10 +2,11 @@ package com.uogames.network
 
 import android.content.Context
 import android.util.Log
+import com.squareup.picasso.Picasso
 import com.uogames.network.provider.*
 import com.uogames.network.service.*
 
-class NetworkProvider private constructor(client: HttpClient) {
+class NetworkProvider private constructor(private val client: HttpClient) {
 
 	companion object {
 
@@ -37,5 +38,6 @@ class NetworkProvider private constructor(client: HttpClient) {
 	val phrase = PhraseProvider(PhraseService(client))
 	val pronounce = PronunciationProvider(PronunciationService(client))
 
+	fun getPicasso(context: Context) = client.getPicasso(context)
 
 }

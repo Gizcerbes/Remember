@@ -20,6 +20,7 @@ import com.uogames.remembercards.utils.ifTrue
 import com.uogames.remembercards.utils.observeWhenStarted
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
@@ -105,7 +106,10 @@ class EditModuleFragment : DaggerFragment() {
 
 		moduleCardObserver = createModuleCardObserver()
 
-		bind.rvCards.adapter = adapter
+		lifecycleScope.launchWhenStarted {
+			delay(300)
+			bind.rvCards.adapter = adapter
+		}
 
 	}
 

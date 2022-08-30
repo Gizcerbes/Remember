@@ -20,7 +20,11 @@ class CardRepository(private val dao: CardDAO) {
 
 	fun getCardFlow(like: String, number: Int) = dao.getCardFlow(like, number).map { it?.toDTO() }
 
+	suspend fun getCard(like: String, number: Int) = dao.getCard(like, number)?.toDTO()
+
 	suspend fun getById(id: Int) = dao.getById(id)?.toDTO()
+
+	suspend fun getByGlobalId(id: Long) = dao.getByGlobalId(id)?.toDTO()
 
 	fun getByIdFlow(id: Int) = dao.getByIdFlow(id).map { it?.toDTO() }
 

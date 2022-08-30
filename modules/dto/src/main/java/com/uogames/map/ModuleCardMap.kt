@@ -18,7 +18,7 @@ object ModuleCardMap {
 		idModule = idModule,
 		idCard = idCard,
 		globalId = moduleCard.globalId,
-		globalOwner = globalOwner
+		globalOwner = moduleCard.globalOwner
 	)
 
 

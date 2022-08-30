@@ -40,6 +40,8 @@ class PhraseRepository(private val dao: PhraseDAO) {
 
 	suspend fun getById(id: Int) = dao.getById(id)?.toDTO()
 
+	suspend fun getByGlobalId(id: Long) = dao.getByGlobalId(id)?.toDTO()
+
 	fun getByIdFlow(id: Int) = dao.getByIdFlow(id).map { it?.toDTO() }
 
 	suspend fun getListId(like: String, lang: String) = dao.getListId(like, lang)

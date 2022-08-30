@@ -18,7 +18,7 @@ class GamesViewModel constructor(val provider: DataProvider) : ViewModel() {
 	val countItems = selectedModule.flatMapLatest {
 		it?.let {
 			cardOwner.value = it.owner
-			provider.moduleCard.getCountByModuleID(it.id)
+			provider.moduleCard.getCountByModuleIdFlow(it.id)
 		}.ifNull {
 			cardOwner.value = provider.setting.getFlow(GlobalViewModel.USER_NAME).first().orEmpty()
 			provider.cards.getCountFlow()

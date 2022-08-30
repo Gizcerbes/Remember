@@ -18,7 +18,7 @@ class EditModuleViewModel @Inject constructor(val provider: DataProvider) : View
 
 	val module = moduleID.flatMapLatest { provider.module.getByIdFlow(it) }
 
-	val moduleCardsList = module.flatMapLatest { provider.moduleCard.getByModule(it.ifNull { Module() }) }
+	val moduleCardsList = module.flatMapLatest { provider.moduleCard.getByModuleFlow(it.ifNull { Module() }) }
 
 	fun reset(){
 		moduleID.value = 0
@@ -27,6 +27,8 @@ class EditModuleViewModel @Inject constructor(val provider: DataProvider) : View
 	fun getCard(moduleCard: ModuleCard) = provider.cards.getByModuleCardFlow(moduleCard)
 
 	fun getCard(id: Int) = provider.cards.getByIdFlow(id)
+
+
 
 	suspend fun delete(module: Module) = provider.module.delete(module)
 

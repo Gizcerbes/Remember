@@ -23,19 +23,19 @@ interface PhraseDAO {
 	fun countFLOW(): Flow<Int>
 
 	@Query("SELECT COUNT(id) FROM phrase_table WHERE phrase LIKE '%' || :like || '%'")
-	suspend fun count(like: String) : Int
+	suspend fun count(like: String): Int
 
 	@Query("SELECT COUNT(id) FROM phrase_table WHERE phrase LIKE '%' || :like || '%'")
 	fun countFlow(like: String): Flow<Int>
 
 	@Query("SELECT COUNT(id) FROM phrase_table WHERE phrase LIKE '%' || :like || '%' AND lang = :lang")
-	suspend fun count(like: String, lang: String):Int
+	suspend fun count(like: String, lang: String): Int
 
 	@Query("SELECT COUNT(id) FROM phrase_table WHERE phrase LIKE '%' || :like || '%' AND lang = :lang")
 	fun countFlow(like: String, lang: String): Flow<Int>
 
 	@Query("SELECT * FROM phrase_table LIMIT :position , 1 ")
-	suspend fun get(position: Int) : PhraseEntity?
+	suspend fun get(position: Int): PhraseEntity?
 
 	@Query("SELECT * FROM phrase_table LIMIT :position , 1 ")
 	fun getFlow(position: Int): Flow<PhraseEntity?>
@@ -54,6 +54,9 @@ interface PhraseDAO {
 
 	@Query("SELECT * FROM phrase_table WHERE id = :id")
 	suspend fun getById(id: Int): PhraseEntity?
+
+	@Query("SELECT * FROM phrase_table WHERE global_id = :id")
+	suspend fun getByGlobalId(id: Long): PhraseEntity?
 
 	@Query("SELECT * FROM phrase_table WHERE id = :id")
 	fun getByIdFlow(id: Int): Flow<PhraseEntity?>

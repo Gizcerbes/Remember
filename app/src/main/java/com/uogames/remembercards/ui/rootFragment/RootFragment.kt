@@ -29,7 +29,7 @@ class RootFragment : DaggerFragment() {
 		super.onStart()
 
 		lifecycleScope.launchWhenStarted {
-			delay(500)
+			delay(1000)
 			globalViewModel.getUserName().first()?.let {
 				val graph = findNavController().navInflater.inflate(R.navigation.nav_graph).apply { setStartDestination(R.id.mainNaviFragment) }
 				findNavController().setGraph(graph, null)

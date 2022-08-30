@@ -5,13 +5,14 @@ import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import com.uogames.network.HttpClient
+import com.uogames.network.ifSuccess
 import com.uogames.network.response.ImageResponse
 
 class ImageService(private val client: HttpClient) {
 
-	suspend fun get(globalId: Long): ImageResponse = client.get("/image/info/$globalId").body()
+	suspend fun get(globalId: Long): ImageResponse = client.get("/image/info/$globalId").ifSuccess()
 
-	suspend fun load(globalId: Long): ByteArray = client.get("/image/load/$globalId").body()
+	suspend fun load(globalId: Long): ByteArray = client.get("/image/load/$globalId").ifSuccess()
 
 	suspend fun upload(
 		byteArray: ByteArray,
@@ -20,6 +21,6 @@ class ImageService(private val client: HttpClient) {
 		contentType(ContentType.Image.PNG)
 		setBody(byteArray)
 		onUpload(onUpload)
-	}.body()
+	}.ifSuccess()
 
 }

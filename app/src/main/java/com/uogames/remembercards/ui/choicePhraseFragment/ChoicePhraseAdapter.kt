@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.core.net.toUri
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import com.uogames.dto.local.Image
@@ -25,25 +26,21 @@ class ChoicePhraseAdapter(
 
 	private val recyclerScope = CoroutineScope(Dispatchers.Main)
 
-	inner class PhraseHolder(view: View) : RecyclerView.ViewHolder(view) {
+	init {
+		model.size.observeWhile(recyclerScope) { notifyDataSetChanged() }
+	}
+
+	inner class PhraseHolder(val bind: CardPhraseBinding) : RecyclerView.ViewHolder(bind.root) {
 
 		private var modelObserver: Job? = null
 
-		private var _bind: CardPhraseBinding? = null
-		private val bind get() = _bind!!
-
 		fun onShow() {
-			_bind = CardPhraseBinding.inflate(LayoutInflater.from(itemView.context), itemView as ViewGroup, false)
-			val linearLayout = itemView as LinearLayout
-			linearLayout.removeAllViews()
-			linearLayout.addView(bind.root)
-			bind.btns.visibility = View.GONE
-			bind.root.visibility = View.INVISIBLE
-			modelObserver = model.get(adapterPosition).observeWhile(recyclerScope) { bookView ->
-				bookView?.phrase?.let { phrase ->
-					bind.root.setOnClickListener {
-						selectedCall(phrase)
-					}
+			clear()
+			modelObserver = recyclerScope.launch(Dispatchers.IO) {
+				val bookView = model.getBookModel(adapterPosition).ifNull { return@launch }
+				val phrase = bookView.phrase
+				launch(Dispatchers.Main) {
+					bind.root.setOnClickListener { selectedCall(phrase) }
 					bind.txtPhrase.text = phrase.phrase
 					bind.txtDefinition.text = phrase.definition.orEmpty()
 					showImage(bookView.image)
@@ -54,6 +51,16 @@ class ChoicePhraseAdapter(
 				}
 			}
 
+		}
+
+		private fun clear() {
+			bind.btns.visibility = View.GONE
+			bind.imgAction.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
+			bind.imgPhrase.visibility = View.GONE
+			bind.btnSound.visibility = View.GONE
+			bind.txtPhrase.text = ""
+			bind.txtLang.text = ""
+			bind.txtDefinition.text = ""
 		}
 
 		private suspend fun showImage(image: Deferred<Image?>) {
@@ -84,30 +91,17 @@ class ChoicePhraseAdapter(
 
 		fun onDestroy() {
 			modelObserver?.cancel()
-			_bind = null
 		}
 
 	}
 
 	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhraseHolder {
-		return PhraseHolder(LinearLayout(parent.context).apply {
-			layoutParams = LinearLayout.LayoutParams(
-				LinearLayout.LayoutParams.MATCH_PARENT,
-				LinearLayout.LayoutParams.MATCH_PARENT
-			)
-			orientation = LinearLayout.VERTICAL
-		})
+		return PhraseHolder(
+			CardPhraseBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+		)
 	}
 
-	override fun onBindViewHolder(holder: PhraseHolder, position: Int) {
-		holder.onShow()
-		(holder.itemView as LinearLayout).apply {
-			layoutParams = LinearLayout.LayoutParams(
-				LinearLayout.LayoutParams.MATCH_PARENT,
-				LinearLayout.LayoutParams.WRAP_CONTENT
-			)
-		}
-	}
+	override fun onBindViewHolder(holder: PhraseHolder, position: Int) = holder.onShow()
 
 	override fun getItemCount(): Int = model.size.value
 

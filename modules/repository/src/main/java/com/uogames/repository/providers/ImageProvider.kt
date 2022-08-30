@@ -1,11 +1,13 @@
 package com.uogames.repository.providers
 
+import android.content.Context
 import androidx.core.net.toUri
 import com.uogames.database.DatabaseRepository
 import com.uogames.database.repository.ImageRepository
 import com.uogames.dto.local.Image
 import com.uogames.dto.local.Card
 import com.uogames.dto.local.Phrase
+import com.uogames.map.ImageMap.update
 import com.uogames.network.NetworkProvider
 import com.uogames.network.provider.ImageProvider
 import com.uogames.network.response.ImageResponse
@@ -76,5 +78,19 @@ class ImageProvider(
 		res?.let { database.update(it) }
 		return res ?: image
 	}
+
+	suspend fun download(id: Long): Image? {
+		val local = database.getByGlobalId(id)
+		if (local == null) {
+			val localId = add(network.image.load(id))
+			val l = database.getById(localId) ?: return null
+			l.update(network.image.get(id))
+			database.update(l)
+			return l
+		}
+		return local
+	}
+
+	fun getPicasso(context: Context) = network.getPicasso(context)
 
 }

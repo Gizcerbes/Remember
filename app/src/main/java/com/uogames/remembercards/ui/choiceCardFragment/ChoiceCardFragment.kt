@@ -98,7 +98,6 @@ class ChoiceCardFragment : DaggerFragment() {
 
 	private fun createSizeObserver(): Job = cardViewModel.size.observeWhenStarted(lifecycleScope) {
 		bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
-		adapter?.notifyDataSetChanged()
 	}
 
 

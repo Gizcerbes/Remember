@@ -9,7 +9,9 @@ import com.google.firebase.ktx.Firebase
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseViewModel
 import com.uogames.remembercards.ui.bookFragment.BookViewModel
+import com.uogames.remembercards.ui.bookFragment.NetworkBookViewModel
 import com.uogames.remembercards.ui.cardFragment.CardViewModel
+import com.uogames.remembercards.ui.cardFragment.NetworkCardViewModel
 import com.uogames.remembercards.ui.cropFragment.CropViewModel
 import com.uogames.remembercards.ui.editCardFragment.EditCardViewModel
 import com.uogames.remembercards.ui.editModuleFragment.EditModuleViewModel
@@ -18,6 +20,7 @@ import com.uogames.remembercards.ui.libraryFragment.LibraryViewModel
 import com.uogames.remembercards.ui.mainNav.NavigationViewModel
 import com.uogames.remembercards.ui.registerFragment.RegisterViewModel
 import com.uogames.remembercards.ui.gamesFragment.GamesViewModel
+import com.uogames.remembercards.ui.libraryFragment.NetworkLibraryViewModel
 import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.repository.DataProvider
 import dagger.Module
@@ -43,8 +46,7 @@ class UtilsModule {
 			{
 				mapOf(
 					"Identifier" to (auth.currentUser?.displayName ?: ""),
-					"User UID" to (auth.currentUser?.uid ?: ""),
-					"UTC" to System.currentTimeMillis().toString()
+					"User UID" to (auth.currentUser?.uid ?: "")
 				)
 			}
 		)
@@ -64,6 +66,10 @@ class UtilsModule {
 	@Provides
 	@Singleton
 	fun provideBookViewModel(provider: DataProvider): BookViewModel = BookViewModel(provider)
+
+	@Provides
+	@Singleton
+	fun provideNetworkBookViewModel(provider: DataProvider): NetworkBookViewModel = NetworkBookViewModel(provider)
 
 	@Provides
 	@Singleton
@@ -87,11 +93,19 @@ class UtilsModule {
 
 	@Provides
 	@Singleton
+	fun provideNetworkCardViewModel(provider: DataProvider): NetworkCardViewModel = NetworkCardViewModel(provider)
+
+	@Provides
+	@Singleton
 	fun provideMediaPlayer(): ObservableMediaPlayer = ObservableMediaPlayer(MediaPlayer())
 
 	@Provides
 	@Singleton
 	fun provideLibraryViewModel(provider: DataProvider): LibraryViewModel = LibraryViewModel(provider)
+
+	@Provides
+	@Singleton
+	fun provideNetworkLibraryViewModel(provider: DataProvider): NetworkLibraryViewModel = NetworkLibraryViewModel(provider)
 
 	@Provides
 	@Singleton

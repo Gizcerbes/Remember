@@ -1,11 +1,9 @@
 package com.uogames.remembercards.ui.cardFragment
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.net.toUri
@@ -19,50 +17,35 @@ import com.uogames.dto.local.Pronunciation
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardCardBinding
 import com.uogames.remembercards.utils.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.*
 
 class CardAdapter(
 	private val model: CardViewModel,
 	private val player: ObservableMediaPlayer,
 	private val cardAction: (Card) -> Unit
-) : RecyclerView.Adapter<CardAdapter.CardHolder>() {
+) : ClosableAdapter<CardAdapter.CardHolder>() {
 
 	private val recyclerScope = CoroutineScope(Dispatchers.Main)
 
-	inner class CardHolder(view: View) : RecyclerView.ViewHolder(view) {
+	init {
+		model.size.observeWhile(recyclerScope) {
+			notifyDataSetChanged()
+		}
+	}
+
+	inner class CardHolder(val bind: CardCardBinding) : RecyclerView.ViewHolder(bind.root) {
 
 		private var cardObserver: Job? = null
-
-		private var _bind: CardCardBinding? = null
-		private val bind get() = _bind!!
 
 		private var full = false
 
 		fun show() {
-			full = false
-			_bind = CardCardBinding.inflate(LayoutInflater.from(itemView.context), itemView as ViewGroup, false)
-			bind.txtDefinitionFirst.visibility = View.GONE
-			bind.txtDefinitionSecond.visibility = View.GONE
-			bind.imgCardFirst.visibility = View.GONE
-			bind.imgCardSecond.visibility = View.GONE
-			bind.btns.visibility = View.GONE
-			bind.imgBtnAction.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
-
-			val linearLayout = itemView as LinearLayout
-			linearLayout.removeAllViews()
-			linearLayout.addView(bind.root)
-			cardObserver = model.get(adapterPosition).observeWhile(recyclerScope) {
-				it?.let { cardView ->
+			clear()
+			cardObserver = recyclerScope.launch(Dispatchers.IO) {
+				val cardView = model.get2(adapterPosition).ifNull { return@launch }
+				launch(Dispatchers.Main) {
 					bind.txtReason.text = cardView.card.reason
 					bind.btnEdit.setOnClickListener { cardAction(cardView.card) }
-					bind.btnShare.setOnClickListener {
-						model.share(cardView.card.id) { message ->
-							Toast.makeText(itemView.context, message, Toast.LENGTH_SHORT).show()
-						}
-					}
 					setData(
 						cardView.phrase.await(),
 						cardView.phrasePronounce.await(),
@@ -86,6 +69,33 @@ class CardAdapter(
 						bind.txtDefinitionSecond
 					)
 					bind.root.visibility = View.VISIBLE
+
+					val startAction: () -> Unit = {
+						bind.progressLoading.visibility = View.VISIBLE
+						bind.btnStop.visibility = View.VISIBLE
+						bind.btnShare.visibility = View.GONE
+						bind.btnEdit.visibility = View.GONE
+					}
+
+					val endAction: (String) -> Unit = {
+						bind.progressLoading.visibility = View.GONE
+						bind.btnStop.visibility = View.GONE
+						bind.btnShare.visibility = View.VISIBLE
+						bind.btnEdit.visibility = View.VISIBLE
+						Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
+					}
+
+					model.setShareAction(cardView.card, endAction).ifTrue(startAction)
+
+					bind.btnShare.setOnClickListener {
+						startAction()
+						model.share(cardView.card, endAction)
+					}
+
+					bind.btnStop.setOnClickListener {
+						model.stopSharing(cardView.card)
+					}
+
 				}
 			}
 			bind.btnCardAction.setOnClickListener {
@@ -97,6 +107,27 @@ class CardAdapter(
 				bind.imgBtnAction.setImageResource(img)
 			}
 
+		}
+
+		private fun clear() {
+			full = false
+			bind.txtDefinitionFirst.visibility = View.GONE
+			bind.txtDefinitionSecond.visibility = View.GONE
+			bind.imgCardFirst.visibility = View.GONE
+			bind.imgSoundFirst.visibility = View.GONE
+			bind.txtDefinitionFirst.text = ""
+			bind.txtLangFirst.text = ""
+			bind.txtPhraseFirst.text = ""
+			bind.imgCardSecond.visibility = View.GONE
+			bind.imgSoundSecond.visibility = View.GONE
+			bind.txtDefinitionSecond.text = ""
+			bind.txtLangSecond.text = ""
+			bind.txtPhraseSecond.text = ""
+			bind.btns.visibility = View.GONE
+			bind.progressLoading.visibility = View.GONE
+			bind.btnDownload.visibility = View.GONE
+			bind.btnStop.visibility = View.GONE
+			bind.imgBtnAction.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
 		}
 
 		private fun setData(
@@ -131,41 +162,26 @@ class CardAdapter(
 
 		fun onDestroy() {
 			cardObserver?.cancel()
-			_bind = null
 		}
 
 	}
 
 	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardHolder {
-		return CardHolder(LinearLayout(parent.context).apply {
-			layoutParams = LinearLayout.LayoutParams(
-				LinearLayout.LayoutParams.MATCH_PARENT,
-				LinearLayout.LayoutParams.MATCH_PARENT
-			)
-			orientation = LinearLayout.VERTICAL
-		})
+		return CardHolder(
+			CardCardBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+		)
 	}
 
-	override fun onBindViewHolder(holder: CardHolder, position: Int) {
-		holder.show()
-		(holder.itemView as LinearLayout).apply {
-			layoutParams = LinearLayout.LayoutParams(
-				LinearLayout.LayoutParams.MATCH_PARENT,
-				LinearLayout.LayoutParams.WRAP_CONTENT
-			)
-		}
-	}
+	override fun onBindViewHolder(holder: CardHolder, position: Int) = holder.show()
 
-	override fun getItemCount(): Int {
-		return model.size.value
-	}
+	override fun getItemCount() = model.size.value
 
 	override fun onViewRecycled(holder: CardHolder) {
 		super.onViewRecycled(holder)
 		holder.onDestroy()
 	}
 
-	fun onDestroy() {
+	override fun close() {
 		recyclerScope.cancel()
 	}
 

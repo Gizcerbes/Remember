@@ -1,5 +1,6 @@
 package com.uogames.remembercards.ui.choiceCountry
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
@@ -20,6 +21,8 @@ class ChoiceCountryAdapter(
 	}
 
 	inner class CountryHolder(val bind: CardCountryBinding) : RecyclerView.ViewHolder(bind.root) {
+
+		@SuppressLint("ResourceType")
 		fun show() {
 			val country = list[adapterPosition]
 			bind.imgFlag.setImageResource(country.res)
@@ -32,6 +35,7 @@ class ChoiceCountryAdapter(
 			}
 			bind.root.setOnClickListener { call(country) }
 		}
+
 	}
 
 	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CountryHolder {

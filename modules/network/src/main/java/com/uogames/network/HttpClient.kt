@@ -1,5 +1,8 @@
 package com.uogames.network
 
+import android.content.Context
+import com.squareup.picasso.OkHttp3Downloader
+import com.squareup.picasso.Picasso
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.*
@@ -18,29 +21,31 @@ class HttpClient(
 	keystoreInput: ByteArray? = null,
 	keystorePassword: CharArray? = null
 ) {
+
 	private val ssl = getSsl(keystoreInput, keystorePassword)
-	private val okHttpClient = OkHttpClient.Builder().build()
-	val client = HttpClient(OkHttp) {
+
+	private val okHttpClient = OkHttpClient.Builder().apply {
+		connectTimeout(10, TimeUnit.SECONDS)
+		followRedirects(false)
+		setSsl(ssl)
+	}.build()
+
+	private val client = HttpClient(OkHttp) {
 		engine {
 			preconfigured = okHttpClient
-			config {
-				connectTimeout(10, TimeUnit.SECONDS)
-				followRedirects(false)
-				setSsl(ssl)
-			}
+			threadsCount = 4
 		}
 		install(DefaultRequest) {
-			bearerAuth(JWTBuilder.create(secret(), data()))
-			//url(defaultUrl())
+			bearerAuth(JWTBuilder.create(secret(), data(), 10000))
 		}
 		install(ContentNegotiation) {
 			gson()
 		}
 
-		if (BuildConfig.DEBUG) install(Logging) {
-			logger = Logger.SIMPLE
-			level = LogLevel.ALL
-		}
+//		if (BuildConfig.DEBUG) install(Logging) {
+//			logger = Logger.SIMPLE
+//			level = LogLevel.ALL
+//		}
 	}
 
 	private fun getSsl(keystoreInput: ByteArray?, keystorePassword: CharArray?): SslSettings? {
@@ -65,6 +70,10 @@ class HttpClient(
 		} else {
 			url.build().toString()
 		}
+	}
+
+	fun getPicasso(context: Context): Picasso{
+		return Picasso.Builder(context).downloader(OkHttp3Downloader(okHttpClient)).build()
 	}
 
 	suspend fun get(url: URLBuilder, builder: HttpRequestBuilder.() -> Unit = {}) = client.get(urlBuilder(url), builder)

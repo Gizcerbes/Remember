@@ -19,7 +19,11 @@ class ModuleCardRepository(private val moduleCardDAO: ModuleCardDAO) {
 
 	fun getByModule(module: Module) = moduleCardDAO.getByModuleID(module.id).map { it.map { mc -> mc.toDTO() } }
 
-	fun getCountByModuleID(id: Int) = moduleCardDAO.getCountByModuleID(id)
+	fun getCountByModuleIdFlow(id: Int) = moduleCardDAO.getCountByModuleIdFlow(id)
+
+	suspend fun getCountByModuleId(id: Int) = moduleCardDAO.getCountByModuleId(id)
+
+	suspend fun getByPositionOfModule(idModule: Int, position: Int) = moduleCardDAO.getByPositionOfModule(idModule, position)?.toDTO()
 
 	suspend fun getRandomModule() = moduleCardDAO.getRandomModuleCard()?.toDTO()
 
@@ -30,5 +34,7 @@ class ModuleCardRepository(private val moduleCardDAO: ModuleCardDAO) {
 	suspend fun getRandomModuleWithout(idModule: Int, idCard: Int) = moduleCardDAO.getRandomWithout(idModule, idCard)?.toDTO()
 
 	suspend fun getById(id: Int) = moduleCardDAO.getById(id)?.toDTO()
+
+	suspend fun getByGlobalId(globalId: Long) = moduleCardDAO.getByGlobalId(globalId)?.toDTO()
 
 }

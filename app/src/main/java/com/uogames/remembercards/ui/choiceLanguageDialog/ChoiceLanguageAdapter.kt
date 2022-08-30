@@ -23,24 +23,20 @@ class ChoiceLanguageAdapter(
 		notifyDataSetChanged()
 	}
 
-
-	inner class LanguageHolder(view: View) : RecyclerView.ViewHolder(view) {
-
-		private var _bind: CardLanguageBinding? = null
-		private val bind get() =  _bind!!
+	inner class LanguageHolder(val bind: CardLanguageBinding) : RecyclerView.ViewHolder(bind.root) {
 
 		fun onShow() {
-			_bind = CardLanguageBinding.inflate(LayoutInflater.from(itemView.context), itemView as ViewGroup, false)
-			val linearLayout = itemView as LinearLayout
-			linearLayout.removeAllViews()
-			linearLayout.addView(bind.root)
+			clear()
 			val item = list[adapterPosition]
 			bind.txtLanguage.text = item.displayLanguage
 			bind.root.setOnClickListener { call(item) }
 		}
 
+		private fun clear(){
+			bind.txtLanguage.text = ""
+		}
+
 		fun onDestroy() {
-			_bind = null
 		}
 
 	}
@@ -50,24 +46,13 @@ class ChoiceLanguageAdapter(
 	}
 
 	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LanguageHolder {
-		return LanguageHolder(LinearLayout(parent.context).apply {
-			layoutParams = LinearLayout.LayoutParams(
-				LinearLayout.LayoutParams.MATCH_PARENT,
-				LinearLayout.LayoutParams.MATCH_PARENT
-			)
-			orientation = LinearLayout.VERTICAL
-		})
+		return LanguageHolder(
+			CardLanguageBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+		)
 	}
 
-	override fun onBindViewHolder(holder: LanguageHolder, position: Int) {
-		holder.onShow()
-		(holder.itemView as LinearLayout).apply {
-			layoutParams = LinearLayout.LayoutParams(
-				LinearLayout.LayoutParams.MATCH_PARENT,
-				LinearLayout.LayoutParams.WRAP_CONTENT
-			)
-		}
-	}
+	override fun onBindViewHolder(holder: LanguageHolder, position: Int) = holder.onShow()
+
 
 	override fun onViewRecycled(holder: LanguageHolder) {
 		super.onViewRecycled(holder)

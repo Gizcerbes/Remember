@@ -22,11 +22,15 @@ class ModuleCardProvider(
 
 	suspend fun getById(id: Int) = mcr.getById(id)
 
-	fun getByModuleID(id: Int) = mcr.getByModuleID(id)
+	fun getByModuleIdListFlow(id: Int) = mcr.getByModuleID(id)
 
-	fun getCountByModuleID(id: Int) = mcr.getCountByModuleID(id)
+	fun getCountByModuleIdFlow(id: Int) = mcr.getCountByModuleIdFlow(id)
 
-	fun getByModule(module: Module) = mcr.getByModule(module)
+	suspend fun getCountByModule(module: Module) = mcr.getCountByModuleId(module.id)
+
+	suspend fun getByPositionOfModule(idModule: Int, position: Int) = mcr.getByPositionOfModule(idModule, position)
+
+	fun getByModuleFlow(module: Module) = mcr.getByModule(module)
 
 	suspend fun getRandom() = mcr.getRandomModule()
 
@@ -42,6 +46,8 @@ class ModuleCardProvider(
 
 	suspend fun getGlobalById(globalId: Long) = network.moduleCard.get(globalId)
 
+	suspend fun getGlobalCount(moduleGlobalId: Long) = network.moduleCard.count(moduleGlobalId)
+
 	suspend fun share(id: Int): ModuleCard? {
 		val moduleCard = getById(id)
 		return moduleCard?.let {
@@ -52,6 +58,22 @@ class ModuleCardProvider(
 			update(updatedModuleCard)
 			return@let updatedModuleCard
 		}
+	}
+
+	suspend fun download(globalId: Long): ModuleCard? {
+		val local = mcr.getByGlobalId(globalId)
+		if (local == null) {
+			val nmc = network.moduleCard.get(globalId)
+			val module = dataProvider.module.download(nmc.idModule)
+			val card = dataProvider.cards.download(nmc.idCard)
+			return if (module != null && card != null) {
+				val localId = insert(ModuleCard(idModule = module.id, idCard = card.id).update(nmc))
+				mcr.getById(localId.toInt())
+			} else {
+				null
+			}
+		}
+		return local
 	}
 
 }

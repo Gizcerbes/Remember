@@ -20,6 +20,8 @@ class ImageRepository(private val imageDAO: ImageDAO) {
 
 	suspend fun getById(id: Int) = imageDAO.getById(id)?.toDTO()
 
+	suspend fun getByGlobalId(id: Long) = imageDAO.getByGlobalId(id)?.toDTO()
+
 	fun getByIdFlow(id: Int) = imageDAO.getByIdFlow(id).map { it?.toDTO() }
 
 	fun getByPhraseFlow(phrase: Phrase) = phrase.idImage?.let { id ->

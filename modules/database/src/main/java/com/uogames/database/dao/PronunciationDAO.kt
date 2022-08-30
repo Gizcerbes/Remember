@@ -25,6 +25,9 @@ interface PronunciationDAO {
 	@Query("SELECT * FROM pronounce_table WHERE id = :id")
 	suspend fun getById(id: Int): PronunciationEntity?
 
+	@Query("SELECT * FROM pronounce_table WHERE global_id = :id")
+	suspend fun getByGlobalId(id: Long): PronunciationEntity?
+
 	@Query("SELECT * FROM pronounce_table WHERE id =:id")
 	fun getByIdFlow(id: Int): Flow<PronunciationEntity?>
 

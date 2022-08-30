@@ -1,6 +1,5 @@
 package com.uogames.repository.providers
 
-import android.util.Log
 import com.uogames.database.repository.PhraseRepository
 import com.uogames.dto.local.Phrase
 import com.uogames.map.PhraseMap.toGlobal
@@ -18,6 +17,8 @@ class PhraseProvider(
 	suspend fun delete(phrase: Phrase) = pr.delete(phrase)
 
 	suspend fun update(phrase: Phrase) = pr.update(phrase)
+
+	suspend fun get(like: String, position: Int) = pr.get(like, position)
 
 	fun countFlow() = pr.countFlow()
 
@@ -43,7 +44,7 @@ class PhraseProvider(
 
 	suspend fun countGlobal(like: String) = network.phrase.count(like)
 
-	suspend fun getGlobal(like: String, number: Long) = network.phrase.get(like,number)
+	suspend fun getGlobal(like: String, number: Long) = network.phrase.get(like, number)
 
 	suspend fun getGlobalById(globalId: Long) = network.phrase.get(globalId)
 
@@ -58,6 +59,18 @@ class PhraseProvider(
 			update(updatedPhrase)
 			return@let updatedPhrase
 		}
+	}
+
+	suspend fun download(id: Long): Phrase? {
+		val local = pr.getByGlobalId(id)
+		if (local == null) {
+			val np = network.phrase.get(id)
+			val image = np.idImage?.let { dataProvider.images.download(it) }
+			val phrase = np.idPronounce?.let { dataProvider.pronounce.download(it) }
+			val localId = add(Phrase().update(network.phrase.get(id), image?.id, phrase?.id))
+			return pr.getById(localId.toInt())
+		}
+		return local
 	}
 
 }
