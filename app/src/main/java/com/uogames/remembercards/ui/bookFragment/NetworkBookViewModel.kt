@@ -1,5 +1,6 @@
 package com.uogames.remembercards.ui.bookFragment
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.uogames.dto.global.Image
@@ -66,5 +67,7 @@ class NetworkBookViewModel @Inject constructor(
 		runCatching { return provider.pronounce.downloadData(id) }
 		return null
 	}
+
+	fun getPicasso(context: Context) = provider.images.getPicasso(context)
 
 }

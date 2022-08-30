@@ -41,6 +41,14 @@ class NetworkBookAdapter(
 				showPronounce(phraseView)
 				bind.txtLang.text = phraseView.lang
 			}
+
+			bind.btnAction.setOnClickListener {
+				full = !full
+				bind.btns.visibility = if (full) View.VISIBLE else View.GONE
+				val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
+				bind.imgAction.setImageResource(img)
+			}
+
 		}
 
 		private fun clear() {
@@ -60,7 +68,7 @@ class NetworkBookAdapter(
 		private suspend fun showImage(image: Deferred<Image?>) {
 			image.await()?.let {
 				val uri = it.imageUri.toUri()
-				Picasso.get().load(uri).placeholder(R.drawable.noise).into(bind.imgPhrase)
+				model.getPicasso(itemView.context).load(uri).placeholder(R.drawable.noise).into(bind.imgPhrase)
 				bind.imgPhrase.visibility = View.VISIBLE
 			}.ifNull {
 				bind.imgPhrase.visibility = View.GONE
