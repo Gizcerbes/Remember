@@ -43,7 +43,6 @@ class ChoiceCountryDialog(call: (Countries) -> Unit) : ObservedDialog<Countries>
             bind.rvCountries.adapter = adapter
         }
 
-
         dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
 
         adapter?.setData(Countries.values().toList())
@@ -51,7 +50,7 @@ class ChoiceCountryDialog(call: (Countries) -> Unit) : ObservedDialog<Countries>
         bind.tilSearch.editText?.addTextChangedListener(searchWatcher)
     }
 
-    private fun createSearchWatcher(): TextWatcher = ShortTextWatcher{
+    private fun createSearchWatcher(): TextWatcher = ShortTextWatcher {
         val cou = Countries.values().filter { country ->
             for (countryName in country.country) {
                 if (countryName.value.uppercase().contains(it.toString().uppercase())) return@filter true
@@ -71,5 +70,4 @@ class ChoiceCountryDialog(call: (Countries) -> Unit) : ObservedDialog<Countries>
         adapter = null
         _bind = null
     }
-
 }

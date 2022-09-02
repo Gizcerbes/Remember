@@ -48,10 +48,22 @@ android {
 
 }
 
+configurations {
+    ktlint
+}
+
 dependencies {
+
+    ktlint("com.pinterest:ktlint:0.47.0") {
+        attributes {
+            attribute(Bundling.BUNDLING_ATTRIBUTE, getObjects().named(Bundling, Bundling.EXTERNAL))
+        }
+    }
+
     implementation project(path: ':modules:dto')
     implementation project(path: ':modules:repository')
     implementation project(path: ':modules:flags')
+
 
     implementation 'androidx.core:core-ktx:1.8.0'
     implementation 'androidx.appcompat:appcompat:1.5.0'
@@ -83,4 +95,21 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth-ktx'
 
 
+}
+
+task ktlint(type: JavaExec, group: "verification") {
+    description = "Check Kotlin code style."
+    classpath = configurations.ktlint
+    mainClass.set("com.pinterest.ktlint.Main")
+    args "src/**/*.kt"
+    // see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information
+}
+check.dependsOn ktlint
+
+task ktlintFormat(type: JavaExec, group: "formatting") {
+    description = "Fix Kotlin code style deviations."
+    classpath = configurations.ktlint
+    mainClass.set("com.pinterest.ktlint.Main")
+    args "-F", "src/**/*.kt"
+    // see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information
 }

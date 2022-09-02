@@ -3,14 +3,10 @@ package com.uogames.database
 import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.uogames.database.entity.CardEntity
 import com.uogames.database.entity.ErrorCardEntity
-import com.uogames.database.entity.ImageEntity
 import com.uogames.database.entity.PhraseEntity
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
-import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,10 +34,10 @@ class TestErrorCardDAO {
 		db.phraseDAO().insert(PhraseEntity(2, "2", null, null, null, 2, 0, 0, 0, 0, ""))
 		db.phraseDAO().insert(PhraseEntity(3, "3", null, null, null, 2, 0, 0, 0, 0, ""))
 		db.phraseDAO().insert(PhraseEntity(4, "4", null, null, null, 2, 0, 0, 0, 0, ""))
-		db.errorCardDao().insert(ErrorCardEntity(0, 1, 2, 0, 0, 100))
-		db.errorCardDao().insert(ErrorCardEntity(0, 1, 3, 0, 0, 100))
-		db.errorCardDao().insert(ErrorCardEntity(0, 2, 3, 0, 0, 100))
-		db.errorCardDao().insert(ErrorCardEntity(0, 3, 1, 0, 0, 100))
+		db.errorCardDAO().insert(ErrorCardEntity(0, 1, 2, 0, 0, 100))
+		db.errorCardDAO().insert(ErrorCardEntity(0, 1, 3, 0, 0, 100))
+		db.errorCardDAO().insert(ErrorCardEntity(0, 2, 3, 0, 0, 100))
+		db.errorCardDAO().insert(ErrorCardEntity(0, 3, 1, 0, 0, 100))
 
 
 	}

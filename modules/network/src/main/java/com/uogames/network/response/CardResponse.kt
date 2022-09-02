@@ -1,18 +1,19 @@
 package com.uogames.network.response
 
 import com.google.gson.annotations.SerializedName
+import java.util.*
 
 data class CardResponse(
 	@SerializedName("global_id")
-	val globalId: Long = 0,
+	val globalId: UUID,
 	@SerializedName("global_owner")
 	val globalOwner: String,
 	@SerializedName("id_phrase")
-	var idPhrase: Long = 0,
+	var idPhrase: UUID,
 	@SerializedName("id_translate")
-	var idTranslate: Long = 0,
+	var idTranslate: UUID,
 	@SerializedName("id_image")
-	var idImage: Long? = null,
+	var idImage: UUID? = null,
 	@SerializedName("reason")
 	var reason: String = "",
 	@SerializedName("time_change")

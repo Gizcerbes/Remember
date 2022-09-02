@@ -8,6 +8,7 @@ import com.uogames.dto.local.Pronunciation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
+import java.util.*
 
 class PronunciationRepository(private val dao: PronunciationDAO) {
 
@@ -23,7 +24,7 @@ class PronunciationRepository(private val dao: PronunciationDAO) {
 
 	suspend fun getById(id: Int) = dao.getById(id)?.toDTO()
 
-	suspend fun getByGlobalId(id: Long) = dao.getByGlobalId(id)?.toDTO()
+	suspend fun getByGlobalId(id: UUID) = dao.getByGlobalId(id)?.toDTO()
 
 	fun getByIdFlow(id: Int) = dao.getByIdFlow(id).map { it?.toDTO() }
 

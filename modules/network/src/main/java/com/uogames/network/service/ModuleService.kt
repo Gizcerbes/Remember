@@ -5,6 +5,7 @@ import com.uogames.network.response.ModuleResponse
 import io.ktor.client.request.*
 import io.ktor.http.*
 import com.uogames.network.HttpClient
+import java.util.*
 
 class ModuleService(private val client: HttpClient) {
 
@@ -17,7 +18,7 @@ class ModuleService(private val client: HttpClient) {
 		parameter("like", like)
 	}.ifSuccess()
 
-	suspend fun get(globalId: Long): ModuleResponse = client.get("/module/$globalId").ifSuccess()
+	suspend fun get(globalId: UUID): ModuleResponse = client.get("/module/$globalId").ifSuccess()
 
 	suspend fun post(module: ModuleResponse): ModuleResponse = client.post("/module") {
 		contentType(ContentType.Application.Json)

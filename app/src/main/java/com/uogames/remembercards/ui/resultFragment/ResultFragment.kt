@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.View
 import dagger.android.support.DaggerFragment
 
-class ResultFragment:DaggerFragment() {
+class ResultFragment : DaggerFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -13,5 +13,4 @@ class ResultFragment:DaggerFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
     }
-
 }

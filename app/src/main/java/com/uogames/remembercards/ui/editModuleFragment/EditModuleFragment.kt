@@ -26,103 +26,100 @@ import javax.inject.Inject
 
 class EditModuleFragment : DaggerFragment() {
 
-	companion object {
-		private const val CARD_CALL_TAG = "EditModuleFragment_CARD_CALL_TAG"
-		const val MODULE_ID = "EditModuleFragment_MODULE_ID"
-	}
+    companion object {
+        private const val CARD_CALL_TAG = "EditModuleFragment_CARD_CALL_TAG"
+        const val MODULE_ID = "EditModuleFragment_MODULE_ID"
+    }
 
-	@Inject
-	lateinit var editModuleViewModel: EditModuleViewModel
+    @Inject
+    lateinit var editModuleViewModel: EditModuleViewModel
 
-	@Inject
-	lateinit var globalViewModel: GlobalViewModel
+    @Inject
+    lateinit var globalViewModel: GlobalViewModel
 
-	@Inject
-	lateinit var player: ObservableMediaPlayer
+    @Inject
+    lateinit var player: ObservableMediaPlayer
 
-	private var _bind: FragmentEditModuleBinding? = null
-	private val bind get() = _bind!!
+    private var _bind: FragmentEditModuleBinding? = null
+    private val bind get() = _bind!!
 
-	private var adapter: EditModuleAdapter? = null
+    private var adapter: EditModuleAdapter? = null
 
-	private var moduleCardObserver: Job? = null
+    private var moduleCardObserver: Job? = null
 
-	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-		if (_bind == null) _bind = FragmentEditModuleBinding.inflate(inflater, container, false)
-		return bind.root
-	}
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        if (_bind == null) _bind = FragmentEditModuleBinding.inflate(inflater, container, false)
+        return bind.root
+    }
 
-	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        globalViewModel.shouldReset.ifTrue {
+            editModuleViewModel.reset()
+        }
 
-		globalViewModel.shouldReset.ifTrue {
-			editModuleViewModel.reset()
-		}
+        adapter = EditModuleAdapter(editModuleViewModel, player)
+        val id = arguments?.getInt(MODULE_ID)
+        id?.let {
+            setData(it)
+        }.ifNull {
+            findNavController().popBackStack()
+        }
+    }
 
-		adapter = EditModuleAdapter(editModuleViewModel, player)
-		val id = arguments?.getInt(MODULE_ID)
-		id?.let {
-			setData(it)
-		}.ifNull {
-			findNavController().popBackStack()
-		}
-	}
+    private fun setData(id: Int) {
+        setFragmentResultListener(CARD_CALL_TAG) { _, b ->
+            lifecycleScope.launchWhenStarted {
+                val cardID = b.getInt("ID")
+                val card = editModuleViewModel.getCard(cardID).first().ifNull { return@launchWhenStarted }
+                editModuleViewModel.addModuleCard(id, card) {}
+            }
+        }
 
-	private fun setData(id: Int) {
-		setFragmentResultListener(CARD_CALL_TAG) { _, b ->
-			lifecycleScope.launchWhenStarted {
-				val cardID = b.getInt("ID")
-				val card = editModuleViewModel.getCard(cardID).first().ifNull { return@launchWhenStarted }
-				editModuleViewModel.addModuleCard(id, card) {}
-			}
-		}
+        editModuleViewModel.moduleID.value = id
+        bind.btnAdd.setOnClickListener {
+            requireActivity().findNavController(R.id.nav_host_fragment).navigate(
+                R.id.choiceCardFragment,
+                bundleOf(ChoiceCardFragment.TAG to CARD_CALL_TAG),
+                navOptions {
+                    anim {
+                        enter = R.anim.from_bottom
+                        exit = R.anim.hide
+                        popEnter = R.anim.show
+                        popExit = R.anim.to_bottom
+                    }
+                }
+            )
+        }
+        bind.btnBack.setOnClickListener {
+            findNavController().popBackStack()
+        }
 
-		editModuleViewModel.moduleID.value = id
-		bind.btnAdd.setOnClickListener {
-			requireActivity().findNavController(R.id.nav_host_fragment).navigate(
-				R.id.choiceCardFragment,
-				bundleOf(ChoiceCardFragment.TAG to CARD_CALL_TAG),
-				navOptions {
-					anim {
-						enter = R.anim.from_bottom
-						exit = R.anim.hide
-						popEnter = R.anim.show
-						popExit =R.anim.to_bottom
-					}
-				}
-			)
-		}
-		bind.btnBack.setOnClickListener {
-			findNavController().popBackStack()
-		}
+        bind.btnDelete.setOnClickListener {
+            lifecycleScope.launchWhenStarted {
+                editModuleViewModel.module.first()?.let {
+                    editModuleViewModel.delete(it)
+                }
+                findNavController().popBackStack()
+            }
+        }
 
-		bind.btnDelete.setOnClickListener {
-			lifecycleScope.launchWhenStarted {
-				editModuleViewModel.module.first()?.let {
-					editModuleViewModel.delete(it)
-				}
-				findNavController().popBackStack()
-			}
-		}
+        moduleCardObserver = createModuleCardObserver()
 
-		moduleCardObserver = createModuleCardObserver()
+        lifecycleScope.launchWhenStarted {
+            delay(300)
+            bind.rvCards.adapter = adapter
+        }
+    }
 
-		lifecycleScope.launchWhenStarted {
-			delay(300)
-			bind.rvCards.adapter = adapter
-		}
+    private fun createModuleCardObserver(): Job = editModuleViewModel.moduleCardsList.observeWhenStarted(lifecycleScope) {
+        adapter?.setListItems(it)
+    }
 
-	}
-
-	private fun createModuleCardObserver(): Job = editModuleViewModel.moduleCardsList.observeWhenStarted(lifecycleScope) {
-		adapter?.setListItems(it)
-	}
-
-	override fun onDestroyView() {
-		super.onDestroyView()
-		moduleCardObserver?.cancel()
-		adapter?.onDestroy()
-		adapter = null
-		_bind = null
-	}
-
+    override fun onDestroyView() {
+        super.onDestroyView()
+        moduleCardObserver?.cancel()
+        adapter?.onDestroy()
+        adapter = null
+        _bind = null
+    }
 }

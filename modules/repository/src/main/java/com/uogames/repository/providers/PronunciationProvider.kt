@@ -11,6 +11,7 @@ import com.uogames.network.provider.PronunciationProvider
 import com.uogames.repository.DataProvider
 import com.uogames.repository.fileRepository.FileRepository
 import kotlinx.coroutines.flow.first
+import java.util.*
 
 class PronunciationProvider(
 	private val dataProvider: DataProvider,
@@ -50,9 +51,9 @@ class PronunciationProvider(
 
 	fun getByPhrase(phrase: Phrase) = database.getByPhrase(phrase)
 
-	suspend fun getByGlobalId(id: Long) = network.pronounce.get(id)
+	suspend fun getByGlobalId(id: UUID) = network.pronounce.get(id)
 
-	suspend fun downloadData(id: Long) = network.pronounce.load(id)
+	suspend fun downloadData(id: UUID) = network.pronounce.load(id)
 
 	suspend fun clear() {
 		database.freeId().forEach {
@@ -63,6 +64,7 @@ class PronunciationProvider(
 
 	suspend fun share(id: Int): Pronunciation? {
 		val pronounce = getById(id)
+		pronounce?.globalId?.let { if (network.pronounce.exists(it)) return pronounce }
 		val res = pronounce?.let {
 			if (it.globalId == null) it
 			else null
@@ -73,7 +75,7 @@ class PronunciationProvider(
 		return res ?: pronounce
 	}
 
-	suspend fun download(id: Long): Pronunciation? {
+	suspend fun download(id: UUID): Pronunciation? {
 		val local = database.getByGlobalId(id)
 		if (local == null) {
 			val localId = add(network.pronounce.load(id))

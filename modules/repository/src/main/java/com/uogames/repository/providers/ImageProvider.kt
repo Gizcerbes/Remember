@@ -14,6 +14,7 @@ import com.uogames.network.response.ImageResponse
 import com.uogames.repository.DataProvider
 import com.uogames.repository.fileRepository.FileRepository
 import kotlinx.coroutines.flow.first
+import java.util.*
 
 class ImageProvider(
 	private val dataProvider: DataProvider,
@@ -55,7 +56,7 @@ class ImageProvider(
 
 	fun getByCard(card: Card) = database.getByCardFlow(card)
 
-	suspend fun getByGlobalId(id: Long) = network.image.get(id)
+	suspend fun getByGlobalId(id: UUID) = network.image.get(id)
 
 
 	suspend fun clear() {
@@ -69,6 +70,7 @@ class ImageProvider(
 
 	suspend fun share(id: Int): Image? {
 		val image = getById(id)
+		image?.globalId?.let { if (network.image.exists(it)) return image }
 		val res = image?.let {
 			if (it.globalId == null) it
 			else null
@@ -79,7 +81,7 @@ class ImageProvider(
 		return res ?: image
 	}
 
-	suspend fun download(id: Long): Image? {
+	suspend fun download(id: UUID): Image? {
 		val local = database.getByGlobalId(id)
 		if (local == null) {
 			val localId = add(network.image.load(id))

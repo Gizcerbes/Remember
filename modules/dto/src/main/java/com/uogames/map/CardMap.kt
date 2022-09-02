@@ -1,5 +1,6 @@
 package com.uogames.map
 
+import com.uogames.dto.DefaultUUID
 import com.uogames.dto.local.Card
 import com.uogames.dto.local.Image
 import com.uogames.dto.local.Phrase
@@ -7,11 +8,11 @@ import com.uogames.dto.local.Phrase
 object CardMap {
 
 	fun Card.toGlobal(phrase: Phrase?, translate: Phrase?, image: Image?) = com.uogames.dto.global.Card(
-		globalId = globalId ?: 0,
+		globalId = globalId ?: DefaultUUID.value,
 		globalOwner = globalOwner ?: "",
-		idPhrase = phrase?.globalId ?: 0,
-		idTranslate = translate?.globalId ?: 0,
-		idImage = image?.globalId ?: 0,
+		idPhrase = phrase?.globalId ?: DefaultUUID.value,
+		idTranslate = translate?.globalId ?: DefaultUUID.value,
+		idImage = image?.globalId ?: DefaultUUID.value,
 		reason = reason,
 		timeChange = timeChange,
 		like = 0,

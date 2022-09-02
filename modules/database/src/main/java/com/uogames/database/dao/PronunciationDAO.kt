@@ -3,6 +3,7 @@ package com.uogames.database.dao
 import androidx.room.*
 import com.uogames.database.entity.PronunciationEntity
 import kotlinx.coroutines.flow.Flow
+import java.util.*
 
 @Dao
 interface PronunciationDAO {
@@ -26,7 +27,7 @@ interface PronunciationDAO {
 	suspend fun getById(id: Int): PronunciationEntity?
 
 	@Query("SELECT * FROM pronounce_table WHERE global_id = :id")
-	suspend fun getByGlobalId(id: Long): PronunciationEntity?
+	suspend fun getByGlobalId(id: UUID): PronunciationEntity?
 
 	@Query("SELECT * FROM pronounce_table WHERE id =:id")
 	fun getByIdFlow(id: Int): Flow<PronunciationEntity?>

@@ -14,97 +14,92 @@ import com.uogames.remembercards.utils.observeWhile
 import kotlinx.coroutines.*
 
 class NetworkLibraryAdapter(
-	val model: NetworkLibraryViewModel,
-	val selectID: (Module) -> Unit
+    val model: NetworkLibraryViewModel,
+    val selectID: (Module) -> Unit
 ) : ClosableAdapter<NetworkLibraryAdapter.ModuleHolder>() {
 
-	private val recyclerScope = CoroutineScope(Dispatchers.Main)
+    private val recyclerScope = CoroutineScope(Dispatchers.Main)
 
-	init {
-		model.size.observeWhile(recyclerScope) {
-			notifyDataSetChanged()
-		}
-	}
+    init {
+        model.size.observeWhile(recyclerScope) {
+            notifyDataSetChanged()
+        }
+    }
 
-	inner class ModuleHolder(val bind: CardModuleBinding) : RecyclerView.ViewHolder(bind.root) {
+    inner class ModuleHolder(val bind: CardModuleBinding) : RecyclerView.ViewHolder(bind.root) {
 
-		private var moduleObserver: Job? = null
+        private var moduleObserver: Job? = null
 
-		private var full = false
+        private var full = false
 
-		fun onShow() {
-			clear()
-			moduleObserver = recyclerScope.launch(Dispatchers.IO) {
-				val module = model.getByPosition(adapterPosition.toLong()).ifNull { return@launch }
-				launch(Dispatchers.Main) { bind.txtName.text = module.name }
-				val count = model.getModuleCardCount(module)
-				launch(Dispatchers.Main) {
-					bind.txtCountItems.text = itemView.context.getString(R.string.count_items).replace("||COUNT||", count.toString())
-				}
+        fun onShow() {
+            clear()
+            moduleObserver = recyclerScope.launch(Dispatchers.IO) {
+                val module = model.getByPosition(adapterPosition.toLong()).ifNull { return@launch }
+                launch(Dispatchers.Main) { bind.txtName.text = module.name }
+                val count = model.getModuleCardCount(module)
+                launch(Dispatchers.Main) {
+                    bind.txtCountItems.text = itemView.context.getString(R.string.count_items).replace("||COUNT||", count.toString())
+                }
 
-				val startAction: () -> Unit = {
-					bind.progressLoading.visibility = View.VISIBLE
-					bind.btnStop.visibility = View.VISIBLE
-					bind.btnDownload.visibility = View.GONE
-				}
+                val startAction: () -> Unit = {
+                    bind.progressLoading.visibility = View.VISIBLE
+                    bind.btnStop.visibility = View.VISIBLE
+                    bind.btnDownload.visibility = View.GONE
+                }
 
-				val endAction: (String) -> Unit = {
-					bind.progressLoading.visibility = View.GONE
-					bind.btnStop.visibility = View.GONE
-					bind.btnDownload.visibility = View.VISIBLE
-					Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
-				}
+                val endAction: (String) -> Unit = {
+                    bind.progressLoading.visibility = View.GONE
+                    bind.btnStop.visibility = View.GONE
+                    bind.btnDownload.visibility = View.VISIBLE
+                    Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
+                }
+            }
 
-			}
+            bind.btnAction.setOnClickListener {
+                full = !full
+                bind.llBar.visibility = if (full) View.VISIBLE else View.GONE
+                val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
+                bind.imgAction.setImageResource(img)
+            }
+        }
 
-			bind.btnAction.setOnClickListener {
-				full = !full
-				bind.llBar.visibility = if (full) View.VISIBLE else View.GONE
-				val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
-				bind.imgAction.setImageResource(img)
-			}
+        private fun clear() {
+            full = false
+            bind.llBar.visibility = View.GONE
+            bind.progressLoading.visibility = View.GONE
+            bind.txtCountItems.text = ""
+            bind.btnEdit.visibility = View.GONE
+            bind.btnShare.visibility = View.GONE
+            bind.btnStop.visibility = View.GONE
+            bind.imgAction.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
+        }
 
-		}
+        fun onDestroy() {
+            moduleObserver?.cancel()
+        }
+    }
 
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ModuleHolder {
+        return ModuleHolder(
+            CardModuleBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        )
+    }
 
-		private fun clear() {
-			full = false
-			bind.llBar.visibility = View.GONE
-			bind.progressLoading.visibility = View.GONE
-			bind.txtCountItems.text = ""
-			bind.btnEdit.visibility = View.GONE
-			bind.btnShare.visibility = View.GONE
-			bind.btnStop.visibility = View.GONE
-			bind.imgAction.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
-		}
+    override fun onBindViewHolder(holder: ModuleHolder, position: Int) {
+        holder.onShow()
+    }
 
-		fun onDestroy() {
-			moduleObserver?.cancel()
-		}
-	}
+    override fun getItemCount(): Int {
+        return model.size.value.toInt()
+    }
 
-	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ModuleHolder {
-		return ModuleHolder(
-			CardModuleBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-		)
-	}
+    override fun onViewRecycled(holder: ModuleHolder) {
+        super.onViewRecycled(holder)
+        holder.onDestroy()
+    }
 
-	override fun onBindViewHolder(holder: ModuleHolder, position: Int) {
-		holder.onShow()
-	}
-
-	override fun getItemCount(): Int {
-		return model.size.value.toInt()
-	}
-
-	override fun onViewRecycled(holder: ModuleHolder) {
-		super.onViewRecycled(holder)
-		holder.onDestroy()
-	}
-
-	override fun close() {
-		recyclerScope.cancel()
-	}
-
-
+    override fun close() {
+        recyclerScope.cancel()
+    }
 }

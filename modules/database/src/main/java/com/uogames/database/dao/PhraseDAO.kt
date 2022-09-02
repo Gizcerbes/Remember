@@ -3,6 +3,7 @@ package com.uogames.database.dao
 import androidx.room.*
 import com.uogames.database.entity.PhraseEntity
 import kotlinx.coroutines.flow.Flow
+import java.util.*
 
 @Dao
 interface PhraseDAO {
@@ -56,7 +57,7 @@ interface PhraseDAO {
 	suspend fun getById(id: Int): PhraseEntity?
 
 	@Query("SELECT * FROM phrase_table WHERE global_id = :id")
-	suspend fun getByGlobalId(id: Long): PhraseEntity?
+	suspend fun getByGlobalId(id: UUID): PhraseEntity?
 
 	@Query("SELECT * FROM phrase_table WHERE id = :id")
 	fun getByIdFlow(id: Int): Flow<PhraseEntity?>

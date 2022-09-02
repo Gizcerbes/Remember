@@ -13,75 +13,74 @@ import com.uogames.remembercards.utils.observeWhile
 import kotlinx.coroutines.*
 
 class ChoiceModuleAdapter(
-	val model: LibraryViewModel,
-	val selectModule: (Module) -> Unit
+    val model: LibraryViewModel,
+    val selectModule: (Module) -> Unit
 ) : RecyclerView.Adapter<ChoiceModuleAdapter.ModuleHolder>() {
 
-	private val recyclerScope = CoroutineScope(Dispatchers.Main)
+    private val recyclerScope = CoroutineScope(Dispatchers.Main)
 
-	init {
-		model.size.observeWhile(recyclerScope) {
-			notifyDataSetChanged()
-		}
-	}
+    init {
+        model.size.observeWhile(recyclerScope) {
+            notifyDataSetChanged()
+        }
+    }
 
-	inner class ModuleHolder(val bind: CardModuleBinding) : RecyclerView.ViewHolder(bind.root) {
+    inner class ModuleHolder(val bind: CardModuleBinding) : RecyclerView.ViewHolder(bind.root) {
 
-		private var moduleObserver: Job? = null
+        private var moduleObserver: Job? = null
 
-		private var full = false
+        private var full = false
 
-		fun onShow() {
-			clear()
-			recyclerScope.launch(Dispatchers.IO) {
-				val module = model.getModuleByPosition(adapterPosition).ifNull { return@launch }
-				launch(Dispatchers.Main) {
-					bind.txtName.text = module.name
-					moduleObserver = recyclerScope.launch(Dispatchers.IO) {
-						val count = model.getCountByModule(module)
-						launch(Dispatchers.Main) {
-							bind.txtCountItems.text = itemView.context.getString(R.string.count_items).replace("||COUNT||", count.toString())
-						}
-					}
-					bind.txtCountItems.text = ""
-					bind.txtOwner.text = module.owner
-					bind.btnAction.setOnClickListener { selectModule(module) }
+        fun onShow() {
+            clear()
+            recyclerScope.launch(Dispatchers.IO) {
+                val module = model.getModuleByPosition(adapterPosition).ifNull { return@launch }
+                launch(Dispatchers.Main) {
+                    bind.txtName.text = module.name
+                    moduleObserver = recyclerScope.launch(Dispatchers.IO) {
+                        val count = model.getCountByModule(module)
+                        launch(Dispatchers.Main) {
+                            bind.txtCountItems.text = itemView.context.getString(R.string.count_items).replace("||COUNT||", count.toString())
+                        }
+                    }
+                    bind.txtCountItems.text = ""
+                    bind.txtOwner.text = module.owner
+                    bind.btnAction.setOnClickListener { selectModule(module) }
+                }
+            }
+        }
 
-				}
-			}
-		}
+        private fun clear() {
+            full = false
+            bind.llBar.visibility = View.GONE
+            bind.imgAction.setImageResource(R.drawable.ic_baseline_add_24)
+        }
 
-		private fun clear() {
-			full = false
-			bind.llBar.visibility = View.GONE
-			bind.imgAction.setImageResource(R.drawable.ic_baseline_add_24)
-		}
+        fun onDestroy() {
+            moduleObserver?.cancel()
+        }
+    }
 
-		fun onDestroy() {
-			moduleObserver?.cancel()
-		}
-	}
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ModuleHolder {
+        return ModuleHolder(
+            CardModuleBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        )
+    }
 
-	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ModuleHolder {
-		return ModuleHolder(
-			CardModuleBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-		)
-	}
+    override fun onBindViewHolder(holder: ModuleHolder, position: Int) {
+        holder.onShow()
+    }
 
-	override fun onBindViewHolder(holder: ModuleHolder, position: Int) {
-		holder.onShow()
-	}
+    override fun getItemCount(): Int {
+        return model.size.value
+    }
 
-	override fun getItemCount(): Int {
-		return model.size.value
-	}
+    override fun onViewRecycled(holder: ModuleHolder) {
+        super.onViewRecycled(holder)
+        holder.onDestroy()
+    }
 
-	override fun onViewRecycled(holder: ModuleHolder) {
-		super.onViewRecycled(holder)
-		holder.onDestroy()
-	}
-
-	fun onDestroy() {
-		recyclerScope.cancel()
-	}
+    fun onDestroy() {
+        recyclerScope.cancel()
+    }
 }

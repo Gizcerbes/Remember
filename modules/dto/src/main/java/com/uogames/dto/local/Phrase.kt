@@ -12,6 +12,6 @@ data class Phrase(
 	val timeChange: Long = Date().time,
 	val like: Long = 0,
 	val dislike: Long = 0,
-	val globalId: Long? = null,
+	val globalId: UUID? = null,
 	val globalOwner: String? = null
 )

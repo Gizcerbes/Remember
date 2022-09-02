@@ -6,6 +6,7 @@ import com.uogames.map.PhraseMap.toGlobal
 import com.uogames.map.PhraseMap.update
 import com.uogames.network.NetworkProvider
 import com.uogames.repository.DataProvider
+import java.util.*
 
 class PhraseProvider(
 	private val dataProvider: DataProvider,
@@ -46,7 +47,7 @@ class PhraseProvider(
 
 	suspend fun getGlobal(like: String, number: Long) = network.phrase.get(like, number)
 
-	suspend fun getGlobalById(globalId: Long) = network.phrase.get(globalId)
+	suspend fun getGlobalById(globalId: UUID) = network.phrase.get(globalId)
 
 	suspend fun share(id: Int): Phrase? {
 		val phrase = getById(id)
@@ -61,7 +62,7 @@ class PhraseProvider(
 		}
 	}
 
-	suspend fun download(id: Long): Phrase? {
+	suspend fun download(id: UUID): Phrase? {
 		val local = pr.getByGlobalId(id)
 		if (local == null) {
 			val np = network.phrase.get(id)

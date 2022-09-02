@@ -7,6 +7,7 @@ import com.uogames.map.ModuleCardMap.toGlobal
 import com.uogames.map.ModuleCardMap.update
 import com.uogames.network.NetworkProvider
 import com.uogames.repository.DataProvider
+import java.util.*
 
 class ModuleCardProvider(
 	private val dataProvider: DataProvider,
@@ -40,13 +41,13 @@ class ModuleCardProvider(
 
 	suspend fun getRandomWithout(idModule: Int, idCard: Int) = mcr.getRandomModuleWithout(idModule, idCard)
 
-	suspend fun countGlobal(moduleGlobalId: Long) = network.moduleCard.count(moduleGlobalId)
+	suspend fun countGlobal(moduleGlobalId: UUID) = network.moduleCard.count(moduleGlobalId)
 
-	suspend fun getGlobal(moduleGlobalId: Long, number: Long) = network.moduleCard.get(moduleGlobalId, number)
+	suspend fun getGlobal(moduleGlobalId: UUID, number: Long) = network.moduleCard.get(moduleGlobalId, number)
 
-	suspend fun getGlobalById(globalId: Long) = network.moduleCard.get(globalId)
+	suspend fun getGlobalById(globalId: UUID) = network.moduleCard.get(globalId)
 
-	suspend fun getGlobalCount(moduleGlobalId: Long) = network.moduleCard.count(moduleGlobalId)
+	suspend fun getGlobalCount(moduleGlobalId: UUID) = network.moduleCard.count(moduleGlobalId)
 
 	suspend fun share(id: Int): ModuleCard? {
 		val moduleCard = getById(id)
@@ -60,7 +61,7 @@ class ModuleCardProvider(
 		}
 	}
 
-	suspend fun download(globalId: Long): ModuleCard? {
+	suspend fun download(globalId: UUID): ModuleCard? {
 		val local = mcr.getByGlobalId(globalId)
 		if (local == null) {
 			val nmc = network.moduleCard.get(globalId)

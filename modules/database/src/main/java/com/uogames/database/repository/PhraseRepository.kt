@@ -5,6 +5,7 @@ import com.uogames.database.map.PhraseMap.toDTO
 import com.uogames.database.map.PhraseMap.toEntity
 import com.uogames.dto.local.Phrase
 import kotlinx.coroutines.flow.map
+import java.util.*
 
 class PhraseRepository(private val dao: PhraseDAO) {
 
@@ -40,7 +41,7 @@ class PhraseRepository(private val dao: PhraseDAO) {
 
 	suspend fun getById(id: Int) = dao.getById(id)?.toDTO()
 
-	suspend fun getByGlobalId(id: Long) = dao.getByGlobalId(id)?.toDTO()
+	suspend fun getByGlobalId(id: UUID) = dao.getByGlobalId(id)?.toDTO()
 
 	fun getByIdFlow(id: Int) = dao.getByIdFlow(id).map { it?.toDTO() }
 

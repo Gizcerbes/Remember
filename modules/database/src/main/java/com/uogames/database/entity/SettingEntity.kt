@@ -11,4 +11,14 @@ data class SettingEntity(
 	val key: String,
 	@ColumnInfo(name = "value")
 	val value: String?
-)
+){
+
+	companion object{
+		private const val v1 = "CREATE TABLE `settings` (" +
+				"`key` TEXT NOT NULL, " +
+				"`value` TEXT, " +
+				"PRIMARY KEY(`key`)" +
+				");"
+	}
+
+}

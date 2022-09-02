@@ -4,6 +4,7 @@ import androidx.room.*
 import com.uogames.database.entity.ModuleCardEntity
 import com.uogames.dto.local.ModuleCard
 import kotlinx.coroutines.flow.Flow
+import java.util.*
 
 @Dao
 interface ModuleCardDAO {
@@ -45,6 +46,6 @@ interface ModuleCardDAO {
 	suspend fun getById(moduleCardId: Int): ModuleCardEntity?
 
 	@Query("SELECT * FROM module_card WHERE global_id = :globalId")
-	suspend fun getByGlobalId(globalId: Long): ModuleCardEntity?
+	suspend fun getByGlobalId(globalId: UUID): ModuleCardEntity?
 
 }

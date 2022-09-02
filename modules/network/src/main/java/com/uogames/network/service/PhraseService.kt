@@ -5,6 +5,7 @@ import com.uogames.network.response.PhraseResponse
 import io.ktor.client.request.*
 import io.ktor.http.*
 import com.uogames.network.HttpClient
+import java.util.*
 
 class PhraseService(private val client: HttpClient) {
 
@@ -17,7 +18,7 @@ class PhraseService(private val client: HttpClient) {
 		parameter("number", number)
 	}.ifSuccess()
 
-	suspend fun get(globalId: Long): PhraseResponse = client.get("/phrase/$globalId").ifSuccess()
+	suspend fun get(globalId: UUID): PhraseResponse = client.get("/phrase/$globalId").ifSuccess()
 
 	suspend fun post(phrase: PhraseResponse): PhraseResponse = client.post("/phrase") {
 		contentType(ContentType.Application.Json)

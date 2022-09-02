@@ -3,6 +3,7 @@ package com.uogames.database.dao
 import androidx.room.*
 import com.uogames.database.entity.CardEntity
 import kotlinx.coroutines.flow.Flow
+import java.util.*
 
 @Dao
 interface CardDAO {
@@ -46,7 +47,7 @@ interface CardDAO {
 	suspend fun getById(id: Int): CardEntity?
 
 	@Query("SELECT * FROM cards_table WHERE global_id = :id")
-	suspend fun getByGlobalId(id: Long): CardEntity?
+	suspend fun getByGlobalId(id: UUID): CardEntity?
 
 	@Query("SELECT * FROM cards_table WHERE id = :id")
 	fun getByIdFlow(id: Int): Flow<CardEntity?>

@@ -14,53 +14,53 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 
 class ImageAdapter(
-	editCardViewModel: EditPhraseViewModel,
-	val call: (Image) -> Unit
+    editCardViewModel: EditPhraseViewModel,
+    val call: (Image) -> Unit
 ) :	RecyclerView.Adapter<ImageAdapter.ImageHolder>() {
 
-	private val recyclerScope = CoroutineScope(Dispatchers.Main)
+    private val recyclerScope = CoroutineScope(Dispatchers.Main)
 
-	private var list = listOf<Image>()
+    private var list = listOf<Image>()
 
-	init {
-		editCardViewModel.listImageFlow.observeWhile(recyclerScope){
-			list = it
-			notifyDataSetChanged()
-		}
-	}
+    init {
+        editCardViewModel.listImageFlow.observeWhile(recyclerScope) {
+            list = it
+            notifyDataSetChanged()
+        }
+    }
 
-	inner class ImageHolder(val view: MaterialCardView) : RecyclerView.ViewHolder(view){
+    inner class ImageHolder(val view: MaterialCardView) : RecyclerView.ViewHolder(view) {
 
-		fun show(){
-			val image = list[adapterPosition]
-			view.setOnClickListener { call(image) }
-			view.addView(ImageView(view.context).apply {
-				setImageURI(image.imgUri.toUri())
-				scaleType = ImageView.ScaleType.CENTER_CROP
-			})
-		}
-	}
+        fun show() {
+            val image = list[adapterPosition]
+            view.setOnClickListener { call(image) }
+            view.addView(
+                ImageView(view.context).apply {
+                    setImageURI(image.imgUri.toUri())
+                    scaleType = ImageView.ScaleType.CENTER_CROP
+                }
+            )
+        }
+    }
 
-	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageHolder {
-		val imView = MaterialCardView(parent.context).apply {
-			val layParams = ActionBar.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,250)
-			layParams.setMargins(7)
-			layoutParams = layParams
-		}
-		return ImageHolder(imView)
-	}
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageHolder {
+        val imView = MaterialCardView(parent.context).apply {
+            val layParams = ActionBar.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 250)
+            layParams.setMargins(7)
+            layoutParams = layParams
+        }
+        return ImageHolder(imView)
+    }
 
-	override fun onBindViewHolder(holder: ImageHolder, position: Int) {
-		holder.show()
-	}
+    override fun onBindViewHolder(holder: ImageHolder, position: Int) {
+        holder.show()
+    }
 
-	override fun getItemCount(): Int {
-		return list.size
-	}
+    override fun getItemCount(): Int {
+        return list.size
+    }
 
-	fun onDestroy(){
-		recyclerScope.cancel()
-	}
-
-
+    fun onDestroy() {
+        recyclerScope.cancel()
+    }
 }

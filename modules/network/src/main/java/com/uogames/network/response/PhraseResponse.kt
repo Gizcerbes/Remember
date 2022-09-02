@@ -1,10 +1,11 @@
 package com.uogames.network.response
 
 import com.google.gson.annotations.SerializedName
+import java.util.*
 
 data class PhraseResponse(
 	@SerializedName("global_id")
-	val globalId: Long = 0,
+	val globalId: UUID,
 	@SerializedName("global_owner")
 	var globalOwner: String,
 	@SerializedName("phrase")
@@ -14,9 +15,9 @@ data class PhraseResponse(
 	@SerializedName("lang")
 	var lang: String = "eng-gb",
 	@SerializedName("id_pronounce")
-	var idPronounce: Long? = null,
+	var idPronounce: UUID? = null,
 	@SerializedName("id_image")
-	var idImage: Long? = null,
+	var idImage: UUID? = null,
 	@SerializedName("time_change")
 	var timeChange: Long = 0,
 	@SerializedName("like")

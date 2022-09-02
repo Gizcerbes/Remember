@@ -72,7 +72,7 @@ class HttpClient(
 		}
 	}
 
-	fun getPicasso(context: Context): Picasso{
+	fun getPicasso(context: Context): Picasso {
 		return Picasso.Builder(context).downloader(OkHttp3Downloader(okHttpClient)).build()
 	}
 
@@ -80,10 +80,12 @@ class HttpClient(
 
 	suspend fun get(url: String, builder: HttpRequestBuilder.() -> Unit = {}) = get(URLBuilder(url), builder)
 
-	suspend fun post(url: URLBuilder, builder: HttpRequestBuilder.() -> Unit = {}) =
-		client.post(urlBuilder(url), builder)
+	suspend fun post(url: URLBuilder, builder: HttpRequestBuilder.() -> Unit = {}) = client.post(urlBuilder(url), builder)
 
 	suspend fun post(url: String, builder: HttpRequestBuilder.() -> Unit = {}) = post(URLBuilder(url), builder)
 
+	suspend fun head(url: URLBuilder, builder: HttpRequestBuilder.() -> Unit = {}) = client.head(urlBuilder(url), builder)
+
+	suspend fun head(url: String, builder: HttpRequestBuilder.() -> Unit = {}) = head(URLBuilder(url), builder)
 
 }

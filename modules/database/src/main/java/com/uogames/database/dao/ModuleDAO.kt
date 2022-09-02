@@ -3,6 +3,7 @@ package com.uogames.database.dao
 import androidx.room.*
 import com.uogames.database.entity.ModuleEntity
 import kotlinx.coroutines.flow.Flow
+import java.util.*
 
 @Dao
 interface ModuleDAO {
@@ -35,7 +36,7 @@ interface ModuleDAO {
 	suspend fun getById(id: Int): ModuleEntity?
 
 	@Query("SELECT * FROM modules WHERE global_id = :globalId")
-	suspend fun getByGlobalId(globalId: Long): ModuleEntity?
+	suspend fun getByGlobalId(globalId: UUID): ModuleEntity?
 
 	@Query("SELECT * FROM modules WHERE id = :id")
 	fun getByIdFlow(id: Int): Flow<ModuleEntity?>

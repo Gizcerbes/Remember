@@ -1,11 +1,14 @@
 package com.uogames.remembercards.ui.bookFragment
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.squareup.picasso.Picasso
 import com.uogames.dto.local.Image
 import com.uogames.dto.local.Pronunciation
@@ -15,137 +18,140 @@ import com.uogames.remembercards.utils.*
 import kotlinx.coroutines.*
 
 class BookAdapter(
-	private val model: BookViewModel,
-	private val player: ObservableMediaPlayer,
-	private val editPhraseCall: (Int) -> Unit
+    private val model: BookViewModel,
+    private val player: ObservableMediaPlayer,
+    private val editPhraseCall: (Int) -> Unit
 ) : ClosableAdapter<BookAdapter.CardHolder>() {
 
-	private val recyclerScope = CoroutineScope(Dispatchers.Main)
+    private val recyclerScope = CoroutineScope(Dispatchers.Main)
+    private val auth = Firebase.auth
 
-	init {
-		model.size.observeWhile(recyclerScope){
-			notifyDataSetChanged()
-		}
-	}
+    init {
+        model.size.observeWhile(recyclerScope) {
+            notifyDataSetChanged()
+        }
+    }
 
-	inner class CardHolder(val bind: CardPhraseBinding) : RecyclerView.ViewHolder(bind.root) {
+    inner class CardHolder(val bind: CardPhraseBinding) : RecyclerView.ViewHolder(bind.root) {
 
-		private var bookViewObserver: Job? = null
+        private var bookViewObserver: Job? = null
 
-		private var full = false
+        private var full = false
 
-		fun onShow() {
-			clear()
-			bookViewObserver = recyclerScope.launch(Dispatchers.IO) {
-				val bookView = model.getBookModel(adapterPosition).ifNull { return@launch }
-				val phrase = bookView.phrase
-				launch(Dispatchers.Main) {
-					bind.txtPhrase.text = phrase.phrase
-					bind.txtDefinition.text = phrase.definition.orEmpty()
-					showImage(bookView.image)
-					showPronounce(bookView.pronounce)
-					bind.txtLang.text = bookView.lang
-					bind.btnEdit.setOnClickListener { editPhraseCall(phrase.id) }
+        fun onShow() {
+            clear()
+            bookViewObserver = recyclerScope.launch(Dispatchers.IO) {
+                val bookView = model.getBookModel(adapterPosition).ifNull { return@launch }
+                val phrase = bookView.phrase
+                launch(Dispatchers.Main) {
+                    if (auth.currentUser == null || (phrase.globalOwner != null && phrase.globalOwner != auth.currentUser?.uid)) {
+                        bind.btnShare.visibility = View.GONE
+                    }
 
-					val startAction: () -> Unit = {
-						bind.progressLoading.visibility = View.VISIBLE
-						bind.btnStop.visibility = View.VISIBLE
-						bind.btnShare.visibility = View.GONE
-						bind.btnEdit.visibility = View.GONE
-					}
+                    bind.txtPhrase.text = phrase.phrase
+                    bind.txtDefinition.text = phrase.definition.orEmpty()
+                    showImage(bookView.image)
+                    showPronounce(bookView.pronounce)
+                    bind.txtLang.text = bookView.lang
+                    bind.btnEdit.setOnClickListener { editPhraseCall(phrase.id) }
 
-					val endAction: (String) -> Unit = {
-						bind.progressLoading.visibility = View.GONE
-						bind.btnStop.visibility = View.GONE
-						bind.btnShare.visibility = View.VISIBLE
-						bind.btnEdit.visibility = View.VISIBLE
-						Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
-					}
+                    val startAction: () -> Unit = {
+                        bind.progressLoading.visibility = View.VISIBLE
+                        bind.btnStop.visibility = View.VISIBLE
+                        bind.btnShare.visibility = View.GONE
+                        bind.btnEdit.visibility = View.GONE
+                    }
 
-					model.setShareAction(phrase, endAction).ifTrue(startAction)
+                    val endAction: (String) -> Unit = {
+                        bind.progressLoading.visibility = View.GONE
+                        bind.btnStop.visibility = View.GONE
+                        bind.btnShare.visibility = View.VISIBLE
+                        bind.btnEdit.visibility = View.VISIBLE
+                        Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
+                    }
 
-					bind.btnShare.setOnClickListener {
-						startAction()
-						model.share(phrase, endAction)
-					}
-					bind.btnStop.setOnClickListener {
-						model.stopSharing(phrase)
-					}
-				}
-			}
-			bind.btnAction.setOnClickListener {
-				full = !full
-				bind.btns.visibility = if (full) View.VISIBLE else View.GONE
-				val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
-				bind.imgAction.setImageResource(img)
-			}
-		}
+                    model.setShareAction(phrase, endAction).ifTrue(startAction)
 
-		private fun clear() {
-			full = false
-			bind.btns.visibility = View.GONE
-			bind.imgPhrase.visibility = View.GONE
-			bind.btnSound.visibility = View.GONE
-			bind.txtPhrase.text = ""
-			bind.txtLang.text = ""
-			bind.txtDefinition.text = ""
-			bind.progressLoading.visibility = View.GONE
-			bind.btnStop.visibility = View.GONE
-			bind.btnDownload.visibility = View.GONE
-			bind.imgAction.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
-		}
+                    bind.btnShare.setOnClickListener {
+                        startAction()
+                        model.share(phrase, endAction)
+                    }
+                    bind.btnStop.setOnClickListener {
+                        model.stopSharing(phrase)
+                    }
+                }
+            }
+            bind.btnAction.setOnClickListener {
+                full = !full
+                bind.btns.visibility = if (full) View.VISIBLE else View.GONE
+                val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
+                bind.imgAction.setImageResource(img)
+            }
+        }
 
-		private suspend fun showImage(image: Deferred<Image?>) {
-			image.await()?.let {
-				val uri = it.imgUri.toUri()
-				Picasso.get().load(uri).placeholder(R.drawable.noise).into(bind.imgPhrase)
-				bind.imgPhrase.visibility = View.VISIBLE
-			}.ifNull {
-				bind.imgPhrase.visibility = View.GONE
-			}
-		}
+        private fun clear() {
+            full = false
+            bind.btns.visibility = View.GONE
+            bind.mcvImgPhrase.visibility = View.GONE
+            bind.btnSound.visibility = View.GONE
+            bind.txtPhrase.text = ""
+            bind.txtLang.text = ""
+            bind.txtDefinition.text = ""
+            bind.progressLoading.visibility = View.GONE
+            bind.btnStop.visibility = View.GONE
+            bind.btnDownload.visibility = View.GONE
+            auth.currentUser.ifNull { bind.btnShare.visibility = View.GONE }
+            bind.imgAction.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
+        }
 
-		private suspend fun showPronounce(pronounce: Deferred<Pronunciation?>) {
-			pronounce.await()?.let { pron ->
-				bind.btnSound.visibility = View.VISIBLE
-				bind.btnSound.setOnClickListener {
-					player.play(
-						itemView.context,
-						pron.audioUri.toUri(),
-						bind.imgBtnSound.background.asAnimationDrawable()
-					)
-				}
-			}.ifNull {
-				bind.btnSound.visibility = View.GONE
-			}
-		}
+        private suspend fun showImage(image: Deferred<Image?>) {
+            image.await()?.let {
+                bind.mcvImgPhrase.visibility = View.VISIBLE
+                val uri = it.imgUri.toUri()
+                Picasso.get().load(uri).placeholder(R.drawable.noise).into(bind.imgPhrase)
+            }.ifNull {
+                bind.mcvImgPhrase.visibility = View.GONE
+            }
+        }
 
-		fun onDestroy() {
-			bookViewObserver?.cancel()
-		}
+        private suspend fun showPronounce(pronounce: Deferred<Pronunciation?>) {
+            pronounce.await()?.let { pron ->
+                bind.btnSound.visibility = View.VISIBLE
+                bind.btnSound.setOnClickListener {
+                    player.play(
+                        itemView.context,
+                        pron.audioUri.toUri(),
+                        bind.imgBtnSound.background.asAnimationDrawable()
+                    )
+                }
+            }.ifNull {
+                bind.btnSound.visibility = View.GONE
+            }
+        }
 
-	}
+        fun onDestroy() {
+            bookViewObserver?.cancel()
+        }
+    }
 
-	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardHolder {
-		return CardHolder(
-			CardPhraseBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-		)
-	}
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardHolder {
+        return CardHolder(
+            CardPhraseBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        )
+    }
 
-	override fun onBindViewHolder(holder: CardHolder, position: Int) = holder.onShow()
+    override fun onBindViewHolder(holder: CardHolder, position: Int){
+        holder.onShow()
+    }
 
+    override fun getItemCount() = model.size.value
 
-	override fun getItemCount() = model.size.value
+    override fun onViewRecycled(holder: CardHolder) {
+        super.onViewRecycled(holder)
+        holder.onDestroy()
+    }
 
-
-	override fun onViewRecycled(holder: CardHolder) {
-		super.onViewRecycled(holder)
-		holder.onDestroy()
-	}
-
-	override fun close() {
-		recyclerScope.cancel()
-	}
-
-
+    override fun close() {
+        recyclerScope.cancel()
+    }
 }

@@ -3,6 +3,7 @@ package com.uogames.remembercards.ui.bookFragment
 import android.content.Context
 import android.os.Bundle
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -47,7 +48,6 @@ class BookFragment : DaggerFragment() {
 	private var adapter: ClosableAdapter<*>? = null
 	private var cloud = false
 
-
 	override fun onCreateView(
 		inflater: LayoutInflater,
 		container: ViewGroup?,
@@ -62,6 +62,7 @@ class BookFragment : DaggerFragment() {
 		globalViewModel.shouldReset.ifTrue {
 			bookViewModel.reset()
 		}
+		Log.e("TAG", "onViewCreated: ", )
 
 		bind.btnSearch.setOnClickListener {
 			if (!globalViewModel.isShowKey.value) {
@@ -111,7 +112,6 @@ class BookFragment : DaggerFragment() {
 				}
 			}
 		}
-
 	}
 
 	private fun navigateToAdd(bundle: Bundle? = null) {
@@ -131,7 +131,6 @@ class BookFragment : DaggerFragment() {
 
 	private fun navigateToAdd(id: Int) = navigateToAdd(bundleOf(EditPhraseFragment.ID_PHRASE to id))
 
-
 	private fun createTextWatcher(): TextWatcher = ShortTextWatcher {
 		bookViewModel.like.value = it.toString()
 		networkBookViewModel.like.value = it.toString()
@@ -149,8 +148,11 @@ class BookFragment : DaggerFragment() {
 	private fun createKeyObserver(): Job = globalViewModel.isShowKey.observeWhenStarted(lifecycleScope) {
 		bind.tilSearch.visibility = if (it) View.VISIBLE else View.GONE
 		bind.btnAdd.visibility = if (it || cloud) View.GONE else View.VISIBLE
-		if (it) bind.searchImage.setImageResource(R.drawable.ic_baseline_close_24)
-		else bind.searchImage.setImageResource(R.drawable.ic_baseline_search_24)
+		if (it) {
+			bind.searchImage.setImageResource(R.drawable.ic_baseline_close_24)
+		} else {
+			bind.searchImage.setImageResource(R.drawable.ic_baseline_search_24)
+		}
 	}
 
 	override fun onDestroyView() {
@@ -163,5 +165,4 @@ class BookFragment : DaggerFragment() {
 		imm = null
 		_bind = null
 	}
-
 }

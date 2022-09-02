@@ -7,6 +7,7 @@ import com.uogames.map.CardMap.toGlobal
 import com.uogames.map.CardMap.update
 import com.uogames.network.NetworkProvider
 import com.uogames.repository.DataProvider
+import java.util.*
 
 class CardsProvider(
 	private val dataProvider: DataProvider,
@@ -40,7 +41,7 @@ class CardsProvider(
 
 	suspend fun countGlobal(like: String) = network.card.count(like)
 
-	suspend fun getGlobalById(globalId: Long) = network.card.get(globalId)
+	suspend fun getGlobalById(globalId: UUID) = network.card.get(globalId)
 
 	suspend fun getGlobal(like: String, number: Long) = network.card.get(like, number)
 
@@ -57,7 +58,7 @@ class CardsProvider(
 		}
 	}
 
-	suspend fun download(globalId: Long): Card? {
+	suspend fun download(globalId: UUID): Card? {
 		val local = repository.getByGlobalId(globalId)
 		if (local == null) {
 			val nc = network.card.get(globalId)

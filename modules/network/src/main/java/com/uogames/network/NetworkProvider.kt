@@ -19,7 +19,13 @@ class NetworkProvider private constructor(private val client: HttpClient) {
 					val client = HttpClient(
 						secret = secret,
 						data = data,
-						defaultUrl = { "https://93.125.42.151:8080/remember-card" },
+						defaultUrl = {
+							if (BuildConfig.DEBUG){
+								"https://93.125.42.151:8081/remember-card"
+							} else{
+								"https://93.125.42.151:8080/remember-card"
+							}
+						},
 						keystoreInput = keystore,
 						keystorePassword = "itismyfirstseriousapp".toCharArray()
 					)

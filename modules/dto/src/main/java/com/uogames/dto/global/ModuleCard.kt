@@ -1,9 +1,12 @@
 package com.uogames.dto.global
 
+import com.uogames.dto.DefaultUUID
+import java.util.*
+
 
 data class ModuleCard(
-	val globalId: Long = 0,
+	val globalId: UUID = DefaultUUID.value,
 	val globalOwner: String,
-	val idModule: Long,
-	val idCard: Long
+	val idModule: UUID,
+	val idCard: UUID
 )

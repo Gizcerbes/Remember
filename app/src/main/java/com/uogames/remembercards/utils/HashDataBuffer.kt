@@ -15,22 +15,22 @@ class HashDataBuffer<T>(
 
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
-	private val map = HashMap<Int, Data<T>>()
+    private val map = HashMap<Int, Data<T>>()
 
     private data class Data<T>(
         private val default: T,
         val updater: suspend (position: Int) -> T
     ) {
-		val item: MutableStateFlow<T> = MutableStateFlow(default)
-		val isReady = MutableStateFlow(false)
+        val item: MutableStateFlow<T> = MutableStateFlow(default)
+        val isReady = MutableStateFlow(false)
         var numberRequest = 0L
 
         suspend fun update(request: Long, position: Int) {
             if (position >= 0) {
-				isReady.value = false
+                isReady.value = false
                 val newValue = updater(position)
                 if (numberRequest == request) item.value = newValue
-				isReady.value = true
+                isReady.value = true
             } else {
                 if (numberRequest == request) item.value = default
             }
@@ -44,12 +44,12 @@ class HashDataBuffer<T>(
         return map[cell]?.item?.asStateFlow()!!
     }
 
-	@Synchronized
-	fun isDataReadyFlow(position: Int): StateFlow<Boolean>{
-		val cell = position % maxSize
-		if (map[cell] == null) map[cell] = Data(default, updater)
-		return map[cell]?.isReady?.asStateFlow()!!
-	}
+    @Synchronized
+    fun isDataReadyFlow(position: Int): StateFlow<Boolean> {
+        val cell = position % maxSize
+        if (map[cell] == null) map[cell] = Data(default, updater)
+        return map[cell]?.isReady?.asStateFlow()!!
+    }
 
     @Synchronized
     fun update(position: Int) {
@@ -66,8 +66,7 @@ class HashDataBuffer<T>(
         map.forEach { (t, u) -> ioScope.launch { u.updater(t) } }
     }
 
-	fun clear(){
-		map.clear()
-	}
-
+    fun clear() {
+        map.clear()
+    }
 }

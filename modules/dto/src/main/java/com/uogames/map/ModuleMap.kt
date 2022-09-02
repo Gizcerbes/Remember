@@ -1,11 +1,12 @@
 package com.uogames.map
 
+import com.uogames.dto.DefaultUUID
 import com.uogames.dto.local.Module
 
 object ModuleMap {
 
 	fun Module.toGlobal() = com.uogames.dto.global.Module(
-		globalId = globalId ?: 0,
+		globalId = globalId ?: DefaultUUID.value,
 		globalOwner = globalOwner ?: "",
 		name = name,
 		timeChange = timeChange,

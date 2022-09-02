@@ -1,5 +1,6 @@
 package com.uogames.map
 
+import com.uogames.dto.DefaultUUID
 import com.uogames.dto.local.Image
 import com.uogames.dto.local.Phrase
 import com.uogames.dto.local.Pronunciation
@@ -7,7 +8,7 @@ import com.uogames.dto.local.Pronunciation
 object PhraseMap {
 
 	fun Phrase.toGlobal(image: Image?, pronunciation: Pronunciation?) = com.uogames.dto.global.Phrase(
-		globalId = globalId ?: 0,
+		globalId = globalId ?: DefaultUUID.value,
 		globalOwner = globalOwner ?: "",
 		phrase = phrase,
 		definition = definition,

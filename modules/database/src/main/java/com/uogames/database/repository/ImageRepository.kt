@@ -9,6 +9,7 @@ import com.uogames.dto.local.Phrase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
+import java.util.*
 
 class ImageRepository(private val imageDAO: ImageDAO) {
 
@@ -20,7 +21,7 @@ class ImageRepository(private val imageDAO: ImageDAO) {
 
 	suspend fun getById(id: Int) = imageDAO.getById(id)?.toDTO()
 
-	suspend fun getByGlobalId(id: Long) = imageDAO.getByGlobalId(id)?.toDTO()
+	suspend fun getByGlobalId(id: UUID) = imageDAO.getByGlobalId(id)?.toDTO()
 
 	fun getByIdFlow(id: Int) = imageDAO.getByIdFlow(id).map { it?.toDTO() }
 

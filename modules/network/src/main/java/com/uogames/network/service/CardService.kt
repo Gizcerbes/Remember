@@ -5,6 +5,7 @@ import com.uogames.network.response.CardResponse
 import io.ktor.client.request.*
 import io.ktor.http.*
 import com.uogames.network.HttpClient
+import java.util.*
 
 class CardService(private val client: HttpClient) {
 
@@ -13,7 +14,7 @@ class CardService(private val client: HttpClient) {
 		parameter("number", number)
 	}.ifSuccess()
 
-	suspend fun get(globalId: Long): CardResponse = client.get("/card/$globalId").ifSuccess()
+	suspend fun get(globalId: UUID): CardResponse = client.get("/card/$globalId").ifSuccess()
 
 	suspend fun count(like: String): Long = client.get("/card/count"){
 		parameter("like", like)

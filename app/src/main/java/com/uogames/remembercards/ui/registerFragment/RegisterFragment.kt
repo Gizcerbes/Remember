@@ -65,10 +65,9 @@ class RegisterFragment : DaggerFragment() {
             globalViewModel.saveUserNativeCountry(registerViewModel.country.value.toString())
             registerViewModel.isRegister.value = true
         }
-
     }
 
-    private fun createIsRegisterObserver() =  registerViewModel.isRegister.observeWhenStarted(lifecycleScope) {
+    private fun createIsRegisterObserver() = registerViewModel.isRegister.observeWhenStarted(lifecycleScope) {
         if (it) {
             val graph = findNavController().navInflater.inflate(R.navigation.nav_graph).apply { setStartDestination(R.id.mainNaviFragment) }
             findNavController().setGraph(graph, null)
@@ -99,5 +98,4 @@ class RegisterFragment : DaggerFragment() {
         countryObserver?.cancel()
         _bind = null
     }
-
 }

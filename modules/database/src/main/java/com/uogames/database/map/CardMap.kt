@@ -2,6 +2,7 @@ package com.uogames.database.map
 
 import com.uogames.database.entity.CardEntity
 import com.uogames.dto.local.Card
+import java.util.*
 
 object CardMap : Map<CardEntity, Card> {
 	override fun CardEntity.toDTO() = Card(

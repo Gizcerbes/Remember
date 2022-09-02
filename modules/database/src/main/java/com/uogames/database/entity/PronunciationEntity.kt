@@ -3,6 +3,7 @@ package com.uogames.database.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.util.*
 
 @Entity(tableName = "pronounce_table")
 data class PronunciationEntity(
@@ -12,7 +13,19 @@ data class PronunciationEntity(
 	@ColumnInfo(name = "audio_uri")
 	val audioUri: String,
 	@ColumnInfo(name = "global_id")
-	val globalId: Long?,
+	val globalId: UUID?,
 	@ColumnInfo(name = "global_owner")
 	val globalOwner: String?
-)
+){
+
+	companion object{
+		private const val v1 = "CREATE TABLE `pronounce_table` (" +
+				"`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+				"`audio_uri` TEXT NOT NULL, " +
+				"`global_id` BLOB, " +
+				"`global_owner` TEXT" +
+				");"
+	}
+
+
+}

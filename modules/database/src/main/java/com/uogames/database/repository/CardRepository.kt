@@ -5,6 +5,7 @@ import com.uogames.database.map.CardMap.toDTO
 import com.uogames.database.map.CardMap.toEntity
 import com.uogames.dto.local.Card
 import kotlinx.coroutines.flow.map
+import java.util.*
 
 class CardRepository(private val dao: CardDAO) {
 
@@ -24,7 +25,7 @@ class CardRepository(private val dao: CardDAO) {
 
 	suspend fun getById(id: Int) = dao.getById(id)?.toDTO()
 
-	suspend fun getByGlobalId(id: Long) = dao.getByGlobalId(id)?.toDTO()
+	suspend fun getByGlobalId(id: UUID) = dao.getByGlobalId(id)?.toDTO()
 
 	fun getByIdFlow(id: Int) = dao.getByIdFlow(id).map { it?.toDTO() }
 

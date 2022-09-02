@@ -10,7 +10,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import java.io.InputStream
 
-
 class FileChooser(private val fragment: Fragment, private val typeContent: String) {
 
     private var uriListener: (Uri) -> Unit = {}
@@ -30,24 +29,18 @@ class FileChooser(private val fragment: Fragment, private val typeContent: Strin
         launcher.launch(intent)
     }
 
-
     fun getParcelFileDescription(call: (ParcelFileDescriptor) -> Unit) =
         getUri() { uri ->
             val desc = fragment.requireActivity().contentResolver.openFileDescriptor(uri, "r")
             desc?.let { call(it) }
         }
 
-
     fun getInputStream(call: (InputStream) -> Unit) =
         getParcelFileDescription() { call(ParcelFileDescriptor.AutoCloseInputStream(it)) }
-
 
     fun getByteArray(call: (ByteArray) -> Unit) =
         getInputStream() { call(it.readBytes()) }
 
-
     fun getBitmap(call: (Bitmap) -> Unit) =
         getInputStream() { call(BitmapFactory.decodeStream(it)) }
-
-
 }

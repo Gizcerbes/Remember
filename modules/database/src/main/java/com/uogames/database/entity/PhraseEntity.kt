@@ -1,6 +1,7 @@
 package com.uogames.database.entity
 
 import androidx.room.*
+import java.util.*
 
 @Entity(
 	tableName = "phrase_table"
@@ -26,7 +27,26 @@ data class PhraseEntity(
 	@ColumnInfo(name = "dislike")
 	val dislike: Long,
 	@ColumnInfo(name = "global_id")
-	val globalId: Long?,
+	val globalId: UUID?,
 	@ColumnInfo(name = "global_owner")
 	val globalOwner: String?
-)
+) {
+
+	companion object {
+		private const val v1 = "CREATE TABLE " +
+				"`phrase_table` (" +
+				"`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+				"`phrase` TEXT NOT NULL, " +
+				"`definition` TEXT, " +
+				"`lang` TEXT NOT NULL, " +
+				"`id_pronounce` INTEGER, " +
+				"`id_image` INTEGER, " +
+				"`time_change` INTEGER NOT NULL, " +
+				"`like` INTEGER NOT NULL, " +
+				"`dislike` INTEGER NOT NULL, " +
+				"`global_id` BLOB, " +
+				"`global_owner` TEXT" +
+				");"
+	}
+
+}

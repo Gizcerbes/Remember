@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
@@ -31,11 +30,10 @@ class ChoiceCardAdapter(
 	private val recyclerScope = CoroutineScope(Dispatchers.Main)
 
 	init {
-		model.size.observeWhile(recyclerScope){
+		model.size.observeWhile(recyclerScope) {
 			notifyDataSetChanged()
 		}
 	}
-
 
 	inner class CardHolder(val bind: CardCardBinding) : RecyclerView.ViewHolder(bind.root) {
 
@@ -44,30 +42,29 @@ class ChoiceCardAdapter(
 		fun onShow() {
 			clear()
 			cardObserver = model.get(adapterPosition).observeWhile(recyclerScope) {
-				it?.let { cardView ->
-					bind.txtReason.text = cardView.card.reason
-					bind.btnCardAction.setOnClickListener { callChoiceCardID(cardView.card.id) }
-					setData(
-						cardView.phrase.await(),
-						cardView.phrasePronounce.await(),
-						cardView.phraseImage.await(),
-						bind.txtLangFirst,
-						bind.txtPhraseFirst,
-						bind.imgSoundFirst,
-						bind.mcvFirst,
-						bind.imgCardFirst
-					)
-					setData(
-						cardView.translate.await(),
-						cardView.translatePronounce.await(),
-						cardView.translateImage.await(),
-						bind.txtLangSecond,
-						bind.txtPhraseSecond,
-						bind.imgSoundSecond,
-						bind.mcvSecond,
-						bind.imgCardSecond
-					)
-				}
+				val cardView = it.ifNull { return@observeWhile }
+				bind.txtReason.text = cardView.card.reason
+				bind.btnCardAction.setOnClickListener { callChoiceCardID(cardView.card.id) }
+				setData(
+					cardView.phrase.await(),
+					cardView.phrasePronounce.await(),
+					cardView.phraseImage.await(),
+					bind.txtLangFirst,
+					bind.txtPhraseFirst,
+					bind.imgSoundFirst,
+					bind.mcvFirst,
+					bind.imgCardFirst
+				)
+				setData(
+					cardView.translate.await(),
+					cardView.translatePronounce.await(),
+					cardView.translateImage.await(),
+					bind.txtLangSecond,
+					bind.txtPhraseSecond,
+					bind.imgSoundSecond,
+					bind.mcvSecond,
+					bind.imgCardSecond
+				)
 			}
 		}
 
@@ -119,7 +116,6 @@ class ChoiceCardAdapter(
 		fun onDestroy() {
 			cardObserver?.cancel()
 		}
-
 	}
 
 	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardHolder {
@@ -130,9 +126,7 @@ class ChoiceCardAdapter(
 
 	override fun onBindViewHolder(holder: CardHolder, position: Int) = holder.onShow()
 
-
 	override fun getItemCount() = model.size.value
-
 
 	override fun onViewRecycled(holder: CardHolder) {
 		super.onViewRecycled(holder)
@@ -142,5 +136,4 @@ class ChoiceCardAdapter(
 	fun onDestroy() {
 		recyclerScope.cancel()
 	}
-
 }

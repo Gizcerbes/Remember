@@ -5,6 +5,7 @@ import com.uogames.database.map.ModuleMap.toDTO
 import com.uogames.database.map.ModuleMap.toEntity
 import com.uogames.dto.local.Module
 import kotlinx.coroutines.flow.map
+import java.util.*
 
 class ModuleRepository(private val moduleDAO: ModuleDAO) {
 
@@ -24,7 +25,7 @@ class ModuleRepository(private val moduleDAO: ModuleDAO) {
 
 	suspend fun getById(id: Int) = moduleDAO.getById(id)?.toDTO()
 
-	suspend fun getByGlobalId(globalId: Long) = moduleDAO.getByGlobalId(globalId)?.toDTO()
+	suspend fun getByGlobalId(globalId: UUID) = moduleDAO.getByGlobalId(globalId)?.toDTO()
 
 	suspend fun getByPosition(like: String, position: Int) = moduleDAO.getByPosition(like, position)?.toDTO()
 

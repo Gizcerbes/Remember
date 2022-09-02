@@ -2,6 +2,7 @@ package com.uogames.database.map
 
 import com.uogames.database.entity.ModuleCardEntity
 import com.uogames.dto.local.ModuleCard
+import java.util.*
 
 object ModuleCardMap : Map<ModuleCardEntity, ModuleCard> {
 

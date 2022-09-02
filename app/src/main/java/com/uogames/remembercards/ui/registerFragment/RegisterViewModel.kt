@@ -4,12 +4,9 @@ import androidx.lifecycle.ViewModel
 import com.uogames.flags.Countries
 import kotlinx.coroutines.flow.MutableStateFlow
 
-class RegisterViewModel:ViewModel() {
+class RegisterViewModel : ViewModel() {
 
-	val isRegister = MutableStateFlow(false)
+    val isRegister = MutableStateFlow(false)
 
-	val country: MutableStateFlow<Countries?> = MutableStateFlow(null)
-
-
-
+    val country: MutableStateFlow<Countries?> = MutableStateFlow(null)
 }

@@ -71,11 +71,13 @@ class CropFragment : DaggerFragment() {
         rotateJob = cropViewModel.rotateStat.observeWhenStarted(lifecycleScope) {
             val bitmap = cropViewModel.getData()
             val area = cropper?.getArea()
-            if (bitmap != null && area != null) when (it % 4) {
-                0 -> cropper = BitmapCropper(rotateBitmap(bitmap, 0f))
-                1 -> cropper = BitmapCropper(rotateBitmap(bitmap, 90f))
-                2 -> cropper = BitmapCropper(rotateBitmap(bitmap, 180f))
-                3 -> cropper = BitmapCropper(rotateBitmap(bitmap, 270f))
+            if (bitmap != null && area != null) {
+                when (it % 4) {
+                    0 -> cropper = BitmapCropper(rotateBitmap(bitmap, 0f))
+                    1 -> cropper = BitmapCropper(rotateBitmap(bitmap, 90f))
+                    2 -> cropper = BitmapCropper(rotateBitmap(bitmap, 180f))
+                    3 -> cropper = BitmapCropper(rotateBitmap(bitmap, 270f))
+                }
             }
             cropper?.getPreview().let { preview -> bind.img.setImageBitmap(preview) }
         }
@@ -93,5 +95,4 @@ class CropFragment : DaggerFragment() {
         cropper = null
         _bind = null
     }
-
 }

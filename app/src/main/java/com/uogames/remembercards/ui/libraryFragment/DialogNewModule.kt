@@ -38,6 +38,4 @@ class DialogNewModule(call: (String) -> Unit) : ObservedDialog<String>(call) {
         super.onDestroyView()
         _bind = null
     }
-
-
 }

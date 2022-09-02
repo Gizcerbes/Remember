@@ -6,6 +6,7 @@ import com.uogames.map.ModuleMap.toGlobal
 import com.uogames.map.ModuleMap.update
 import com.uogames.network.NetworkProvider
 import com.uogames.repository.DataProvider
+import java.util.*
 
 class ModuleProvider(
 	private val dataProvider: DataProvider,
@@ -37,7 +38,7 @@ class ModuleProvider(
 
 	suspend fun getGlobal(like: String, number: Long) = network.module.get(like, number)
 
-	suspend fun getGlobalById(globalId: Long) = network.module.get(globalId)
+	suspend fun getGlobalById(globalId: UUID) = network.module.get(globalId)
 
 	suspend fun share(id: Int): Module? {
 		val module = getById(id)
@@ -49,7 +50,7 @@ class ModuleProvider(
 		}
 	}
 
-	suspend fun download(globalId: Long): Module? {
+	suspend fun download(globalId: UUID): Module? {
 		val local = mr.getByGlobalId(globalId)
 		if (local == null) {
 			val nm = network.module.get(globalId)

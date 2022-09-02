@@ -1,6 +1,5 @@
 package com.uogames.remembercards.di
 
-import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseFragment
 import com.uogames.remembercards.ui.bookFragment.BookFragment
 import com.uogames.remembercards.ui.cardFragment.CardFragment
 import com.uogames.remembercards.ui.choiceCardFragment.ChoiceCardFragment
@@ -8,6 +7,7 @@ import com.uogames.remembercards.ui.choicePhraseFragment.ChoicePhraseFragment
 import com.uogames.remembercards.ui.cropFragment.CropFragment
 import com.uogames.remembercards.ui.editCardFragment.EditCardFragment
 import com.uogames.remembercards.ui.editModuleFragment.EditModuleFragment
+import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseFragment
 import com.uogames.remembercards.ui.gameYesOrNo.GameYesOrNotFragment
 import com.uogames.remembercards.ui.gameYesOrNo.ResultYesOrNotFragment
 import com.uogames.remembercards.ui.gamesFragment.GamesFragment
@@ -22,52 +22,51 @@ import dagger.android.ContributesAndroidInjector
 @Module
 abstract class FragmentBuilderModule {
 
-	@ContributesAndroidInjector
-	abstract fun contributeRootFragment(): RootFragment
+    @ContributesAndroidInjector
+    abstract fun contributeRootFragment(): RootFragment
 
-	@ContributesAndroidInjector
-	abstract fun contributeNavigationFragment(): MainNaviFragment
+    @ContributesAndroidInjector
+    abstract fun contributeNavigationFragment(): MainNaviFragment
 
-	@ContributesAndroidInjector
-	abstract fun contributeRegisterFragment(): RegisterFragment
+    @ContributesAndroidInjector
+    abstract fun contributeRegisterFragment(): RegisterFragment
 
-	@ContributesAndroidInjector
-	abstract fun contributeBookFragment(): BookFragment
+    @ContributesAndroidInjector
+    abstract fun contributeBookFragment(): BookFragment
 
-	@ContributesAndroidInjector
-	abstract fun contributeLibraryFragment(): LibraryFragment
+    @ContributesAndroidInjector
+    abstract fun contributeLibraryFragment(): LibraryFragment
 
-	@ContributesAndroidInjector
-	abstract fun contributePersonFragment(): PersonFragment
+    @ContributesAndroidInjector
+    abstract fun contributePersonFragment(): PersonFragment
 
-	@ContributesAndroidInjector
-	abstract fun contributeAddCardDialog(): EditPhraseFragment
+    @ContributesAndroidInjector
+    abstract fun contributeAddCardDialog(): EditPhraseFragment
 
-	@ContributesAndroidInjector
-	abstract fun contributeGameFragment(): GamesFragment
+    @ContributesAndroidInjector
+    abstract fun contributeGameFragment(): GamesFragment
 
-	@ContributesAndroidInjector
-	abstract fun contributeGameYesOrNotFragment(): GameYesOrNotFragment
+    @ContributesAndroidInjector
+    abstract fun contributeGameYesOrNotFragment(): GameYesOrNotFragment
 
-	@ContributesAndroidInjector
-	abstract fun contributeYesOrNotResultFragment(): ResultYesOrNotFragment
+    @ContributesAndroidInjector
+    abstract fun contributeYesOrNotResultFragment(): ResultYesOrNotFragment
 
-	@ContributesAndroidInjector
-	abstract fun contributeCropFragment(): CropFragment
+    @ContributesAndroidInjector
+    abstract fun contributeCropFragment(): CropFragment
 
-	@ContributesAndroidInjector
-	abstract fun contributeCardFragment(): CardFragment
+    @ContributesAndroidInjector
+    abstract fun contributeCardFragment(): CardFragment
 
-	@ContributesAndroidInjector
-	abstract fun contributeEditCardFragment(): EditCardFragment
+    @ContributesAndroidInjector
+    abstract fun contributeEditCardFragment(): EditCardFragment
 
-	@ContributesAndroidInjector
-	abstract fun contributeChoicePhraseFragment(): ChoicePhraseFragment
+    @ContributesAndroidInjector
+    abstract fun contributeChoicePhraseFragment(): ChoicePhraseFragment
 
-	@ContributesAndroidInjector
-	abstract fun contributeEditModuleFragment(): EditModuleFragment
+    @ContributesAndroidInjector
+    abstract fun contributeEditModuleFragment(): EditModuleFragment
 
-	@ContributesAndroidInjector
-	abstract fun contributeChoiceCardFragment(): ChoiceCardFragment
-
+    @ContributesAndroidInjector
+    abstract fun contributeChoiceCardFragment(): ChoiceCardFragment
 }

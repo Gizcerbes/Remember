@@ -14,33 +14,29 @@ import javax.inject.Inject
 
 class EditModuleViewModel @Inject constructor(val provider: DataProvider) : ViewModel() {
 
-	val moduleID = MutableStateFlow(0)
+    val moduleID = MutableStateFlow(0)
 
-	val module = moduleID.flatMapLatest { provider.module.getByIdFlow(it) }
+    val module = moduleID.flatMapLatest { provider.module.getByIdFlow(it) }
 
-	val moduleCardsList = module.flatMapLatest { provider.moduleCard.getByModuleFlow(it.ifNull { Module() }) }
+    val moduleCardsList = module.flatMapLatest { provider.moduleCard.getByModuleFlow(it.ifNull { Module() }) }
 
-	fun reset(){
-		moduleID.value = 0
-	}
+    fun reset() {
+        moduleID.value = 0
+    }
 
-	fun getCard(moduleCard: ModuleCard) = provider.cards.getByModuleCardFlow(moduleCard)
+    fun getCard(moduleCard: ModuleCard) = provider.cards.getByModuleCardFlow(moduleCard)
 
-	fun getCard(id: Int) = provider.cards.getByIdFlow(id)
+    fun getCard(id: Int) = provider.cards.getByIdFlow(id)
 
+    suspend fun delete(module: Module) = provider.module.delete(module)
 
+    fun addModuleCard(moduleID: Int, card: Card, call: (Boolean) -> Unit) = viewModelScope.launch {
+        val res = provider.moduleCard.insert(ModuleCard(idModule = moduleID, idCard = card.id))
+        call(res > 0)
+    }
 
-	suspend fun delete(module: Module) = provider.module.delete(module)
-
-	fun addModuleCard(moduleID: Int, card: Card, call: (Boolean) -> Unit) = viewModelScope.launch {
-		val res = provider.moduleCard.insert(ModuleCard(idModule =  moduleID, idCard = card.id))
-		call(res > 0)
-	}
-
-
-	fun removeModuleCard(moduleCard: ModuleCard, call: (Boolean) -> Unit) = viewModelScope.launch {
-		val res = provider.moduleCard.delete(moduleCard)
-		call(res)
-	}
-
+    fun removeModuleCard(moduleCard: ModuleCard, call: (Boolean) -> Unit) = viewModelScope.launch {
+        val res = provider.moduleCard.delete(moduleCard)
+        call(res)
+    }
 }

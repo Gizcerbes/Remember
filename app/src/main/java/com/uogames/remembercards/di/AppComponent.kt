@@ -6,9 +6,7 @@ import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjectionModule
 import dagger.android.AndroidInjector
-import dagger.android.DaggerApplication
 import javax.inject.Singleton
-
 
 @Component(
     modules = [
@@ -28,8 +26,5 @@ interface AppComponent : AndroidInjector<App> {
         fun bindApplication(app: Application): Builder
 
         fun build(): AppComponent
-
     }
-
-
 }

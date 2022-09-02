@@ -6,6 +6,7 @@ import com.uogames.database.map.ModuleCardMap.toEntity
 import com.uogames.dto.local.Module
 import com.uogames.dto.local.ModuleCard
 import kotlinx.coroutines.flow.map
+import java.util.*
 
 class ModuleCardRepository(private val moduleCardDAO: ModuleCardDAO) {
 
@@ -35,6 +36,6 @@ class ModuleCardRepository(private val moduleCardDAO: ModuleCardDAO) {
 
 	suspend fun getById(id: Int) = moduleCardDAO.getById(id)?.toDTO()
 
-	suspend fun getByGlobalId(globalId: Long) = moduleCardDAO.getByGlobalId(globalId)?.toDTO()
+	suspend fun getByGlobalId(globalId: UUID) = moduleCardDAO.getByGlobalId(globalId)?.toDTO()
 
 }

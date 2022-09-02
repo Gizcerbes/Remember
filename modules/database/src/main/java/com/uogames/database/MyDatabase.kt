@@ -19,7 +19,7 @@ import com.uogames.database.entity.*
 		SettingEntity::class,
 		ModuleEntity::class,
 		ModuleCardEntity::class,
-		ErrorCardEntity::class
+		ErrorCardEntity::class,
 	],
 	version = 1
 )
@@ -39,17 +39,25 @@ abstract class MyDatabase : RoomDatabase() {
 
 	abstract fun moduleCardDAO(): ModuleCardDAO
 
-	abstract fun errorCardDao(): ErrorCardDAO
+	abstract fun errorCardDAO(): ErrorCardDAO
+
 
 	companion object {
 		private var INSTANCE: MyDatabase? = null
 
 		fun get(context: Context): MyDatabase {
 			if (INSTANCE == null) synchronized(this) {
-				if (INSTANCE == null) INSTANCE = Room.databaseBuilder(context, MyDatabase::class.java, "cardBase").build()
+				if (INSTANCE == null) INSTANCE = Room
+					.databaseBuilder(context, MyDatabase::class.java, "cardBase")
+					.build()
 			}
 			return INSTANCE as MyDatabase
 		}
+
 	}
+
+
+
+
 
 }
