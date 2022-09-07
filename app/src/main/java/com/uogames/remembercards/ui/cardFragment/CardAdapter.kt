@@ -9,6 +9,8 @@ import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.squareup.picasso.Picasso
 import com.uogames.dto.local.Card
 import com.uogames.dto.local.Image
@@ -26,6 +28,7 @@ class CardAdapter(
 ) : ClosableAdapter<CardAdapter.CardHolder>() {
 
     private val recyclerScope = CoroutineScope(Dispatchers.Main)
+    private val auth = Firebase.auth
 
     init {
         model.size.observeWhile(recyclerScope) {
@@ -43,6 +46,9 @@ class CardAdapter(
             clear()
             cardObserver = recyclerScope.launch(Dispatchers.IO) {
                 val cardView = model.get2(adapterPosition).ifNull { return@launch }
+                if (auth.currentUser == null || (cardView.card.globalOwner != null && cardView.card.globalOwner != auth.currentUser?.uid)) {
+                    bind.btnShare.visibility = View.GONE
+                }
                 launch(Dispatchers.Main) {
                     bind.txtReason.text = cardView.card.reason
                     bind.btnEdit.setOnClickListener { cardAction(cardView.card) }
@@ -140,7 +146,7 @@ class CardAdapter(
             definition: TextView
         ) {
             phrase?.let {
-                langView.text = model.getDisplayLang(phrase)
+                langView.text = Lang.parse(phrase.lang).locale.displayLanguage
                 phraseView.text = phrase.phrase
                 definition.text = phrase.definition.orEmpty()
             }

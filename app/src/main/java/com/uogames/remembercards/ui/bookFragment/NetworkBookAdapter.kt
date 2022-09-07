@@ -3,6 +3,7 @@ package com.uogames.remembercards.ui.bookFragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import com.uogames.dto.global.Image
@@ -39,6 +40,29 @@ class NetworkBookAdapter(
                 showImage(phraseView.image)
                 showPronounce(phraseView)
                 bind.txtLang.text = phraseView.lang
+
+                val startAction: () -> Unit = {
+                    bind.progressLoading.visibility = View.VISIBLE
+                    bind.btnStop.visibility = View.VISIBLE
+                    bind.btnDownload.visibility = View.GONE
+                }
+
+                val endAction: (String) -> Unit = {
+                    bind.progressLoading.visibility = View.GONE
+                    bind.btnStop.visibility = View.GONE
+                    bind.btnDownload.visibility = View.VISIBLE
+                    Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
+                }
+
+                model.setDownloadAction(phrase.globalId, endAction).ifTrue(startAction)
+
+                bind.btnDownload.setOnClickListener {
+                    startAction()
+                    model.download(phrase.globalId, endAction)
+                }
+                bind.btnStop.setOnClickListener {
+                    model.stopDownloading(phrase.globalId)
+                }
             }
 
             bind.btnAction.setOnClickListener {

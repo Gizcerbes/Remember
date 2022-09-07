@@ -64,14 +64,16 @@ class PhraseProvider(
 
 	suspend fun download(id: UUID): Phrase? {
 		val local = pr.getByGlobalId(id)
-		if (local == null) {
-			val np = network.phrase.get(id)
-			val image = np.idImage?.let { dataProvider.images.download(it) }
-			val phrase = np.idPronounce?.let { dataProvider.pronounce.download(it) }
-			val localId = add(Phrase().update(network.phrase.get(id), image?.id, phrase?.id))
-			return pr.getById(localId.toInt())
+		val np = network.phrase.get(id)
+		val image = np.idImage?.let { dataProvider.images.download(it) }
+		val pronounce = np.idPronounce?.let { dataProvider.pronounce.download(it) }
+		val localId = if (local != null){
+			update(local.update(network.phrase.get(id), pronounce?.id, image?.id))
+			local.id
+		} else {
+			add(Phrase().update(network.phrase.get(id), pronounce?.id, image?.id)).toInt()
 		}
-		return local
+		return pr.getById(localId)
 	}
 
 }

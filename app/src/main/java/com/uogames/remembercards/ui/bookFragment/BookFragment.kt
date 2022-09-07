@@ -12,6 +12,9 @@ import androidx.core.os.bundleOf
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.navOptions
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.ktx.app
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentBookBinding
@@ -62,7 +65,6 @@ class BookFragment : DaggerFragment() {
 		globalViewModel.shouldReset.ifTrue {
 			bookViewModel.reset()
 		}
-		Log.e("TAG", "onViewCreated: ", )
 
 		bind.btnSearch.setOnClickListener {
 			if (!globalViewModel.isShowKey.value) {
@@ -83,7 +85,8 @@ class BookFragment : DaggerFragment() {
 
 		bind.btnAdd.setOnClickListener { navigateToAdd() }
 
-		adapter = BookAdapter(bookViewModel, player) { navigateToAdd(it) }
+		adapter = createBookAdapter()
+		bookViewModel.recyclerStat?.let { bind.recycler.layoutManager?.onRestoreInstanceState(it) }
 
 		lifecycleScope.launchWhenStarted {
 			delay(300)
@@ -94,7 +97,7 @@ class BookFragment : DaggerFragment() {
 			lifecycleScope.launchWhenStarted {
 				cloud = !cloud
 				if (cloud) {
-					adapter = NetworkBookAdapter(networkBookViewModel, player)
+					adapter = createNetworkBookAdapter()
 					bind.imgNetwork.setImageResource(R.drawable.ic_baseline_cloud_off_24)
 					bind.btnAdd.visibility = View.GONE
 					bind.recycler.adapter = null
@@ -102,17 +105,25 @@ class BookFragment : DaggerFragment() {
 					bind.txtBookEmpty.visibility = if (networkBookViewModel.size.value == 0L) View.VISIBLE else View.GONE
 					bind.recycler.adapter = adapter
 				} else {
-					adapter = BookAdapter(bookViewModel, player) { navigateToAdd(it) }
+					adapter = createBookAdapter()
 					bind.imgNetwork.setImageResource(R.drawable.ic_baseline_cloud_24)
 					bind.btnAdd.visibility = View.VISIBLE
 					bind.recycler.adapter = null
 					delay(300)
 					bind.txtBookEmpty.visibility = if (bookViewModel.size.value == 0) View.VISIBLE else View.GONE
 					bind.recycler.adapter = adapter
+					bookViewModel.recyclerStat?.let { bind.recycler.layoutManager?.onRestoreInstanceState(it) }
 				}
 			}
 		}
 	}
+
+	fun createBookAdapter() = BookAdapter(bookViewModel, player) {
+		bookViewModel.recyclerStat = bind.recycler.layoutManager?.onSaveInstanceState()
+		navigateToAdd(it)
+	}
+
+	fun createNetworkBookAdapter() = NetworkBookAdapter(networkBookViewModel, player)
 
 	private fun navigateToAdd(bundle: Bundle? = null) {
 		requireActivity().findNavController(R.id.nav_host_fragment).navigate(

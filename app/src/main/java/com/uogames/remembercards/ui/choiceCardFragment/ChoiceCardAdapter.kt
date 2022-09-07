@@ -96,7 +96,7 @@ class ChoiceCardAdapter(
 			phraseImage: ImageView
 		) {
 			phrase?.let {
-				langView.text = model.getDisplayLang(phrase)
+				langView.text = Lang.parse(phrase.lang).locale.displayLanguage
 				phraseView.text = phrase.phrase
 			}
 

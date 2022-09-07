@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.uogames.dto.local.Card
 import com.uogames.dto.local.Phrase
+import com.uogames.remembercards.utils.flatMapLatest
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.repository.DataProvider
 import com.uogames.repository.DataProvider.Companion.toImage
@@ -15,69 +16,55 @@ import kotlin.collections.HashMap
 
 class CardViewModel(val provider: DataProvider) : ViewModel() {
 
-    private val _size = MutableStateFlow(0)
-    val size = _size.asStateFlow()
+	inner class CardModel(val card: Card) {
+		val phrase by lazy { viewModelScope.async(Dispatchers.IO) { provider.phrase.getById(card.idPhrase) } }
+		val translate by lazy { viewModelScope.async(Dispatchers.IO) { provider.phrase.getById(card.idTranslate) } }
+		val image by lazy { viewModelScope.async(Dispatchers.IO) { card.toImage() } }
+		val phrasePronounce by lazy { viewModelScope.async(Dispatchers.IO) { phrase.await()?.toPronounce() } }
+		val phraseImage by lazy { viewModelScope.async(Dispatchers.IO) { phrase.await()?.toImage() } }
+		val translatePronounce by lazy { viewModelScope.async(Dispatchers.IO) { translate.await()?.toPronounce() } }
+		val translateImage by lazy { viewModelScope.async(Dispatchers.IO) { translate.await()?.toImage() } }
+	}
 
-    val like = MutableStateFlow("")
+	private class ShareAction(val job: Job, var callback: (String) -> Unit)
 
-    @ExperimentalCoroutinesApi
-    private val likeSize = like.flatMapLatest { provider.cards.getCountFlow(it) }
+	val like = MutableStateFlow("")
 
-    inner class CardModel(val card: Card) {
-        val phrase by lazy { viewModelScope.async(Dispatchers.IO) { provider.phrase.getById(card.idPhrase) } }
-        val translate by lazy { viewModelScope.async(Dispatchers.IO) { provider.phrase.getById(card.idTranslate) } }
-        val image by lazy { viewModelScope.async(Dispatchers.IO) { card.toImage() } }
-        val phrasePronounce by lazy { viewModelScope.async(Dispatchers.IO) { phrase.await()?.toPronounce() } }
-        val phraseImage by lazy { viewModelScope.async(Dispatchers.IO) { phrase.await()?.toImage() } }
-        val translatePronounce by lazy { viewModelScope.async(Dispatchers.IO) { translate.await()?.toPronounce() } }
-        val translateImage by lazy { viewModelScope.async(Dispatchers.IO) { translate.await()?.toImage() } }
-    }
+	val size = like.flatMapLatest(viewModelScope, Dispatchers.IO, 0) { provider.cards.getCountFlow(it) }
 
-    private class ShareAction(val job: Job, var callback: (String) -> Unit)
+	private val shareActions = HashMap<Int, ShareAction>()
 
-    private val shareActions = HashMap<Int, ShareAction>()
+	fun reset() {
+		like.value = ""
+	}
 
-    init {
-        viewModelScope.launch(Dispatchers.IO) { likeSize.collect { _size.value = it } }
-    }
+	fun get(number: Int) = provider.cards.getCardFlow(like.value, number).map { it?.let { CardModel(it) } }
 
-    fun reset() {
-        like.value = ""
-    }
+	suspend fun get2(number: Int) = provider.cards.getCard(like.value, number)?.let { CardModel(it) }
 
-    fun get(number: Int) = provider.cards.getCardFlow(like.value, number).map { it?.let { CardModel(it) } }
+	fun share(card: Card, result: (String) -> Unit) {
+		val job = viewModelScope.launch(Dispatchers.IO) {
+			runCatching {
+				provider.cards.share(card.id)
+			}.onSuccess {
+				launch(Dispatchers.Main) { shareActions[card.id]?.callback?.let { back -> back("Ok") } }
+			}.onFailure {
+				launch(Dispatchers.Main) { shareActions[card.id]?.callback?.let { back -> back(it.message ?: "Error") } }
+			}
+			shareActions.remove(card.id)
+		}
+		shareActions[card.id] = ShareAction(job, result)
+	}
 
-    suspend fun get2(number: Int) = provider.cards.getCard(like.value, number)?.let { CardModel(it) }
+	fun setShareAction(card: Card, loading: (String) -> Unit): Boolean {
+		shareActions[card.id]?.callback = loading
+		return shareActions[card.id]?.job?.isActive.ifNull { false }
+	}
 
-    fun getDisplayLang(phrase: Phrase): String {
-        return phrase.lang.runCatching {
-            val data = split("-")
-            Locale(data[0]).displayLanguage
-        }.getOrDefault("")
-    }
-
-    fun share(card: Card, result: (String) -> Unit) {
-        val job = viewModelScope.launch(Dispatchers.IO) {
-            runCatching {
-                provider.cards.share(card.id)
-            }.onSuccess {
-                launch(Dispatchers.Main) { shareActions[card.id]?.callback?.let { back -> back("Ok") } }
-            }.onFailure {
-                launch(Dispatchers.Main) { shareActions[card.id]?.callback?.let { back -> back(it.message ?: "Error") } }
-            }
-        }
-        shareActions[card.id] = ShareAction(job, result)
-    }
-
-    fun setShareAction(card: Card, loading: (String) -> Unit): Boolean {
-        shareActions[card.id]?.callback = loading
-        return shareActions[card.id]?.job?.isActive.ifNull { false }
-    }
-
-    fun stopSharing(card: Card) {
-        val action = shareActions[card.id].ifNull { return }
-        action.job.cancel()
-        action.callback("Cancel")
-        shareActions.remove(card.id)
-    }
+	fun stopSharing(card: Card) {
+		val action = shareActions[card.id].ifNull { return }
+		action.job.cancel()
+		action.callback("Cancel")
+		shareActions.remove(card.id)
+	}
 }

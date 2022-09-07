@@ -46,7 +46,8 @@ class UtilsModule {
             {
                 mapOf(
                     "Identifier" to (auth.currentUser?.displayName ?: ""),
-                    "User UID" to (auth.currentUser?.uid ?: "")
+                    "User UID" to (auth.currentUser?.uid ?: ""),
+                    "UTM" to System.currentTimeMillis().toString()
                 )
             }
         )

@@ -133,6 +133,7 @@ class ChoicePhraseFragment() : DaggerFragment() {
     private fun createKeyObserver(): Job = globalViewModel.isShowKey.observeWhenStarted(lifecycleScope) {
         bind.tilSearch.visibility = if (it) View.VISIBLE else View.GONE
         bind.btnAdd.visibility = if (it) View.GONE else View.VISIBLE
+        bind.btnBack.visibility = if (it) View.GONE else View.VISIBLE
         if (it) {
             bind.searchImage.setImageResource(R.drawable.ic_baseline_close_24)
         } else {

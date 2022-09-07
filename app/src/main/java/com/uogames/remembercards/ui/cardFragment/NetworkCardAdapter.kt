@@ -43,7 +43,6 @@ class NetworkCardAdapter(
                 bind.txtReason.text = cardView.card.reason
                 setData(
                     cardView.phrase.await(),
-                    cardView.phrasePronounce.await(),
                     cardView.phrasePronounceData,
                     cardView.phraseImage.await(),
                     bind.txtLangFirst,
@@ -55,7 +54,6 @@ class NetworkCardAdapter(
                 )
                 setData(
                     cardView.translate.await(),
-                    cardView.translatePronounce.await(),
                     cardView.translatePronounceData,
                     cardView.translateImage.await(),
                     bind.txtLangSecond,
@@ -70,17 +68,27 @@ class NetworkCardAdapter(
                 val startAction: () -> Unit = {
                     bind.progressLoading.visibility = View.VISIBLE
                     bind.btnStop.visibility = View.VISIBLE
-                    bind.btnShare.visibility = View.GONE
-                    bind.btnEdit.visibility = View.GONE
+                    bind.btnDownload.visibility = View.GONE
                 }
 
                 val endAction: (String) -> Unit = {
                     bind.progressLoading.visibility = View.GONE
                     bind.btnStop.visibility = View.GONE
-                    bind.btnShare.visibility = View.VISIBLE
-                    bind.btnEdit.visibility = View.VISIBLE
+                    bind.btnDownload.visibility = View.VISIBLE
                     Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
                 }
+
+                model.setDownloadAction(cardView.card.globalId, endAction).ifTrue(startAction)
+
+                bind.btnDownload.setOnClickListener {
+                    startAction()
+                    model.download(cardView.card.globalId, endAction)
+                }
+
+                bind.btnStop.setOnClickListener {
+                    model.stopDownloading(cardView.card.globalId)
+                }
+
             }
 
             bind.btnCardAction.setOnClickListener {
@@ -117,7 +125,6 @@ class NetworkCardAdapter(
 
         private fun setData(
             phrase: Phrase?,
-            pronunciation: Pronunciation?,
             pronunciationData: Deferred<ByteArray?>,
             image: Image?,
             langView: TextView,
@@ -128,7 +135,7 @@ class NetworkCardAdapter(
             definition: TextView
         ) {
             phrase?.let {
-                langView.text = model.getDisplayLang(phrase)
+                langView.text = Lang.parse(phrase.lang).locale.displayLanguage
                 phraseView.text = phrase.phrase
                 definition.text = phrase.definition.orEmpty()
             }
@@ -138,14 +145,17 @@ class NetworkCardAdapter(
                 phraseImage.visibility = View.VISIBLE
             }.ifNull { phraseImage.visibility = View.GONE }
 
-            pronunciation?.let { pronounce ->
+            phrase?.idPronounce?.let { _ ->
                 soundImg.visibility = View.VISIBLE
                 button.setOnClickListener {
                     recyclerScope.launch {
                         player.play(MediaBytesSource(pronunciationData.await()), soundImg.background.asAnimationDrawable())
                     }
                 }
-            }.ifNull { soundImg.visibility = View.GONE }
+            }.ifNull {
+                soundImg.visibility = View.GONE
+                button.setOnClickListener(null)
+            }
         }
 
         fun onDestroy() {

@@ -23,8 +23,6 @@ class ModuleCardProvider(
 
 	suspend fun getById(id: Int) = mcr.getById(id)
 
-	fun getByModuleIdListFlow(id: Int) = mcr.getByModuleID(id)
-
 	fun getCountByModuleIdFlow(id: Int) = mcr.getCountByModuleIdFlow(id)
 
 	suspend fun getCountByModule(module: Module) = mcr.getCountByModuleId(module.id)
@@ -33,13 +31,11 @@ class ModuleCardProvider(
 
 	fun getByModuleFlow(module: Module) = mcr.getByModule(module)
 
-	suspend fun getRandom() = mcr.getRandomModule()
-
-	suspend fun getRandomWithout(idModule: Int) = mcr.getRandomModuleWithout(idModule)
-
 	suspend fun getRandom(idModule: Int) = mcr.getRandomModule(idModule)
 
 	suspend fun getRandomWithout(idModule: Int, idCard: Int) = mcr.getRandomModuleWithout(idModule, idCard)
+
+	suspend fun removeByModule(idModule: Int) = mcr.removeByModuleId(idModule)
 
 	suspend fun countGlobal(moduleGlobalId: UUID) = network.moduleCard.count(moduleGlobalId)
 
@@ -52,7 +48,8 @@ class ModuleCardProvider(
 	suspend fun share(id: Int): ModuleCard? {
 		val moduleCard = getById(id)
 		return moduleCard?.let {
-			val module = dataProvider.module.share(it.idModule)
+			val m = dataProvider.module.getById(moduleCard.idModule)
+			val module = if (m?.globalId == null) dataProvider.module.share(it.idModule) else m
 			val card = dataProvider.cards.share(it.idCard)
 			val res = network.moduleCard.post(it.toGlobal(module, card))
 			val updatedModuleCard = it.update(res)
@@ -61,20 +58,12 @@ class ModuleCardProvider(
 		}
 	}
 
-	suspend fun download(globalId: UUID): ModuleCard? {
-		val local = mcr.getByGlobalId(globalId)
-		if (local == null) {
-			val nmc = network.moduleCard.get(globalId)
-			val module = dataProvider.module.download(nmc.idModule)
-			val card = dataProvider.cards.download(nmc.idCard)
-			return if (module != null && card != null) {
-				val localId = insert(ModuleCard(idModule = module.id, idCard = card.id).update(nmc))
-				mcr.getById(localId.toInt())
-			} else {
-				null
-			}
-		}
-		return local
+	suspend fun download(module: Module, position: Long): ModuleCard? {
+		val globalModuleId = module.globalId ?: return null
+		val nmc = network.moduleCard.get(globalModuleId, position)
+		val card = dataProvider.cards.download(nmc.idCard) ?: return null
+		val id = insert(ModuleCard(idModule = module.id, idCard = card.id).update(nmc))
+		return getById(id.toInt())
 	}
 
 }

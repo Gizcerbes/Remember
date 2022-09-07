@@ -43,6 +43,7 @@ class NetworkProvider private constructor(private val client: HttpClient) {
 	val module = ModuleProvider(ModuleService(client))
 	val phrase = PhraseProvider(PhraseService(client))
 	val pronounce = PronunciationProvider(PronunciationService(client))
+	val user = UserProvider(UserService(client))
 
 	fun getPicasso(context: Context) = client.getPicasso(context)
 

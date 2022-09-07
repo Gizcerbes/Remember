@@ -48,4 +48,7 @@ interface ModuleCardDAO {
 	@Query("SELECT * FROM module_card WHERE global_id = :globalId")
 	suspend fun getByGlobalId(globalId: UUID): ModuleCardEntity?
 
+	@Query("DELETE FROM module_card WHERE id_module = :idModule")
+	suspend fun removeByModule(idModule: Int)
+
 }

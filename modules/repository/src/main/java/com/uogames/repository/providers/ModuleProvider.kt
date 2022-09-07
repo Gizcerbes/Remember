@@ -52,12 +52,15 @@ class ModuleProvider(
 
 	suspend fun download(globalId: UUID): Module? {
 		val local = mr.getByGlobalId(globalId)
-		if (local == null) {
-			val nm = network.module.get(globalId)
-			val localId = add(Module().update(nm))
-			return mr.getById(localId.toInt())
+		val nm = network.module.get(globalId)
+		val localId = if (local != null) {
+			update(local.update(nm))
+			dataProvider.moduleCard.removeByModule(local.id)
+			local.id
+		} else {
+			add(Module().update(nm)).toInt()
 		}
-		return local
+		return mr.getById(localId)
 	}
 
 }

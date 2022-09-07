@@ -9,6 +9,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.uogames.database.dao.*
 import com.uogames.database.entity.*
+import com.uogames.dto.User
 
 @Database(
 	entities = [
@@ -20,8 +21,9 @@ import com.uogames.database.entity.*
 		ModuleEntity::class,
 		ModuleCardEntity::class,
 		ErrorCardEntity::class,
+		UserEntity::class
 	],
-	version = 1
+	version = 2
 )
 abstract class MyDatabase : RoomDatabase() {
 
@@ -41,6 +43,8 @@ abstract class MyDatabase : RoomDatabase() {
 
 	abstract fun errorCardDAO(): ErrorCardDAO
 
+	abstract fun userDAO(): UserDAO
+
 
 	companion object {
 		private var INSTANCE: MyDatabase? = null
@@ -49,15 +53,13 @@ abstract class MyDatabase : RoomDatabase() {
 			if (INSTANCE == null) synchronized(this) {
 				if (INSTANCE == null) INSTANCE = Room
 					.databaseBuilder(context, MyDatabase::class.java, "cardBase")
+					.addMigrations(UserEntity.migration_1_2())
 					.build()
 			}
 			return INSTANCE as MyDatabase
 		}
 
 	}
-
-
-
 
 
 }

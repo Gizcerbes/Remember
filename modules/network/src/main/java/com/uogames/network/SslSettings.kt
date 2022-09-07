@@ -19,7 +19,7 @@ class SslSettings(private val keyData: ByteArray, private val keystorePassword: 
         return trustManagerFactory
     }
 
-    fun getSslContext(): SSLContext? {
+    fun getSslContext(): SSLContext {
         val sslContext = SSLContext.getInstance("TLS")
         sslContext.init(null, getTrustManagerFactory()?.trustManagers, null)
         return sslContext

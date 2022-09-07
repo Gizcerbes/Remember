@@ -5,6 +5,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.uogames.dto.local.Module
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardModuleBinding
@@ -20,6 +22,7 @@ class LibraryAdapter(
 ) : ClosableAdapter<LibraryAdapter.ModuleHolder>() {
 
     private val recyclerScope = CoroutineScope(Dispatchers.Main)
+    private val auth = Firebase.auth
 
     init {
         model.size.observeWhile(recyclerScope) {
@@ -37,6 +40,9 @@ class LibraryAdapter(
             clear()
             recyclerScope.launch(Dispatchers.IO) {
                 val module = model.getModuleByPosition(adapterPosition).ifNull { return@launch }
+                if (auth.currentUser == null || (module.globalOwner != null && module.globalOwner != auth.currentUser?.uid)) {
+                    launch(Dispatchers.Main) {  bind.btnShare.visibility = View.GONE }
+                }
                 launch(Dispatchers.Main) {
                     bind.txtName.text = module.name
                     moduleObserver = recyclerScope.launch(Dispatchers.IO) {

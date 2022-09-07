@@ -1,5 +1,6 @@
 package com.uogames.repository.providers
 
+import android.util.Log
 import androidx.core.net.toUri
 import com.uogames.database.DatabaseRepository
 import com.uogames.database.repository.PronunciationRepository
@@ -66,9 +67,6 @@ class PronunciationProvider(
 		val pronounce = getById(id)
 		pronounce?.globalId?.let { if (network.pronounce.exists(it)) return pronounce }
 		val res = pronounce?.let {
-			if (it.globalId == null) it
-			else null
-		}?.let {
 			fileRepository.readFile(it.audioUri.toUri())?.let { bytes -> network.pronounce.upload(bytes) }
 		}?.let { Pronunciation(pronounce.id, pronounce.audioUri, it.globalId, it.globalOwner) }
 		res?.let { database.update(it) }
@@ -77,12 +75,13 @@ class PronunciationProvider(
 
 	suspend fun download(id: UUID): Pronunciation? {
 		val local = database.getByGlobalId(id)
+
 		if (local == null) {
 			val localId = add(network.pronounce.load(id))
 			val l = database.getById(localId) ?: return null
-			l.update(network.pronounce.get(id))
-			database.update(l)
-			return l
+			val new = l.update(network.pronounce.get(id))
+			database.update(new)
+			return new
 		}
 		return local
 	}

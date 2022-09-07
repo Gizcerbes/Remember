@@ -11,6 +11,7 @@ import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.gson.*
+import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 
@@ -27,13 +28,14 @@ class HttpClient(
 	private val okHttpClient = OkHttpClient.Builder().apply {
 		connectTimeout(10, TimeUnit.SECONDS)
 		followRedirects(false)
+		connectionPool(ConnectionPool(16, 5, TimeUnit.SECONDS))
 		setSsl(ssl)
 	}.build()
 
 	private val client = HttpClient(OkHttp) {
 		engine {
 			preconfigured = okHttpClient
-			threadsCount = 4
+			threadsCount = 16
 		}
 		install(DefaultRequest) {
 			bearerAuth(JWTBuilder.create(secret(), data(), 10000))
@@ -58,7 +60,7 @@ class HttpClient(
 
 	private fun OkHttpClient.Builder.setSsl(ssl: SslSettings?) {
 		if (ssl != null) {
-			sslSocketFactory(ssl.getSslContext()!!.socketFactory, ssl.getTrustManager())
+			sslSocketFactory(ssl.getSslContext().socketFactory, ssl.getTrustManager())
 			hostnameVerifier { _, _ -> true }
 		}
 	}

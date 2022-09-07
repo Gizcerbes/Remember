@@ -72,9 +72,6 @@ class ImageProvider(
 		val image = getById(id)
 		image?.globalId?.let { if (network.image.exists(it)) return image }
 		val res = image?.let {
-			if (it.globalId == null) it
-			else null
-		}?.let {
 			fileRepository.readFile(image.imgUri.toUri())?.let { network.image.upload(it) }
 		}?.let { Image(image.id, image.imgUri, it.globalId, it.globalOwner) }
 		res?.let { database.update(it) }

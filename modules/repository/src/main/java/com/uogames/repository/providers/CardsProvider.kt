@@ -60,19 +60,21 @@ class CardsProvider(
 
 	suspend fun download(globalId: UUID): Card? {
 		val local = repository.getByGlobalId(globalId)
-		if (local == null) {
-			val nc = network.card.get(globalId)
-			val phrase = dataProvider.phrase.download(nc.idPhrase)
-			val translate = dataProvider.phrase.download(nc.idTranslate)
-			val image = nc.idImage?.let { dataProvider.images.download(it) }
-			return if (phrase != null && translate != null) {
-				val localId = add(Card().update(nc, phrase.id, translate.id, image?.id))
-				repository.getById(localId.toInt())
+		val nc = network.card.get(globalId)
+		val phrase = dataProvider.phrase.download(nc.idPhrase)
+		val translate = dataProvider.phrase.download(nc.idTranslate)
+		val image = nc.idImage?.let { dataProvider.images.download(it) }
+		return if (phrase != null && translate != null) {
+			val localId = if (local != null) {
+				update(local.update(nc, phrase.id, translate.id, image?.id))
+				local.id
 			} else {
-				null
+				add(Card().update(nc, phrase.id, translate.id, image?.id)).toInt()
 			}
+			repository.getById(localId)
+		} else {
+			null
 		}
-		return local
 	}
 
 }

@@ -3,6 +3,7 @@ package com.uogames.database.dao
 import androidx.room.*
 import com.uogames.database.entity.CardEntity
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import java.util.*
 
 @Dao
