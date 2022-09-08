@@ -66,10 +66,18 @@ class BookFragment : DaggerFragment() {
 			bookViewModel.reset()
 		}
 
+		imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+
 		bind.btnSearch.setOnClickListener {
 			if (!globalViewModel.isShowKey.value) {
 				bind.tilSearch.requestFocus()
-				bind.tilSearch.editText?.setText(bookViewModel.like.value)
+				val text = when (adapter) {
+					is BookAdapter -> bookViewModel.like.value
+					is NetworkBookAdapter -> networkBookViewModel.like.value
+					else -> ""
+				}
+				bind.tilSearch.editText?.setText(text)
+				bind.tilSearch.editText?.setSelection(text.length)
 				imm?.showSoftInput(bind.tilSearch.editText, InputMethodManager.SHOW_FORCED)
 			} else {
 				imm?.hideSoftInputFromWindow(view.windowToken, 0)
@@ -77,8 +85,6 @@ class BookFragment : DaggerFragment() {
 		}
 
 		bind.tilSearch.editText?.addTextChangedListener(textWatcher)
-
-		imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 
 		sizeObserver = createSizeObserver()
 		keyObserver = createKeyObserver()
@@ -102,6 +108,7 @@ class BookFragment : DaggerFragment() {
 					bind.btnAdd.visibility = View.GONE
 					bind.recycler.adapter = null
 					delay(300)
+					networkBookViewModel.like.value = bookViewModel.like.value
 					bind.txtBookEmpty.visibility = if (networkBookViewModel.size.value == 0L) View.VISIBLE else View.GONE
 					bind.recycler.adapter = adapter
 				} else {
@@ -110,6 +117,7 @@ class BookFragment : DaggerFragment() {
 					bind.btnAdd.visibility = View.VISIBLE
 					bind.recycler.adapter = null
 					delay(300)
+					bookViewModel.like.value = networkBookViewModel.like.value
 					bind.txtBookEmpty.visibility = if (bookViewModel.size.value == 0) View.VISIBLE else View.GONE
 					bind.recycler.adapter = adapter
 					bookViewModel.recyclerStat?.let { bind.recycler.layoutManager?.onRestoreInstanceState(it) }
@@ -143,16 +151,20 @@ class BookFragment : DaggerFragment() {
 	private fun navigateToAdd(id: Int) = navigateToAdd(bundleOf(EditPhraseFragment.ID_PHRASE to id))
 
 	private fun createTextWatcher(): TextWatcher = ShortTextWatcher {
-		bookViewModel.like.value = it.toString()
-		networkBookViewModel.like.value = it.toString()
+		when (adapter) {
+			is BookAdapter -> bookViewModel.like.value = it.toString()
+			is NetworkBookAdapter -> networkBookViewModel.like.value = it.toString()
+		}
 	}
 
 	private fun createSizeObserver(): Job = lifecycleScope.launchWhenStarted {
 		bookViewModel.size.observeWhile(this) {
-			bind.txtBookEmpty.visibility = if (!cloud && it == 0) View.VISIBLE else View.GONE
+			if (adapter is BookAdapter)
+				bind.txtBookEmpty.visibility = if (!cloud && it == 0) View.VISIBLE else View.GONE
 		}
 		networkBookViewModel.size.observeWhile(this) {
-			bind.txtBookEmpty.visibility = if (cloud && it == 0L) View.VISIBLE else View.GONE
+			if (adapter is NetworkBookAdapter)
+				bind.txtBookEmpty.visibility = if (cloud && it == 0L) View.VISIBLE else View.GONE
 		}
 	}
 
@@ -172,6 +184,7 @@ class BookFragment : DaggerFragment() {
 		keyObserver?.cancel()
 		bind.tilSearch.editText?.removeTextChangedListener(textWatcher)
 		adapter?.close()
+		imm?.hideSoftInputFromWindow(view?.windowToken, 0)
 		adapter = null
 		imm = null
 		_bind = null

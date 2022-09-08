@@ -14,159 +14,204 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
+import com.uogames.dto.local.Phrase
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentChoicePhraseBinding
+import com.uogames.remembercards.ui.bookFragment.BookAdapter
 import com.uogames.remembercards.ui.bookFragment.BookViewModel
+import com.uogames.remembercards.ui.bookFragment.NetworkBookAdapter
+import com.uogames.remembercards.ui.bookFragment.NetworkBookViewModel
 import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseFragment
 import com.uogames.remembercards.utils.*
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class ChoicePhraseFragment() : DaggerFragment() {
 
-    companion object {
-        const val TAG = "CHOICE_PHRASE_DIALOG"
-    }
+	companion object {
+		const val TAG = "CHOICE_PHRASE_DIALOG"
+	}
 
-    @Inject
-    lateinit var bookViewModel: BookViewModel
+	@Inject
+	lateinit var bookViewModel: BookViewModel
 
-    @Inject
-    lateinit var globalViewModel: GlobalViewModel
+	@Inject
+	lateinit var networkBookViewModel: NetworkBookViewModel
 
-    @Inject
-    lateinit var player: ObservableMediaPlayer
+	@Inject
+	lateinit var globalViewModel: GlobalViewModel
 
-    private var _bind: FragmentChoicePhraseBinding? = null
-    private val bind get() = _bind!!
+	@Inject
+	lateinit var player: ObservableMediaPlayer
 
-    private var imm: InputMethodManager? = null
+	private var _bind: FragmentChoicePhraseBinding? = null
+	private val bind get() = _bind!!
 
-    private var receivedTAG: String? = null
+	private var imm: InputMethodManager? = null
 
-    private var adapter: ChoicePhraseAdapter? = null
-    private val searchWatcher = createSearchWatcher()
-    private var sizeObserver: Job? = null
-    private var keyObserver: Job? = null
+	private var receivedTAG: String? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        if (_bind == null) _bind = FragmentChoicePhraseBinding.inflate(inflater, container, false)
-        return bind.root
-    }
+	private var adapter: ClosableAdapter<*>? = null
+	private var cloud = false
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+	private val searchWatcher = createSearchWatcher()
+	private var sizeObserver: Job? = null
+	private var keyObserver: Job? = null
 
-        globalViewModel.shouldReset.ifTrue {
-            bookViewModel.reset()
-        }
+	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+		if (_bind == null) _bind = FragmentChoicePhraseBinding.inflate(inflater, container, false)
+		return bind.root
+	}
 
-        bookViewModel.reset()
+	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+		super.onViewCreated(view, savedInstanceState)
 
-        imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+		globalViewModel.shouldReset.ifTrue {
+			bookViewModel.reset()
+		}
 
-        adapter = createAdapter()
+		imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 
-        receivedTAG = arguments?.getString(TAG)
+		receivedTAG = arguments?.getString(TAG).ifNull { return }
 
-        receivedTAG?.let {
-            sizeObserver = createSizeObserver()
-            lifecycleScope.launchWhenStarted {
-                delay(300)
-                bind.recycler.adapter = adapter
-            }
-            bind.tilSearch.editText?.addTextChangedListener(searchWatcher)
-        }
+		keyObserver = createKeyObserver()
 
-        keyObserver = createKeyObserver()
+		bind.btnSearch.setOnClickListener {
+			if (!globalViewModel.isShowKey.value) {
+				bind.tilSearch.requestFocus()
+				val text = when (adapter) {
+					is ChoicePhraseAdapter -> bookViewModel.like.value
+					is ChoiceNetworkPhraseAdapter -> networkBookViewModel.like.value
+					else -> ""
+				}
+				bind.tilSearch.editText?.setText(text)
+				bind.tilSearch.editText?.setSelection(text.length)
+				imm?.showSoftInput(bind.tilSearch.editText, InputMethodManager.SHOW_IMPLICIT)
+			} else {
+				imm?.hideSoftInputFromWindow(view.windowToken, 0)
+			}
+		}
 
-        bind.btnSearch.setOnClickListener {
-            if (!globalViewModel.isShowKey.value) {
-                bind.tilSearch.requestFocus()
-                imm?.showSoftInput(bind.tilSearch.editText, InputMethodManager.SHOW_IMPLICIT)
-            } else {
-                imm?.hideSoftInputFromWindow(view.windowToken, 0)
-            }
-        }
+		bind.btnAdd.setOnClickListener { openEditFragment() }
 
-        bind.btnAdd.setOnClickListener { openEditFragment() }
+		bind.btnBack.setOnClickListener { findNavController().popBackStack() }
 
-        bind.btnBack.setOnClickListener { findNavController().popBackStack() }
-    }
+		sizeObserver = createSizeObserver()
 
-    private fun createAdapter(): ChoicePhraseAdapter = ChoicePhraseAdapter(bookViewModel, player, {
-        requireActivity().findNavController(R.id.nav_host_fragment).navigate(
-            R.id.addPhraseFragment,
-            Bundle().apply {
-                putInt(EditPhraseFragment.ID_PHRASE, it.id)
-            },
-            navOptions {
-                anim {
-                    enter = R.anim.from_bottom
-                    exit = R.anim.hide
-                    popEnter = R.anim.show
-                    popExit = R.anim.to_bottom
-                }
-            }
-        )
-    }) { phrase ->
-        imm?.hideSoftInputFromWindow(view?.windowToken, 0)
-        receivedTAG?.let {
-            setFragmentResult(it, bundleOf("ID" to phrase.id))
-        }.ifNull {
-            Toast.makeText(requireContext(), "Argument Problem", Toast.LENGTH_SHORT).show()
-        }
-        findNavController().popBackStack()
-    }
+		adapter = createLocalAdapter()
 
-    private fun createSearchWatcher(): TextWatcher = ShortTextWatcher {
-        bookViewModel.like.value = it.toString()
-    }
+		lifecycleScope.launchWhenStarted {
+			delay(300)
+			bind.recycler.adapter = adapter
+		}
+		bind.tilSearch.editText?.addTextChangedListener(searchWatcher)
 
-    private fun createSizeObserver(): Job = bookViewModel.size.observeWhenStarted(lifecycleScope) {
-        bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
-    }
+		bind.btnNetwork.setOnClickListener {
+			lifecycleScope.launchWhenStarted {
+				cloud = !cloud
+				if (cloud) {
+					adapter = createNetworkAdapter()
+					bind.imgNetwork.setImageResource(R.drawable.ic_baseline_cloud_off_24)
+					bind.btnAdd.visibility = View.GONE
+					bind.recycler.adapter = null
+					delay(300)
+					networkBookViewModel.like.value = bookViewModel.like.value
+					bind.txtBookEmpty.visibility = if (networkBookViewModel.size.value == 0L) View.VISIBLE else View.GONE
+					bind.recycler.adapter = adapter
+				} else {
+					adapter = createLocalAdapter()
+					bind.imgNetwork.setImageResource(R.drawable.ic_baseline_cloud_24)
+					bind.btnAdd.visibility = View.VISIBLE
+					bind.recycler.adapter = null
+					delay(300)
+					bookViewModel.like.value = networkBookViewModel.like.value
+					bind.txtBookEmpty.visibility = if (bookViewModel.size.value == 0) View.VISIBLE else View.GONE
+					bind.recycler.adapter = adapter
+					bookViewModel.recyclerStat?.let { bind.recycler.layoutManager?.onRestoreInstanceState(it) }
+				}
+			}
+		}
+	}
 
-    private fun createKeyObserver(): Job = globalViewModel.isShowKey.observeWhenStarted(lifecycleScope) {
-        bind.tilSearch.visibility = if (it) View.VISIBLE else View.GONE
-        bind.btnAdd.visibility = if (it) View.GONE else View.VISIBLE
-        bind.btnBack.visibility = if (it) View.GONE else View.VISIBLE
-        if (it) {
-            bind.searchImage.setImageResource(R.drawable.ic_baseline_close_24)
-        } else {
-            bind.searchImage.setImageResource(R.drawable.ic_baseline_search_24)
-        }
-    }
+	private fun createLocalAdapter() = ChoicePhraseAdapter(bookViewModel, player, editCall(), selectedCall())
 
-    private fun openEditFragment() {
-        requireActivity().findNavController(R.id.nav_host_fragment).navigate(
-            R.id.addPhraseFragment,
-            Bundle().apply {
-                putString(EditPhraseFragment.CREATE_FOR, receivedTAG)
-                putInt(EditPhraseFragment.POP_BACK_TO, findNavController().currentDestination?.id.ifNull { 0 })
-            },
-            navOptions {
-                anim {
-                    enter = R.anim.from_bottom
-                    exit = R.anim.hide
-                    popEnter = R.anim.show
-                    popExit = R.anim.to_bottom
-                }
-            }
-        )
-    }
+	private fun createNetworkAdapter() = ChoiceNetworkPhraseAdapter(networkBookViewModel, player, selectedCall())
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        sizeObserver?.cancel()
-        keyObserver?.cancel()
-        bind.tilSearch.editText?.removeTextChangedListener(searchWatcher)
-        adapter?.onDestroy()
-        adapter = null
-        imm = null
-        _bind = null
-    }
+	private fun selectedCall(): (Phrase) -> Unit = { phrase ->
+		receivedTAG?.let {
+			setFragmentResult(it, bundleOf("ID" to phrase.id))
+		}.ifNull {
+			Toast.makeText(requireContext(), "Argument Problem", Toast.LENGTH_SHORT).show()
+		}
+		findNavController().popBackStack()
+	}
+
+	private fun createSearchWatcher(): TextWatcher = ShortTextWatcher {
+		when (adapter) {
+			is ChoicePhraseAdapter -> bookViewModel.like.value = it.toString()
+			is ChoiceNetworkPhraseAdapter -> networkBookViewModel.like.value = it.toString()
+		}
+	}
+
+	private fun createSizeObserver(): Job = lifecycleScope.launchWhenStarted {
+		bookViewModel.size.observeWhile(this) {
+			if (adapter is BookAdapter)
+				bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
+		}
+		networkBookViewModel.size.observeWhile(this) {
+			if (adapter is NetworkBookAdapter)
+				bind.txtBookEmpty.visibility = if (it == 0L) View.VISIBLE else View.GONE
+		}
+	}
+
+	private fun createKeyObserver(): Job = globalViewModel.isShowKey.observeWhenStarted(lifecycleScope) {
+		bind.tilSearch.visibility = if (it) View.VISIBLE else View.GONE
+		bind.btnAdd.visibility = if (it) View.GONE else View.VISIBLE
+		bind.btnBack.visibility = if (it) View.GONE else View.VISIBLE
+		if (it) {
+			bind.searchImage.setImageResource(R.drawable.ic_baseline_close_24)
+		} else {
+			bind.searchImage.setImageResource(R.drawable.ic_baseline_search_24)
+		}
+	}
+
+	private fun editCall(): (Phrase) -> Unit = {
+		openEditFragment(bundleOf(EditPhraseFragment.ID_PHRASE to it.id))
+	}
+
+	private fun openEditFragment() = openEditFragment(bundleOf(
+		EditPhraseFragment.CREATE_FOR to receivedTAG,
+		EditPhraseFragment.POP_BACK_TO to findNavController().currentDestination?.id.ifNull { 0 }
+	))
+
+	private fun openEditFragment(bundle: Bundle? = null) {
+		requireActivity().findNavController(R.id.nav_host_fragment).navigate(
+			R.id.addPhraseFragment,
+			bundle,
+			navOptions {
+				anim {
+					enter = R.anim.from_bottom
+					exit = R.anim.hide
+					popEnter = R.anim.show
+					popExit = R.anim.to_bottom
+				}
+			}
+		)
+	}
+
+	override fun onDestroyView() {
+		super.onDestroyView()
+		sizeObserver?.cancel()
+		keyObserver?.cancel()
+		bind.tilSearch.editText?.removeTextChangedListener(searchWatcher)
+		adapter?.close()
+		imm?.hideSoftInputFromWindow(view?.windowToken, 0)
+		adapter = null
+		imm = null
+		_bind = null
+	}
 }

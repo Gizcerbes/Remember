@@ -43,6 +43,8 @@ class PhraseProvider(
 
 	fun getListId(like: String) = pr.getListIdFlow(like)
 
+	suspend fun getByGlobalId(globalId: UUID) = pr.getByGlobalId(globalId)
+
 	suspend fun countGlobal(like: String) = network.phrase.count(like)
 
 	suspend fun getGlobal(like: String, number: Long) = network.phrase.get(like, number)

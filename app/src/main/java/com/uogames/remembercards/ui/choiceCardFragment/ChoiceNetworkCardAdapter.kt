@@ -1,5 +1,6 @@
 package com.uogames.remembercards.ui.choiceCardFragment
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,24 +9,19 @@ import android.widget.TextView
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
-import com.squareup.picasso.Picasso
-import com.uogames.dto.local.Image
-import com.uogames.dto.local.Phrase
-import com.uogames.dto.local.Pronunciation
+import com.uogames.dto.global.Image
+import com.uogames.dto.global.Phrase
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardCardBinding
-import com.uogames.remembercards.ui.cardFragment.CardViewModel
+import com.uogames.remembercards.ui.cardFragment.NetworkCardViewModel
 import com.uogames.remembercards.utils.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.*
 
-class ChoiceCardAdapter(
-	private val model: CardViewModel,
+class ChoiceNetworkCardAdapter(
+	private val model: NetworkCardViewModel,
 	private val player: ObservableMediaPlayer,
-	private val callChoiceCardID: (Int) -> Unit
-) : ClosableAdapter<ChoiceCardAdapter.CardHolder>() {
+	private val callChoice: (Int) -> Unit
+) : ClosableAdapter<ChoiceNetworkCardAdapter.CardHolder>() {
 
 	private val recyclerScope = CoroutineScope(Dispatchers.Main)
 
@@ -42,31 +38,61 @@ class ChoiceCardAdapter(
 
 		fun onShow() {
 			clear()
-			cardObserver = model.get(adapterPosition).observeWhile(recyclerScope) {
-				val cardView = it.ifNull { return@observeWhile }
+			cardObserver = recyclerScope.launch {
+				val cardView = model.getByPosition(adapterPosition.toLong()).ifNull { return@launch }
 				bind.txtReason.text = cardView.card.reason
-				bind.btnDownload.setOnClickListener { callChoiceCardID(cardView.card.id) }
 				setData(
 					cardView.phrase.await(),
-					cardView.phrasePronounce.await(),
+					cardView.phrasePronounceData,
 					cardView.phraseImage.await(),
 					bind.txtLangFirst,
 					bind.txtPhraseFirst,
 					bind.imgSoundFirst,
 					bind.mcvFirst,
-					bind.imgCardFirst
+					bind.imgCardFirst,
+					bind.txtDefinitionFirst
 				)
 				setData(
 					cardView.translate.await(),
-					cardView.translatePronounce.await(),
+					cardView.translatePronounceData,
 					cardView.translateImage.await(),
 					bind.txtLangSecond,
 					bind.txtPhraseSecond,
 					bind.imgSoundSecond,
 					bind.mcvSecond,
-					bind.imgCardSecond
+					bind.imgCardSecond,
+					bind.txtDefinitionSecond
 				)
+				bind.root.visibility = View.VISIBLE
+
+				val startAction: () -> Unit = {
+					bind.progressLoading.visibility = View.VISIBLE
+					bind.btnStop.visibility = View.VISIBLE
+					bind.btnDownload.visibility = View.GONE
+				}
+
+				val endAction: (String) -> Unit = {
+					bind.progressLoading.visibility = View.GONE
+					bind.btnStop.visibility = View.GONE
+					bind.btnDownload.visibility = View.VISIBLE
+					recyclerScope.launch {
+						model.getByGlobalId(cardView.card.globalId)?.let { card -> callChoice(card.id) }
+					}
+				}
+
+				model.setDownloadAction(cardView.card.globalId, endAction).ifTrue(startAction)
+
+				bind.btnDownload.setOnClickListener {
+					startAction()
+					model.download(cardView.card.globalId, endAction)
+				}
+
+				bind.btnStop.setOnClickListener {
+					model.stopDownloading(cardView.card.globalId)
+				}
+
 			}
+
 			bind.btnCardAction.setOnClickListener {
 				full = !full
 				bind.btns.visibility = if (full) View.VISIBLE else View.GONE
@@ -97,40 +123,47 @@ class ChoiceCardAdapter(
 			bind.btnShare.visibility = View.GONE
 			bind.btnStop.visibility = View.GONE
 			bind.imgBtnAction.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
-			bind.imgBtnDownload.setImageResource(R.drawable.ic_baseline_add_24)
 		}
 
 		private fun setData(
 			phrase: Phrase?,
-			pronunciation: Pronunciation?,
+			pronunciationData: Deferred<ByteArray?>,
 			image: Image?,
 			langView: TextView,
 			phraseView: TextView,
 			soundImg: ImageView,
 			button: MaterialCardView,
-			phraseImage: ImageView
+			phraseImage: ImageView,
+			definition: TextView
 		) {
 			phrase?.let {
 				langView.text = Lang.parse(phrase.lang).locale.displayLanguage
 				phraseView.text = phrase.phrase
+				definition.text = phrase.definition.orEmpty()
 			}
 
 			image?.let {
-				Picasso.get().load(it.imgUri.toUri()).placeholder(R.drawable.noise).into(phraseImage)
+				model.getPicasso(itemView.context).load(it.imageUri.toUri()).placeholder(R.drawable.noise).into(phraseImage)
 				phraseImage.visibility = View.VISIBLE
 			}.ifNull { phraseImage.visibility = View.GONE }
 
-			pronunciation?.let { pronounce ->
+			phrase?.idPronounce?.let { _ ->
 				soundImg.visibility = View.VISIBLE
 				button.setOnClickListener {
-					player.play(itemView.context, pronounce.audioUri.toUri(), soundImg.background.asAnimationDrawable())
+					recyclerScope.launch {
+						player.play(MediaBytesSource(pronunciationData.await()), soundImg.background.asAnimationDrawable())
+					}
 				}
-			}.ifNull { soundImg.visibility = View.GONE }
+			}.ifNull {
+				soundImg.visibility = View.GONE
+				button.setOnClickListener(null)
+			}
 		}
 
 		fun onDestroy() {
 			cardObserver?.cancel()
 		}
+
 	}
 
 	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardHolder {
@@ -139,9 +172,13 @@ class ChoiceCardAdapter(
 		)
 	}
 
-	override fun onBindViewHolder(holder: CardHolder, position: Int) = holder.onShow()
+	override fun onBindViewHolder(holder: CardHolder, position: Int) {
+		holder.onShow()
+	}
 
-	override fun getItemCount() = model.size.value
+	override fun getItemCount(): Int {
+		return model.size.value.toInt()
+	}
 
 	override fun onViewRecycled(holder: CardHolder) {
 		super.onViewRecycled(holder)
@@ -151,4 +188,6 @@ class ChoiceCardAdapter(
 	override fun close() {
 		recyclerScope.cancel()
 	}
+
+
 }

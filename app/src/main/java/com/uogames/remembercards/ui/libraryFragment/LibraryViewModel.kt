@@ -1,5 +1,6 @@
 package com.uogames.remembercards.ui.libraryFragment
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.uogames.dto.local.Module
@@ -11,6 +12,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.concurrent.LinkedBlockingDeque
+import java.util.concurrent.LinkedBlockingQueue
 import javax.inject.Inject
 import kotlin.collections.HashMap
 
@@ -19,6 +21,8 @@ class LibraryViewModel @Inject constructor(val provider: DataProvider) : ViewMod
 	val like = MutableStateFlow("")
 
 	val size = like.flatMapLatest(viewModelScope, Dispatchers.IO, 0) { provider.module.getCountLike(it) }
+
+
 
 	fun reset() {
 		like.value = ""
@@ -46,25 +50,17 @@ class LibraryViewModel @Inject constructor(val provider: DataProvider) : ViewMod
 			runCatching {
 				provider.module.share(module.id)
 				val size = provider.moduleCard.getCountByModule(module)
-				val jobBuffer = LinkedBlockingDeque<Job>(16)
-				var controlBl = true
-				val controlJob = launch {
-					val first = viewModelScope.launch(Dispatchers.IO) { while (controlBl) jobBuffer.takeLast().join() }
-					//val second = viewModelScope.launch(Dispatchers.IO) { while (controlBl) jobBuffer.takeFirst().join() }
-					first.join()
-					//second.join()
-				}
+				val shareBuffer = LinkedBlockingQueue<Job>(16)
 				for (i in 0 until size) {
 					val mc = provider.moduleCard.getByPositionOfModule(module.id, i).ifNull { return@launch }
-					jobBuffer.put(launch { runCatching { provider.moduleCard.share(mc.id) } })
+					val job = viewModelScope.launch { runCatching { provider.moduleCard.share(mc.id) } }
+					shareBuffer.put(job)
+					viewModelScope.launch(Dispatchers.IO) {
+						job.join()
+						shareBuffer.remove(job)
+					}
 				}
-				controlBl = false
-				if (jobBuffer.size > 0) {
-					controlJob.join()
-				} else {
-					controlJob.cancel()
-				}
-				jobBuffer.forEach { it.join() }
+				shareBuffer.forEach { it.join() }
 			}.onSuccess {
 				launch(Dispatchers.Main) { shareActions[module.id]?.callback?.let { back -> back("Ok") } }
 			}.onFailure {

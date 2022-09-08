@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.*
+import java.util.concurrent.LinkedBlockingQueue
 import javax.inject.Inject
 import kotlin.collections.HashMap
 
@@ -59,11 +60,24 @@ class NetworkLibraryViewModel @Inject constructor(private val provider: DataProv
 	fun download(id: UUID, loading: (String) -> Unit) {
 		val job = viewModelScope.launch(Dispatchers.IO) {
 			runCatching {
-				val module = provider.module.download(id)
-				val count = provider.moduleCard.countGlobal(id)
-				for (i in 0 until count) {
-					provider.moduleCard.download(module!!, i)
+				val module = provider.module.download(id).ifNull {
+					launch(Dispatchers.Main) {
+						downloadAction[id]?.callback?.let { back -> back("Error") }
+						downloadAction.remove(id)
+					}
+					return@launch
 				}
+				val count = provider.moduleCard.countGlobal(id)
+				val downloadBuffer = LinkedBlockingQueue<Job>(16)
+				for (i in 0 until count) {
+					val job = viewModelScope.launch(Dispatchers.IO) { provider.moduleCard.download(module, i) }
+					downloadBuffer.put(job)
+					viewModelScope.launch(Dispatchers.IO) {
+						job.join()
+						downloadBuffer.remove(job)
+					}
+				}
+				downloadBuffer.forEach { it.join() }
 			}.onSuccess {
 				launch(Dispatchers.Main) {
 					downloadAction[id]?.callback?.let { back -> back("Ok") }

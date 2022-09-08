@@ -54,6 +54,8 @@ class NetworkBookViewModel @Inject constructor(
 		}
 	}
 
+	suspend fun getByGlobalId(uuid: UUID) = viewModelScope.async(Dispatchers.IO) { provider.phrase.getByGlobalId(uuid)}.await()
+
 	suspend fun getByPosition(position: Long): PhraseModel? {
 		runCatching { return PhraseModel(provider.phrase.getGlobal(like.value, position)) }
 		return null

@@ -81,4 +81,3 @@ inline fun <T, R> Flow<T>.flatMapLatest(
 	flatMapLatest(transform).observeWhile(scope, dispatcher) { stat.value = it }
 	return stat.asStateFlow()
 }
-

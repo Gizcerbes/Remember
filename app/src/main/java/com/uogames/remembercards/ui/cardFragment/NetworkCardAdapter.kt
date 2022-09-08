@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import com.uogames.dto.global.Image
 import com.uogames.dto.global.Phrase
-import com.uogames.dto.global.Pronunciation
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardCardBinding
 import com.uogames.remembercards.utils.*

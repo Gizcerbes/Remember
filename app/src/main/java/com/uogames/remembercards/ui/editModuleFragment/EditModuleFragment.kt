@@ -1,6 +1,7 @@
 package com.uogames.remembercards.ui.editModuleFragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -70,7 +71,9 @@ class EditModuleFragment : DaggerFragment() {
         setFragmentResultListener(CARD_CALL_TAG) { _, b ->
             lifecycleScope.launchWhenStarted {
                 val cardID = b.getInt("ID")
+                Log.e("TAG", "cardID: $cardID", )
                 val card = editModuleViewModel.getCard(cardID).first().ifNull { return@launchWhenStarted }
+                Log.e("TAG", "card: $card", )
                 editModuleViewModel.addModuleCard(id, card) {}
             }
         }

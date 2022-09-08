@@ -60,6 +60,8 @@ class NetworkCardViewModel @Inject constructor(private val provider: DataProvide
 		}
 	}
 
+	suspend fun getByGlobalId(uuid: UUID) = viewModelScope.async(Dispatchers.IO) { provider.cards.getByGlobalId(uuid) }.await()
+
 	suspend fun getByPosition(position: Long): CardModel? {
 		runCatching { return CardModel(provider.cards.getGlobal(like.value, position)) }
 		return null

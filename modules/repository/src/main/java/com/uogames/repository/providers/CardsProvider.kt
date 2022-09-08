@@ -39,6 +39,8 @@ class CardsProvider(
 
 	suspend fun getRandomWithout(id: Int) = repository.getRandomWithOut(id)
 
+	suspend fun getByGlobalId(globalId: UUID) = repository.getByGlobalId(globalId)
+
 	suspend fun countGlobal(like: String) = network.card.count(like)
 
 	suspend fun getGlobalById(globalId: UUID) = network.card.get(globalId)
