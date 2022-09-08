@@ -137,7 +137,6 @@ class ChoiceCardFragment : DaggerFragment() {
 
 	private fun receiveCall(): (Int) -> Unit = { id ->
 		receivedTAG?.let {
-			Log.e("TAG", "receiveCall: $it , id: $id" )
 			setFragmentResult(it, bundleOf("ID" to id))
 		}.ifNull {
 			Toast.makeText(requireContext(), "Argument Problem", Toast.LENGTH_SHORT).show()
