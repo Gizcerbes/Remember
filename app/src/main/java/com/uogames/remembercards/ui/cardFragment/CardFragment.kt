@@ -71,6 +71,13 @@ class CardFragment : DaggerFragment() {
 		bind.btnSearch.setOnClickListener {
 			if (!globalViewModel.isShowKey.value) {
 				bind.tilSearch.requestFocus()
+				val text = when(adapter){
+					is CardAdapter -> cardViewModel.like.value
+					is NetworkCardAdapter -> networkCardViewModel.like.value
+					else -> ""
+				}
+				bind.tilSearch.editText?.setText(text)
+				bind.tilSearch.editText?.setSelection(text.length)
 				imm?.showSoftInput(bind.tilSearch.editText, InputMethodManager.SHOW_FORCED)
 			} else {
 				imm?.hideSoftInputFromWindow(view.windowToken, 0)
@@ -100,13 +107,14 @@ class CardFragment : DaggerFragment() {
 					bind.txtBookEmpty.visibility = if (networkCardViewModel.size.value == 0L) View.VISIBLE else View.GONE
 					bind.recycler.adapter = adapter
 				} else {
-					adapter = CardAdapter(cardViewModel, player) { navigateToEdit(it) }
+					val ca = CardAdapter(cardViewModel, player) { navigateToEdit(it) }
+					adapter = ca
 					bind.imgNetwork.setImageResource(R.drawable.ic_baseline_cloud_24)
 					bind.btnAdd.visibility = View.VISIBLE
 					bind.recycler.adapter = null
 					delay(50)
 					cardViewModel.like.value = networkCardViewModel.like.value
-					bind.txtBookEmpty.visibility = if (cardViewModel.size.value == 0) View.VISIBLE else View.GONE
+					bind.txtBookEmpty.visibility = if (ca.size == 0) View.VISIBLE else View.GONE
 					bind.recycler.adapter = adapter
 				}
 			}

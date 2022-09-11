@@ -1,6 +1,7 @@
 package com.uogames.repository.providers
 
 import android.content.Context
+import android.util.Log
 import androidx.core.net.toUri
 import com.uogames.database.DatabaseRepository
 import com.uogames.database.repository.ImageRepository
@@ -72,7 +73,10 @@ class ImageProvider(
 
 	suspend fun share(id: Int): Image? {
 		val image = getById(id)
-		image?.globalId?.let { if (network.image.exists(it)) return image }
+		image?.globalId?.let {
+			Log.e("TAG", "share: ${network.image.exists(it)}", )
+			if (network.image.exists(it)) return image
+		}
 		val res = image?.let {
 			fileRepository.readFile(image.imgUri.toUri())?.let { network.image.upload(it) }
 		}?.let { Image(image.id, image.imgUri, it.globalId, it.globalOwner) }

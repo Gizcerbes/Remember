@@ -22,6 +22,7 @@ import com.uogames.remembercards.ui.bookFragment.BookAdapter
 import com.uogames.remembercards.ui.bookFragment.BookViewModel
 import com.uogames.remembercards.ui.bookFragment.NetworkBookAdapter
 import com.uogames.remembercards.ui.bookFragment.NetworkBookViewModel
+import com.uogames.remembercards.ui.choiceCardFragment.ChoiceNetworkCardAdapter
 import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseFragment
 import com.uogames.remembercards.utils.*
 import dagger.android.support.DaggerFragment
@@ -160,11 +161,11 @@ class ChoicePhraseFragment() : DaggerFragment() {
 
 	private fun createSizeObserver(): Job = lifecycleScope.launchWhenStarted {
 		bookViewModel.size.observeWhile(this) {
-			if (adapter is BookAdapter)
+			if (adapter is ChoicePhraseAdapter)
 				bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
 		}
 		networkBookViewModel.size.observeWhile(this) {
-			if (adapter is NetworkBookAdapter)
+			if (adapter is ChoiceNetworkPhraseAdapter)
 				bind.txtBookEmpty.visibility = if (it == 0L) View.VISIBLE else View.GONE
 		}
 	}

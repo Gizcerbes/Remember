@@ -69,15 +69,3 @@ inline fun <C> safely(catcher: (Exception) -> C? = { null }, run: () -> C?): C? 
 }
 
 fun <C : Drawable> C.asAnimationDrawable(): AnimationDrawable = this as AnimationDrawable
-
-@OptIn(ExperimentalTypeInference::class)
-inline fun <T, R> Flow<T>.flatMapLatest(
-	scope: CoroutineScope,
-	dispatcher: CoroutineContext,
-	def: R,
-	@BuilderInference crossinline transform: suspend (value: T) -> Flow<R>
-): StateFlow<R> {
-	val stat = MutableStateFlow(def)
-	flatMapLatest(transform).observeWhile(scope, dispatcher) { stat.value = it }
-	return stat.asStateFlow()
-}

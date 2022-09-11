@@ -1,6 +1,7 @@
 package com.uogames.remembercards.ui.cardFragment
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.uogames.dto.global.Card
@@ -137,7 +138,7 @@ class NetworkCardViewModel @Inject constructor(private val provider: DataProvide
 				val translateImage = cardModel.translateImage.await()?.globalId?.let {
 					provider.images.getByGlobalId(it).ifNull { provider.images.download(it) }
 				}
-				val translatePronounce = cardModel.phrasePronounce.await()?.globalId?.let {
+				val translatePronounce = cardModel.translatePronounce.await()?.globalId?.let {
 					provider.pronounce.getByGlobalId(it).ifNull { provider.pronounce.download(it) }
 				}
 				val translate = cardModel.translate.await()?.globalId?.let { provider.phrase.getByGlobalId(it) }

@@ -3,15 +3,12 @@ package com.uogames.remembercards.ui.cardFragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.uogames.dto.local.Card
-import com.uogames.dto.local.Phrase
-import com.uogames.remembercards.utils.flatMapLatest
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.repository.DataProvider
 import com.uogames.repository.DataProvider.Companion.toImage
 import com.uogames.repository.DataProvider.Companion.toPronounce
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import java.util.*
 import kotlin.collections.HashMap
 
 class CardViewModel(val provider: DataProvider) : ViewModel() {
@@ -30,7 +27,7 @@ class CardViewModel(val provider: DataProvider) : ViewModel() {
 
 	val like = MutableStateFlow("")
 
-	val size = like.flatMapLatest(viewModelScope, Dispatchers.IO, 0) { provider.cards.getCountFlow(it) }
+	val size = like.flatMapLatest { provider.cards.getCountFlow(it) }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
 
 	private val shareActions = HashMap<Int, ShareAction>()
 
@@ -47,11 +44,16 @@ class CardViewModel(val provider: DataProvider) : ViewModel() {
 			runCatching {
 				provider.cards.share(card.id)
 			}.onSuccess {
-				launch(Dispatchers.Main) { shareActions[card.id]?.callback?.let { back -> back("Ok") } }
+				launch(Dispatchers.Main) {
+					shareActions[card.id]?.callback?.let { back -> back("Ok") }
+					shareActions.remove(card.id)
+				}
 			}.onFailure {
-				launch(Dispatchers.Main) { shareActions[card.id]?.callback?.let { back -> back(it.message ?: "Error") } }
+				launch(Dispatchers.Main) {
+					shareActions[card.id]?.callback?.let { back -> back(it.message ?: "Error") }
+					shareActions.remove(card.id)
+				}
 			}
-			shareActions.remove(card.id)
 		}
 		shareActions[card.id] = ShareAction(job, result)
 	}

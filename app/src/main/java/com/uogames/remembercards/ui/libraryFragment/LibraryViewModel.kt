@@ -1,17 +1,14 @@
 package com.uogames.remembercards.ui.libraryFragment
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.uogames.dto.local.Module
-import com.uogames.remembercards.utils.flatMapLatest
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.repository.DataProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.LinkedBlockingQueue
 import javax.inject.Inject
 import kotlin.collections.HashMap
@@ -20,7 +17,7 @@ class LibraryViewModel @Inject constructor(val provider: DataProvider) : ViewMod
 
 	val like = MutableStateFlow("")
 
-	val size = like.flatMapLatest(viewModelScope, Dispatchers.IO, 0) { provider.module.getCountLike(it) }
+	val size = like.flatMapLatest { provider.module.getCountLike(it) }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
 
 
 
@@ -62,9 +59,15 @@ class LibraryViewModel @Inject constructor(val provider: DataProvider) : ViewMod
 				}
 				shareBuffer.forEach { it.join() }
 			}.onSuccess {
-				launch(Dispatchers.Main) { shareActions[module.id]?.callback?.let { back -> back("Ok") } }
+				launch(Dispatchers.Main) {
+					shareActions[module.id]?.callback?.let { back -> back("Ok") }
+					shareActions.remove(module.id)
+				}
 			}.onFailure {
-				launch(Dispatchers.Main) { shareActions[module.id]?.callback?.let { back -> back(it.message ?: "Error") } }
+				launch(Dispatchers.Main) {
+					shareActions[module.id]?.callback?.let { back -> back(it.message ?: "Error") }
+					shareActions.remove(module.id)
+				}
 			}
 		}
 		shareActions[module.id] = ShareAction(job, loading)

@@ -1,5 +1,6 @@
 package com.uogames.remembercards.ui.cardFragment
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,6 +21,9 @@ import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardCardBinding
 import com.uogames.remembercards.utils.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 
 class CardAdapter(
 	private val model: CardViewModel,
@@ -28,11 +32,19 @@ class CardAdapter(
 ) : ClosableAdapter<CardAdapter.CardHolder>() {
 
 	private val recyclerScope = CoroutineScope(Dispatchers.Main)
+	var size = 0
+		private set
 	private val auth = Firebase.auth
 
 	init {
-		model.size.observeWhile(recyclerScope) {
-			notifyDataSetChanged()
+//		model.size.observeWhile(recyclerScope) {
+//			notifyDataSetChanged()
+//		}
+		recyclerScope.launch {
+			model.size.stateIn(this).onEach {
+				size = it
+				notifyDataSetChanged()
+			}.launchIn(this)
 		}
 	}
 
@@ -177,7 +189,7 @@ class CardAdapter(
 
 	override fun onBindViewHolder(holder: CardHolder, position: Int) = holder.show()
 
-	override fun getItemCount() = model.size.value
+	override fun getItemCount() = size
 
 	override fun onViewRecycled(holder: CardHolder) {
 		super.onViewRecycled(holder)

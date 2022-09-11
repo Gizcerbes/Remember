@@ -90,7 +90,7 @@ class ChoiceCardFragment : DaggerFragment() {
 
 		bind.txtTopName.text = requireContext().getString(R.string.choice_card)
 		keyObserver = createKeyObserver()
-		sizeObserver = createSizeObserver()
+
 
 		bind.btnAdd.setOnClickListener { navigateSelectedToEdit() }
 
@@ -99,6 +99,7 @@ class ChoiceCardFragment : DaggerFragment() {
 		bind.tilSearch.editText?.addTextChangedListener(searchTextWatcher)
 
 		adapter = createLocalAdapter()
+		sizeObserver = createSizeObserver()
 
 		lifecycleScope.launchWhenStarted {
 			delay(300)
