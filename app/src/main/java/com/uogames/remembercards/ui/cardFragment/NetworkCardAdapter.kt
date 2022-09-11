@@ -71,12 +71,10 @@ class NetworkCardAdapter(
 				}
 
 				val endAction: (String) -> Unit = {
-					if (cardJob?.isActive == true) {
-						bind.progressLoading.visibility = View.GONE
-						bind.btnStop.visibility = View.GONE
-						bind.btnDownload.visibility = View.VISIBLE
-						Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
-					}
+					bind.progressLoading.visibility = View.GONE
+					bind.btnStop.visibility = View.GONE
+					bind.btnDownload.visibility = View.VISIBLE
+					Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
 				}
 
 				model.setDownloadAction(cardView.card.globalId, endAction).ifTrue(startAction)

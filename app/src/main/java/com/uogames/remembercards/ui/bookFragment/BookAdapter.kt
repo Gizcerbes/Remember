@@ -1,5 +1,6 @@
 package com.uogames.remembercards.ui.bookFragment
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -62,13 +63,11 @@ class BookAdapter(
 					}
 
 					val endAction: (String) -> Unit = {
-						if (bookViewObserver?.isActive == true) {
-							bind.progressLoading.visibility = View.GONE
-							bind.btnStop.visibility = View.GONE
-							bind.btnShare.visibility = View.VISIBLE
-							bind.btnEdit.visibility = View.VISIBLE
-							Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
-						}
+						bind.progressLoading.visibility = View.GONE
+						bind.btnStop.visibility = View.GONE
+						bind.btnShare.visibility = View.VISIBLE
+						bind.btnEdit.visibility = View.VISIBLE
+						Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
 					}
 
 					model.setShareAction(phrase, endAction).ifTrue(startAction)

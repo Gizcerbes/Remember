@@ -72,13 +72,11 @@ class ChoiceNetworkCardAdapter(
 				}
 
 				val endAction: (String) -> Unit = {
-					if (cardObserver?.isActive == true) {
-						bind.progressLoading.visibility = View.GONE
-						bind.btnStop.visibility = View.GONE
-						bind.btnDownload.visibility = View.VISIBLE
-						recyclerScope.launch {
-							model.getByGlobalId(cardView.card.globalId)?.let { card -> callChoice(card.id) }
-						}
+					bind.progressLoading.visibility = View.GONE
+					bind.btnStop.visibility = View.GONE
+					bind.btnDownload.visibility = View.VISIBLE
+					recyclerScope.launch {
+						model.getByGlobalId(cardView.card.globalId)?.let { card -> callChoice(card.id) }
 					}
 				}
 

@@ -84,13 +84,11 @@ class CardAdapter(
 					}
 
 					val endAction: (String) -> Unit = {
-						if (cardObserver?.isActive == true) {
-							bind.progressLoading.visibility = View.GONE
-							bind.btnStop.visibility = View.GONE
-							bind.btnShare.visibility = View.VISIBLE
-							bind.btnEdit.visibility = View.VISIBLE
-							Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
-						}
+						bind.progressLoading.visibility = View.GONE
+						bind.btnStop.visibility = View.GONE
+						bind.btnShare.visibility = View.VISIBLE
+						bind.btnEdit.visibility = View.VISIBLE
+						Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
 					}
 
 					model.setShareAction(cardView.card, endAction).ifTrue(startAction)

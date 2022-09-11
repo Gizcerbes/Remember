@@ -50,13 +50,11 @@ class ChoiceNetworkPhraseAdapter(
 				}
 
 				val endAction: (String) -> Unit = {
-					if (phraseViewObserver?.isActive == true) {
-						bind.progressLoading.visibility = View.GONE
-						bind.btnStop.visibility = View.GONE
-						bind.btnDownload.visibility = View.VISIBLE
-						recyclerScope.launch {
-							model.getByGlobalId(phraseView.phrase.globalId)?.let { phrase -> selectedCall(phrase) }
-						}
+					bind.progressLoading.visibility = View.GONE
+					bind.btnStop.visibility = View.GONE
+					bind.btnDownload.visibility = View.VISIBLE
+					recyclerScope.launch {
+						model.getByGlobalId(phraseView.phrase.globalId)?.let { phrase -> selectedCall(phrase) }
 					}
 				}
 
