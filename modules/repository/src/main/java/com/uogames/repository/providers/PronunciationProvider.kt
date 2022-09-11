@@ -52,7 +52,9 @@ class PronunciationProvider(
 
 	fun getByPhrase(phrase: Phrase) = database.getByPhrase(phrase)
 
-	suspend fun getByGlobalId(id: UUID) = network.pronounce.get(id)
+	suspend fun getByGlobalId(id: UUID) = database.getByGlobalId(id)
+
+	suspend fun getGlobalById(id: UUID) = network.pronounce.get(id)
 
 	suspend fun downloadData(id: UUID) = network.pronounce.load(id)
 

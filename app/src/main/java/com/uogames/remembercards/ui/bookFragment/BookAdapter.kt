@@ -62,11 +62,13 @@ class BookAdapter(
 					}
 
 					val endAction: (String) -> Unit = {
-						bind.progressLoading.visibility = View.GONE
-						bind.btnStop.visibility = View.GONE
-						bind.btnShare.visibility = View.VISIBLE
-						bind.btnEdit.visibility = View.VISIBLE
-						Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
+						if (bookViewObserver?.isActive == true) {
+							bind.progressLoading.visibility = View.GONE
+							bind.btnStop.visibility = View.GONE
+							bind.btnShare.visibility = View.VISIBLE
+							bind.btnEdit.visibility = View.VISIBLE
+							Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
+						}
 					}
 
 					model.setShareAction(phrase, endAction).ifTrue(startAction)

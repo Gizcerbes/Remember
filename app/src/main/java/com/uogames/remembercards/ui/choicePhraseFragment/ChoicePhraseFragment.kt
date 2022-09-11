@@ -113,12 +113,13 @@ class ChoicePhraseFragment() : DaggerFragment() {
 		bind.btnNetwork.setOnClickListener {
 			lifecycleScope.launchWhenStarted {
 				cloud = !cloud
+				adapter?.close()
 				if (cloud) {
 					adapter = createNetworkAdapter()
 					bind.imgNetwork.setImageResource(R.drawable.ic_baseline_cloud_off_24)
 					bind.btnAdd.visibility = View.GONE
 					bind.recycler.adapter = null
-					delay(300)
+					delay(50)
 					networkBookViewModel.like.value = bookViewModel.like.value
 					bind.txtBookEmpty.visibility = if (networkBookViewModel.size.value == 0L) View.VISIBLE else View.GONE
 					bind.recycler.adapter = adapter
@@ -127,7 +128,7 @@ class ChoicePhraseFragment() : DaggerFragment() {
 					bind.imgNetwork.setImageResource(R.drawable.ic_baseline_cloud_24)
 					bind.btnAdd.visibility = View.VISIBLE
 					bind.recycler.adapter = null
-					delay(300)
+					delay(50)
 					bookViewModel.like.value = networkBookViewModel.like.value
 					bind.txtBookEmpty.visibility = if (bookViewModel.size.value == 0) View.VISIBLE else View.GONE
 					bind.recycler.adapter = adapter
@@ -189,6 +190,7 @@ class ChoicePhraseFragment() : DaggerFragment() {
 	))
 
 	private fun openEditFragment(bundle: Bundle? = null) {
+		imm?.hideSoftInputFromWindow(view?.windowToken, 0)
 		requireActivity().findNavController(R.id.nav_host_fragment).navigate(
 			R.id.addPhraseFragment,
 			bundle,

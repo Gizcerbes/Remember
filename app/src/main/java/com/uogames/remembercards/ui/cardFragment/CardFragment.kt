@@ -89,12 +89,13 @@ class CardFragment : DaggerFragment() {
 		bind.btnNetwork.setOnClickListener {
 			lifecycleScope.launchWhenStarted {
 				cloud = !cloud
+				adapter?.close()
 				if (cloud) {
 					adapter = NetworkCardAdapter(networkCardViewModel, player)
 					bind.imgNetwork.setImageResource(R.drawable.ic_baseline_cloud_off_24)
 					bind.btnAdd.visibility = View.GONE
 					bind.recycler.adapter = null
-					delay(300)
+					delay(50)
 					networkCardViewModel.like.value = cardViewModel.like.value
 					bind.txtBookEmpty.visibility = if (networkCardViewModel.size.value == 0L) View.VISIBLE else View.GONE
 					bind.recycler.adapter = adapter
@@ -103,7 +104,7 @@ class CardFragment : DaggerFragment() {
 					bind.imgNetwork.setImageResource(R.drawable.ic_baseline_cloud_24)
 					bind.btnAdd.visibility = View.VISIBLE
 					bind.recycler.adapter = null
-					delay(300)
+					delay(50)
 					cardViewModel.like.value = networkCardViewModel.like.value
 					bind.txtBookEmpty.visibility = if (cardViewModel.size.value == 0) View.VISIBLE else View.GONE
 					bind.recycler.adapter = adapter
@@ -113,6 +114,7 @@ class CardFragment : DaggerFragment() {
 	}
 
 	private fun navigateToEdit(bundle: Bundle? = null) {
+		imm?.hideSoftInputFromWindow(view?.windowToken, 0)
 		requireActivity().findNavController(R.id.nav_host_fragment).navigate(
 			R.id.editCardFragment,
 			bundle,

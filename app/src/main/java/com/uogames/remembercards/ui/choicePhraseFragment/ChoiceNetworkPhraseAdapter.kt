@@ -50,11 +50,13 @@ class ChoiceNetworkPhraseAdapter(
 				}
 
 				val endAction: (String) -> Unit = {
-					bind.progressLoading.visibility = View.GONE
-					bind.btnStop.visibility = View.GONE
-					bind.btnDownload.visibility = View.VISIBLE
-					recyclerScope.launch {
-						model.getByGlobalId(phraseView.phrase.globalId)?.let { phrase -> selectedCall(phrase) }
+					if (phraseViewObserver?.isActive == true) {
+						bind.progressLoading.visibility = View.GONE
+						bind.btnStop.visibility = View.GONE
+						bind.btnDownload.visibility = View.VISIBLE
+						recyclerScope.launch {
+							model.getByGlobalId(phraseView.phrase.globalId)?.let { phrase -> selectedCall(phrase) }
+						}
 					}
 				}
 
@@ -62,7 +64,7 @@ class ChoiceNetworkPhraseAdapter(
 
 				bind.btnDownload.setOnClickListener {
 					startAction()
-					model.download(phrase.globalId, endAction)
+					model.save(phraseView, endAction)
 				}
 				bind.btnStop.setOnClickListener {
 					model.stopDownloading(phrase.globalId)

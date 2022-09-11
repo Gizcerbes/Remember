@@ -256,6 +256,7 @@ class EditCardFragment : DaggerFragment() {
         firstPhraseObserver?.cancel()
         secondPhraseObserver?.cancel()
         reasonObserver?.cancel()
+        imm?.hideSoftInputFromWindow(view?.windowToken, 0)
         bind.tilEditReason.editText?.removeTextChangedListener(reasonTextWatcher)
         _bind = null
     }

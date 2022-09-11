@@ -34,17 +34,17 @@ object PhraseMap {
 		globalOwner = phrase.globalOwner
 	)
 
-	fun Phrase.update(phrase: com.uogames.dto.global.Phrase, idPronounce: Int?, idImage: Int?) = Phrase(
+	fun Phrase.update(phrase: com.uogames.dto.global.Phrase?, idPronounce: Int?, idImage: Int?) = Phrase(
 		id = id,
-		phrase = phrase.phrase,
-		definition = phrase.definition,
-		lang = phrase.lang,
+		phrase = phrase?.phrase ?: this.phrase,
+		definition = phrase?.definition ?: this.definition,
+		lang = phrase?.lang ?: this.lang,
 		idPronounce = idPronounce,
 		idImage = idImage,
-		timeChange = phrase.timeChange,
-		like = phrase.like,
-		dislike = phrase.dislike,
-		globalId = phrase.globalId,
-		globalOwner = phrase.globalOwner
+		timeChange = phrase?.timeChange ?: this.timeChange,
+		like = phrase?.like ?: this.like,
+		dislike = phrase?.dislike ?: this.dislike,
+		globalId = phrase?.globalId ?: this.globalId,
+		globalOwner = phrase?.globalOwner ?: this.globalOwner
 	)
 }

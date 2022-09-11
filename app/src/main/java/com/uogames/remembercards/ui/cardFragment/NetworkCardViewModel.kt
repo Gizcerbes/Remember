@@ -1,13 +1,14 @@
 package com.uogames.remembercards.ui.cardFragment
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.uogames.dto.global.Card
 import com.uogames.dto.global.Image
 import com.uogames.dto.global.Phrase
 import com.uogames.dto.global.Pronunciation
+import com.uogames.map.CardMap.update
+import com.uogames.map.PhraseMap.update
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.ifNullOrEmpty
 import com.uogames.remembercards.utils.observeWhile
@@ -73,12 +74,12 @@ class NetworkCardViewModel @Inject constructor(private val provider: DataProvide
 	}
 
 	private suspend fun getImageById(id: UUID): Image? {
-		runCatching { return provider.images.getByGlobalId(id) }
+		runCatching { return provider.images.getGlobalById(id) }
 		return null
 	}
 
 	private suspend fun getPronunciationById(id: UUID): Pronunciation? {
-		runCatching { return provider.pronounce.getByGlobalId(id) }
+		runCatching { return provider.pronounce.getGlobalById(id) }
 		return null
 	}
 
@@ -116,6 +117,63 @@ class NetworkCardViewModel @Inject constructor(private val provider: DataProvide
 		action.job.cancel()
 		action.callback("Cancel")
 		downloadAction.remove(id)
+	}
+
+	fun save(cardModel: CardModel, loading: (String) -> Unit) {
+		val job = viewModelScope.launch(Dispatchers.IO) {
+			runCatching {
+				val phraseImage = cardModel.phraseImage.await()?.globalId?.let {
+					provider.images.getByGlobalId(it).ifNull { provider.images.download(it) }
+				}
+				val phrasePronounce = cardModel.phrasePronounce.await()?.globalId?.let {
+					provider.pronounce.getByGlobalId(it).ifNull { provider.pronounce.download(it) }
+				}
+				val phrase = cardModel.phrase.await()?.globalId?.let { provider.phrase.getByGlobalId(it) }
+				phrase?.let {
+					provider.phrase.update(it.update(cardModel.phrase.await(), phrasePronounce?.id, phraseImage?.id))
+				}.ifNull {
+					provider.phrase.add(com.uogames.dto.local.Phrase().update(cardModel.phrase.await(), phrasePronounce?.id, phraseImage?.id))
+				}
+				val translateImage = cardModel.translateImage.await()?.globalId?.let {
+					provider.images.getByGlobalId(it).ifNull { provider.images.download(it) }
+				}
+				val translatePronounce = cardModel.phrasePronounce.await()?.globalId?.let {
+					provider.pronounce.getByGlobalId(it).ifNull { provider.pronounce.download(it) }
+				}
+				val translate = cardModel.translate.await()?.globalId?.let { provider.phrase.getByGlobalId(it) }
+				translate?.let {
+					provider.phrase.update(it.update(cardModel.translate.await(), translatePronounce?.id, translateImage?.id))
+				}.ifNull {
+					provider.phrase.add(
+						com.uogames.dto.local.Phrase().update(cardModel.translate.await(), translatePronounce?.id, translateImage?.id)
+					)
+				}
+
+				val phraseID = cardModel.phrase.await()?.globalId?.let { provider.phrase.getByGlobalId(it) }?.id.ifNull { throw Exception("Error") }
+				val translateID =
+					cardModel.translate.await()?.globalId?.let { provider.phrase.getByGlobalId(it) }?.id.ifNull { throw Exception("Error") }
+				val cardImage = cardModel.image.await()?.globalId?.let {
+					provider.images.getByGlobalId(it).ifNull { provider.images.download(it) }
+				}
+
+				provider.cards.getByGlobalId(cardModel.card.globalId)?.let {
+					provider.cards.update(it.update(cardModel.card, phraseID, translateID, cardImage?.id))
+				}.ifNull {
+					provider.cards.add(com.uogames.dto.local.Card().update(cardModel.card, phraseID, translateID, cardImage?.id))
+				}
+			}.onSuccess {
+				launch(Dispatchers.Main) {
+					downloadAction[cardModel.card.globalId]?.callback?.let { back -> back("Ok") }
+					downloadAction.remove(cardModel.card.globalId)
+				}
+			}.onFailure {
+				launch(Dispatchers.Main) {
+					downloadAction[cardModel.card.globalId]?.callback?.let { back -> back(it.message ?: "Error") }
+					downloadAction.remove(cardModel.card.globalId)
+				}
+			}
+		}
+		downloadAction[cardModel.card.globalId] = DownloadAction(job, loading)
 	}
 
 

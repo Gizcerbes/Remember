@@ -330,6 +330,7 @@ class EditPhraseFragment : DaggerFragment() {
         timeWriteObserver?.cancel()
         imageObserver?.cancel()
         adapter?.onDestroy()
+        imm?.hideSoftInputFromWindow(view?.windowToken, 0)
         adapter = null
         _bind = null
     }

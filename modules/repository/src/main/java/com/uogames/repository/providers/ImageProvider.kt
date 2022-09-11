@@ -56,7 +56,9 @@ class ImageProvider(
 
 	fun getByCard(card: Card) = database.getByCardFlow(card)
 
-	suspend fun getByGlobalId(id: UUID) = network.image.get(id)
+	suspend fun getByGlobalId(id: UUID) = database.getByGlobalId(id)
+
+	suspend fun getGlobalById(id: UUID) = network.image.get(id)
 
 
 	suspend fun clear() {

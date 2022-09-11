@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.uogames.dto.global.Image
 import com.uogames.dto.global.Phrase
+import com.uogames.map.PhraseMap.update
 import com.uogames.remembercards.utils.Lang
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.ifNullOrEmpty
@@ -54,7 +55,7 @@ class NetworkBookViewModel @Inject constructor(
 		}
 	}
 
-	suspend fun getByGlobalId(uuid: UUID) = viewModelScope.async(Dispatchers.IO) { provider.phrase.getByGlobalId(uuid)}.await()
+	suspend fun getByGlobalId(uuid: UUID) = viewModelScope.async(Dispatchers.IO) { provider.phrase.getByGlobalId(uuid) }.await()
 
 	suspend fun getByPosition(position: Long): PhraseModel? {
 		runCatching { return PhraseModel(provider.phrase.getGlobal(like.value, position)) }
@@ -62,7 +63,7 @@ class NetworkBookViewModel @Inject constructor(
 	}
 
 	private suspend fun getImageById(id: UUID): Image? {
-		runCatching { return provider.images.getByGlobalId(id) }
+		runCatching { return provider.images.getGlobalById(id) }
 		return null
 	}
 
@@ -100,6 +101,35 @@ class NetworkBookViewModel @Inject constructor(
 		action.job.cancel()
 		action.callback("Cancel")
 		downloadAction.remove(id)
+	}
+
+	fun save(phraseModel: PhraseModel, loading: (String) -> Unit) {
+		val job = viewModelScope.launch(Dispatchers.IO) {
+			runCatching {
+				val image = phraseModel.phrase.idImage?.let {
+					provider.images.getByGlobalId(it).ifNull { provider.images.download(it) }
+				}
+				val pronounce = phraseModel.phrase.idPronounce?.let {
+					provider.pronounce.getByGlobalId(it).ifNull { provider.pronounce.download(it) }
+				}
+				provider.phrase.getByGlobalId(phraseModel.phrase.globalId)?.let {
+					provider.phrase.update(it.update(phraseModel.phrase, pronounce?.id, image?.id))
+				}.ifNull {
+					provider.phrase.add(com.uogames.dto.local.Phrase().update(phraseModel.phrase, pronounce?.id, image?.id))
+				}
+			}.onSuccess {
+				launch(Dispatchers.Main) {
+					downloadAction[phraseModel.phrase.globalId]?.callback?.let { back -> back("Ok") }
+					downloadAction.remove(phraseModel.phrase.globalId)
+				}
+			}.onFailure {
+				launch(Dispatchers.Main) {
+					downloadAction[phraseModel.phrase.globalId]?.callback?.let { back -> back(it.message ?: "Error") }
+					downloadAction.remove(phraseModel.phrase.globalId)
+				}
+			}
+		}
+		downloadAction[phraseModel.phrase.globalId] = DownloadAction(job, loading)
 	}
 
 	fun getPicasso(context: Context) = provider.images.getPicasso(context)
