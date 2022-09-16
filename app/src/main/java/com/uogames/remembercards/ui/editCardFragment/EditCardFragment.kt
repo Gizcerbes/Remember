@@ -229,10 +229,7 @@ class EditCardFragment : DaggerFragment() {
     }
 
     private fun showLang(phrase: Phrase): String {
-        return safely {
-            val data = phrase.lang.split("-")
-            Locale(data[0]).displayLanguage
-        }.orEmpty()
+        return Lang.parse(phrase.lang).locale.displayLanguage
     }
 
     private fun openChoicePhraseFragment(bundle: Bundle) {

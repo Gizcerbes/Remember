@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+	<androidx.constraintlayout.widget.ConstraintLayout
+		android:id="@+id/top_bar"
+		style="@style/Theme.RememberCards.AppBar"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		app:layout_constraintBaseline_toTopOf="parent">
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="13dp"
+			android:text="@string/setting"
+			android:textAppearance="?attr/textAppearanceHeadline6"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent" />
+
+		<com.google.android.material.divider.MaterialDivider
+			android:id="@+id/bottom_divider"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:layout_constraintBottom_toBottomOf="parent" />
+
+		<LinearLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toTopOf="parent">
+
+			<com.google.android.material.card.MaterialCardView
+				android:id="@+id/btn_back"
+				style="@style/Theme.RememberCards.CardView.Button.Negative"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginStart="0dp"
+				android:visibility="visible">
+
+				<ImageView
+					android:layout_width="@dimen/card_button"
+					android:layout_height="@dimen/card_button"
+					android:src="@drawable/ic_baseline_close_24" />
+			</com.google.android.material.card.MaterialCardView>
+
+		</LinearLayout>
+
+
+	</androidx.constraintlayout.widget.ConstraintLayout>
+
+	<ScrollView
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:padding="13dp"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintTop_toBottomOf="@id/top_bar">
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical">
+
+			<com.google.android.material.card.MaterialCardView
+				android:id="@+id/btn_change_name"
+				style="@style/Theme.RememberCards.CardView.Button"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_margin="5dp">
+
+				<androidx.constraintlayout.widget.ConstraintLayout
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:minHeight="31dp"
+					android:visibility="visible">
+
+					<TextView
+						android:id="@+id/label_user_name"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_marginStart="5dp"
+						android:text="@string/user_name_label"
+						app:layout_constraintBottom_toBottomOf="parent"
+						app:layout_constraintStart_toStartOf="parent"
+						app:layout_constraintTop_toTopOf="parent" />
+
+					<TextView
+						android:id="@+id/txt_user_name"
+						android:layout_width="0dp"
+						android:layout_height="wrap_content"
+						android:layout_marginStart="5dp"
+						tools:text="@string/user_name"
+						app:layout_constraintBottom_toBottomOf="parent"
+						app:layout_constraintEnd_toEndOf="parent"
+						app:layout_constraintStart_toEndOf="@id/label_user_name"
+						app:layout_constraintTop_toTopOf="parent" />
+
+				</androidx.constraintlayout.widget.ConstraintLayout>
+
+			</com.google.android.material.card.MaterialCardView>
+
+
+			<com.google.android.material.card.MaterialCardView
+				android:id="@+id/btn_choice_language"
+				style="@style/Theme.RememberCards.CardView.Button"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_margin="5dp">
+
+
+				<RelativeLayout
+					android:id="@+id/rl_language_not_empty"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:visibility="visible">
+
+					<com.google.android.material.card.MaterialCardView
+						android:id="@+id/mcv_flag"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_margin="7dp"
+						app:strokeColor="?attr/colorControlNormal"
+						app:strokeWidth="1dp">
+
+						<ImageView
+							android:id="@+id/img_flag"
+							android:layout_width="80dp"
+							android:layout_height="wrap_content"
+							android:adjustViewBounds="true"
+							tools:src="@drawable/ic_flag_um" />
+
+					</com.google.android.material.card.MaterialCardView>
+
+					<LinearLayout
+						android:id="@+id/ll_languages"
+						android:layout_width="0dp"
+						android:layout_height="wrap_content"
+						android:layout_alignParentEnd="true"
+						android:layout_marginStart="7dp"
+						android:layout_toEndOf="@id/mcv_flag"
+						android:orientation="vertical">
+
+					</LinearLayout>
+
+				</RelativeLayout>
+
+			</com.google.android.material.card.MaterialCardView>
+
+			<com.google.android.material.card.MaterialCardView
+				android:id="@+id/btn_sign_in"
+				style="@style/Theme.RememberCards.CardView.Button"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_margin="5dp">
+
+				<androidx.constraintlayout.widget.ConstraintLayout
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:minHeight="31dp"
+					android:visibility="visible">
+
+					<TextView
+						android:id="@+id/label_log_in"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/log_in"
+						android:layout_marginStart="5dp"
+						app:layout_constraintBottom_toBottomOf="parent"
+						app:layout_constraintStart_toStartOf="parent"
+						app:layout_constraintTop_toTopOf="parent" />
+
+					<TextView
+						android:id="@+id/txt_log_in"
+						android:layout_width="0dp"
+						android:layout_height="wrap_content"
+						tools:text="Disconnected"
+						android:textColor="@color/red"
+						android:layout_marginStart="5dp"
+						app:layout_constraintBottom_toBottomOf="parent"
+						app:layout_constraintStart_toEndOf="@id/label_log_in"
+						app:layout_constraintEnd_toEndOf="parent"
+						app:layout_constraintTop_toTopOf="parent" />
+
+				</androidx.constraintlayout.widget.ConstraintLayout>
+
+			</com.google.android.material.card.MaterialCardView>
+
+			<com.google.android.material.card.MaterialCardView
+				android:id="@+id/btn_clean"
+				style="@style/Theme.RememberCards.CardView.Button"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:visibility="gone"
+				android:layout_margin="5dp">
+
+				<androidx.constraintlayout.widget.ConstraintLayout
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:minHeight="31dp"
+					android:visibility="visible">
+
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/clean"
+						android:layout_marginStart="5dp"
+						app:layout_constraintBottom_toBottomOf="parent"
+						app:layout_constraintStart_toStartOf="parent"
+						app:layout_constraintTop_toTopOf="parent" />
+
+				</androidx.constraintlayout.widget.ConstraintLayout>
+
+			</com.google.android.material.card.MaterialCardView>
+
+		</LinearLayout>
+
+
+	</ScrollView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

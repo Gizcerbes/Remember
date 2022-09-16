@@ -1,6 +1,5 @@
 package com.uogames.remembercards.ui.cardFragment
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,7 +22,6 @@ import com.uogames.remembercards.utils.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
 
 class CardAdapter(
 	private val model: CardViewModel,
@@ -32,20 +30,14 @@ class CardAdapter(
 ) : ClosableAdapter<CardAdapter.CardHolder>() {
 
 	private val recyclerScope = CoroutineScope(Dispatchers.Main)
-	var size = 0
-		private set
+	private var size = 0
 	private val auth = Firebase.auth
 
 	init {
-//		model.size.observeWhile(recyclerScope) {
-//			notifyDataSetChanged()
-//		}
-		recyclerScope.launch {
-			model.size.stateIn(this).onEach {
-				size = it
-				notifyDataSetChanged()
-			}.launchIn(this)
-		}
+		model.size.onEach {
+			size = it
+			notifyDataSetChanged()
+		}.launchIn(recyclerScope)
 	}
 
 	inner class CardHolder(val bind: CardCardBinding) : RecyclerView.ViewHolder(bind.root) {
@@ -122,6 +114,7 @@ class CardAdapter(
 				bind.txtDefinitionSecond.visibility = if (full && bind.txtDefinitionSecond.text.isNotEmpty()) View.VISIBLE else View.GONE
 				val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
 				bind.imgBtnAction.setImageResource(img)
+				if (adapterPosition == size - 1 && !full) notifyItemChanged(adapterPosition)
 			}
 		}
 
@@ -173,7 +166,10 @@ class CardAdapter(
 				button.setOnClickListener {
 					player.play(itemView.context, pronounce.audioUri.toUri(), soundImg.background.asAnimationDrawable())
 				}
-			}.ifNull { soundImg.visibility = View.GONE }
+			}.ifNull {
+				soundImg.visibility = View.GONE
+				button.setOnClickListener(null)
+			}
 		}
 
 		fun onDestroy() {

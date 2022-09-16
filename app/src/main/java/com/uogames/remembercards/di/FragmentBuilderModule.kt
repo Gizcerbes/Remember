@@ -16,6 +16,7 @@ import com.uogames.remembercards.ui.mainNav.MainNaviFragment
 import com.uogames.remembercards.ui.personFragment.PersonFragment
 import com.uogames.remembercards.ui.registerFragment.RegisterFragment
 import com.uogames.remembercards.ui.rootFragment.RootFragment
+import com.uogames.remembercards.ui.settingFragment.SettingFragment
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
@@ -39,6 +40,9 @@ abstract class FragmentBuilderModule {
 
     @ContributesAndroidInjector
     abstract fun contributePersonFragment(): PersonFragment
+
+    @ContributesAndroidInjector
+    abstract fun contributeSettingFragment(): SettingFragment
 
     @ContributesAndroidInjector
     abstract fun contributeAddCardDialog(): EditPhraseFragment

@@ -7,7 +7,6 @@ import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.gson.*
@@ -24,6 +23,7 @@ class HttpClient(
 ) {
 
 	private val ssl = getSsl(keystoreInput, keystorePassword)
+	private var picasso: Picasso? = null
 
 	private val okHttpClient = OkHttpClient.Builder().apply {
 		connectTimeout(10, TimeUnit.SECONDS)
@@ -75,7 +75,15 @@ class HttpClient(
 	}
 
 	fun getPicasso(context: Context): Picasso {
-		return Picasso.Builder(context).downloader(OkHttp3Downloader(okHttpClient)).build()
+		if (picasso == null) synchronized(this) {
+			if (picasso == null){
+				picasso = Picasso
+					.Builder(context)
+					.downloader(OkHttp3Downloader(okHttpClient))
+					.build()
+			}
+		}
+		return picasso as Picasso
 	}
 
 	suspend fun get(url: URLBuilder, builder: HttpRequestBuilder.() -> Unit = {}) = client.get(urlBuilder(url), builder)

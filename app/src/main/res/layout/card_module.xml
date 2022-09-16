@@ -27,6 +27,7 @@
 				android:layout_width="@dimen/card_button"
 				android:layout_height="@dimen/card_button"
 				android:src="@drawable/ic_baseline_keyboard_arrow_up_24" />
+
 		</com.google.android.material.card.MaterialCardView>
 
 
@@ -37,7 +38,7 @@
 			android:layout_marginStart="7dp"
 			android:layout_marginTop="7dp"
 			android:textAppearance="?attr/textAppearanceHeadline6"
-			app:layout_constraintEnd_toStartOf="@id/txt_likes"
+			app:layout_constraintEnd_toStartOf="@id/btn_action"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
 			tools:text="How I met your mother" />
@@ -74,6 +75,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:textAppearance="?attr/textAppearanceBody1"
+			android:visibility="gone"
 			app:layout_constraintBottom_toBottomOf="@id/img_thumb"
 			app:layout_constraintEnd_toStartOf="@id/img_thumb"
 			tools:text="40%" />
@@ -85,6 +87,7 @@
 			android:layout_marginEnd="7dp"
 			android:layout_marginBottom="7dp"
 			android:src="@drawable/ic_baseline_thumb_up_alt_24"
+			android:visibility="gone"
 			app:layout_constraintBottom_toTopOf="@id/ll_bar"
 			app:layout_constraintEnd_toEndOf="parent" />
 
@@ -148,6 +151,7 @@
 							android:layout_width="@dimen/card_button"
 							android:layout_height="@dimen/card_button"
 							android:src="@drawable/ic_baseline_stop_circle_24" />
+
 					</com.google.android.material.card.MaterialCardView>
 
 					<com.google.android.material.card.MaterialCardView
@@ -165,6 +169,7 @@
 							android:layout_width="@dimen/card_button"
 							android:layout_height="@dimen/card_button"
 							android:src="@drawable/ic_baseline_cloud_download_24" />
+
 					</com.google.android.material.card.MaterialCardView>
 
 					<com.google.android.material.card.MaterialCardView
@@ -182,6 +187,7 @@
 							android:layout_width="@dimen/card_button"
 							android:layout_height="@dimen/card_button"
 							android:src="@drawable/ic_baseline_cloud_upload_24" />
+
 					</com.google.android.material.card.MaterialCardView>
 
 					<com.google.android.material.card.MaterialCardView
@@ -199,11 +205,13 @@
 							android:layout_width="@dimen/card_button"
 							android:layout_height="@dimen/card_button"
 							android:src="@drawable/ic_baseline_change_24" />
+
 					</com.google.android.material.card.MaterialCardView>
 
 				</LinearLayout>
 
 			</androidx.constraintlayout.widget.ConstraintLayout>
+
 		</LinearLayout>
 
 	</androidx.constraintlayout.widget.ConstraintLayout>

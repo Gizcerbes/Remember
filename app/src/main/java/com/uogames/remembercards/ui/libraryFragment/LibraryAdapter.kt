@@ -22,10 +22,12 @@ class LibraryAdapter(
 ) : ClosableAdapter<LibraryAdapter.ModuleHolder>() {
 
 	private val recyclerScope = CoroutineScope(Dispatchers.Main)
+	private var size = 0
 	private val auth = Firebase.auth
 
 	init {
 		model.size.observeWhile(recyclerScope) {
+			size = it
 			notifyDataSetChanged()
 		}
 	}
@@ -55,13 +57,6 @@ class LibraryAdapter(
 					bind.txtOwner.text = module.owner
 					bind.btnEdit.setOnClickListener { selectID(module) }
 
-					bind.btnAction.setOnClickListener {
-						full = !full
-						bind.llBar.visibility = if (full) View.VISIBLE else View.GONE
-						val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
-						bind.imgAction.setImageResource(img)
-					}
-
 					val startAction: () -> Unit = {
 						bind.progressLoading.visibility = View.VISIBLE
 						bind.btnStop.visibility = View.VISIBLE
@@ -89,6 +84,13 @@ class LibraryAdapter(
 					}
 				}
 			}
+			bind.btnAction.setOnClickListener {
+				full = !full
+				bind.llBar.visibility = if (full) View.VISIBLE else View.GONE
+				val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
+				bind.imgAction.setImageResource(img)
+				if (adapterPosition == size - 1 && !full) notifyItemChanged(adapterPosition)
+			}
 		}
 
 		private fun clear() {
@@ -115,9 +117,7 @@ class LibraryAdapter(
 		holder.onShow()
 	}
 
-	override fun getItemCount(): Int {
-		return model.size.value
-	}
+	override fun getItemCount() = size
 
 	override fun onViewRecycled(holder: ModuleHolder) {
 		super.onViewRecycled(holder)

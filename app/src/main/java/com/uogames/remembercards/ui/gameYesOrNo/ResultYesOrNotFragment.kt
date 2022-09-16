@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import com.uogames.remembercards.GlobalViewModel
@@ -48,7 +49,7 @@ class ResultYesOrNotFragment : DaggerFragment() {
         bind.btnRepeat.setOnClickListener {
             requireActivity().findNavController(R.id.nav_host_fragment).navigate(
                 R.id.gameYesOrNotFragment,
-                null,
+                bundleOf(GameYesOrNotFragment.MODULE_ID to model.module.value),
                 NavOptions.Builder().setPopUpTo(R.id.mainNaviFragment, false).build()
             )
         }

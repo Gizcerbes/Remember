@@ -64,13 +64,19 @@
 	<string name="we_need_a_little_information_about_you">We need a little information about you.</string>
 	<string name="how_are_we_should_call_you">How are we should call you?</string>
 	<string name="user_name">User Name</string>
+	<string name="user_name_label">User Name:</string>
 	<string name="what_are_you_from">What are you from?</string>
 	<string name="click_here">Click here</string>
 	<string name="end">end</string>
 	<string name="load">LOAD</string>
 	<string name="disconnected">Disconnected</string>
+	<string name="connected">Connected</string>
 	<string name="selected_module">Selected Module</string>
 	<string name="all_cards">All Cards</string>
 	<string name="recommend">Recommend</string>
 	<string name="see_all">See All</string>
+	<string name="setting">Setting</string>
+	<string name="log_in">Log in:</string>
+	<string name="log_out">Log out:</string>
+	<string name="clean">Clean</string>
 </resources>

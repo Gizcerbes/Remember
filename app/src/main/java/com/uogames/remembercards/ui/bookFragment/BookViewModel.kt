@@ -1,6 +1,7 @@
 package com.uogames.remembercards.ui.bookFragment
 
 import android.os.Parcelable
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.uogames.dto.local.Phrase
@@ -16,9 +17,11 @@ class BookViewModel @Inject constructor(
 	private val provider: DataProvider
 ) : ViewModel() {
 
+	private val viewModelScope = CoroutineScope(Dispatchers.IO)
+
 	inner class BookModel(val phrase: Phrase) {
-		val pronounce by lazy { viewModelScope.async(Dispatchers.IO) { phrase.idPronounce?.let { provider.pronounce.getById(it) } } }
-		val image by lazy { viewModelScope.async(Dispatchers.IO) { phrase.idImage?.let { provider.images.getById(it) } } }
+		val pronounce by lazy { viewModelScope.async { phrase.idPronounce?.let { provider.pronounce.getById(it) } } }
+		val image by lazy { viewModelScope.async { phrase.idImage?.let { provider.images.getById(it) } } }
 		val lang: String by lazy { Lang.parse(phrase.lang).locale.displayLanguage }
 	}
 
@@ -40,7 +43,7 @@ class BookViewModel @Inject constructor(
 	suspend fun getBookModel(position: Int) = provider.phrase.get(like.value, position)?.let { BookModel(it) }
 
 	fun share(phrase: Phrase, loading: (String) -> Unit) {
-		val job = viewModelScope.launch(Dispatchers.IO) {
+		val job = viewModelScope.launch {
 			runCatching {
 				provider.phrase.share(phrase.id)
 			}.onSuccess {
@@ -68,6 +71,11 @@ class BookViewModel @Inject constructor(
 		action.job.cancel()
 		action.callback("Cancel")
 		shareActions.remove(phrase.id)
+	}
+
+	override fun onCleared() {
+		super.onCleared()
+		viewModelScope.cancel()
 	}
 
 }

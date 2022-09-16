@@ -24,9 +24,11 @@ class ChoiceNetworkCardAdapter(
 ) : ClosableAdapter<ChoiceNetworkCardAdapter.CardHolder>() {
 
 	private val recyclerScope = CoroutineScope(Dispatchers.Main)
+	private var size = 0
 
 	init {
 		model.size.observeWhile(recyclerScope) {
+			size = it.toInt()
 			notifyDataSetChanged()
 		}
 	}
@@ -100,6 +102,7 @@ class ChoiceNetworkCardAdapter(
 				bind.txtDefinitionSecond.visibility = if (full && bind.txtDefinitionSecond.text.isNotEmpty()) View.VISIBLE else View.GONE
 				val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
 				bind.imgBtnAction.setImageResource(img)
+				if (adapterPosition == size - 1 && !full) notifyItemChanged(adapterPosition)
 			}
 		}
 
@@ -176,9 +179,7 @@ class ChoiceNetworkCardAdapter(
 		holder.onShow()
 	}
 
-	override fun getItemCount(): Int {
-		return model.size.value.toInt()
-	}
+	override fun getItemCount() = size
 
 	override fun onViewRecycled(holder: CardHolder) {
 		super.onViewRecycled(holder)

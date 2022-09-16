@@ -103,11 +103,11 @@ class BookFragment : DaggerFragment() {
 			lifecycleScope.launchWhenStarted {
 				cloud = !cloud
 				adapter?.close()
+				bind.recycler.adapter = null
 				if (cloud) {
 					adapter = createNetworkBookAdapter()
 					bind.imgNetwork.setImageResource(R.drawable.ic_baseline_cloud_off_24)
 					bind.btnAdd.visibility = View.GONE
-					bind.recycler.adapter = null
 					delay(50)
 					networkBookViewModel.like.value = bookViewModel.like.value
 					bind.txtBookEmpty.visibility = if (networkBookViewModel.size.value == 0L) View.VISIBLE else View.GONE
@@ -116,7 +116,6 @@ class BookFragment : DaggerFragment() {
 					adapter = createBookAdapter()
 					bind.imgNetwork.setImageResource(R.drawable.ic_baseline_cloud_24)
 					bind.btnAdd.visibility = View.VISIBLE
-					bind.recycler.adapter = null
 					delay(50)
 					bookViewModel.like.value = networkBookViewModel.like.value
 					bind.txtBookEmpty.visibility = if (bookViewModel.size.value == 0) View.VISIBLE else View.GONE

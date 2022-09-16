@@ -22,9 +22,11 @@ class NetworkBookViewModel @Inject constructor(
 	private val provider: DataProvider
 ) : ViewModel() {
 
+	private val viewModelScope = CoroutineScope(Dispatchers.IO)
+
 	inner class PhraseModel(val phrase: Phrase) {
-		val image by lazy { viewModelScope.async(Dispatchers.IO) { phrase.idImage?.let { getImageById(it) } } }
-		val pronounceData by lazy { viewModelScope.async(Dispatchers.IO) { phrase.idPronounce?.let { getPronounceData(it) } } }
+		val image by lazy { viewModelScope.async { phrase.idImage?.let { getImageById(it) } } }
+		val pronounceData by lazy { viewModelScope.async { phrase.idPronounce?.let { getPronounceData(it) } } }
 		val lang by lazy { Lang.parse(phrase.lang).locale.displayLanguage }
 	}
 
@@ -40,11 +42,10 @@ class NetworkBookViewModel @Inject constructor(
 	private var searchJob: Job? = null
 
 	init {
-		like.observeWhile(viewModelScope, Dispatchers.IO) {
+		like.observeWhile(viewModelScope) {
 			searchJob?.cancel()
-			searchJob = viewModelScope.launch(Dispatchers.IO) {
+			searchJob = viewModelScope.launch {
 				_size.value = 0
-				it.ifNullOrEmpty { return@launch }
 				delay(300)
 				runCatching {
 					_size.value = provider.phrase.countGlobal(it)
@@ -55,7 +56,7 @@ class NetworkBookViewModel @Inject constructor(
 		}
 	}
 
-	suspend fun getByGlobalId(uuid: UUID) = viewModelScope.async(Dispatchers.IO) { provider.phrase.getByGlobalId(uuid) }.await()
+	suspend fun getByGlobalId(uuid: UUID) = viewModelScope.async { provider.phrase.getByGlobalId(uuid) }.await()
 
 	suspend fun getByPosition(position: Long): PhraseModel? {
 		runCatching { return PhraseModel(provider.phrase.getGlobal(like.value, position)) }
@@ -72,25 +73,6 @@ class NetworkBookViewModel @Inject constructor(
 		return null
 	}
 
-	fun download(id: UUID, loading: (String) -> Unit) {
-		val job = viewModelScope.launch(Dispatchers.IO) {
-			runCatching {
-				provider.phrase.download(id)
-			}.onSuccess {
-				launch(Dispatchers.Main) {
-					downloadAction[id]?.callback?.let { back -> back("Ok") }
-					downloadAction.remove(id)
-				}
-			}.onFailure {
-				launch(Dispatchers.Main) {
-					downloadAction[id]?.callback?.let { back -> back(it.message ?: "Error") }
-					downloadAction.remove(id)
-				}
-			}
-		}
-		downloadAction[id] = DownloadAction(job, loading)
-	}
-
 	fun setDownloadAction(id: UUID, loading: (String) -> Unit): Boolean {
 		downloadAction[id]?.callback = loading
 		return downloadAction[id]?.job?.isActive.ifNull { false }
@@ -104,7 +86,7 @@ class NetworkBookViewModel @Inject constructor(
 	}
 
 	fun save(phraseModel: PhraseModel, loading: (String) -> Unit) {
-		val job = viewModelScope.launch(Dispatchers.IO) {
+		val job = viewModelScope.launch{
 			runCatching {
 				val image = phraseModel.phrase.idImage?.let {
 					provider.images.getByGlobalId(it).ifNull { provider.images.download(it) }

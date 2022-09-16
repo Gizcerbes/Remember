@@ -1,15 +1,18 @@
 package com.uogames.remembercards.ui.gamesFragment
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.uogames.dto.local.Module
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.repository.DataProvider
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 
 class GamesViewModel constructor(val provider: DataProvider) : ViewModel() {
+
+    private val viewModelScope = CoroutineScope(Dispatchers.IO)
 
     val selectedModule: MutableStateFlow<Module?> = MutableStateFlow(null)
 
@@ -23,5 +26,5 @@ class GamesViewModel constructor(val provider: DataProvider) : ViewModel() {
             cardOwner.value = provider.setting.getFlow(GlobalViewModel.USER_NAME).first().orEmpty()
             provider.cards.getCountFlow()
         }
-    }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
 }

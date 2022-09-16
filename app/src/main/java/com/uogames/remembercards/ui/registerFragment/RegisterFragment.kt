@@ -1,5 +1,6 @@
 package com.uogames.remembercards.ui.registerFragment
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -74,6 +75,7 @@ class RegisterFragment : DaggerFragment() {
         }
     }
 
+    @SuppressLint("ResourceType")
     private fun createCountryObserver() = registerViewModel.country.observeWhenStarted(lifecycleScope) {
         it?.let {
             bind.clLanguageEmpty.visibility = View.GONE

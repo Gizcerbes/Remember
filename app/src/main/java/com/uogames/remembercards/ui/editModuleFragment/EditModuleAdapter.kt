@@ -85,7 +85,7 @@ class EditModuleAdapter(
             button: MaterialCardView,
             phraseImage: ImageView
         ) {
-            langView.text = showLang(phrase)
+            langView.text = Lang.parse(phrase.lang).locale.displayLanguage
             phraseView.text = phrase.phrase
             phrase.toImage()?.let {
                 Picasso.get().load(it.imgUri.toUri()).placeholder(R.drawable.noise).into(phraseImage)
@@ -103,11 +103,6 @@ class EditModuleAdapter(
                 soundImg.visibility = View.GONE
             }
         }
-
-        private fun showLang(phrase: Phrase) = safely {
-            val data = phrase.lang.split("-")
-            Locale(data[0]).displayLanguage
-        }.orEmpty()
 
         fun onDestroy() {
             cardObserver?.cancel()

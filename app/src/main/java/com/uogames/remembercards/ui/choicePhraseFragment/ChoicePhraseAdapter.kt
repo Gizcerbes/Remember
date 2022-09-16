@@ -23,9 +23,13 @@ class ChoicePhraseAdapter(
 ) : ClosableAdapter<ChoicePhraseAdapter.PhraseHolder>() {
 
 	private val recyclerScope = CoroutineScope(Dispatchers.Main)
+	private var size = 0
 
 	init {
-		model.size.observeWhile(recyclerScope) { notifyDataSetChanged() }
+		model.size.observeWhile(recyclerScope) {
+			size = it
+			notifyDataSetChanged()
+		}
 	}
 
 	inner class PhraseHolder(val bind: CardPhraseBinding) : RecyclerView.ViewHolder(bind.root) {
@@ -99,7 +103,7 @@ class ChoicePhraseAdapter(
 
 	override fun onBindViewHolder(holder: PhraseHolder, position: Int) = holder.onShow()
 
-	override fun getItemCount(): Int = model.size.value
+	override fun getItemCount() = size
 
 	override fun onViewRecycled(holder: PhraseHolder) {
 		super.onViewRecycled(holder)

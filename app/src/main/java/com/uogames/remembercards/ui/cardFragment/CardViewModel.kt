@@ -13,14 +13,16 @@ import kotlin.collections.HashMap
 
 class CardViewModel(val provider: DataProvider) : ViewModel() {
 
+	private val viewModelScope = CoroutineScope(Dispatchers.IO)
+
 	inner class CardModel(val card: Card) {
-		val phrase by lazy { viewModelScope.async(Dispatchers.IO) { provider.phrase.getById(card.idPhrase) } }
-		val translate by lazy { viewModelScope.async(Dispatchers.IO) { provider.phrase.getById(card.idTranslate) } }
-		val image by lazy { viewModelScope.async(Dispatchers.IO) { card.toImage() } }
-		val phrasePronounce by lazy { viewModelScope.async(Dispatchers.IO) { phrase.await()?.toPronounce() } }
-		val phraseImage by lazy { viewModelScope.async(Dispatchers.IO) { phrase.await()?.toImage() } }
-		val translatePronounce by lazy { viewModelScope.async(Dispatchers.IO) { translate.await()?.toPronounce() } }
-		val translateImage by lazy { viewModelScope.async(Dispatchers.IO) { translate.await()?.toImage() } }
+		val phrase by lazy { viewModelScope.async { provider.phrase.getById(card.idPhrase) } }
+		val translate by lazy { viewModelScope.async { provider.phrase.getById(card.idTranslate) } }
+		val image by lazy { viewModelScope.async { card.toImage() } }
+		val phrasePronounce by lazy { viewModelScope.async { phrase.await()?.toPronounce() } }
+		val phraseImage by lazy { viewModelScope.async { phrase.await()?.toImage() } }
+		val translatePronounce by lazy { viewModelScope.async { translate.await()?.toPronounce() } }
+		val translateImage by lazy { viewModelScope.async { translate.await()?.toImage() } }
 	}
 
 	private class ShareAction(val job: Job, var callback: (String) -> Unit)
@@ -40,7 +42,7 @@ class CardViewModel(val provider: DataProvider) : ViewModel() {
 	suspend fun get2(number: Int) = provider.cards.getCard(like.value, number)?.let { CardModel(it) }
 
 	fun share(card: Card, result: (String) -> Unit) {
-		val job = viewModelScope.launch(Dispatchers.IO) {
+		val job = viewModelScope.launch {
 			runCatching {
 				provider.cards.share(card.id)
 			}.onSuccess {

@@ -114,7 +114,7 @@ class CardFragment : DaggerFragment() {
 					bind.recycler.adapter = null
 					delay(50)
 					cardViewModel.like.value = networkCardViewModel.like.value
-					bind.txtBookEmpty.visibility = if (ca.size == 0) View.VISIBLE else View.GONE
+					bind.txtBookEmpty.visibility = if (cardViewModel.size.value == 0) View.VISIBLE else View.GONE
 					bind.recycler.adapter = adapter
 				}
 			}

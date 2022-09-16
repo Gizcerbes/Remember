@@ -6,6 +6,7 @@ import androidx.lifecycle.LifecycleCoroutineScope
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.experimental.ExperimentalTypeInference
 
 suspend fun <T> Flow<T>.next(skip: Int = 1): T {
@@ -39,6 +40,20 @@ fun <T> Flow<T>.observeWhenStarted(
 	collect() { listener(it) }
 }
 
+fun <T> Flow<T?>.observeNotNull(
+	scope: CoroutineScope,
+	listener: suspend CoroutineScope.(T) -> Unit
+): Job = scope.launch {
+	collect { it?.let { it1 -> listener(it1) } }
+}
+
+fun <T> Flow<T>.observe(
+	scope: CoroutineScope,
+	listener: suspend CoroutineScope.(T) -> Unit
+): Job = scope.launch {
+	collect { listener(it) }
+}
+
 inline fun <C> C?.ifNull(defaultValue: () -> C): C =
 	this ?: defaultValue()
 
@@ -60,12 +75,10 @@ inline fun Boolean.ifFalse(body: () -> Unit): Boolean {
 	return this
 }
 
-inline fun <C> safely(catcher: (Exception) -> C? = { null }, run: () -> C?): C? {
-	return try {
-		run()
-	} catch (e: Exception) {
-		catcher(e)
-	}
-}
-
 fun <C : Drawable> C.asAnimationDrawable(): AnimationDrawable = this as AnimationDrawable
+
+fun CoroutineScope.safeLaunch(
+	context: CoroutineContext = EmptyCoroutineContext,
+	start: CoroutineStart = CoroutineStart.DEFAULT,
+	block: suspend CoroutineScope.() -> Unit
+): Job = launch(context, start) { runCatching { block() } }

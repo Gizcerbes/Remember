@@ -6,6 +6,7 @@ import android.media.MediaPlayer
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.uogames.remembercards.BuildConfig
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.ui.bookFragment.BookViewModel
 import com.uogames.remembercards.ui.bookFragment.NetworkBookViewModel
@@ -42,7 +43,10 @@ class UtilsModule {
     fun provideDataProvider(context: Context, auth: FirebaseAuth): DataProvider = DataProvider
         .get(
             context,
-            { "secret" },
+            {
+                if (BuildConfig.DEBUG) "secret"
+                else "It isn't matter"
+            },
             {
                 mapOf(
                     "Identifier" to (auth.currentUser?.displayName ?: ""),

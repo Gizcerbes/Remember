@@ -7,18 +7,17 @@ import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.ifNullOrEmpty
 import com.uogames.remembercards.utils.observeWhile
 import com.uogames.repository.DataProvider
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
 import javax.inject.Inject
 import kotlin.collections.HashMap
 
 class NetworkLibraryViewModel @Inject constructor(private val provider: DataProvider) : ViewModel() {
+
+	private val viewModelScope = CoroutineScope(Dispatchers.IO)
 
 	private class DownloadAction(val job: Job, var callback: (String) -> Unit)
 
@@ -32,11 +31,10 @@ class NetworkLibraryViewModel @Inject constructor(private val provider: DataProv
 	private var searchJob: Job? = null
 
 	init {
-		like.observeWhile(viewModelScope, Dispatchers.IO) {
+		like.observeWhile(viewModelScope) {
 			searchJob?.cancel()
-			searchJob = viewModelScope.launch(Dispatchers.IO) {
+			searchJob = viewModelScope.launch {
 				_size.value = 0
-				it.ifNullOrEmpty { return@launch }
 				delay(300)
 				runCatching {
 					_size.value = provider.module.countGlobal(like.value)
@@ -58,7 +56,7 @@ class NetworkLibraryViewModel @Inject constructor(private val provider: DataProv
 	}
 
 	fun download(id: UUID, loading: (String) -> Unit) {
-		val job = viewModelScope.launch(Dispatchers.IO) {
+		val job = viewModelScope.launch {
 			runCatching {
 				val module = provider.module.download(id).ifNull {
 					launch(Dispatchers.Main) {
@@ -70,12 +68,12 @@ class NetworkLibraryViewModel @Inject constructor(private val provider: DataProv
 				val count = provider.moduleCard.countGlobal(id)
 				val downloadBuffer = LinkedBlockingQueue<Job>(16)
 				for (i in 0 until count) {
-					val job = viewModelScope.launch(Dispatchers.IO) { provider.moduleCard.download(module, i) }
-					downloadBuffer.put(job)
-					viewModelScope.launch(Dispatchers.IO) {
+					val job = viewModelScope.launch { provider.moduleCard.download(module, i) }
+					viewModelScope.launch {
 						job.join()
 						downloadBuffer.remove(job)
 					}
+					downloadBuffer.put(job)
 				}
 				downloadBuffer.forEach { it.join() }
 			}.onSuccess {

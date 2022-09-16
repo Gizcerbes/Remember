@@ -1,6 +1,5 @@
 package com.uogames.remembercards.ui.bookFragment
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,9 +24,11 @@ class BookAdapter(
 
 	private val recyclerScope = CoroutineScope(Dispatchers.Main)
 	private val auth = Firebase.auth
+	private var size = 0
 
 	init {
 		model.size.observeWhile(recyclerScope) {
+			size = it
 			notifyDataSetChanged()
 		}
 	}
@@ -40,8 +41,8 @@ class BookAdapter(
 
 		fun onShow() {
 			clear()
-			bookViewObserver = recyclerScope.launch(Dispatchers.IO) {
-				val bookView = model.getBookModel(adapterPosition).ifNull { return@launch }
+			bookViewObserver = recyclerScope.safeLaunch(Dispatchers.IO) {
+				val bookView = model.getBookModel(adapterPosition).ifNull { return@safeLaunch }
 				val phrase = bookView.phrase
 				launch(Dispatchers.Main) {
 					if (auth.currentUser == null || (phrase.globalOwner != null && phrase.globalOwner != auth.currentUser?.uid)) {
@@ -86,6 +87,7 @@ class BookAdapter(
 				bind.btns.visibility = if (full) View.VISIBLE else View.GONE
 				val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
 				bind.imgAction.setImageResource(img)
+				if (adapterPosition == size - 1 && !full) notifyItemChanged(adapterPosition)
 			}
 		}
 
@@ -148,7 +150,7 @@ class BookAdapter(
 		holder.onShow()
 	}
 
-	override fun getItemCount() = model.size.value
+	override fun getItemCount() = size
 
 	override fun onViewRecycled(holder: CardHolder) {
 		super.onViewRecycled(holder)

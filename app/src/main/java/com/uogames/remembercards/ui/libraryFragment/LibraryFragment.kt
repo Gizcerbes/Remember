@@ -65,6 +65,7 @@ class LibraryFragment : DaggerFragment() {
 		sizeObserver = createSizeObserver()
 		bind.tilSearch.editText?.addTextChangedListener(searchWatcher)
 
+
 		bind.tilSearch.visibility = View.GONE
 
 		bind.btnSearch.setOnClickListener {

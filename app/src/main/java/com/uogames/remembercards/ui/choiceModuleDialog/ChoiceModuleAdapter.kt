@@ -18,9 +18,11 @@ class ChoiceModuleAdapter(
 ) : RecyclerView.Adapter<ChoiceModuleAdapter.ModuleHolder>() {
 
     private val recyclerScope = CoroutineScope(Dispatchers.Main)
+    private var size = 0
 
     init {
         model.size.observeWhile(recyclerScope) {
+            size = it
             notifyDataSetChanged()
         }
     }

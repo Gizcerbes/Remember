@@ -1,25 +1,24 @@
 package com.uogames.remembercards.ui.libraryFragment
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.uogames.dto.local.Module
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.repository.DataProvider
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import java.util.concurrent.LinkedBlockingQueue
 import javax.inject.Inject
 import kotlin.collections.HashMap
 
 class LibraryViewModel @Inject constructor(val provider: DataProvider) : ViewModel() {
 
+	private val viewModelScope = CoroutineScope(Dispatchers.IO)
+
 	val like = MutableStateFlow("")
 
 	val size = like.flatMapLatest { provider.module.getCountLike(it) }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
-
-
 
 	fun reset() {
 		like.value = ""
@@ -27,14 +26,10 @@ class LibraryViewModel @Inject constructor(val provider: DataProvider) : ViewMod
 
 	fun createModule(name: String, call: (Int) -> Unit) = viewModelScope.launch {
 		val res = provider.module.add(Module(name = name))
-		call(res.toInt())
+		launch(Dispatchers.Main) { call(res.toInt()) }
 	}
 
-	suspend fun getCountByModuleIdFlow(id: Int) = provider.moduleCard.getCountByModuleIdFlow(id).stateIn(viewModelScope)
-
 	suspend fun getCountByModule(id: Module) = provider.moduleCard.getCountByModule(id)
-
-	suspend fun getCardByModule(module: Module, position: Int) = provider.moduleCard.getByPositionOfModule(module.id, position)
 
 	suspend fun getModuleByPosition(position: Int) = provider.module.getByPosition(like.value, position)
 
@@ -43,19 +38,25 @@ class LibraryViewModel @Inject constructor(val provider: DataProvider) : ViewMod
 	private val shareActions = HashMap<Int, ShareAction>()
 
 	fun share(module: Module, loading: (String) -> Unit) {
-		val job = viewModelScope.launch(Dispatchers.IO) {
+		val job = viewModelScope.launch {
 			runCatching {
 				provider.module.share(module.id)
 				val size = provider.moduleCard.getCountByModule(module)
 				val shareBuffer = LinkedBlockingQueue<Job>(16)
 				for (i in 0 until size) {
 					val mc = provider.moduleCard.getByPositionOfModule(module.id, i).ifNull { return@launch }
-					val job = viewModelScope.launch { runCatching { provider.moduleCard.share(mc.id) } }
-					shareBuffer.put(job)
-					viewModelScope.launch(Dispatchers.IO) {
+					val job = launch {
+						runCatching {
+							provider.moduleCard.share(mc.id)
+						}.onFailure {
+							stopSharing(module, it.message ?: "Error")
+						}
+					}
+					launch {
 						job.join()
 						shareBuffer.remove(job)
 					}
+					shareBuffer.put(job)
 				}
 				shareBuffer.forEach { it.join() }
 			}.onSuccess {
@@ -78,10 +79,10 @@ class LibraryViewModel @Inject constructor(val provider: DataProvider) : ViewMod
 		return shareActions[module.id]?.job?.isActive.ifNull { false }
 	}
 
-	fun stopSharing(module: Module) {
+	fun stopSharing(module: Module, message: String = "Cancel") {
 		val action = shareActions[module.id].ifNull { return }
 		action.job.cancel()
-		action.callback("Cancel")
+		action.callback(message)
 		shareActions.remove(module.id)
 	}
 }

@@ -107,7 +107,7 @@
 					android:id="@+id/txt_definition"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-
+					android:layout_marginTop="7dp"
 					android:textAppearance="?attr/textAppearanceBody2"
 					tools:text="Irregular fluctuations that accompany a trant part of it and tend to obscure it." />
 

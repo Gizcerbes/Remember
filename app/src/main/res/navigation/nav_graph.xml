@@ -62,6 +62,11 @@
 		android:name="com.uogames.remembercards.ui.registerFragment.RegisterFragment"
 		android:label="RegisterFragment"
 		tools:layout="@layout/fragment_register" />
+	<fragment
+		android:id="@+id/settingFragment"
+		android:name="com.uogames.remembercards.ui.settingFragment.SettingFragment"
+		android:label="SettingFragment"
+		tools:layout="@layout/fragment_settings"/>
 
 
 </navigation>

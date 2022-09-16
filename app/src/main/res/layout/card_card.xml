@@ -169,6 +169,7 @@
 							android:id="@+id/txt_definition_first"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
+							android:layout_marginTop="7dp"
 							android:textAppearance="?attr/textAppearanceBody2"
 							app:layout_constraintBottom_toBottomOf="parent"
 							app:layout_constraintEnd_toEndOf="parent"
@@ -271,6 +272,7 @@
 							android:id="@+id/txt_definition_second"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
+							android:layout_marginTop="7dp"
 							android:textAppearance="?attr/textAppearanceBody2"
 							app:layout_constraintBottom_toBottomOf="parent"
 							app:layout_constraintEnd_toEndOf="parent"
@@ -394,7 +396,6 @@
 							android:layout_height="@dimen/card_button"
 							android:src="@drawable/ic_baseline_change_24" />
 					</com.google.android.material.card.MaterialCardView>
-
 
 
 				</LinearLayout>

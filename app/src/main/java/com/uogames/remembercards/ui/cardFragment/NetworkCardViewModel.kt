@@ -23,16 +23,18 @@ import kotlin.collections.HashMap
 
 class NetworkCardViewModel @Inject constructor(private val provider: DataProvider) : ViewModel() {
 
+	private val viewModelScope = CoroutineScope(Dispatchers.IO)
+
 	inner class CardModel(val card: Card) {
-		val phrase by lazy { viewModelScope.async(Dispatchers.IO) { getPhraseById(card.idPhrase) } }
-		val translate by lazy { viewModelScope.async(Dispatchers.IO) { getPhraseById(card.idTranslate) } }
-		val image by lazy { viewModelScope.async(Dispatchers.IO) { card.idImage?.let { getImageById(it) } } }
-		val phrasePronounce by lazy { viewModelScope.async(Dispatchers.IO) { phrase.await()?.idPronounce?.let { getPronunciationById(it) } } }
-		val phrasePronounceData by lazy { viewModelScope.async(Dispatchers.IO) { phrase.await()?.idPronounce?.let { getPronounceData(it) } } }
-		val phraseImage by lazy { viewModelScope.async(Dispatchers.IO) { phrase.await()?.idImage?.let { getImageById(it) } } }
-		val translatePronounce by lazy { viewModelScope.async(Dispatchers.IO) { translate.await()?.idPronounce?.let { getPronunciationById(it) } } }
-		val translatePronounceData by lazy { viewModelScope.async(Dispatchers.IO) { translate.await()?.idPronounce?.let { getPronounceData(it) } } }
-		val translateImage by lazy { viewModelScope.async(Dispatchers.IO) { translate.await()?.idImage?.let { getImageById(it) } } }
+		val phrase by lazy { viewModelScope.async { getPhraseById(card.idPhrase) } }
+		val translate by lazy { viewModelScope.async { getPhraseById(card.idTranslate) } }
+		val image by lazy { viewModelScope.async { card.idImage?.let { getImageById(it) } } }
+		val phrasePronounce by lazy { viewModelScope.async { phrase.await()?.idPronounce?.let { getPronunciationById(it) } } }
+		val phrasePronounceData by lazy { viewModelScope.async { phrase.await()?.idPronounce?.let { getPronounceData(it) } } }
+		val phraseImage by lazy { viewModelScope.async { phrase.await()?.idImage?.let { getImageById(it) } } }
+		val translatePronounce by lazy { viewModelScope.async { translate.await()?.idPronounce?.let { getPronunciationById(it) } } }
+		val translatePronounceData by lazy { viewModelScope.async { translate.await()?.idPronounce?.let { getPronounceData(it) } } }
+		val translateImage by lazy { viewModelScope.async { translate.await()?.idImage?.let { getImageById(it) } } }
 	}
 
 	private class DownloadAction(val job: Job, var callback: (String) -> Unit)
@@ -47,11 +49,10 @@ class NetworkCardViewModel @Inject constructor(private val provider: DataProvide
 	private var searchJob: Job? = null
 
 	init {
-		like.observeWhile(viewModelScope, Dispatchers.IO) {
+		like.observeWhile(viewModelScope) {
 			searchJob?.cancel()
-			searchJob = viewModelScope.launch(Dispatchers.IO) {
+			searchJob = viewModelScope.launch {
 				_size.value = 0
-				it.ifNullOrEmpty { return@launch }
 				delay(300)
 				runCatching {
 					_size.value = provider.cards.countGlobal(like.value)
@@ -62,7 +63,7 @@ class NetworkCardViewModel @Inject constructor(private val provider: DataProvide
 		}
 	}
 
-	suspend fun getByGlobalId(uuid: UUID) = viewModelScope.async(Dispatchers.IO) { provider.cards.getByGlobalId(uuid) }.await()
+	suspend fun getByGlobalId(uuid: UUID) = viewModelScope.async { provider.cards.getByGlobalId(uuid) }.await()
 
 	suspend fun getByPosition(position: Long): CardModel? {
 		runCatching { return CardModel(provider.cards.getGlobal(like.value, position)) }
@@ -89,25 +90,6 @@ class NetworkCardViewModel @Inject constructor(private val provider: DataProvide
 		return null
 	}
 
-	fun download(id: UUID, loading: (String) -> Unit) {
-		val job = viewModelScope.launch(Dispatchers.IO) {
-			runCatching {
-				provider.cards.download(id)
-			}.onSuccess {
-				launch(Dispatchers.Main) {
-					downloadAction[id]?.callback?.let { back -> back("Ok") }
-					downloadAction.remove(id)
-				}
-			}.onFailure {
-				launch(Dispatchers.Main) {
-					downloadAction[id]?.callback?.let { back -> back(it.message ?: "Error") }
-					downloadAction.remove(id)
-				}
-			}
-		}
-		downloadAction[id] = DownloadAction(job, loading)
-	}
-
 	fun setDownloadAction(id: UUID, loading: (String) -> Unit): Boolean {
 		downloadAction[id]?.callback = loading
 		return downloadAction[id]?.job?.isActive.ifNull { false }
@@ -121,7 +103,7 @@ class NetworkCardViewModel @Inject constructor(private val provider: DataProvide
 	}
 
 	fun save(cardModel: CardModel, loading: (String) -> Unit) {
-		val job = viewModelScope.launch(Dispatchers.IO) {
+		val job = viewModelScope.launch {
 			runCatching {
 				val phraseImage = cardModel.phraseImage.await()?.globalId?.let {
 					provider.images.getByGlobalId(it).ifNull { provider.images.download(it) }

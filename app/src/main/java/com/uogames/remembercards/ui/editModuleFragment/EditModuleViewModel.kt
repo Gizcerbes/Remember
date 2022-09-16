@@ -24,8 +24,6 @@ class EditModuleViewModel @Inject constructor(val provider: DataProvider) : View
         moduleID.value = 0
     }
 
-    fun getCard(moduleCard: ModuleCard) = provider.cards.getByModuleCardFlow(moduleCard)
-
     fun getCard(id: Int) = provider.cards.getByIdFlow(id)
 
     suspend fun delete(module: Module) = provider.module.delete(module)

@@ -22,9 +22,13 @@ class ChoiceNetworkPhraseAdapter(
 ) : ClosableAdapter<ChoiceNetworkPhraseAdapter.PhraseHolder>() {
 
 	private val recyclerScope = CoroutineScope(Dispatchers.Main)
+	private var size = 0
 
 	init {
-		model.size.observeWhile(recyclerScope) { notifyDataSetChanged() }
+		model.size.observeWhile(recyclerScope) {
+			size = it.toInt()
+			notifyDataSetChanged()
+		}
 	}
 
 	inner class PhraseHolder(val bind: CardPhraseBinding) : RecyclerView.ViewHolder(bind.root) {
@@ -74,6 +78,7 @@ class ChoiceNetworkPhraseAdapter(
 				bind.btns.visibility = if (full) View.VISIBLE else View.GONE
 				val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
 				bind.imgAction.setImageResource(img)
+				if (adapterPosition == size - 1 && !full) notifyItemChanged(adapterPosition)
 			}
 		}
 
@@ -134,9 +139,7 @@ class ChoiceNetworkPhraseAdapter(
 		holder.onShow()
 	}
 
-	override fun getItemCount(): Int {
-		return model.size.value.toInt()
-	}
+	override fun getItemCount() = size
 
 	override fun onViewRecycled(holder: PhraseHolder) {
 		super.onViewRecycled(holder)
