@@ -1,5 +1,5 @@
 <resources>
-	<string name="app_name">Remember Cards</string>
+	<string name="app_name">Cue Cards</string>
 	<string name="home">Home</string>
 	<string name="play">Play</string>
 	<string name="library">Library</string>
@@ -79,4 +79,6 @@
 	<string name="log_in">Log in:</string>
 	<string name="log_out">Log out:</string>
 	<string name="clean">Clean</string>
+	<string name="about_program">About program:</string>
+	<string name="version">version || V ||</string>
 </resources>

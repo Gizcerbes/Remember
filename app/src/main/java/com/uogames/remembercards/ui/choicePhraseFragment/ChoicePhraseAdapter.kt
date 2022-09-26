@@ -64,9 +64,10 @@ class ChoicePhraseAdapter(
 			bind.imgAction.setImageResource(R.drawable.ic_baseline_add_24)
 		}
 
-		private suspend fun showImage(image: Deferred<Image?>) {
-			bind.imgPhrase.visibility = View.INVISIBLE
-			image.await()?.let {
+		private suspend fun showImage(image: Deferred<Image?>) = showImage(image.await())
+
+		private fun showImage(image: Image?) {
+			image?.let {
 				bind.mcvImgPhrase.visibility = View.VISIBLE
 				val uri = it.imgUri.toUri()
 				Picasso.get().load(uri).placeholder(R.drawable.noise).into(bind.imgPhrase)

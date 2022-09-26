@@ -28,21 +28,6 @@
 		app:layout_constraintTop_toBottomOf="@id/til_text">
 
 		<com.google.android.material.card.MaterialCardView
-			android:id="@+id/btn_accept"
-			style="@style/Theme.RememberCards.CardView.Button.Icon"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content">
-
-			<TextView
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="@string/accept"
-				android:textAppearance="?textAppearanceButton"
-				android:textColor="?attr/colorPrimary" />
-
-		</com.google.android.material.card.MaterialCardView>
-
-		<com.google.android.material.card.MaterialCardView
 			android:id="@+id/btn_close"
 			style="@style/Theme.RememberCards.CardView.Button.Icon"
 			android:layout_width="wrap_content"
@@ -54,6 +39,21 @@
 				android:textColor="?attr/colorPrimary"
 				android:text="@string/close"
 				android:textAppearance="?textAppearanceButton" />
+
+		</com.google.android.material.card.MaterialCardView>
+
+		<com.google.android.material.card.MaterialCardView
+			android:id="@+id/btn_accept"
+			style="@style/Theme.RememberCards.CardView.Button.Icon"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content">
+
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/accept"
+				android:textAppearance="?textAppearanceButton"
+				android:textColor="?attr/colorPrimary" />
 
 		</com.google.android.material.card.MaterialCardView>
 

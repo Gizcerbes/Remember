@@ -21,6 +21,5 @@ data class CardResponse(
 	@SerializedName("like")
 	var like: Long = 0,
 	@SerializedName("dislike")
-	var dislike: Long = 0,
-
+	var dislike: Long = 0
 )

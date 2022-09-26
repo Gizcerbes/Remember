@@ -1,12 +1,14 @@
 package com.uogames.network.service
 
-import io.ktor.client.call.*
+import android.util.Log
+import com.google.gson.Gson
 import com.uogames.network.response.PronunciationResponse
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import com.uogames.network.HttpClient
 import com.uogames.network.ifSuccess
+import io.ktor.client.statement.*
 import java.util.*
 
 class PronunciationService(private val client: HttpClient) {
@@ -22,7 +24,13 @@ class PronunciationService(private val client: HttpClient) {
 		contentType(ContentType.Audio.MP4)
 		setBody(byteArray)
 		onUpload(onUpload)
-	}.ifSuccess()
+	}.apply {
+		Log.e("TAG", "upload: $this", )
+		val tree = Gson().fromJson(this.bodyAsText(), PronunciationResponse::class.java)
+		Log.e("TAG", "upload: $tree.", )
+	}.ifSuccess<PronunciationResponse>().apply {
+		Log.e("TAG", "upload: $this", )
+	}
 
 	suspend fun exists(globalId: UUID):Boolean = client.head("/pronunciation/info/$globalId").status == HttpStatusCode.OK
 }

@@ -103,6 +103,8 @@
 				<LinearLayout
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
+					android:animateLayoutChanges="true"
+					android:minHeight="169dp"
 					android:orientation="vertical">
 
 					<androidx.constraintlayout.widget.ConstraintLayout
@@ -119,9 +121,41 @@
 							android:layout_marginBottom="0dp"
 							android:textAppearance="?attr/textAppearanceHeadline6"
 							app:layout_constraintBottom_toBottomOf="parent"
+							app:layout_constraintEnd_toStartOf="@id/ll_actions"
 							app:layout_constraintStart_toStartOf="parent"
 							app:layout_constraintTop_toTopOf="parent"
 							tools:text="Translate " />
+
+						<LinearLayout
+							android:id="@+id/ll_actions"
+							android:layout_width="wrap_content"
+							android:layout_height="0dp"
+							app:layout_constraintBottom_toBottomOf="parent"
+							app:layout_constraintEnd_toEndOf="parent"
+							app:layout_constraintTop_toTopOf="parent">
+
+
+							<com.google.android.material.card.MaterialCardView
+								android:id="@+id/btn_card_action"
+								style="@style/Theme.RememberCards.CardView.Button.Icon"
+								android:layout_width="wrap_content"
+								android:layout_height="wrap_content"
+								android:layout_margin="0dp"
+								app:layout_constraintBottom_toBottomOf="parent"
+								app:layout_constraintEnd_toEndOf="parent"
+								app:layout_constraintTop_toTopOf="parent">
+
+								<ImageView
+									android:id="@+id/img_btn_action"
+									android:layout_width="@dimen/card_button"
+									android:layout_height="@dimen/card_button"
+									android:src="@drawable/ic_baseline_keyboard_arrow_up_24" />
+
+							</com.google.android.material.card.MaterialCardView>
+
+
+						</LinearLayout>
+
 
 					</androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -164,6 +198,7 @@
 										android:id="@+id/txt_lang_first"
 										android:layout_width="wrap_content"
 										android:layout_height="wrap_content"
+										android:minHeight="19dp"
 										android:textAppearance="?attr/textAppearanceBody2"
 										app:layout_constraintStart_toStartOf="parent"
 										app:layout_constraintTop_toTopOf="parent"
@@ -219,13 +254,25 @@
 											android:layout_height="53dp"
 											android:adjustViewBounds="true"
 											android:src="@drawable/noise"
-											android:visibility="gone" />
+											android:visibility="visible" />
 
 									</com.google.android.material.card.MaterialCardView>
 
+									<TextView
+										android:id="@+id/txt_definition_first"
+										android:layout_width="match_parent"
+										android:layout_height="wrap_content"
+										android:layout_marginTop="7dp"
+										android:textAppearance="?attr/textAppearanceBody2"
+										app:layout_constraintBottom_toBottomOf="parent"
+										app:layout_constraintEnd_toEndOf="parent"
+										app:layout_constraintStart_toStartOf="parent"
+										app:layout_constraintTop_toBottomOf="@id/l_first"
+										tools:text="" />
 
 								</androidx.constraintlayout.widget.ConstraintLayout>
 							</com.google.android.material.card.MaterialCardView>
+
 
 							<com.google.android.material.divider.MaterialDivider
 								android:layout_width="wrap_content"
@@ -255,6 +302,7 @@
 										android:id="@+id/txt_lang_second"
 										android:layout_width="wrap_content"
 										android:layout_height="wrap_content"
+										android:minHeight="19dp"
 										android:textAppearance="?attr/textAppearanceBody2"
 										app:layout_constraintStart_toStartOf="parent"
 										app:layout_constraintTop_toTopOf="parent"
@@ -309,14 +357,28 @@
 											android:layout_height="53dp"
 											android:adjustViewBounds="true"
 											android:src="@drawable/noise"
-											android:visibility="gone" />
+											android:visibility="visible" />
 
 									</com.google.android.material.card.MaterialCardView>
 
+									<TextView
+										android:id="@+id/txt_definition_second"
+										android:layout_width="match_parent"
+										android:layout_height="wrap_content"
+										android:layout_marginTop="7dp"
+										android:textAppearance="?attr/textAppearanceBody2"
+										app:layout_constraintBottom_toBottomOf="parent"
+										app:layout_constraintEnd_toEndOf="parent"
+										app:layout_constraintStart_toStartOf="parent"
+										app:layout_constraintTop_toBottomOf="@id/l_second"
+										tools:text="It is first text. La la la la la la la la la la la la la la la al al al al alal al la lalal al alla lala" />
+
 								</androidx.constraintlayout.widget.ConstraintLayout>
 							</com.google.android.material.card.MaterialCardView>
+
 						</LinearLayout>
 					</androidx.constraintlayout.widget.ConstraintLayout>
+
 				</LinearLayout>
 
 			</com.google.android.material.card.MaterialCardView>

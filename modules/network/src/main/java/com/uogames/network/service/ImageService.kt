@@ -1,6 +1,5 @@
 package com.uogames.network.service
 
-import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.http.*

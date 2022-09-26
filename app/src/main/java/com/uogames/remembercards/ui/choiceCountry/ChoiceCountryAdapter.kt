@@ -1,8 +1,10 @@
 package com.uogames.remembercards.ui.choiceCountry
 
 import android.annotation.SuppressLint
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.uogames.flags.Countries
@@ -29,6 +31,13 @@ class ChoiceCountryAdapter(
             bind.llLanguages.removeAllViews()
             country.country.forEach {
                 val tv = TextView(itemView.context)
+                tv.layoutParams = LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    weight = 1.0f
+                    gravity = Gravity.END
+                }
                 tv.setTextAppearance(R.attr.textAppearanceBody2)
                 tv.text = it.value
                 bind.llLanguages.addView(tv)

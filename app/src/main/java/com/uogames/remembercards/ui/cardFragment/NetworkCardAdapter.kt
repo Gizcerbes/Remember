@@ -99,7 +99,7 @@ class NetworkCardAdapter(
 				bind.txtDefinitionSecond.visibility = if (full && bind.txtDefinitionSecond.text.isNotEmpty()) View.VISIBLE else View.GONE
 				val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
 				bind.imgBtnAction.setImageResource(img)
-				if (adapterPosition == size - 1 && !full) notifyItemChanged(adapterPosition)
+				if (!full) notifyItemChanged(adapterPosition)
 			}
 		}
 

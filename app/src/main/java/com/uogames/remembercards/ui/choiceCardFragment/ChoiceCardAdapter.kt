@@ -45,30 +45,32 @@ class ChoiceCardAdapter(
 
 		fun onShow() {
 			clear()
-			cardObserver = model.get(adapterPosition).observeWhile(recyclerScope) {
-				val cardView = it.ifNull { return@observeWhile }
-				bind.txtReason.text = cardView.card.reason
-				bind.btnDownload.setOnClickListener { callChoiceCardID(cardView.card.id) }
-				setData(
-					cardView.phrase.await(),
-					cardView.phrasePronounce.await(),
-					cardView.phraseImage.await(),
-					bind.txtLangFirst,
-					bind.txtPhraseFirst,
-					bind.imgSoundFirst,
-					bind.mcvFirst,
-					bind.imgCardFirst
-				)
-				setData(
-					cardView.translate.await(),
-					cardView.translatePronounce.await(),
-					cardView.translateImage.await(),
-					bind.txtLangSecond,
-					bind.txtPhraseSecond,
-					bind.imgSoundSecond,
-					bind.mcvSecond,
-					bind.imgCardSecond
-				)
+			cardObserver = recyclerScope.launch(Dispatchers.IO) {
+				val cardView = model.get2(adapterPosition).ifNull { return@launch }
+				launch(Dispatchers.Main) {
+					bind.txtReason.text = cardView.card.reason
+					bind.btnDownload.setOnClickListener { callChoiceCardID(cardView.card.id) }
+					setData(
+						cardView.phrase.await(),
+						cardView.phrasePronounce.await(),
+						cardView.phraseImage.await(),
+						bind.txtLangFirst,
+						bind.txtPhraseFirst,
+						bind.imgSoundFirst,
+						bind.mcvFirst,
+						bind.imgCardFirst
+					)
+					setData(
+						cardView.translate.await(),
+						cardView.translatePronounce.await(),
+						cardView.translateImage.await(),
+						bind.txtLangSecond,
+						bind.txtPhraseSecond,
+						bind.imgSoundSecond,
+						bind.mcvSecond,
+						bind.imgCardSecond
+					)
+				}
 			}
 			bind.btnCardAction.setOnClickListener {
 				full = !full
@@ -77,7 +79,7 @@ class ChoiceCardAdapter(
 				bind.txtDefinitionSecond.visibility = if (full && bind.txtDefinitionSecond.text.isNotEmpty()) View.VISIBLE else View.GONE
 				val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
 				bind.imgBtnAction.setImageResource(img)
-				if (adapterPosition == size - 1 && !full) notifyItemChanged(adapterPosition)
+				if (!full) notifyItemChanged(adapterPosition)
 			}
 		}
 

@@ -49,6 +49,7 @@
 			style="@style/Theme.RememberCards.CardView.Button"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:visibility="gone"
 			app:layout_constraintBottom_toTopOf="@id/bottom_divider"
 			app:layout_constraintEnd_toStartOf="@id/btn_close"
 			app:layout_constraintTop_toTopOf="parent">

@@ -7,6 +7,7 @@ import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.gson.*
@@ -44,10 +45,10 @@ class HttpClient(
 			gson()
 		}
 
-//		if (BuildConfig.DEBUG) install(Logging) {
-//			logger = Logger.SIMPLE
-//			level = LogLevel.ALL
-//		}
+		if (BuildConfig.DEBUG) install(Logging) {
+			logger = Logger.SIMPLE
+			level = LogLevel.ALL
+		}
 	}
 
 	private fun getSsl(keystoreInput: ByteArray?, keystorePassword: CharArray?): SslSettings? {

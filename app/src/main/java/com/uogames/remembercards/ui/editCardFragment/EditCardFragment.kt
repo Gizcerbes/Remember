@@ -68,6 +68,7 @@ class EditCardFragment : DaggerFragment() {
     private var secondPhraseObserver: Job? = null
     private var reasonObserver: Job? = null
     private val reasonTextWatcher: TextWatcher by lazy { createReasonTextWatcher() }
+    private var full = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         if (_bind == null) _bind = FragmentEditCardBinding.inflate(inflater, container, false)
@@ -126,6 +127,33 @@ class EditCardFragment : DaggerFragment() {
         firstPhraseObserver = createFirstPhraseObserveJob()
         secondPhraseObserver = createSecondPhraseObserverJob()
         reasonObserver = createReasonObserveJob()
+
+        clear()
+        bind.btnCardAction.setOnClickListener {
+            full = !full
+            bind.txtDefinitionFirst.visibility = if (full && bind.txtDefinitionFirst.text.isNotEmpty()) View.VISIBLE else View.GONE
+            bind.txtDefinitionSecond.visibility = if (full && bind.txtDefinitionSecond.text.isNotEmpty()) View.VISIBLE else View.GONE
+            val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
+            bind.imgBtnAction.setImageResource(img)
+        }
+
+    }
+
+    private fun clear() {
+        full = false
+        bind.txtDefinitionFirst.visibility = View.GONE
+        bind.txtDefinitionSecond.visibility = View.GONE
+        bind.imgCardFirst.visibility = View.GONE
+        bind.imgSoundFirst.visibility = View.GONE
+        bind.txtDefinitionFirst.text = ""
+        bind.txtLangFirst.text = ""
+        bind.txtPhraseFirst.text = ""
+        bind.imgCardSecond.visibility = View.GONE
+        bind.imgSoundSecond.visibility = View.GONE
+        bind.txtDefinitionSecond.text = ""
+        bind.txtLangSecond.text = ""
+        bind.txtPhraseSecond.text = ""
+        bind.imgBtnAction.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
     }
 
     private fun loadDataWithID(id: Int) {
@@ -175,17 +203,17 @@ class EditCardFragment : DaggerFragment() {
 
     private fun createFirstPhraseObserveJob(): Job = editCardViewModel.firstPhrase.observeWhenStarted(lifecycleScope) {
         it?.let { phrase ->
-            setButtonData(phrase, bind.mcvFirst, bind.txtPhraseFirst, bind.imgSoundFirst, bind.txtLangFirst, bind.imgCardFirst)
+            setButtonData(phrase, bind.mcvFirst, bind.txtPhraseFirst, bind.imgSoundFirst, bind.txtLangFirst, bind.imgCardFirst, bind.txtDefinitionFirst)
         }.ifNull {
-            setDefaultButtonData(bind.imgSoundFirst, bind.txtPhraseFirst, bind.txtLangFirst, bind.imgCardFirst)
+            setDefaultButtonData(bind.imgSoundFirst, bind.txtPhraseFirst, bind.txtLangFirst, bind.imgCardFirst, bind.txtDefinitionFirst)
         }
     }
 
     private fun createSecondPhraseObserverJob(): Job = editCardViewModel.secondPhrase.observeWhenStarted(lifecycleScope) {
         it?.let { phrase ->
-            setButtonData(phrase, bind.mcvSecond, bind.txtPhraseSecond, bind.imgSoundSecond, bind.txtLangSecond, bind.imgCardSecond)
+            setButtonData(phrase, bind.mcvSecond, bind.txtPhraseSecond, bind.imgSoundSecond, bind.txtLangSecond, bind.imgCardSecond, bind.txtDefinitionSecond)
         }.ifNull {
-            setDefaultButtonData(bind.imgSoundSecond, bind.txtPhraseSecond, bind.txtLangSecond, bind.imgCardSecond)
+            setDefaultButtonData(bind.imgSoundSecond, bind.txtPhraseSecond, bind.txtLangSecond, bind.imgCardSecond, bind.txtDefinitionSecond)
         }
     }
 
@@ -199,10 +227,12 @@ class EditCardFragment : DaggerFragment() {
         txtPhrase: TextView,
         imgSound: ImageView,
         lang: TextView,
-        imageCard: ImageView
+        imageCard: ImageView,
+        definition: TextView
     ) {
         txtPhrase.text = phrase.phrase.ifNullOrEmpty { requireContext().getString(R.string.phrase_label) }
         lang.text = showLang(phrase)
+        definition.text = phrase.definition.orEmpty()
 
         phrase.toPronounce()?.let { pronounce ->
             imgSound.visibility = View.VISIBLE
@@ -213,6 +243,10 @@ class EditCardFragment : DaggerFragment() {
             imgSound.visibility = View.GONE
         }
 
+        phrase.definition?.let {
+
+        }
+
         phrase.toImage()?.let {
             Picasso.get().load(it.imgUri.toUri()).placeholder(R.drawable.noise).into(imageCard)
             imageCard.visibility = View.VISIBLE
@@ -221,11 +255,12 @@ class EditCardFragment : DaggerFragment() {
         }
     }
 
-    private fun setDefaultButtonData(imgSound: ImageView, txtPhrase: TextView, txtLang: TextView, imageCard: ImageView) {
+    private fun setDefaultButtonData(imgSound: ImageView, txtPhrase: TextView, txtLang: TextView, imageCard: ImageView,definition: TextView) {
         imgSound.visibility = View.GONE
         txtPhrase.text = requireContext().getString(R.string.phrase_label)
         txtLang.text = Locale.getDefault().displayLanguage
         imageCard.visibility = View.GONE
+        definition.text = ""
     }
 
     private fun showLang(phrase: Phrase): String {

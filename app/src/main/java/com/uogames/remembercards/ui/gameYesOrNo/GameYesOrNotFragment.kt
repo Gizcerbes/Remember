@@ -62,6 +62,7 @@ class GameYesOrNotFragment : DaggerFragment() {
 
 	private val goodReactions = listOf(R.drawable.ic_good_vibes, R.drawable.ic_super, R.drawable.ic_wow)
 	private val badReactions = listOf(R.drawable.ic_crash, R.drawable.ic_boom, R.drawable.ic_wtf)
+	private var full = false
 
 	override fun onCreateView(
 		inflater: LayoutInflater,
@@ -96,6 +97,33 @@ class GameYesOrNotFragment : DaggerFragment() {
 		bind.btnPause.setOnClickListener { play(!gameModel.isStarted.value) }
 
 		play(true)
+
+		clear()
+		bind.btnCardAction.setOnClickListener {
+			full = !full
+			bind.txtDefinitionFirst.visibility = if (full && bind.txtDefinitionFirst.text.isNotEmpty()) View.VISIBLE else View.GONE
+			bind.txtDefinitionSecond.visibility = if (full && bind.txtDefinitionSecond.text.isNotEmpty()) View.VISIBLE else View.GONE
+			val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
+			bind.imgBtnAction.setImageResource(img)
+		}
+
+	}
+
+	private fun clear() {
+		full = false
+		bind.txtDefinitionFirst.visibility = View.GONE
+		bind.txtDefinitionSecond.visibility = View.GONE
+		bind.imgCardFirst.visibility = View.GONE
+		bind.imgSoundFirst.visibility = View.GONE
+		bind.txtDefinitionFirst.text = ""
+		bind.txtLangFirst.text = ""
+		bind.txtPhraseFirst.text = ""
+		bind.imgCardSecond.visibility = View.GONE
+		bind.imgSoundSecond.visibility = View.GONE
+		bind.txtDefinitionSecond.text = ""
+		bind.txtLangSecond.text = ""
+		bind.txtPhraseSecond.text = ""
+		bind.imgBtnAction.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
 	}
 
 	private fun createAllAnswersObserver() = gameModel.allAnswers.observeWhenStarted(lifecycleScope) {
@@ -231,6 +259,7 @@ class GameYesOrNotFragment : DaggerFragment() {
 			langView.text = Lang.parse(phrase.lang).locale.displayLanguage
 			phraseView.text = phrase.phrase
 			definition.text = phrase.definition.orEmpty()
+			definition.visibility = if (full && definition.text.isNotEmpty()) View.VISIBLE else View.GONE
 		}
 
 		image?.let {

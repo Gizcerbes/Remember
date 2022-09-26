@@ -1,12 +1,15 @@
 package com.uogames.remembercards.ui.settingFragment
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.marginTop
 import androidx.core.view.setMargins
 import androidx.lifecycle.lifecycleScope
@@ -21,12 +24,14 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.uogames.flags.Countries
+import com.uogames.remembercards.BuildConfig
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.ComponentTextImputLayoutBinding
 import com.uogames.remembercards.databinding.FragmentSettingsBinding
 import com.uogames.remembercards.ui.choiceCountry.ChoiceCountryDialog
 import com.uogames.remembercards.utils.ifNull
+import com.uogames.remembercards.utils.ifNullOrEmpty
 import com.uogames.remembercards.utils.observeNotNull
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.Job
@@ -59,6 +64,7 @@ class SettingFragment : DaggerFragment() {
 
 		observeJob = createObservers()
 		setUser(auth.currentUser)
+		bind.txtVersion.text = requireContext().getString(R.string.version).replace("|| V ||", BuildConfig.VERSION_NAME)
 
 		bind.btnSignIn.setOnClickListener { aut() }
 
@@ -72,15 +78,16 @@ class SettingFragment : DaggerFragment() {
 			findNavController().popBackStack()
 		}
 		bind.btnChangeName.setOnClickListener {
-
 			val til = ComponentTextImputLayoutBinding.inflate(LayoutInflater.from(requireContext()))
 			til.root.editText?.setText(bind.txtUserName.text)
-
 			MaterialAlertDialogBuilder(requireContext())
 				.setView(til.root)
 				.setNegativeButton(R.string.close) { _, _ -> }
 				.setPositiveButton(R.string.accept) { _, _ ->
-					globalViewModel.saveUserName(til.root.editText?.text.toString())
+					val txt = til.root.editText?.text.toString()
+						.ifNullOrEmpty { return@setPositiveButton }
+						.also { if (it.length > til.root.counterMaxLength) return@setPositiveButton }
+					globalViewModel.saveUserName(txt)
 				}
 				.show()
 		}
@@ -98,6 +105,13 @@ class SettingFragment : DaggerFragment() {
 			bind.llLanguages.removeAllViews()
 			country.country.forEach { countryText ->
 				val tv = TextView(requireContext())
+				tv.layoutParams = LinearLayout.LayoutParams(
+					ViewGroup.LayoutParams.WRAP_CONTENT,
+					ViewGroup.LayoutParams.WRAP_CONTENT
+				).apply {
+					weight = 1.0f
+					gravity = Gravity.END
+				}
 				tv.setTextAppearance(R.attr.textAppearanceBody2)
 				tv.text = countryText.value
 				bind.llLanguages.addView(tv)

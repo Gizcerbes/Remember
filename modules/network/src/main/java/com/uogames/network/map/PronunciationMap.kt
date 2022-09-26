@@ -1,5 +1,7 @@
 package com.uogames.network.map
 
+import android.util.Log
+import com.uogames.dto.DefaultUUID
 import com.uogames.dto.global.Pronunciation
 import com.uogames.network.response.PronunciationResponse
 
