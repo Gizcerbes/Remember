@@ -80,7 +80,7 @@ data class PhraseEntity(
 						var lan = result.getString(result.getColumnIndexOrThrow("lang")).split("-")
 						database.execSQL(
 							"UPDATE `phrase_table` " +
-									"SET `lang` = '${lan[0]}' " +
+									"SET `lang` = '${lan[0]}', " +
 									"`country` = '${lan[1]}' " +
 									"WHERE `id` = ${result.getInt(result.getColumnIndexOrThrow("id"))}"
 						)
