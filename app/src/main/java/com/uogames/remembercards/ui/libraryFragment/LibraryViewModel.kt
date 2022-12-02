@@ -1,8 +1,6 @@
 package com.uogames.remembercards.ui.libraryFragment
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.uogames.dto.local.Module
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.repository.DataProvider
@@ -82,7 +80,7 @@ class LibraryViewModel @Inject constructor(val provider: DataProvider) : ViewMod
 	fun stopSharing(module: Module, message: String = "Cancel") {
 		val action = shareActions[module.id].ifNull { return }
 		action.job.cancel()
-		action.callback(message)
+		viewModelScope.launch(Dispatchers.Main) { action.callback(message) }
 		shareActions.remove(module.id)
 	}
 }

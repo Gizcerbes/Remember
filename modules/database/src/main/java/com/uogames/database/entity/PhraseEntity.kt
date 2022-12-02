@@ -1,6 +1,11 @@
 package com.uogames.database.entity
 
+import androidx.core.database.getBlobOrNull
+import androidx.core.database.getIntOrNull
+import androidx.core.database.getStringOrNull
 import androidx.room.*
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import java.util.*
 
 @Entity(
@@ -16,6 +21,8 @@ data class PhraseEntity(
 	val definition: String?,
 	@ColumnInfo(name = "lang")
 	val lang: String,
+	@ColumnInfo(name = "country")
+	val country: String,
 	@ColumnInfo(name = "id_pronounce")
 	val idPronounce: Int?,
 	@ColumnInfo(name = "id_image")
@@ -47,6 +54,41 @@ data class PhraseEntity(
 				"`global_id` BLOB, " +
 				"`global_owner` TEXT" +
 				");"
+
+		private const val v3 = "CREATE TABLE " +
+				"`phrase_table` (" +
+				"`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+				"`phrase` TEXT NOT NULL, " +
+				"`definition` TEXT, " +
+				"`lang` TEXT NOT NULL, " +
+				"`country` TEXT NOT NULL, " +
+				"`id_pronounce` INTEGER, " +
+				"`id_image` INTEGER, " +
+				"`time_change` INTEGER NOT NULL, " +
+				"`like` INTEGER NOT NULL, " +
+				"`dislike` INTEGER NOT NULL, " +
+				"`global_id` BLOB, " +
+				"`global_owner` TEXT" +
+				");"
+
+		fun migration_2_3(): Migration {
+			return object: Migration(2,3){
+				override fun migrate(database: SupportSQLiteDatabase) {
+					database.execSQL("ALTER TABLE `phrase_table` ADD `country` TEXT NOT NULL DEFAULT 'UNITED_KINGDOM'")
+					val result = database.query("SELECT * FROM `phrase_table`")
+					if (result.moveToFirst()) do {
+						var lan = result.getString(result.getColumnIndexOrThrow("lang")).split("-")
+						database.execSQL(
+							"UPDATE `phrase_table` " +
+									"SET `lang` = '${lan[0]}' " +
+									"`country` = '${lan[1]}' " +
+									"WHERE `id` = ${result.getInt(result.getColumnIndexOrThrow("id"))}"
+						)
+					} while (result.moveToNext())
+				}
+			}
+		}
 	}
+
 
 }

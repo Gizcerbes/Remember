@@ -23,7 +23,7 @@ import com.uogames.dto.User
 		ErrorCardEntity::class,
 		UserEntity::class
 	],
-	version = 2
+	version = 3
 )
 abstract class MyDatabase : RoomDatabase() {
 
@@ -53,7 +53,10 @@ abstract class MyDatabase : RoomDatabase() {
 			if (INSTANCE == null) synchronized(this) {
 				if (INSTANCE == null) INSTANCE = Room
 					.databaseBuilder(context, MyDatabase::class.java, "cardBase")
-					.addMigrations(UserEntity.migration_1_2())
+					.addMigrations(
+						UserEntity.migration_1_2(),
+						PhraseEntity.migration_2_3()
+					)
 					.build()
 			}
 			return INSTANCE as MyDatabase
