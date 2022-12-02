@@ -22,6 +22,7 @@ import com.uogames.remembercards.utils.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import java.util.Locale
 
 class CardAdapter(
 	private val model: CardViewModel,
@@ -151,7 +152,7 @@ class CardAdapter(
 			definition: TextView
 		) {
 			phrase?.let {
-				langView.text = Lang.parse(phrase.lang).locale.displayLanguage
+				langView.text = Locale.forLanguageTag(phrase.lang).displayLanguage
 				phraseView.text = phrase.phrase
 				definition.text = phrase.definition.orEmpty()
 			}

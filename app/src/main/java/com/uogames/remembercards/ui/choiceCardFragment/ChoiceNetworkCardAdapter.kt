@@ -16,6 +16,7 @@ import com.uogames.remembercards.databinding.CardCardBinding
 import com.uogames.remembercards.ui.cardFragment.NetworkCardViewModel
 import com.uogames.remembercards.utils.*
 import kotlinx.coroutines.*
+import java.util.*
 
 class ChoiceNetworkCardAdapter(
 	private val model: NetworkCardViewModel,
@@ -140,7 +141,7 @@ class ChoiceNetworkCardAdapter(
 			definition: TextView
 		) {
 			phrase?.let {
-				langView.text = Lang.parse(phrase.lang).locale.displayLanguage
+				langView.text = Locale.forLanguageTag(phrase.lang).displayLanguage
 				phraseView.text = phrase.phrase
 				definition.text = phrase.definition.orEmpty()
 			}

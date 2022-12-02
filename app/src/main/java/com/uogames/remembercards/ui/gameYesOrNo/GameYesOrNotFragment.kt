@@ -256,7 +256,7 @@ class GameYesOrNotFragment : DaggerFragment() {
 		definition: TextView
 	) {
 		phrase?.let {
-			langView.text = Lang.parse(phrase.lang).locale.displayLanguage
+			langView.text = Locale.forLanguageTag(phrase.lang).displayLanguage
 			phraseView.text = phrase.phrase
 			definition.text = phrase.definition.orEmpty()
 			definition.visibility = if (full && definition.text.isNotEmpty()) View.VISIBLE else View.GONE
@@ -273,10 +273,6 @@ class GameYesOrNotFragment : DaggerFragment() {
 				player.play(requireContext(), pronounce.audioUri.toUri(), soundImg.background.asAnimationDrawable())
 			}
 		}.ifNull { soundImg.visibility = View.GONE }
-	}
-
-	private fun showLang(phrase: Phrase): String {
-		return Lang.parse(phrase.lang).locale.displayLanguage
 	}
 
 	private fun play(boolean: Boolean) {

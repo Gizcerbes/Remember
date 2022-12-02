@@ -85,7 +85,7 @@ class EditModuleAdapter(
             button: MaterialCardView,
             phraseImage: ImageView
         ) {
-            langView.text = Lang.parse(phrase.lang).locale.displayLanguage
+            langView.text = Locale.forLanguageTag(phrase.lang).displayLanguage
             phraseView.text = phrase.phrase
             phrase.toImage()?.let {
                 Picasso.get().load(it.imgUri.toUri()).placeholder(R.drawable.noise).into(phraseImage)

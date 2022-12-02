@@ -2,13 +2,10 @@ package com.uogames.remembercards.ui.bookFragment
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.uogames.dto.global.Image
 import com.uogames.dto.global.Phrase
 import com.uogames.map.PhraseMap.update
-import com.uogames.remembercards.utils.Lang
 import com.uogames.remembercards.utils.ifNull
-import com.uogames.remembercards.utils.ifNullOrEmpty
 import com.uogames.remembercards.utils.observeWhile
 import com.uogames.repository.DataProvider
 import kotlinx.coroutines.*
@@ -27,7 +24,7 @@ class NetworkBookViewModel @Inject constructor(
 	inner class PhraseModel(val phrase: Phrase) {
 		val image by lazy { viewModelScope.async { phrase.idImage?.let { getImageById(it) } } }
 		val pronounceData by lazy { viewModelScope.async { phrase.idPronounce?.let { getPronounceData(it) } } }
-		val lang by lazy { Lang.parse(phrase.lang).locale.displayLanguage }
+		val lang by lazy { Locale.forLanguageTag(phrase.lang).displayLanguage }
 	}
 
 	private class DownloadAction(val job: Job, var callback: (String) -> Unit)

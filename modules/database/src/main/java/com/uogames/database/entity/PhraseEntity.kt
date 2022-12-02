@@ -1,8 +1,5 @@
 package com.uogames.database.entity
 
-import androidx.core.database.getBlobOrNull
-import androidx.core.database.getIntOrNull
-import androidx.core.database.getStringOrNull
 import androidx.room.*
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase

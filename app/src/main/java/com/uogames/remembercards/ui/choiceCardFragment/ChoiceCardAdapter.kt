@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
+import java.util.*
 
 class ChoiceCardAdapter(
 	private val model: CardViewModel,
@@ -117,7 +118,7 @@ class ChoiceCardAdapter(
 			phraseImage: ImageView
 		) {
 			phrase?.let {
-				langView.text = Lang.parse(phrase.lang).locale.displayLanguage
+				langView.text = Locale.forLanguageTag(phrase.lang).displayLanguage
 				phraseView.text = phrase.phrase
 			}
 

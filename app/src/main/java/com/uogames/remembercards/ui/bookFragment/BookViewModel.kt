@@ -1,15 +1,13 @@
 package com.uogames.remembercards.ui.bookFragment
 
 import android.os.Parcelable
-import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.uogames.dto.local.Phrase
-import com.uogames.remembercards.utils.Lang
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.repository.DataProvider
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import java.util.Locale
 import javax.inject.Inject
 import kotlin.collections.HashMap
 
@@ -22,7 +20,7 @@ class BookViewModel @Inject constructor(
 	inner class BookModel(val phrase: Phrase) {
 		val pronounce by lazy { viewModelScope.async { phrase.idPronounce?.let { provider.pronounce.getById(it) } } }
 		val image by lazy { viewModelScope.async { phrase.idImage?.let { provider.images.getById(it) } } }
-		val lang: String by lazy { Lang.parse(phrase.lang).locale.displayLanguage }
+		val lang: String by lazy { Locale.forLanguageTag(phrase.lang).displayLanguage }
 	}
 
 	private class ShareAction(val job: Job, var callback: (String) -> Unit)

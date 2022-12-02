@@ -15,6 +15,7 @@ import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardCardBinding
 import com.uogames.remembercards.utils.*
 import kotlinx.coroutines.*
+import java.util.Locale
 
 class NetworkCardAdapter(
 	private val model: NetworkCardViewModel,
@@ -137,7 +138,7 @@ class NetworkCardAdapter(
 			definition: TextView
 		) {
 			phrase?.let {
-				langView.text = Lang.parse(phrase.lang).locale.displayLanguage
+				langView.text = Locale.forLanguageTag(phrase.lang).displayLanguage
 				phraseView.text = phrase.phrase
 				definition.text = phrase.definition.orEmpty()
 			}

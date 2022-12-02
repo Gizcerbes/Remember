@@ -31,7 +31,8 @@ class EditPhraseViewModel @Inject constructor(
 		val id = MutableStateFlow(0)
 		val phrase = MutableStateFlow("")
 		val definition: MutableStateFlow<String?> = MutableStateFlow(null)
-		val lang: MutableStateFlow<String> = MutableStateFlow("eng-gb")
+		val lang: MutableStateFlow<String> = MutableStateFlow("eng")
+		val country: MutableStateFlow<String> = MutableStateFlow("UNITED_KINGDOM")
 		val idPronounce: MutableStateFlow<Int?> = MutableStateFlow(null)
 		val idImage: MutableStateFlow<Int?> = MutableStateFlow(null)
 		val timeChange = MutableStateFlow(0L)
@@ -43,6 +44,7 @@ class EditPhraseViewModel @Inject constructor(
 			phrase = phrase.value,
 			definition = definition.value,
 			lang = lang.value,
+			country = country.value,
 			idPronounce = idPronounce.value,
 			idImage = idImage.value,
 			timeChange = Date().time,
@@ -55,6 +57,7 @@ class EditPhraseViewModel @Inject constructor(
 			phrase.value = obj.phrase
 			definition.value = obj.definition
 			lang.value = obj.lang
+			country.value = obj.country
 			idPronounce.value = obj.idPronounce
 			idImage.value = obj.idImage
 			timeChange.value = obj.timeChange
@@ -239,7 +242,8 @@ class EditPhraseViewModel @Inject constructor(
 	private suspend fun build(id: Int = 0): Phrase {
 		phraseObject.id.value = id
 		phraseObject.idPronounce.value = savePronounceToId()
-		phraseObject.lang.value = lang.value.isO3Language + "-" + _country.value.toString()
+		phraseObject.lang.value = lang.value.isO3Language
+		phraseObject.country.value =  _country.value.toString()
 		return phraseObject.create()
 	}
 

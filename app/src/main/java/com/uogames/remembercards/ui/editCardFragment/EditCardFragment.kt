@@ -264,7 +264,7 @@ class EditCardFragment : DaggerFragment() {
     }
 
     private fun showLang(phrase: Phrase): String {
-        return Lang.parse(phrase.lang).locale.displayLanguage
+        return Locale.forLanguageTag(phrase.lang).displayLanguage
     }
 
     private fun openChoicePhraseFragment(bundle: Bundle) {
