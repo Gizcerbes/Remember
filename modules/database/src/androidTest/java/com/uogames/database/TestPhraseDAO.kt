@@ -14,6 +14,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
+import java.util.*
 
 @RunWith(AndroidJUnit4::class)
 class TestPhraseDAO {
@@ -32,12 +33,12 @@ class TestPhraseDAO {
 	}
 
 	fun setData() = runBlocking {
-		db.phraseDAO().insert(PhraseEntity(1, "Hello", "en", null, null,null,0,0,0,0,""))
-		db.phraseDAO().insert(PhraseEntity(2, "World", "en", null, null,null,0,0,0,0,""))
-		db.phraseDAO().insert(PhraseEntity(3, "Hello World", "en", null, null,null,0,0,0,0,""))
-		db.phraseDAO().insert(PhraseEntity(4, "Привет", "ru", null, null,null,0,0,0,0,""))
-		db.phraseDAO().insert(PhraseEntity(5, "Мир", "ru", null, null,null,0,0,0,0,""))
-		db.phraseDAO().insert(PhraseEntity(6, "Привет Мир", "ru", null, null,null,0,0,0,0,""))
+		db.phraseDAO().insert(PhraseEntity(1, "Hello", null, "en", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
+		db.phraseDAO().insert(PhraseEntity(2, "World", null, "en", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
+		db.phraseDAO().insert(PhraseEntity(3, "Hello World", null, "en", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
+		db.phraseDAO().insert(PhraseEntity(4, "Привет", null, "ru", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
+		db.phraseDAO().insert(PhraseEntity(5, "Мир", null, "ru", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
+		db.phraseDAO().insert(PhraseEntity(6, "Привет Мир", null, "ru", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
 	}
 
 	@Test
@@ -62,9 +63,9 @@ class TestPhraseDAO {
 	@Test
 	fun testDelete() = runBlocking {
 		setData()
-		val id = db.phraseDAO().delete(PhraseEntity(3, "", null, null, null,null,0,0,0,0,""))
+		val id = db.phraseDAO().delete(PhraseEntity(3, "", null,  "en", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
 		Assert.assertEquals(id, 1)
-		val id2 = db.phraseDAO().delete(PhraseEntity(3, "", null, null, null,null,0,0,0,0,""))
+		val id2 = db.phraseDAO().delete(PhraseEntity(3, "", null,  "en", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
 		Assert.assertEquals(id2, 0)
 	}
 
