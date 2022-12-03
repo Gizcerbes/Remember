@@ -81,4 +81,7 @@
 	<string name="clean">Clean</string>
 	<string name="about_program">About program:</string>
 	<string name="version">version || V ||</string>
+	<string name="label_text">Text:</string>
+	<string name="label_country">Country:</string>
+	<string name="label_language">Language:</string>
 </resources>

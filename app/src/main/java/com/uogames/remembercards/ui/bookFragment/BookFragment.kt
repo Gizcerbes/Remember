@@ -171,6 +171,7 @@ class BookFragment : DaggerFragment() {
 
 	private fun createKeyObserver(): Job = globalViewModel.isShowKey.observeWhenStarted(lifecycleScope) {
 		bind.tilSearch.visibility = if (it) View.VISIBLE else View.GONE
+		bind.clSearchBar.visibility = if (it) View.VISIBLE else View.GONE
 		bind.btnAdd.visibility = if (it || cloud) View.GONE else View.VISIBLE
 		if (it) {
 			bind.searchImage.setImageResource(R.drawable.ic_baseline_close_24)
