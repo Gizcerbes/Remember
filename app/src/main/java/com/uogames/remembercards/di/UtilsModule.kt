@@ -21,6 +21,7 @@ import com.uogames.remembercards.ui.gamesFragment.GamesViewModel
 import com.uogames.remembercards.ui.libraryFragment.LibraryViewModel
 import com.uogames.remembercards.ui.libraryFragment.NetworkLibraryViewModel
 import com.uogames.remembercards.ui.mainNav.NavigationViewModel
+import com.uogames.remembercards.ui.phrasesFragment.PhraseViewModel
 import com.uogames.remembercards.ui.registerFragment.RegisterViewModel
 import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.repository.DataProvider
@@ -75,6 +76,10 @@ class UtilsModule {
     @Provides
     @Singleton
     fun provideNetworkBookViewModel(provider: DataProvider): NetworkBookViewModel = NetworkBookViewModel(provider)
+
+    @Provides
+    @Singleton
+    fun providePhraseViewModel(provider: DataProvider): PhraseViewModel = PhraseViewModel(provider)
 
     @Provides
     @Singleton

@@ -14,7 +14,7 @@ import com.google.firebase.ktx.Firebase
 import com.squareup.picasso.Picasso
 import com.uogames.dto.local.Card
 import com.uogames.dto.local.Image
-import com.uogames.dto.local.Phrase
+import com.uogames.dto.local.LocalPhrase
 import com.uogames.dto.local.Pronunciation
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardCardBinding
@@ -141,15 +141,15 @@ class CardAdapter(
 		}
 
 		private fun setData(
-			phrase: Phrase?,
-			pronunciation: Pronunciation?,
-			image: Image?,
-			langView: TextView,
-			phraseView: TextView,
-			soundImg: ImageView,
-			button: MaterialCardView,
-			phraseImage: ImageView,
-			definition: TextView
+                phrase: LocalPhrase?,
+                pronunciation: Pronunciation?,
+                image: Image?,
+                langView: TextView,
+                phraseView: TextView,
+                soundImg: ImageView,
+                button: MaterialCardView,
+                phraseImage: ImageView,
+                definition: TextView
 		) {
 			phrase?.let {
 				langView.text = Locale.forLanguageTag(phrase.lang).displayLanguage

@@ -36,6 +36,12 @@
 		android:label="CardFragment"
 		tools:layout="@layout/fragment_card" />
 
+	<fragment
+		android:id="@+id/phrase_fragment"
+		android:name="com.uogames.remembercards.ui.phrasesFragment.PhraseFragment"
+		android:label="PhraseFragment"
+		tools:layout="@layout/fragment_book"
+		/>
 
 
 </navigation>

@@ -5,11 +5,10 @@ import android.media.MediaRecorder
 import androidx.core.net.toFile
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.google.mlkit.nl.languageid.LanguageIdentification
 import com.google.mlkit.nl.languageid.LanguageIdentificationOptions
 import com.uogames.dto.local.Image
-import com.uogames.dto.local.Phrase
+import com.uogames.dto.local.LocalPhrase
 import com.uogames.flags.Countries
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.utils.*
@@ -39,7 +38,7 @@ class EditPhraseViewModel @Inject constructor(
 		private var globalId: UUID? = null
 		private var globalOwner: String? = null
 
-		fun create() = Phrase(
+		fun create() = LocalPhrase(
 			id = id.value,
 			phrase = phrase.value,
 			definition = definition.value,
@@ -52,7 +51,7 @@ class EditPhraseViewModel @Inject constructor(
 			globalOwner = globalOwner
 		)
 
-		fun set(obj: Phrase) {
+		fun set(obj: LocalPhrase) {
 			id.value = obj.id
 			phrase.value = obj.phrase
 			definition.value = obj.definition
@@ -117,7 +116,7 @@ class EditPhraseViewModel @Inject constructor(
 	}
 
 	fun reset() {
-		phraseObject.set(Phrase())
+		phraseObject.set(LocalPhrase())
 		_imgPhrase.value = null
 		viewModelScope.launch {
 			_country.value = Countries.valueOf(provider.setting.get(GlobalViewModel.USER_NATIVE_COUNTRY).ifNull { "UNITED_KINGDOM" })
@@ -134,11 +133,11 @@ class EditPhraseViewModel @Inject constructor(
 	fun loadByID(id: Int): Job {
 		_isFileWriting.value = true
 		return viewModelScope.launch {
-			val phrase = provider.phrase.getByIdFlow(id).first().ifNull { Phrase() }
+			val phrase = provider.phrase.getByIdFlow(id).first().ifNull { LocalPhrase() }
 			phraseObject.set(phrase)
-			val splitLang = phrase.lang.ifNull { "eng-UNITED_KINGDOM" }.split("-")
-			_lang.value = Locale.forLanguageTag(splitLang[0])
-			_country.value = Countries.valueOf(splitLang[1])
+			val splitLang = phrase.lang.ifNull { "eng-UNITED_KINGDOM" }
+			_lang.value = Locale.forLanguageTag(splitLang)
+			_country.value = Countries.valueOf(phrase.country)
 			_imgPhrase.value = provider.images.getByPhrase(phrase).first()
 			val audio = provider.pronounce.getByPhrase(phrase).first()
 			_tempAudioBytes = audio?.audioUri?.let { if (it.isNotEmpty()) it.toUri().toFile().readBytes() else null }
@@ -239,7 +238,7 @@ class EditPhraseViewModel @Inject constructor(
 		}
 	}
 
-	private suspend fun build(id: Int = 0): Phrase {
+	private suspend fun build(id: Int = 0): LocalPhrase {
 		phraseObject.id.value = id
 		phraseObject.idPronounce.value = savePronounceToId()
 		phraseObject.lang.value = lang.value.isO3Language

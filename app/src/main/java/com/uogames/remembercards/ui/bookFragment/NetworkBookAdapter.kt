@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
-import com.uogames.dto.global.Image
+import com.uogames.dto.global.GlobalImage
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardPhraseBinding
 import com.uogames.remembercards.utils.*
@@ -91,7 +91,7 @@ class NetworkBookAdapter(
 			bind.imgAction.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
 		}
 
-		private suspend fun showImage(image: Deferred<Image?>) {
+		private suspend fun showImage(image: Deferred<GlobalImage?>) {
 			image.await()?.let {
 				val uri = it.imageUri.toUri()
 				model.getPicasso(itemView.context).load(uri).placeholder(R.drawable.noise).into(bind.imgPhrase)

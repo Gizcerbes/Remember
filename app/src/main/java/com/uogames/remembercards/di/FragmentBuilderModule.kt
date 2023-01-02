@@ -14,6 +14,7 @@ import com.uogames.remembercards.ui.gamesFragment.GamesFragment
 import com.uogames.remembercards.ui.libraryFragment.LibraryFragment
 import com.uogames.remembercards.ui.mainNav.MainNaviFragment
 import com.uogames.remembercards.ui.personFragment.PersonFragment
+import com.uogames.remembercards.ui.phrasesFragment.PhraseFragment
 import com.uogames.remembercards.ui.registerFragment.RegisterFragment
 import com.uogames.remembercards.ui.rootFragment.RootFragment
 import com.uogames.remembercards.ui.settingFragment.SettingFragment
@@ -34,6 +35,9 @@ abstract class FragmentBuilderModule {
 
     @ContributesAndroidInjector
     abstract fun contributeBookFragment(): BookFragment
+
+    @ContributesAndroidInjector
+    abstract fun contributePhraseFragment(): PhraseFragment
 
     @ContributesAndroidInjector
     abstract fun contributeLibraryFragment(): LibraryFragment

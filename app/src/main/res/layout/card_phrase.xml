@@ -7,14 +7,12 @@
 	android:layout_height="wrap_content"
 	app:contentPadding="0dp">
 
-
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:animateLayoutChanges="true"
 		android:orientation="vertical">
 
-		<androidx.constraintlayout.widget.ConstraintLayout
+		<RelativeLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:minHeight="40dp">
@@ -26,9 +24,9 @@
 				android:layout_height="wrap_content"
 				android:layout_margin="0dp"
 				android:visibility="visible"
-				app:layout_constraintBottom_toBottomOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toTopOf="parent">
+				android:layout_alignParentStart="true"
+				android:layout_alignParentTop="true">
 
 				<ImageView
 					android:id="@+id/img_btn_sound"
@@ -43,9 +41,8 @@
 				android:layout_height="wrap_content"
 				android:layout_marginStart="7dp"
 				android:textAppearance="?attr/textAppearanceBody2"
-				app:layout_constraintBottom_toBottomOf="parent"
-				app:layout_constraintStart_toEndOf="@id/btn_sound"
-				app:layout_constraintTop_toTopOf="parent"
+				android:layout_centerVertical="true"
+				android:layout_toEndOf="@id/btn_sound"
 				tools:text="English" />
 
 			<com.google.android.material.card.MaterialCardView
@@ -55,9 +52,8 @@
 				android:layout_height="wrap_content"
 				android:layout_margin="0dp"
 				android:visibility="visible"
-				app:layout_constraintBottom_toBottomOf="parent"
-				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintTop_toTopOf="parent">
+				android:layout_alignParentEnd="true"
+				android:layout_alignParentTop="true">
 
 				<ImageView
 					android:id="@+id/img_action"
@@ -66,7 +62,7 @@
 					android:src="@drawable/ic_baseline_keyboard_arrow_up_24" />
 			</com.google.android.material.card.MaterialCardView>
 
-		</androidx.constraintlayout.widget.ConstraintLayout>
+		</RelativeLayout>
 
 		<com.google.android.material.divider.MaterialDivider
 			android:layout_width="match_parent"
@@ -74,7 +70,7 @@
 			android:layout_marginStart="7dp"
 			android:layout_marginEnd="7dp" />
 
-		<androidx.constraintlayout.widget.ConstraintLayout
+		<RelativeLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:orientation="horizontal"
@@ -82,25 +78,20 @@
 
 			<LinearLayout
 				android:id="@+id/ll_phrase"
-				android:layout_width="0dp"
+				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_marginEnd="2dp"
 				android:minHeight="70dp"
 				android:orientation="vertical"
-				app:layout_constraintEnd_toStartOf="@id/mcv_img_phrase"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toTopOf="parent">
+				android:layout_toStartOf="@id/mcv_img_phrase"
+				android:layout_alignParentStart="true"
+				android:layout_alignParentTop="true">
 
 				<TextView
 					android:id="@+id/txt_phrase"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-
 					android:textAppearance="?attr/textAppearanceBody1"
-					app:layout_constraintBottom_toBottomOf="parent"
-					app:layout_constraintEnd_toEndOf="parent"
-					app:layout_constraintStart_toStartOf="parent"
-					app:layout_constraintTop_toTopOf="parent"
 					tools:text="Noise" />
 
 				<TextView
@@ -117,10 +108,9 @@
 				android:id="@+id/mcv_img_phrase"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				app:layout_constraintEnd_toEndOf="parent"
+				android:layout_alignParentEnd="true"
 				app:layout_constraintStart_toEndOf="@id/ll_phrase"
-
-				app:layout_constraintTop_toTopOf="parent"
+				android:layout_alignParentTop="true"
 				app:strokeColor="?attr/colorControlNormal"
 				app:strokeWidth="1dp">
 
@@ -135,7 +125,7 @@
 			</com.google.android.material.card.MaterialCardView>
 
 
-		</androidx.constraintlayout.widget.ConstraintLayout>
+		</RelativeLayout>
 
 		<LinearLayout
 			android:id="@+id/btns"
@@ -149,24 +139,22 @@
 				android:layout_marginStart="7dp"
 				android:layout_marginEnd="7dp" />
 
-			<androidx.constraintlayout.widget.ConstraintLayout
+			<RelativeLayout
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content">
 
 				<com.google.android.material.progressindicator.LinearProgressIndicator
 					android:id="@+id/progress_loading"
-					android:layout_width="0dp"
+					android:layout_width="wrap_content"
 					android:layout_height="50dp"
 					android:layout_marginStart="7dp"
 					android:layout_marginEnd="7dp"
 					android:indeterminate="true"
-					app:layout_constraintBottom_toBottomOf="parent"
-					app:layout_constraintEnd_toStartOf="@id/ll_btns"
-					app:layout_constraintStart_toStartOf="parent"
-					app:layout_constraintTop_toTopOf="parent"
+					android:layout_toStartOf="@id/ll_btns"
+					android:layout_alignParentStart="true"
+					android:layout_centerVertical="true"
 					app:trackCornerRadius="7dp"
 					app:trackThickness="30dp" />
-
 
 				<LinearLayout
 					android:id="@+id/ll_btns"
@@ -175,9 +163,8 @@
 					android:layout_gravity="end"
 					android:orientation="horizontal"
 					android:visibility="visible"
-					app:layout_constraintBottom_toBottomOf="parent"
-					app:layout_constraintEnd_toEndOf="parent"
-					app:layout_constraintTop_toTopOf="parent">
+					android:layout_alignParentEnd="true"
+					android:layout_centerVertical="true">
 
 					<com.google.android.material.card.MaterialCardView
 						android:id="@+id/btn_stop"
@@ -185,10 +172,7 @@
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:layout_margin="0dp"
-						android:visibility="visible"
-						app:layout_constraintBottom_toBottomOf="parent"
-						app:layout_constraintEnd_toEndOf="parent"
-						app:layout_constraintTop_toTopOf="parent">
+						android:visibility="visible">
 
 						<ImageView
 							android:layout_width="@dimen/card_button"
@@ -202,10 +186,7 @@
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:layout_margin="0dp"
-						android:visibility="visible"
-						app:layout_constraintBottom_toBottomOf="parent"
-						app:layout_constraintEnd_toEndOf="parent"
-						app:layout_constraintTop_toTopOf="parent">
+						android:visibility="visible">
 
 						<ImageView
 							android:layout_width="@dimen/card_button"
@@ -219,10 +200,7 @@
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:layout_margin="0dp"
-						android:visibility="visible"
-						app:layout_constraintBottom_toBottomOf="parent"
-						app:layout_constraintEnd_toEndOf="parent"
-						app:layout_constraintTop_toTopOf="parent">
+						android:visibility="visible">
 
 						<ImageView
 							android:layout_width="@dimen/card_button"
@@ -236,10 +214,7 @@
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:layout_margin="0dp"
-						android:visibility="visible"
-						app:layout_constraintBottom_toBottomOf="parent"
-						app:layout_constraintEnd_toEndOf="parent"
-						app:layout_constraintTop_toTopOf="parent">
+						android:visibility="visible">
 
 						<ImageView
 							android:layout_width="@dimen/card_button"
@@ -247,11 +222,10 @@
 							android:src="@drawable/ic_baseline_change_24" />
 					</com.google.android.material.card.MaterialCardView>
 
-
-
 				</LinearLayout>
 
-			</androidx.constraintlayout.widget.ConstraintLayout>
+			</RelativeLayout>
+
 		</LinearLayout>
 
 	</LinearLayout>

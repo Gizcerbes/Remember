@@ -1,14 +1,11 @@
 package com.uogames.repository.providers
 
-import android.util.Log
 import androidx.core.net.toUri
-import com.uogames.database.DatabaseRepository
 import com.uogames.database.repository.PronunciationRepository
-import com.uogames.dto.local.Phrase
+import com.uogames.dto.local.LocalPhrase
 import com.uogames.dto.local.Pronunciation
 import com.uogames.map.PronunciationMap.update
 import com.uogames.network.NetworkProvider
-import com.uogames.network.provider.PronunciationProvider
 import com.uogames.repository.DataProvider
 import com.uogames.repository.fileRepository.FileRepository
 import kotlinx.coroutines.flow.first
@@ -50,7 +47,7 @@ class PronunciationProvider(
 
 	fun getByNumber(number: Int) = database.getByNumberFlow(number)
 
-	fun getByPhrase(phrase: Phrase) = database.getByPhrase(phrase)
+	fun getByPhrase(phrase: LocalPhrase) = database.getByPhrase(phrase)
 
 	suspend fun getByGlobalId(id: UUID) = database.getByGlobalId(id)
 

@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import com.squareup.picasso.Picasso
 import com.uogames.dto.local.ModuleCard
-import com.uogames.dto.local.Phrase
+import com.uogames.dto.local.LocalPhrase
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardCardBinding
 import com.uogames.remembercards.utils.*
@@ -78,12 +78,12 @@ class EditModuleAdapter(
         }
 
         private suspend fun setData(
-            phrase: Phrase,
-            langView: TextView,
-            phraseView: TextView,
-            soundImg: ImageView,
-            button: MaterialCardView,
-            phraseImage: ImageView
+                phrase: LocalPhrase,
+                langView: TextView,
+                phraseView: TextView,
+                soundImg: ImageView,
+                button: MaterialCardView,
+                phraseImage: ImageView
         ) {
             langView.text = Locale.forLanguageTag(phrase.lang).displayLanguage
             phraseView.text = phrase.phrase

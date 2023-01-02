@@ -2,7 +2,6 @@ package com.uogames.remembercards.ui.gameYesOrNo
 
 import android.content.Context
 import android.os.*
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,7 +15,7 @@ import androidx.navigation.findNavController
 import com.google.android.material.card.MaterialCardView
 import com.squareup.picasso.Picasso
 import com.uogames.dto.local.Image
-import com.uogames.dto.local.Phrase
+import com.uogames.dto.local.LocalPhrase
 import com.uogames.dto.local.Pronunciation
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
@@ -245,15 +244,15 @@ class GameYesOrNotFragment : DaggerFragment() {
 	}
 
 	private fun setData(
-		phrase: Phrase?,
-		pronunciation: Pronunciation?,
-		image: Image?,
-		langView: TextView,
-		phraseView: TextView,
-		soundImg: ImageView,
-		button: MaterialCardView,
-		phraseImage: ImageView,
-		definition: TextView
+            phrase: LocalPhrase?,
+            pronunciation: Pronunciation?,
+            image: Image?,
+            langView: TextView,
+            phraseView: TextView,
+            soundImg: ImageView,
+            button: MaterialCardView,
+            phraseImage: ImageView,
+            definition: TextView
 	) {
 		phrase?.let {
 			langView.text = Locale.forLanguageTag(phrase.lang).displayLanguage

@@ -19,7 +19,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 import com.google.android.material.card.MaterialCardView
 import com.squareup.picasso.Picasso
-import com.uogames.dto.local.Phrase
+import com.uogames.dto.local.LocalPhrase
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentEditCardBinding
@@ -222,13 +222,13 @@ class EditCardFragment : DaggerFragment() {
     }
 
     private suspend fun setButtonData(
-        phrase: Phrase,
-        container: MaterialCardView,
-        txtPhrase: TextView,
-        imgSound: ImageView,
-        lang: TextView,
-        imageCard: ImageView,
-        definition: TextView
+            phrase: LocalPhrase,
+            container: MaterialCardView,
+            txtPhrase: TextView,
+            imgSound: ImageView,
+            lang: TextView,
+            imageCard: ImageView,
+            definition: TextView
     ) {
         txtPhrase.text = phrase.phrase.ifNullOrEmpty { requireContext().getString(R.string.phrase_label) }
         lang.text = showLang(phrase)
@@ -263,7 +263,7 @@ class EditCardFragment : DaggerFragment() {
         definition.text = ""
     }
 
-    private fun showLang(phrase: Phrase): String {
+    private fun showLang(phrase: LocalPhrase): String {
         return Locale.forLanguageTag(phrase.lang).displayLanguage
     }
 

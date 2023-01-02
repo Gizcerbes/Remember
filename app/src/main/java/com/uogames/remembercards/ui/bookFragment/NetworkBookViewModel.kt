@@ -2,8 +2,8 @@ package com.uogames.remembercards.ui.bookFragment
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
-import com.uogames.dto.global.Image
-import com.uogames.dto.global.Phrase
+import com.uogames.dto.global.GlobalImage
+import com.uogames.dto.global.GlobalPhrase
 import com.uogames.map.PhraseMap.update
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observeWhile
@@ -21,7 +21,7 @@ class NetworkBookViewModel @Inject constructor(
 
 	private val viewModelScope = CoroutineScope(Dispatchers.IO)
 
-	inner class PhraseModel(val phrase: Phrase) {
+	inner class PhraseModel(val phrase: GlobalPhrase) {
 		val image by lazy { viewModelScope.async { phrase.idImage?.let { getImageById(it) } } }
 		val pronounceData by lazy { viewModelScope.async { phrase.idPronounce?.let { getPronounceData(it) } } }
 		val lang by lazy { Locale.forLanguageTag(phrase.lang).displayLanguage }
@@ -60,7 +60,7 @@ class NetworkBookViewModel @Inject constructor(
 		return null
 	}
 
-	private suspend fun getImageById(id: UUID): Image? {
+	private suspend fun getImageById(id: UUID): GlobalImage? {
 		runCatching { return provider.images.getGlobalById(id) }
 		return null
 	}
@@ -94,7 +94,7 @@ class NetworkBookViewModel @Inject constructor(
 				provider.phrase.getByGlobalId(phraseModel.phrase.globalId)?.let {
 					provider.phrase.update(it.update(phraseModel.phrase, pronounce?.id, image?.id))
 				}.ifNull {
-					provider.phrase.add(com.uogames.dto.local.Phrase().update(phraseModel.phrase, pronounce?.id, image?.id))
+					provider.phrase.add(com.uogames.dto.local.LocalPhrase().update(phraseModel.phrase, pronounce?.id, image?.id))
 				}
 			}.onSuccess {
 				launch(Dispatchers.Main) {

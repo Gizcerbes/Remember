@@ -3,15 +3,12 @@ package com.uogames.repository.providers
 import android.content.Context
 import android.util.Log
 import androidx.core.net.toUri
-import com.uogames.database.DatabaseRepository
 import com.uogames.database.repository.ImageRepository
 import com.uogames.dto.local.Image
 import com.uogames.dto.local.Card
-import com.uogames.dto.local.Phrase
+import com.uogames.dto.local.LocalPhrase
 import com.uogames.map.ImageMap.update
 import com.uogames.network.NetworkProvider
-import com.uogames.network.provider.ImageProvider
-import com.uogames.network.response.ImageResponse
 import com.uogames.repository.DataProvider
 import com.uogames.repository.fileRepository.FileRepository
 import kotlinx.coroutines.flow.first
@@ -53,7 +50,7 @@ class ImageProvider(
 
 	fun getByIdFlow(id: Int) = database.getByIdFlow(id)
 
-	fun getByPhrase(phrase: Phrase) = database.getByPhraseFlow(phrase)
+	fun getByPhrase(phrase: LocalPhrase) = database.getByPhraseFlow(phrase)
 
 	fun getByCard(card: Card) = database.getByCardFlow(card)
 

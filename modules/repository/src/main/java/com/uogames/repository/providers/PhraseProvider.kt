@@ -1,7 +1,7 @@
 package com.uogames.repository.providers
 
 import com.uogames.database.repository.PhraseRepository
-import com.uogames.dto.local.Phrase
+import com.uogames.dto.local.LocalPhrase
 import com.uogames.map.PhraseMap.toGlobal
 import com.uogames.map.PhraseMap.update
 import com.uogames.network.NetworkProvider
@@ -13,19 +13,26 @@ class PhraseProvider(
 	private val pr: PhraseRepository,
 	private val network: NetworkProvider
 ) {
-	suspend fun add(phrase: Phrase) = pr.add(phrase)
+	suspend fun add(phrase: LocalPhrase) = pr.add(phrase)
 
-	suspend fun delete(phrase: Phrase) = pr.delete(phrase)
+	suspend fun delete(phrase: LocalPhrase) = pr.delete(phrase)
 
-	suspend fun update(phrase: Phrase) = pr.update(phrase)
+	suspend fun update(phrase: LocalPhrase) = pr.update(phrase)
 
 	suspend fun get(like: String, position: Int) = pr.get(like, position)
+
+	suspend fun get(like: String, lang: String, position: Int) = pr.get(like, lang, position)
+
+	suspend fun get(like: String, lang: String, country: String, position: Int) = pr.get(like, lang, country, position)
+
 
 	fun countFlow() = pr.countFlow()
 
 	fun countFlow(like: String) = pr.countFlow(like)
 
 	fun countFlow(like: String, lang: String) = pr.countFlow(like, lang)
+
+	fun countFlow(like: String, lang: String, country: String) = pr.countFlow(like, lang, country)
 
 	fun getFlow(position: Int) = pr.getFlow(position)
 
@@ -51,7 +58,7 @@ class PhraseProvider(
 
 	suspend fun getGlobalById(globalId: UUID) = network.phrase.get(globalId)
 
-	suspend fun share(id: Int): Phrase? {
+	suspend fun share(id: Int): LocalPhrase? {
 		val phrase = getById(id)
 		return phrase?.let {
 			val image = it.idImage?.let { image -> dataProvider.images.share(image) }
@@ -64,7 +71,7 @@ class PhraseProvider(
 		}
 	}
 
-	suspend fun download(id: UUID): Phrase? {
+	suspend fun download(id: UUID): LocalPhrase? {
 		val local = pr.getByGlobalId(id)
 		val np = network.phrase.get(id)
 		val image = np.idImage?.let { dataProvider.images.download(it) }
@@ -73,7 +80,7 @@ class PhraseProvider(
 			update(local.update(network.phrase.get(id), pronounce?.id, image?.id))
 			local.id
 		} else {
-			add(Phrase().update(network.phrase.get(id), pronounce?.id, image?.id)).toInt()
+			add(LocalPhrase().update(network.phrase.get(id), pronounce?.id, image?.id)).toInt()
 		}
 		return pr.getById(localId)
 	}

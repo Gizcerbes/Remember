@@ -2,12 +2,12 @@ package com.uogames.map
 
 import com.uogames.dto.DefaultUUID
 import com.uogames.dto.local.Image
-import com.uogames.dto.local.Phrase
+import com.uogames.dto.local.LocalPhrase
 import com.uogames.dto.local.Pronunciation
 
 object PhraseMap {
 
-	fun Phrase.toGlobal(image: Image?, pronunciation: Pronunciation?) = com.uogames.dto.global.Phrase(
+	fun LocalPhrase.toGlobal(image: Image?, pronunciation: Pronunciation?) = com.uogames.dto.global.GlobalPhrase(
 		globalId = globalId ?: DefaultUUID.value,
 		globalOwner = globalOwner ?: "",
 		phrase = phrase,
@@ -20,7 +20,7 @@ object PhraseMap {
 		dislike = 0
 	)
 
-	fun Phrase.update(phrase: com.uogames.dto.global.Phrase) = Phrase(
+	fun LocalPhrase.update(phrase: com.uogames.dto.global.GlobalPhrase) = LocalPhrase(
 		id = id,
 		phrase = phrase.phrase,
 		definition = phrase.definition,
@@ -34,7 +34,7 @@ object PhraseMap {
 		globalOwner = phrase.globalOwner
 	)
 
-	fun Phrase.update(phrase: com.uogames.dto.global.Phrase?, idPronounce: Int?, idImage: Int?) = Phrase(
+	fun LocalPhrase.update(phrase: com.uogames.dto.global.GlobalPhrase?, idPronounce: Int?, idImage: Int?) = LocalPhrase(
 		id = id,
 		phrase = phrase?.phrase ?: this.phrase,
 		definition = phrase?.definition ?: this.definition,

@@ -7,7 +7,7 @@ import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import com.uogames.dto.local.Image
-import com.uogames.dto.local.Phrase
+import com.uogames.dto.local.LocalPhrase
 import com.uogames.dto.local.Pronunciation
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardPhraseBinding
@@ -16,10 +16,10 @@ import com.uogames.remembercards.utils.*
 import kotlinx.coroutines.*
 
 class ChoicePhraseAdapter(
-	val model: BookViewModel,
-	val player: ObservableMediaPlayer,
-	val editCall: (Phrase) -> Unit,
-	val selectedCall: (Phrase) -> Unit
+        val model: BookViewModel,
+        val player: ObservableMediaPlayer,
+        val editCall: (LocalPhrase) -> Unit,
+        val selectedCall: (LocalPhrase) -> Unit
 ) : ClosableAdapter<ChoicePhraseAdapter.PhraseHolder>() {
 
 	private val recyclerScope = CoroutineScope(Dispatchers.Main)

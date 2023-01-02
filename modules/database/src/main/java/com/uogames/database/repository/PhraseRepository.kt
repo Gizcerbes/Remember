@@ -3,17 +3,17 @@ package com.uogames.database.repository
 import com.uogames.database.dao.PhraseDAO
 import com.uogames.database.map.PhraseMap.toDTO
 import com.uogames.database.map.PhraseMap.toEntity
-import com.uogames.dto.local.Phrase
+import com.uogames.dto.local.LocalPhrase
 import kotlinx.coroutines.flow.map
 import java.util.*
 
 class PhraseRepository(private val dao: PhraseDAO) {
 
-	suspend fun add(phrase: Phrase) = dao.insert(phrase.toEntity())
+	suspend fun add(phrase: LocalPhrase) = dao.insert(phrase.toEntity())
 
-	suspend fun delete(phrase: Phrase) = dao.delete(phrase.toEntity()) > 0
+	suspend fun delete(phrase: LocalPhrase) = dao.delete(phrase.toEntity()) > 0
 
-	suspend fun update(phrase: Phrase) = dao.update(phrase.toEntity()) > 0
+	suspend fun update(phrase: LocalPhrase) = dao.update(phrase.toEntity()) > 0
 
 	suspend fun count() = dao.count()
 
@@ -27,6 +27,8 @@ class PhraseRepository(private val dao: PhraseDAO) {
 
 	fun countFlow(like: String, lang: String) = dao.countFlow(like, lang)
 
+	fun countFlow(like: String, lang: String, country: String) = dao.countFlow(like, lang, country)
+
 	suspend fun get(position: Int) = dao.get(position)?.toDTO()
 
 	fun getFlow(position: Int) = dao.getFlow(position).map { it?.toDTO() }
@@ -38,6 +40,8 @@ class PhraseRepository(private val dao: PhraseDAO) {
 	suspend fun get(like: String, lang: String, position: Int) = dao.get(like, lang, position)?.toDTO()
 
 	fun getFlow(like: String, lang: String, position: Int) = dao.getFlow(like, lang, position).map { it?.toDTO() }
+
+	suspend fun get(like: String, lang: String, country: String, position: Int) = dao.get(like, lang, country, position)?.toDTO()
 
 	suspend fun getById(id: Int) = dao.getById(id)?.toDTO()
 

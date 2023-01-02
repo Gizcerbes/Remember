@@ -4,7 +4,7 @@ import android.content.Context
 import com.uogames.database.DatabaseRepository
 import com.uogames.dto.local.Card
 import com.uogames.dto.local.ModuleCard
-import com.uogames.dto.local.Phrase
+import com.uogames.dto.local.LocalPhrase
 import com.uogames.network.NetworkProvider
 import com.uogames.repository.fileRepository.FileRepository
 import com.uogames.repository.providers.*
@@ -49,13 +49,13 @@ class DataProvider private constructor(
 
 		fun Card.toImageFlow() = idImage?.let { INSTANCE?.images?.getByIdFlow(it) }
 
-		suspend fun Phrase.toImage() = idImage?.let { INSTANCE?.images?.getById(it) }
+		suspend fun LocalPhrase.toImage() = idImage?.let { INSTANCE?.images?.getById(it) }
 
-		fun Phrase.toImageFlow() = idImage?.let { INSTANCE?.images?.getByIdFlow(it) }
+		fun LocalPhrase.toImageFlow() = idImage?.let { INSTANCE?.images?.getByIdFlow(it) }
 
-		suspend fun Phrase.toPronounce() = idPronounce?.let { INSTANCE?.pronounce?.getById(it) }
+		suspend fun LocalPhrase.toPronounce() = idPronounce?.let { INSTANCE?.pronounce?.getById(it) }
 
-		fun Phrase.toPronounceFlow() = idPronounce?.let { INSTANCE?.pronounce?.getByIdFlow(it) }
+		fun LocalPhrase.toPronounceFlow() = idPronounce?.let { INSTANCE?.pronounce?.getByIdFlow(it) }
 	}
 
 	val cards by lazy { CardsProvider(this, database.cardRepository, networkProvider) }

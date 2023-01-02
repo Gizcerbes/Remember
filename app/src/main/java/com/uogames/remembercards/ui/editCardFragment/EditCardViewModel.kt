@@ -3,7 +3,7 @@ package com.uogames.remembercards.ui.editCardFragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.uogames.dto.local.Card
-import com.uogames.dto.local.Phrase
+import com.uogames.dto.local.LocalPhrase
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.ifNullOrEmpty
 import com.uogames.repository.DataProvider
@@ -19,10 +19,10 @@ class EditCardViewModel @Inject constructor(val provider: DataProvider) : ViewMo
 
     private val _cardID = MutableStateFlow(0)
 
-    private val _firstPhrase: MutableStateFlow<Phrase?> = MutableStateFlow(null)
+    private val _firstPhrase: MutableStateFlow<LocalPhrase?> = MutableStateFlow(null)
     val firstPhrase = _firstPhrase.asStateFlow()
 
-    private val _secondPhrase: MutableStateFlow<Phrase?> = MutableStateFlow(null)
+    private val _secondPhrase: MutableStateFlow<LocalPhrase?> = MutableStateFlow(null)
     val secondPhrase = _secondPhrase.asStateFlow()
 
     private val _reason = MutableStateFlow("")

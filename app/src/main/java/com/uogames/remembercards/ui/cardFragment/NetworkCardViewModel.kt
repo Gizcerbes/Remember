@@ -1,17 +1,14 @@
 package com.uogames.remembercards.ui.cardFragment
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.uogames.dto.global.Card
-import com.uogames.dto.global.Image
-import com.uogames.dto.global.Phrase
+import com.uogames.dto.global.GlobalImage
+import com.uogames.dto.global.GlobalPhrase
 import com.uogames.dto.global.Pronunciation
 import com.uogames.map.CardMap.update
 import com.uogames.map.PhraseMap.update
 import com.uogames.remembercards.utils.ifNull
-import com.uogames.remembercards.utils.ifNullOrEmpty
 import com.uogames.remembercards.utils.observeWhile
 import com.uogames.repository.DataProvider
 import kotlinx.coroutines.*
@@ -70,12 +67,12 @@ class NetworkCardViewModel @Inject constructor(private val provider: DataProvide
 		return null
 	}
 
-	private suspend fun getPhraseById(id: UUID): Phrase? {
+	private suspend fun getPhraseById(id: UUID): GlobalPhrase? {
 		runCatching { return provider.phrase.getGlobalById(id) }
 		return null
 	}
 
-	private suspend fun getImageById(id: UUID): Image? {
+	private suspend fun getImageById(id: UUID): GlobalImage? {
 		runCatching { return provider.images.getGlobalById(id) }
 		return null
 	}
@@ -115,7 +112,7 @@ class NetworkCardViewModel @Inject constructor(private val provider: DataProvide
 				phrase?.let {
 					provider.phrase.update(it.update(cardModel.phrase.await(), phrasePronounce?.id, phraseImage?.id))
 				}.ifNull {
-					provider.phrase.add(com.uogames.dto.local.Phrase().update(cardModel.phrase.await(), phrasePronounce?.id, phraseImage?.id))
+					provider.phrase.add(com.uogames.dto.local.LocalPhrase().update(cardModel.phrase.await(), phrasePronounce?.id, phraseImage?.id))
 				}
 				val translateImage = cardModel.translateImage.await()?.globalId?.let {
 					provider.images.getByGlobalId(it).ifNull { provider.images.download(it) }
@@ -128,7 +125,7 @@ class NetworkCardViewModel @Inject constructor(private val provider: DataProvide
 					provider.phrase.update(it.update(cardModel.translate.await(), translatePronounce?.id, translateImage?.id))
 				}.ifNull {
 					provider.phrase.add(
-						com.uogames.dto.local.Phrase().update(cardModel.translate.await(), translatePronounce?.id, translateImage?.id)
+						com.uogames.dto.local.LocalPhrase().update(cardModel.translate.await(), translatePronounce?.id, translateImage?.id)
 					)
 				}
 

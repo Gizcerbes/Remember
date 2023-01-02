@@ -10,17 +10,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import com.squareup.picasso.Picasso
 import com.uogames.dto.local.Image
-import com.uogames.dto.local.Phrase
+import com.uogames.dto.local.LocalPhrase
 import com.uogames.dto.local.Pronunciation
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardCardBinding
 import com.uogames.remembercards.ui.cardFragment.CardViewModel
 import com.uogames.remembercards.utils.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
 import java.util.*
 
 class ChoiceCardAdapter(
@@ -108,14 +104,14 @@ class ChoiceCardAdapter(
 		}
 
 		private fun setData(
-			phrase: Phrase?,
-			pronunciation: Pronunciation?,
-			image: Image?,
-			langView: TextView,
-			phraseView: TextView,
-			soundImg: ImageView,
-			button: MaterialCardView,
-			phraseImage: ImageView
+                phrase: LocalPhrase?,
+                pronunciation: Pronunciation?,
+                image: Image?,
+                langView: TextView,
+                phraseView: TextView,
+                soundImg: ImageView,
+                button: MaterialCardView,
+                phraseImage: ImageView
 		) {
 			phrase?.let {
 				langView.text = Locale.forLanguageTag(phrase.lang).displayLanguage

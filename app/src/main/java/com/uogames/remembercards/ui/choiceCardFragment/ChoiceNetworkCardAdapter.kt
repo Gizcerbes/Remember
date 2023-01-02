@@ -1,6 +1,5 @@
 package com.uogames.remembercards.ui.choiceCardFragment
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,8 +8,8 @@ import android.widget.TextView
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
-import com.uogames.dto.global.Image
-import com.uogames.dto.global.Phrase
+import com.uogames.dto.global.GlobalImage
+import com.uogames.dto.global.GlobalPhrase
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardCardBinding
 import com.uogames.remembercards.ui.cardFragment.NetworkCardViewModel
@@ -130,15 +129,15 @@ class ChoiceNetworkCardAdapter(
 		}
 
 		private fun setData(
-			phrase: Phrase?,
-			pronunciationData: Deferred<ByteArray?>,
-			image: Image?,
-			langView: TextView,
-			phraseView: TextView,
-			soundImg: ImageView,
-			button: MaterialCardView,
-			phraseImage: ImageView,
-			definition: TextView
+                phrase: GlobalPhrase?,
+                pronunciationData: Deferred<ByteArray?>,
+                image: GlobalImage?,
+                langView: TextView,
+                phraseView: TextView,
+                soundImg: ImageView,
+                button: MaterialCardView,
+                phraseImage: ImageView,
+                definition: TextView
 		) {
 			phrase?.let {
 				langView.text = Locale.forLanguageTag(phrase.lang).displayLanguage

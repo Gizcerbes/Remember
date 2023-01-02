@@ -3,11 +3,11 @@ package com.uogames.map
 import com.uogames.dto.DefaultUUID
 import com.uogames.dto.local.Card
 import com.uogames.dto.local.Image
-import com.uogames.dto.local.Phrase
+import com.uogames.dto.local.LocalPhrase
 
 object CardMap {
 
-	fun Card.toGlobal(phrase: Phrase?, translate: Phrase?, image: Image?) = com.uogames.dto.global.Card(
+	fun Card.toGlobal(phrase: LocalPhrase?, translate: LocalPhrase?, image: Image?) = com.uogames.dto.global.Card(
 		globalId = globalId ?: DefaultUUID.value,
 		globalOwner = globalOwner ?: "",
 		idPhrase = phrase?.globalId ?: DefaultUUID.value,

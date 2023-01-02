@@ -1,10 +1,10 @@
 package com.uogames.network.map
 
-import com.uogames.dto.global.Phrase
+import com.uogames.dto.global.GlobalPhrase
 import com.uogames.network.response.PhraseResponse
 
-object PhraseMap : Map<PhraseResponse, Phrase> {
-	override fun PhraseResponse.toDTO() = Phrase(
+object PhraseMap : Map<PhraseResponse, GlobalPhrase> {
+	override fun PhraseResponse.toDTO() = GlobalPhrase(
 		globalId = globalId,
 		globalOwner = globalOwner,
 		phrase = phrase,
@@ -18,7 +18,7 @@ object PhraseMap : Map<PhraseResponse, Phrase> {
 		dislike = dislike
 	)
 
-	override fun Phrase.toResponse() = PhraseResponse(
+	override fun GlobalPhrase.toResponse() = PhraseResponse(
 		globalId = globalId,
 		globalOwner = globalOwner,
 		phrase = phrase,

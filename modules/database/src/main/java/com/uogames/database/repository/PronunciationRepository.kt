@@ -3,7 +3,7 @@ package com.uogames.database.repository
 import com.uogames.database.dao.PronunciationDAO
 import com.uogames.database.map.PronunciationMap.toDTO
 import com.uogames.database.map.PronunciationMap.toEntity
-import com.uogames.dto.local.Phrase
+import com.uogames.dto.local.LocalPhrase
 import com.uogames.dto.local.Pronunciation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,7 +32,7 @@ class PronunciationRepository(private val dao: PronunciationDAO) {
 
 	fun getByNumberFlow(number: Int) = dao.getByNumberFlow(number).map { it?.toDTO() }
 
-	fun getByPhrase(phrase: Phrase) = phrase.idPronounce?.let {
+	fun getByPhrase(phrase: LocalPhrase) = phrase.idPronounce?.let {
 		getByIdFlow(it)
 	} ?: MutableStateFlow(null).asStateFlow()
 

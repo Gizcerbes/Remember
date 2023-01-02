@@ -1,14 +1,12 @@
 package com.uogames.remembercards.ui.choicePhraseFragment
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
-import com.uogames.dto.global.Image
-import com.uogames.dto.local.Phrase
+import com.uogames.dto.global.GlobalImage
+import com.uogames.dto.local.LocalPhrase
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardPhraseBinding
 import com.uogames.remembercards.ui.bookFragment.NetworkBookViewModel
@@ -18,7 +16,7 @@ import kotlinx.coroutines.*
 class ChoiceNetworkPhraseAdapter(
 	val model: NetworkBookViewModel,
 	val player: ObservableMediaPlayer,
-	val selectedCall: (Phrase) -> Unit
+	val selectedCall: (LocalPhrase) -> Unit
 ) : ClosableAdapter<ChoiceNetworkPhraseAdapter.PhraseHolder>() {
 
 	private val recyclerScope = CoroutineScope(Dispatchers.Main)
@@ -97,7 +95,7 @@ class ChoiceNetworkPhraseAdapter(
 			bind.imgAction.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
 		}
 
-		private suspend fun showImage(image: Deferred<Image?>) {
+		private suspend fun showImage(image: Deferred<GlobalImage?>) {
 			image.await()?.let {
 				val uri = it.imageUri.toUri()
 				model.getPicasso(itemView.context).load(uri).placeholder(R.drawable.noise).into(bind.imgPhrase)
