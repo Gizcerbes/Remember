@@ -2,7 +2,7 @@ package com.uogames.repository
 
 import android.content.Context
 import com.uogames.database.DatabaseRepository
-import com.uogames.dto.local.Card
+import com.uogames.dto.local.LocalCard
 import com.uogames.dto.local.ModuleCard
 import com.uogames.dto.local.LocalPhrase
 import com.uogames.network.NetworkProvider
@@ -37,17 +37,17 @@ class DataProvider private constructor(
 
 		fun ModuleCard.toCardFlow() = INSTANCE?.cards?.getByIdFlow(idCard)
 
-		suspend fun Card.toPhrase() = INSTANCE?.phrase?.getById(idPhrase)
+		suspend fun LocalCard.toPhrase() = INSTANCE?.phrase?.getById(idPhrase)
 
-		fun Card.toPhraseFlow() = INSTANCE?.phrase?.getByIdFlow(idPhrase)
+		fun LocalCard.toPhraseFlow() = INSTANCE?.phrase?.getByIdFlow(idPhrase)
 
-		suspend fun Card.toTranslate() = INSTANCE?.phrase?.getById(idTranslate)
+		suspend fun LocalCard.toTranslate() = INSTANCE?.phrase?.getById(idTranslate)
 
-		fun Card.toTranslateFlow() = INSTANCE?.phrase?.getByIdFlow(idTranslate)
+		fun LocalCard.toTranslateFlow() = INSTANCE?.phrase?.getByIdFlow(idTranslate)
 
-		suspend fun Card.toImage() = INSTANCE?.images?.getById(id)
+		suspend fun LocalCard.toImage() = INSTANCE?.images?.getById(id)
 
-		fun Card.toImageFlow() = idImage?.let { INSTANCE?.images?.getByIdFlow(it) }
+		fun LocalCard.toImageFlow() = idImage?.let { INSTANCE?.images?.getByIdFlow(it) }
 
 		suspend fun LocalPhrase.toImage() = idImage?.let { INSTANCE?.images?.getById(it) }
 

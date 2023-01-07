@@ -1,32 +1,35 @@
-package com.uogames.remembercards.ui.choicePhraseFragment
+package com.uogames.remembercards.ui.phrasesFragment
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.squareup.picasso.Picasso
 import com.uogames.dto.global.GlobalImage
 import com.uogames.dto.local.Image
-import com.uogames.dto.local.LocalPhrase
 import com.uogames.dto.local.Pronunciation
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardPhraseBinding
 import com.uogames.remembercards.utils.*
 import kotlinx.coroutines.*
 
-class ChoicePhraseAdapter(
-    private val model: ChoicePhraseViewModel,
-    private val player: ObservableMediaPlayer,
-    private val call: (LocalPhrase) -> Unit
+class PhraseAdapter(
+        private val vm: PhraseViewModel,
+        private val player: ObservableMediaPlayer,
+        private val editCall: ((Int) -> Unit)? = null
 ) : ClosableAdapter() {
 
     private val recyclerScope = CoroutineScope(Dispatchers.Main)
+    private val auth = Firebase.auth
     private var size = 0
 
     init {
-        model.size.observe(recyclerScope) {
+        vm.size.observe(recyclerScope) {
             size = it
             notifyDataSetChanged()
         }
@@ -54,15 +57,23 @@ class ChoicePhraseAdapter(
         override fun show() {
             clear()
             observer = recyclerScope.safeLaunch {
-                val bookView = model.getLocalBookModel(adapterPosition).ifNull { return@safeLaunch }
+                val bookView = vm.getLocalBookModel(adapterPosition).ifNull { return@safeLaunch }
                 val phrase = bookView.phrase
+                if (auth.currentUser == null || (phrase.globalOwner != null && phrase.globalOwner != auth.currentUser?.uid)) {
+                    bind.btnShare.visibility = View.GONE
+                }
                 bind.txtPhrase.text = phrase.phrase
                 bind.txtDefinition.text = phrase.definition.orEmpty()
                 showImage(bookView.image)
                 showPronounce(bookView.pronounce)
                 bind.txtLang.text = bookView.lang
-                model.setShareAction(phrase, endAction).ifTrue(startAction)
-                bind.btnEdit.setOnClickListener { call(phrase) }
+                bind.btnEdit.setOnClickListener { editCall?.let { it1 -> it1(phrase.id) } }
+                vm.setShareAction(phrase, endAction).ifTrue(startAction)
+                bind.btnShare.setOnClickListener {
+                    startAction()
+                    vm.share(phrase, endAction)
+                }
+                bind.btnStop.setOnClickListener { vm.stopSharing(phrase) }
             }
             bind.btnAction.setOnClickListener {
                 full = !full
@@ -83,8 +94,7 @@ class ChoicePhraseAdapter(
             bind.progressLoading.visibility = View.GONE
             bind.btnStop.visibility = View.GONE
             bind.btnDownload.visibility = View.GONE
-            bind.btnShare.visibility = View.GONE
-            bind.imgEdit.setImageResource(R.drawable.ic_baseline_add_24)
+            auth.currentUser.ifNull { bind.btnShare.visibility = View.GONE }
             bind.imgAction.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
         }
 
@@ -107,9 +117,9 @@ class ChoicePhraseAdapter(
                 bind.btnSound.visibility = View.VISIBLE
                 bind.btnSound.setOnClickListener {
                     player.play(
-                        itemView.context,
-                        pron.audioUri.toUri(),
-                        bind.imgBtnSound.background.asAnimationDrawable()
+                            itemView.context,
+                            pron.audioUri.toUri(),
+                            bind.imgBtnSound.background.asAnimationDrawable()
                     )
                 }
             }.ifNull {
@@ -123,40 +133,37 @@ class ChoicePhraseAdapter(
 
         private var full = false
 
+        val startAction: () -> Unit = {
+            bind.progressLoading.visibility = View.VISIBLE
+            bind.btnStop.visibility = View.VISIBLE
+            bind.btnDownload.visibility = View.GONE
+        }
+
+        val endAction: (String) -> Unit = {
+            bind.progressLoading.visibility = View.GONE
+            bind.btnStop.visibility = View.GONE
+            bind.btnDownload.visibility = View.VISIBLE
+            Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
+        }
+
         override fun show() {
             clear()
             observer = recyclerScope.launch {
-                val phraseView = model.getByPosition(adapterPosition.toLong()).ifNull { return@launch }
+                val phraseView = vm.getByPosition(adapterPosition.toLong()).ifNull { return@launch }
                 val phrase = phraseView.phrase
                 bind.txtPhrase.text = phrase.phrase
                 bind.txtDefinition.text = phrase.definition.orEmpty()
                 showImage(phraseView.image)
                 showPronounce(phraseView)
                 bind.txtLang.text = phraseView.lang
-
-                val startAction: () -> Unit = {
-                    bind.progressLoading.visibility = View.VISIBLE
-                    bind.btnStop.visibility = View.VISIBLE
-                    bind.btnDownload.visibility = View.GONE
-                }
-
-                val endAction: (String) -> Unit = {
-                    bind.progressLoading.visibility = View.GONE
-                    bind.btnStop.visibility = View.GONE
-                    bind.btnDownload.visibility = View.VISIBLE
-                    recyclerScope.launch {
-                        model.getByGlobalId(phraseView.phrase.globalId)?.let { phrase -> call(phrase) }
-                    }
-                }
-
-                model.setDownloadAction(phrase.globalId, endAction).ifTrue(startAction)
+                vm.setDownloadAction(phrase.globalId, endAction).ifTrue(startAction)
 
                 bind.btnDownload.setOnClickListener {
                     startAction()
-                    model.save(phraseView, endAction)
+                    vm.save(phraseView, endAction)
                 }
                 bind.btnStop.setOnClickListener {
-                    model.stopDownloading(phrase.globalId)
+                    vm.stopDownloading(phrase.globalId)
                 }
             }
             bind.btnAction.setOnClickListener {
@@ -185,21 +192,21 @@ class ChoicePhraseAdapter(
         private suspend fun showImage(image: Deferred<GlobalImage?>) {
             image.await()?.let {
                 val uri = it.imageUri.toUri()
-                model.getPicasso(itemView.context).load(uri).placeholder(R.drawable.noise).into(bind.imgPhrase)
+                vm.getPicasso(itemView.context).load(uri).placeholder(R.drawable.noise).into(bind.imgPhrase)
                 bind.imgPhrase.visibility = View.VISIBLE
             }.ifNull {
                 bind.imgPhrase.visibility = View.GONE
             }
         }
 
-        private suspend fun showPronounce(phraseModel: ChoicePhraseViewModel.GlobalPhraseModel) {
+        private suspend fun showPronounce(phraseModel: PhraseViewModel.GlobalPhraseModel) {
             phraseModel.phrase.idPronounce?.let {
                 bind.btnSound.visibility = View.VISIBLE
                 bind.btnSound.setOnClickListener {
                     recyclerScope.launch {
                         player.play(
-                            MediaBytesSource(phraseModel.pronounceData.await()),
-                            bind.imgBtnSound.background.asAnimationDrawable()
+                                MediaBytesSource(phraseModel.pronounceData.await()),
+                                bind.imgBtnSound.background.asAnimationDrawable()
                         )
                     }
                 }
@@ -207,10 +214,12 @@ class ChoicePhraseAdapter(
                 bind.btnSound.visibility = View.GONE
             }
         }
+
+
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if (model.cloud.value) 1 else 0
+        return if (vm.cloud.value) 1 else 0
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ClosableHolder {
@@ -227,8 +236,14 @@ class ChoicePhraseAdapter(
 
     override fun getItemCount() = size
 
+    override fun onViewRecycled(holder: ClosableHolder) {
+        super.onViewRecycled(holder)
+        holder.onDestroy()
+    }
+
     override fun close() {
         recyclerScope.cancel()
     }
+
 
 }

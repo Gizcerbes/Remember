@@ -4,7 +4,7 @@ import com.uogames.dto.DefaultUUID
 import java.util.*
 
 
-data class Card(
+data class GlobalCard(
 	val globalId: UUID = DefaultUUID.value,
 	val globalOwner: String,
 	val idPhrase: UUID = DefaultUUID.value,

@@ -4,7 +4,7 @@ import com.uogames.database.dao.ImageDAO
 import com.uogames.database.map.ImageMap.toDTO
 import com.uogames.database.map.ImageMap.toEntity
 import com.uogames.dto.local.Image
-import com.uogames.dto.local.Card
+import com.uogames.dto.local.LocalCard
 import com.uogames.dto.local.LocalPhrase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,7 +29,7 @@ class ImageRepository(private val imageDAO: ImageDAO) {
 		imageDAO.getByIdFlow(id).map { it?.toDTO() }
 	} ?: MutableStateFlow(null).asStateFlow()
 
-	fun getByCardFlow(card: Card) = card.idImage?.let { id ->
+	fun getByCardFlow(card: LocalCard) = card.idImage?.let { id ->
 		imageDAO.getByIdFlow(id).map { it?.toDTO() }
 	} ?: MutableStateFlow(null).asStateFlow()
 

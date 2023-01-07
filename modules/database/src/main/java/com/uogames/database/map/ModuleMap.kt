@@ -1,11 +1,11 @@
 package com.uogames.database.map
 
 import com.uogames.database.entity.ModuleEntity
-import com.uogames.dto.local.Module
+import com.uogames.dto.local.LocalModule
 
-object ModuleMap : Map<ModuleEntity, Module> {
+object ModuleMap : Map<ModuleEntity, LocalModule> {
 
-	override fun ModuleEntity.toDTO() = Module(
+	override fun ModuleEntity.toDTO() = LocalModule(
 		id = id,
 		name = name,
 		owner = owner,
@@ -17,7 +17,7 @@ object ModuleMap : Map<ModuleEntity, Module> {
 	)
 
 
-	override fun Module.toEntity() = ModuleEntity(
+	override fun LocalModule.toEntity() = ModuleEntity(
 		id = id,
 		name = name,
 		owner = owner,

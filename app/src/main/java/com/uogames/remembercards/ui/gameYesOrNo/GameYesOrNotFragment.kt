@@ -50,6 +50,7 @@ class GameYesOrNotFragment : DaggerFragment() {
 
 	private var _bind: FragmentYesOrNotGameBinding? = null
 	private val bind get() = _bind!!
+	private var closed = false
 
 	private var moduleId: Int? = null
 
@@ -73,6 +74,7 @@ class GameYesOrNotFragment : DaggerFragment() {
 	}
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+		if (closed) return
 		globalViewModel.shouldReset.ifTrue {
 			gameModel.reset()
 		}
@@ -299,5 +301,6 @@ class GameYesOrNotFragment : DaggerFragment() {
 		timeObserver?.cancel()
 		startObserver?.cancel()
 		_bind = null
+		closed = true
 	}
 }

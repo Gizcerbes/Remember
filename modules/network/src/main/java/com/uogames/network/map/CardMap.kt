@@ -1,11 +1,11 @@
 package com.uogames.network.map
 
-import com.uogames.dto.global.Card
+import com.uogames.dto.global.GlobalCard
 import com.uogames.network.response.CardResponse
 
-object CardMap : Map<CardResponse, Card> {
+object CardMap : Map<CardResponse, GlobalCard> {
 
-	override fun CardResponse.toDTO() = Card(
+	override fun CardResponse.toDTO() = GlobalCard(
 		globalId = globalId,
 		globalOwner = globalOwner,
 		idPhrase = idPhrase,
@@ -17,7 +17,7 @@ object CardMap : Map<CardResponse, Card> {
 		dislike = dislike
 	)
 
-	override fun Card.toResponse() = CardResponse(
+	override fun GlobalCard.toResponse() = CardResponse(
 		globalId = globalId,
 		globalOwner = globalOwner,
 		idPhrase = idPhrase,

@@ -43,6 +43,7 @@ class EditModuleFragment : DaggerFragment() {
 
     private var _bind: FragmentEditModuleBinding? = null
     private val bind get() = _bind!!
+    private var closed = false
 
     private var adapter: EditModuleAdapter? = null
 
@@ -54,6 +55,7 @@ class EditModuleFragment : DaggerFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        if (closed) return
         globalViewModel.shouldReset.ifTrue {
             editModuleViewModel.reset()
         }
@@ -122,5 +124,6 @@ class EditModuleFragment : DaggerFragment() {
         adapter?.onDestroy()
         adapter = null
         _bind = null
+        closed = true
     }
 }

@@ -1,7 +1,7 @@
 package com.uogames.repository.providers
 
 import com.uogames.database.repository.ModuleRepository
-import com.uogames.dto.local.Module
+import com.uogames.dto.local.LocalModule
 import com.uogames.map.ModuleMap.toGlobal
 import com.uogames.map.ModuleMap.update
 import com.uogames.network.NetworkProvider
@@ -14,19 +14,20 @@ class ModuleProvider(
 	private val network: NetworkProvider
 ) {
 
-	suspend fun add(module: Module) = mr.insert(module)
+	suspend fun add(module: LocalModule) = mr.insert(module)
 
-	suspend fun delete(module: Module) = mr.delete(module)
+	suspend fun delete(module: LocalModule) = mr.delete(module)
 
-	suspend fun update(module: Module) = mr.update(module)
+	suspend fun update(module: LocalModule) = mr.update(module)
 
-	fun getList() = mr.getList()
+	suspend fun count(text: String?) = mr.count(text)
+
+	suspend fun get(text: String?, position: Int) = mr.get(text, position)
+
 
 	fun getCount() = mr.getCount()
 
 	fun getCountLike(like: String) = mr.getCountLike(like)
-
-	fun getListLike(like: String) = mr.getListLike(like)
 
 	fun getByIdFlow(id: Int) = mr.getByIdFlow(id)
 
@@ -40,7 +41,7 @@ class ModuleProvider(
 
 	suspend fun getGlobalById(globalId: UUID) = network.module.get(globalId)
 
-	suspend fun share(id: Int): Module? {
+	suspend fun share(id: Int): LocalModule? {
 		val module = getById(id)
 		return module?.let {
 			val res = network.module.post(it.toGlobal())
@@ -50,7 +51,7 @@ class ModuleProvider(
 		}
 	}
 
-	suspend fun download(globalId: UUID): Module? {
+	suspend fun download(globalId: UUID): LocalModule? {
 		val local = mr.getByGlobalId(globalId)
 		val nm = network.module.get(globalId)
 		val localId = if (local != null) {
@@ -58,7 +59,7 @@ class ModuleProvider(
 			dataProvider.moduleCard.removeByModule(local.id)
 			local.id
 		} else {
-			add(Module().update(nm)).toInt()
+			add(LocalModule().update(nm)).toInt()
 		}
 		return mr.getById(localId)
 	}

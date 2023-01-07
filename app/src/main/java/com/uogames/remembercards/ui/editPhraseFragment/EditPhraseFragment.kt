@@ -64,6 +64,7 @@ class EditPhraseFragment : DaggerFragment() {
 
 	private var _bind: FragmentEditPhraseBinding? = null
 	private val bind get() = _bind!!
+	private var closed = false
 
 	private val chooser = FileChooser(this, "image/*")
 
@@ -97,6 +98,7 @@ class EditPhraseFragment : DaggerFragment() {
 	}
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+		if (closed) return
 		globalViewModel.shouldReset.ifTrue {
 			editPhraseViewModel.reset()
 		}
@@ -331,5 +333,6 @@ class EditPhraseFragment : DaggerFragment() {
 		imm?.hideSoftInputFromWindow(view?.windowToken, 0)
 		adapter = null
 		_bind = null
+		closed = true
 	}
 }

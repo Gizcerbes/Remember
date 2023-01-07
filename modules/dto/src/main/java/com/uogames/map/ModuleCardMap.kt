@@ -1,13 +1,13 @@
 package com.uogames.map
 
 import com.uogames.dto.DefaultUUID
-import com.uogames.dto.local.Card
-import com.uogames.dto.local.Module
+import com.uogames.dto.local.LocalCard
+import com.uogames.dto.local.LocalModule
 import com.uogames.dto.local.ModuleCard
 
 object ModuleCardMap {
 
-	fun ModuleCard.toGlobal(module: Module?, card: Card?) = com.uogames.dto.global.ModuleCard(
+	fun ModuleCard.toGlobal(module: LocalModule?, card: LocalCard?) = com.uogames.dto.global.ModuleCard(
 		globalId = globalId ?: DefaultUUID.value,
 		globalOwner = globalOwner ?: "",
 		idModule = module?.globalId ?: DefaultUUID.value,

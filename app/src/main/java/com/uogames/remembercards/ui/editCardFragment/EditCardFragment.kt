@@ -57,6 +57,7 @@ class EditCardFragment : DaggerFragment() {
 
     private var _bind: FragmentEditCardBinding? = null
     private val bind get() = _bind!!
+    private var closed = false
 
     private val bundleFirst = Bundle().apply { putString(ChoicePhraseFragment.TAG, FIRST_PHRASE) }
     private val bundleSecond = Bundle().apply { putString(ChoicePhraseFragment.TAG, SECOND_PHRASE) }
@@ -76,8 +77,7 @@ class EditCardFragment : DaggerFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
+        if (closed) return
         globalViewModel.shouldReset.ifTrue {
             editCardViewModel.reset()
         }
@@ -291,5 +291,6 @@ class EditCardFragment : DaggerFragment() {
         imm?.hideSoftInputFromWindow(view?.windowToken, 0)
         bind.tilEditReason.editText?.removeTextChangedListener(reasonTextWatcher)
         _bind = null
+        closed = true
     }
 }

@@ -30,6 +30,7 @@ class RegisterFragment : DaggerFragment() {
 
     private var _bind: FragmentRegisterBinding? = null
     private val bind get() = _bind!!
+    private var closed = false
 
     private var isRegisterObserver: Job? = null
     private var countryObserver: Job? = null
@@ -40,7 +41,7 @@ class RegisterFragment : DaggerFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+        if (closed) return
 
         isRegisterObserver = createIsRegisterObserver()
         countryObserver = createCountryObserver()
@@ -99,5 +100,6 @@ class RegisterFragment : DaggerFragment() {
         isRegisterObserver?.cancel()
         countryObserver?.cancel()
         _bind = null
+        closed = true
     }
 }

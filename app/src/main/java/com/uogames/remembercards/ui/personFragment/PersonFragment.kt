@@ -33,6 +33,7 @@ class PersonFragment : DaggerFragment() {
 
     private var _bind: FragmentPersonBinding? = null
     private val bind get() = _bind!!
+    private var closed = false
 
     private var observer: Job? = null
 
@@ -49,7 +50,7 @@ class PersonFragment : DaggerFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+        if (closed) return
 
         auth = Firebase.auth
         auth.currentUser?.reload()
@@ -124,5 +125,6 @@ class PersonFragment : DaggerFragment() {
         super.onDestroyView()
         observer?.cancel()
         _bind = null
+        closed = true
     }
 }

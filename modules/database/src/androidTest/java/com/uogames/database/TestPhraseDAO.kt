@@ -4,6 +4,8 @@ import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.uogames.database.entity.PhraseEntity
+import com.uogames.database.repository.PhraseRepository
+import com.uogames.dto.local.LocalPhrase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
@@ -19,11 +21,13 @@ import java.util.*
 @RunWith(AndroidJUnit4::class)
 class TestPhraseDAO {
 	private lateinit var db: MyDatabase
+	private lateinit var rep: PhraseRepository
 
 	@Before
 	fun createDB() {
 		val appContext = InstrumentationRegistry.getInstrumentation().targetContext
 		db = Room.inMemoryDatabaseBuilder(appContext, MyDatabase::class.java).build()
+		rep = PhraseRepository(db.phraseDAO())
 	}
 
 	@After
@@ -33,40 +37,33 @@ class TestPhraseDAO {
 	}
 
 	fun setData() = runBlocking {
-		db.phraseDAO().insert(PhraseEntity(1, "Hello", null, "en", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
-		db.phraseDAO().insert(PhraseEntity(2, "World", null, "en", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
-		db.phraseDAO().insert(PhraseEntity(3, "Hello World", null, "en", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
-		db.phraseDAO().insert(PhraseEntity(4, "Привет", null, "ru", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
-		db.phraseDAO().insert(PhraseEntity(5, "Мир", null, "ru", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
-		db.phraseDAO().insert(PhraseEntity(6, "Привет Мир", null, "ru", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
+		rep.add(LocalPhrase(1, "Hello", null, "en", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
+		rep.add(LocalPhrase(2, "World", null, "en", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
+		rep.add(LocalPhrase(3, "Hello World", null, "en", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
+		rep.add(LocalPhrase(4, "Привет", null, "ru", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
+		rep.add(LocalPhrase(5, "Мир", null, "ru", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
+		rep.add(LocalPhrase(6, "Привет Мир", null, "ru", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
 	}
 
 	@Test
 	fun testCount() = runBlocking {
-		val contFlow = db.phraseDAO().countFLOW()
-		Assert.assertEquals(contFlow.first(), 0)
+		Assert.assertEquals(rep.count(), 0)
 		setData()
-		Assert.assertEquals(contFlow.first(), 6)
-		val query = MutableStateFlow("")
-		val countQuery = query.flatMapLatest { db.phraseDAO().countFlow(it) }
-		Assert.assertEquals(countQuery.first(), 6)
-		query.value = "hel"
-		Assert.assertEquals(countQuery.first(), 2)
-		query.value = "o w"
-		Assert.assertEquals(countQuery.first(), 1)
-		query.value = "т м"
-		Assert.assertEquals(countQuery.first(), 1)
-		query.value = "и"
-		Assert.assertEquals(countQuery.first(), 3)
+		Assert.assertEquals(rep.count(), 6)
+		Assert.assertEquals(rep.count(like = "hel"), 2)
+		Assert.assertEquals(rep.count(like = "o w"), 1)
+		Assert.assertEquals(rep.count(like = "т м"), 1)
+		Assert.assertEquals(rep.count(like = "и"), 3)
+		Assert.assertEquals(rep.count(lang = "en"), 3)
+		Assert.assertEquals(rep.count(country = ""), 0)
 	}
 
 	@Test
-	fun testDelete() = runBlocking {
+	fun testRaw() = runBlocking {
+		val repository = PhraseRepository(db.phraseDAO())
 		setData()
-		val id = db.phraseDAO().delete(PhraseEntity(3, "", null,  "en", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
-		Assert.assertEquals(id, 1)
-		val id2 = db.phraseDAO().delete(PhraseEntity(3, "", null,  "en", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
-		Assert.assertEquals(id2, 0)
+		val phrase = repository.get(like = "Привет")
+		Assert.assertEquals(phrase?.id ,4)
 	}
 
 }

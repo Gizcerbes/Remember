@@ -5,13 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
-import com.uogames.dto.local.Module
+import com.uogames.dto.local.LocalModule
 import com.uogames.remembercards.databinding.FragmentChoiceModuleBinding
 import com.uogames.remembercards.ui.libraryFragment.LibraryViewModel
 import com.uogames.remembercards.utils.ObservedDialog
 import kotlinx.coroutines.delay
 
-class ChoiceModuleDialog(private val libraryViewModel: LibraryViewModel, call: (Module) -> Unit) : ObservedDialog<Module>(call) {
+class ChoiceModuleDialog(private val libraryViewModel: LibraryViewModel, call: (LocalModule) -> Unit) : ObservedDialog<LocalModule>(call) {
 
     companion object {
         const val TAG = "ChoiceModuleDialog_TAG"

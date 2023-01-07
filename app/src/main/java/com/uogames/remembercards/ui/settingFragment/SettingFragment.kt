@@ -45,6 +45,7 @@ class SettingFragment : DaggerFragment() {
 
 	private var _bind: FragmentSettingsBinding? = null
 	private val bind get() = _bind!!
+	private var closed = false
 
 	private var observeJob: Job? = null
 	private val auth = Firebase.auth
@@ -60,7 +61,7 @@ class SettingFragment : DaggerFragment() {
 	}
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-		super.onViewCreated(view, savedInstanceState)
+		if (closed) return
 
 		observeJob = createObservers()
 		setUser(auth.currentUser)
@@ -160,6 +161,7 @@ class SettingFragment : DaggerFragment() {
 	override fun onDestroy() {
 		super.onDestroy()
 		observeJob?.cancel()
+		closed = true
 	}
 
 }

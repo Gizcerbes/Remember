@@ -73,7 +73,7 @@
 	<string name="connected">Connected</string>
 	<string name="selected_module">Selected Module</string>
 	<string name="all_cards">All Cards</string>
-	<string name="recommend">Recommend</string>
+	<string name="label_recommend">Recommend</string>
 	<string name="see_all">See All</string>
 	<string name="setting">Setting</string>
 	<string name="log_in">Log in:</string>
@@ -84,4 +84,5 @@
 	<string name="label_text">Text:</string>
 	<string name="label_country">Country:</string>
 	<string name="label_language">Language:</string>
+    <string name="label_all">All</string>
 </resources>

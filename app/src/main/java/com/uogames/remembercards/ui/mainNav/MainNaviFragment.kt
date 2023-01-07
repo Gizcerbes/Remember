@@ -25,6 +25,7 @@ class MainNaviFragment : DaggerFragment() {
 
     private var _bind: FragmentMainNaviBinding? = null
     private val bind get() = _bind!!
+    private var closed = false
 
     private var keyObserver: Job? = null
 
@@ -38,6 +39,7 @@ class MainNaviFragment : DaggerFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        if (closed) return
         navigationViewModel.id.value.let { if (it != -1) bind.bottomNavigation.selectedItemId = it }
         keyObserver = globalViewModel.isShowKey.observeWhenStarted(lifecycleScope) {
             bind.bottomNavigation.visibility = if (it) View.GONE else View.VISIBLE
@@ -46,6 +48,7 @@ class MainNaviFragment : DaggerFragment() {
 
     override fun onStart() {
         super.onStart()
+        if (closed) return
         val nav = bind.navFragment.findNavController()
         if (navigationViewModel.id.value != -1) nav.navigate(navigationViewModel.id.value)
         bind.bottomNavigation.setOnItemSelectedListener {
@@ -69,5 +72,6 @@ class MainNaviFragment : DaggerFragment() {
         super.onDestroyView()
         keyObserver?.cancel()
         _bind = null
+        closed = false
     }
 }

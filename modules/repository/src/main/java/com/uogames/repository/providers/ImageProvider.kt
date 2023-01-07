@@ -5,7 +5,7 @@ import android.util.Log
 import androidx.core.net.toUri
 import com.uogames.database.repository.ImageRepository
 import com.uogames.dto.local.Image
-import com.uogames.dto.local.Card
+import com.uogames.dto.local.LocalCard
 import com.uogames.dto.local.LocalPhrase
 import com.uogames.map.ImageMap.update
 import com.uogames.network.NetworkProvider
@@ -52,7 +52,7 @@ class ImageProvider(
 
 	fun getByPhrase(phrase: LocalPhrase) = database.getByPhraseFlow(phrase)
 
-	fun getByCard(card: Card) = database.getByCardFlow(card)
+	fun getByCard(card: LocalCard) = database.getByCardFlow(card)
 
 	suspend fun getByGlobalId(id: UUID) = database.getByGlobalId(id)
 

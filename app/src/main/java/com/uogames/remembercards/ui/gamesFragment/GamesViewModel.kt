@@ -1,8 +1,7 @@
 package com.uogames.remembercards.ui.gamesFragment
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.uogames.dto.local.Module
+import com.uogames.dto.local.LocalModule
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.repository.DataProvider
@@ -14,7 +13,7 @@ class GamesViewModel constructor(val provider: DataProvider) : ViewModel() {
 
     private val viewModelScope = CoroutineScope(Dispatchers.IO)
 
-    val selectedModule: MutableStateFlow<Module?> = MutableStateFlow(null)
+    val selectedModule: MutableStateFlow<LocalModule?> = MutableStateFlow(null)
 
     val cardOwner: MutableStateFlow<String> = MutableStateFlow("")
 

@@ -1,7 +1,7 @@
 package com.uogames.repository.providers
 
 import com.uogames.database.repository.ModuleCardRepository
-import com.uogames.dto.local.Module
+import com.uogames.dto.local.LocalModule
 import com.uogames.dto.local.ModuleCard
 import com.uogames.map.ModuleCardMap.toGlobal
 import com.uogames.map.ModuleCardMap.update
@@ -25,11 +25,11 @@ class ModuleCardProvider(
 
 	fun getCountByModuleIdFlow(id: Int) = mcr.getCountByModuleIdFlow(id)
 
-	suspend fun getCountByModule(module: Module) = mcr.getCountByModuleId(module.id)
+	suspend fun getCountByModule(module: LocalModule) = mcr.getCountByModuleId(module.id)
 
 	suspend fun getByPositionOfModule(idModule: Int, position: Int) = mcr.getByPositionOfModule(idModule, position)
 
-	fun getByModuleFlow(module: Module) = mcr.getByModule(module)
+	fun getByModuleFlow(module: LocalModule) = mcr.getByModule(module)
 
 	suspend fun getRandom(idModule: Int) = mcr.getRandomModule(idModule)
 
@@ -58,7 +58,7 @@ class ModuleCardProvider(
 		}
 	}
 
-	suspend fun download(module: Module, position: Long): ModuleCard? {
+	suspend fun download(module: LocalModule, position: Long): ModuleCard? {
 		val globalModuleId = module.globalId ?: return null
 		val nmc = network.moduleCard.get(globalModuleId, position)
 		val card = dataProvider.cards.download(nmc.idCard) ?: return null

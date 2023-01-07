@@ -1,4 +1,4 @@
-package com.uogames.remembercards.ui.cardFragment
+package com.uogames.remembercards.ui.choiceCardFragment
 
 import android.content.Context
 import android.os.Parcelable
@@ -22,7 +22,7 @@ import java.util.*
 import javax.inject.Inject
 import kotlin.collections.HashMap
 
-class CardViewModel @Inject constructor(
+class ChoiceCardViewModel @Inject constructor(
     private val provider: DataProvider
 ) {
 
@@ -50,9 +50,7 @@ class CardViewModel @Inject constructor(
         val translateImage by lazy { viewModelScope.async { translate.await()?.idImage?.let { getImageById(it) } } }
     }
 
-    private class ShareAction(val job: Job, var callback: (String) -> Unit)
     private class DownloadAction(val job: Job, var callback: (String) -> Unit)
-    private val shareActions = HashMap<Int, ShareAction>()
     private val downloadAction = HashMap<UUID, DownloadAction>()
 
     private val _size = MutableStateFlow(0)
@@ -125,36 +123,7 @@ class CardViewModel @Inject constructor(
         position = position
     )?.let { LocalCardModel(it) }
 
-    fun share(card: LocalCard, result: (String) -> Unit) {
-        val job = viewModelScope.launch {
-            runCatching {
-                provider.cards.share(card.id)
-            }.onSuccess {
-                launch(Dispatchers.Main) {
-                    shareActions[card.id]?.callback?.let { back -> back("Ok") }
-                    shareActions.remove(card.id)
-                }
-            }.onFailure {
-                launch(Dispatchers.Main) {
-                    shareActions[card.id]?.callback?.let { back -> back(it.message ?: "Error") }
-                    shareActions.remove(card.id)
-                }
-            }
-        }
-        shareActions[card.id] = ShareAction(job, result)
-    }
-
-    fun setShareAction(card: LocalCard, loading: (String) -> Unit): Boolean {
-        shareActions[card.id]?.callback = loading
-        return shareActions[card.id]?.job?.isActive.ifNull { false }
-    }
-
-    fun stopSharing(card: LocalCard) {
-        val action = shareActions[card.id].ifNull { return }
-        action.job.cancel()
-        action.callback("Cancel")
-        shareActions.remove(card.id)
-    }
+    suspend fun getByGlobalId(uuid: UUID) = viewModelScope.async { provider.cards.getByGlobalId(uuid) }.await()
 
     suspend fun getByPosition(position: Long): GlobalCardModel? {
         runCatching { return GlobalCardModel(provider.cards.getGlobal(like.value.orEmpty(), position)) }
@@ -252,6 +221,5 @@ class CardViewModel @Inject constructor(
 
 
     fun getPicasso(context: Context) = provider.images.getPicasso(context)
-
 
 }

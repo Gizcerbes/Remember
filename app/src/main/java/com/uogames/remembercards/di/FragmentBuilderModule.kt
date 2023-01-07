@@ -1,6 +1,5 @@
 package com.uogames.remembercards.di
 
-import com.uogames.remembercards.ui.bookFragment.BookFragment
 import com.uogames.remembercards.ui.cardFragment.CardFragment
 import com.uogames.remembercards.ui.choiceCardFragment.ChoiceCardFragment
 import com.uogames.remembercards.ui.choicePhraseFragment.ChoicePhraseFragment
@@ -32,9 +31,6 @@ abstract class FragmentBuilderModule {
 
     @ContributesAndroidInjector
     abstract fun contributeRegisterFragment(): RegisterFragment
-
-    @ContributesAndroidInjector
-    abstract fun contributeBookFragment(): BookFragment
 
     @ContributesAndroidInjector
     abstract fun contributePhraseFragment(): PhraseFragment

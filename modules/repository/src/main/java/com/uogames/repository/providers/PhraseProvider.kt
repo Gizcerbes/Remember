@@ -19,36 +19,15 @@ class PhraseProvider(
 
 	suspend fun update(phrase: LocalPhrase) = pr.update(phrase)
 
-	suspend fun get(like: String, position: Int) = pr.get(like, position)
-
-	suspend fun get(like: String, lang: String, position: Int) = pr.get(like, lang, position)
-
-	suspend fun get(like: String, lang: String, country: String, position: Int) = pr.get(like, lang, country, position)
-
+	suspend fun get(like: String?, lang: String?, country: String?, position: Int?) = pr.get(like, lang, country, position)
 
 	fun countFlow() = pr.countFlow()
 
-	fun countFlow(like: String) = pr.countFlow(like)
-
-	fun countFlow(like: String, lang: String) = pr.countFlow(like, lang)
-
-	fun countFlow(like: String, lang: String, country: String) = pr.countFlow(like, lang, country)
-
-	fun getFlow(position: Int) = pr.getFlow(position)
-
-	fun getFlow(like: String, position: Int) = pr.getFlow(like, position)
-
-	fun getFlow(like: String, lang: String, position: Int) = pr.getFlow(like, lang, position)
+	suspend fun count(like: String?, lang: String?, country: String?) = pr.count(like, lang, country)
 
 	suspend fun getById(id: Int) = pr.getById(id)
 
 	fun getByIdFlow(id: Int) = pr.getByIdFlow(id)
-
-	suspend fun exists(phrase: String) = pr.exists(phrase)
-
-	fun getListId(like: String, lang: String) = pr.getListIdFlow(like, lang)
-
-	fun getListId(like: String) = pr.getListIdFlow(like)
 
 	suspend fun getByGlobalId(globalId: UUID) = pr.getByGlobalId(globalId)
 

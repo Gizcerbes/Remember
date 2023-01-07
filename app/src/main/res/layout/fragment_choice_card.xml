@@ -19,7 +19,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginStart="13dp"
-			android:text="@string/your_cards"
+			android:text="@string/choice_card"
 			android:textAppearance="?attr/textAppearanceHeadline6"
 			android:layout_centerVertical="true" />
 
@@ -73,6 +73,20 @@
 
 			</com.google.android.material.card.MaterialCardView>
 
+
+			<com.google.android.material.card.MaterialCardView
+				android:id="@+id/btn_back"
+				style="@style/Theme.RememberCards.CardView.Button.Negative"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginStart="0dp"
+				android:visibility="visible">
+
+				<ImageView
+					android:layout_width="@dimen/card_button"
+					android:layout_height="@dimen/card_button"
+					android:src="@drawable/ic_baseline_close_24" />
+			</com.google.android.material.card.MaterialCardView>
 		</LinearLayout>
 
 		<com.google.android.material.divider.MaterialDivider

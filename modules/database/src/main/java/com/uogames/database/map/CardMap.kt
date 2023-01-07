@@ -1,11 +1,10 @@
 package com.uogames.database.map
 
 import com.uogames.database.entity.CardEntity
-import com.uogames.dto.local.Card
-import java.util.*
+import com.uogames.dto.local.LocalCard
 
-object CardMap : Map<CardEntity, Card> {
-	override fun CardEntity.toDTO() = Card(
+object CardMap : Map<CardEntity, LocalCard> {
+	override fun CardEntity.toDTO() = LocalCard(
 		id = id,
 		idPhrase = idPhrase,
 		idTranslate = idTranslate,
@@ -19,7 +18,7 @@ object CardMap : Map<CardEntity, Card> {
 	)
 
 
-	override fun Card.toEntity() = CardEntity(
+	override fun LocalCard.toEntity() = CardEntity(
 		id = id,
 		idPhrase = idPhrase,
 		idTranslate = idTranslate,

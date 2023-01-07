@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.uogames.dto.local.Module
+import com.uogames.dto.local.LocalModule
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardModuleBinding
 import com.uogames.remembercards.ui.libraryFragment.LibraryViewModel
@@ -14,7 +14,7 @@ import kotlinx.coroutines.*
 
 class ChoiceModuleAdapter(
     val model: LibraryViewModel,
-    val selectModule: (Module) -> Unit
+    val selectModule: (LocalModule) -> Unit
 ) : RecyclerView.Adapter<ChoiceModuleAdapter.ModuleHolder>() {
 
     private val recyclerScope = CoroutineScope(Dispatchers.Main)
@@ -36,7 +36,7 @@ class ChoiceModuleAdapter(
         fun onShow() {
             clear()
             recyclerScope.launch(Dispatchers.IO) {
-                val module = model.getModuleByPosition(adapterPosition).ifNull { return@launch }
+                val module = model.get(adapterPosition).ifNull { return@launch }
                 launch(Dispatchers.Main) {
                     bind.txtName.text = module.name
                     moduleObserver = recyclerScope.launch(Dispatchers.IO) {

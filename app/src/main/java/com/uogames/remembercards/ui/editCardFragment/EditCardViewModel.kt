@@ -2,7 +2,7 @@ package com.uogames.remembercards.ui.editCardFragment
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.uogames.dto.local.Card
+import com.uogames.dto.local.LocalCard
 import com.uogames.dto.local.LocalPhrase
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.ifNullOrEmpty
@@ -28,7 +28,7 @@ class EditCardViewModel @Inject constructor(val provider: DataProvider) : ViewMo
     private val _reason = MutableStateFlow("")
     val reason = _reason.asStateFlow()
 
-    private var loadedCard: Card? = null
+    private var loadedCard: LocalCard? = null
 
     fun setArgCardId(int: Int?): Boolean {
         val res = argCardId.value != int
@@ -91,16 +91,16 @@ class EditCardViewModel @Inject constructor(val provider: DataProvider) : ViewMo
     }
 
     fun delete(call: (Boolean) -> Unit) = viewModelScope.launch {
-        val res = provider.cards.delete(Card(_cardID.value))
+        val res = provider.cards.delete(LocalCard(_cardID.value))
         call(res)
     }
 
-    private fun build(): Card? {
+    private fun build(): LocalCard? {
         val id = _cardID.value
         val firstID = _firstPhrase.value?.id.ifNull { return null }
         val secondID = _secondPhrase.value?.id.ifNull { return null }
         val reason = _reason.value.ifNullOrEmpty { return null }
-        return Card(
+        return LocalCard(
             id = id,
             idPhrase = firstID,
             idTranslate = secondID,

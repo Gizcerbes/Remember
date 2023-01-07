@@ -36,6 +36,7 @@ class GamesFragment : DaggerFragment() {
 
     private var _bind: FragmentGamesBinding? = null
     private val bind get() = _bind!!
+    private var closed = false
 
     private var selectedModuleObserver: Job? = null
     private var cardOwnerObserver: Job? = null
@@ -51,6 +52,7 @@ class GamesFragment : DaggerFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        if (closed) return
         val nav = requireActivity().findNavController(R.id.nav_host_fragment)
 
         bind.gameYesOrNot.visibility = View.GONE
@@ -137,5 +139,6 @@ class GamesFragment : DaggerFragment() {
         cardOwnerObserver?.cancel()
         countItemsObserver?.cancel()
         _bind = null
+        closed = true
     }
 }

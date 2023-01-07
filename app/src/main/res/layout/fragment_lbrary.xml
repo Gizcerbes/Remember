@@ -86,30 +86,48 @@
 			app:layout_constraintBottom_toBottomOf="parent" />
 	</androidx.constraintlayout.widget.ConstraintLayout>
 
-	<com.google.android.material.textfield.TextInputLayout
-		android:id="@+id/til_search"
+	<com.google.android.material.card.MaterialCardView
+		android:id="@+id/cl_search_bar"
+		style="@style/Theme.RememberCards.CardView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_alignParentBottom="true"
-		android:hint="@string/search"
-		android:visibility="visible"
-		app:endIconMode="clear_text"
-		app:expandedHintEnabled="false"
-		app:startIconDrawable="@drawable/ic_baseline_search_24">
+		android:layout_below="@id/top_bar"
+		app:contentPaddingBottom="7dp">
 
-		<com.google.android.material.textfield.TextInputEditText
+		<LinearLayout
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content" />
+			android:layout_height="wrap_content"
+			android:orientation="vertical">
 
-	</com.google.android.material.textfield.TextInputLayout>
+			<com.google.android.material.textfield.TextInputLayout
+				android:id="@+id/til_search"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="7dp"
+				android:layout_marginBottom="7dp"
+				style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+				android:hint="@string/search"
+				android:visibility="visible"
+				app:endIconMode="clear_text"
+				app:expandedHintEnabled="false"
+				app:startIconDrawable="@drawable/ic_baseline_search_24">
 
+				<com.google.android.material.textfield.TextInputEditText
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content" />
+
+			</com.google.android.material.textfield.TextInputLayout>
+
+		</LinearLayout>
+
+	</com.google.android.material.card.MaterialCardView>
 
 	<androidx.recyclerview.widget.RecyclerView
 		android:id="@+id/recycler"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:layout_above="@id/til_search"
-		android:layout_below="@id/top_bar"
+		android:layout_alignParentBottom="true"
+		android:layout_below="@id/cl_search_bar"
 		android:orientation="vertical"
 		app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
 		tools:listitem="@layout/card_module" />

@@ -11,171 +11,170 @@ import androidx.core.os.bundleOf
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.navOptions
-import com.uogames.dto.local.Card
+import com.uogames.dto.local.LocalCard
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentCardBinding
+import com.uogames.remembercards.ui.choiceCountry.ChoiceCountryDialog
+import com.uogames.remembercards.ui.choiceLanguageDialog.ChoiceLanguageDialog
 import com.uogames.remembercards.ui.editCardFragment.EditCardFragment
 import com.uogames.remembercards.utils.*
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.util.*
 import javax.inject.Inject
 
 class CardFragment : DaggerFragment() {
 
-	@Inject
-	lateinit var globalViewModel: GlobalViewModel
+    @Inject
+    lateinit var globalViewModel: GlobalViewModel
 
-	@Inject
-	lateinit var cardViewModel: CardViewModel
+    @Inject
+    lateinit var model: CardViewModel
 
-	@Inject
-	lateinit var networkCardViewModel: NetworkCardViewModel
+    @Inject
+    lateinit var player: ObservableMediaPlayer
 
-	@Inject
-	lateinit var player: ObservableMediaPlayer
+    private var _bind: FragmentCardBinding? = null
+    private val bind get() = _bind!!
+    private var closed = false
 
-	private var _bind: FragmentCardBinding? = null
-	private val bind get() = _bind!!
+    private var observers: Job? = null
 
-	private var adapter: ClosableAdapter<*>? = null
-	private var cloud = false
+    private val textWatcher = createSearchTextWatcher()
 
-	private var keyObserver: Job? = null
-	private var sizeObserver: Job? = null
-	private val searchTextWatcher = createSearchTextWatcher()
+    private var imm: InputMethodManager? = null
 
-	private var imm: InputMethodManager? = null
+    private val searchImages =
+        listOf(R.drawable.ic_baseline_search_off_24, R.drawable.ic_baseline_search_24)
+    private val cloudImages =
+        listOf(R.drawable.ic_baseline_cloud_off_24, R.drawable.ic_baseline_cloud_24)
 
-	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-		if (_bind == null) _bind = FragmentCardBinding.inflate(inflater, container, false)
-		return bind.root
-	}
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        if (_bind == null) _bind = FragmentCardBinding.inflate(inflater, container, false)
+        return bind.root
+    }
 
-	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-		super.onViewCreated(view, savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        if (closed) return
 
-		globalViewModel.shouldReset.ifTrue {
-			cardViewModel.reset()
-		}
+        globalViewModel.shouldReset.ifTrue { model.reset() }
 
-		imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        model.update()
 
-		bind.btnBack.visibility = View.GONE
+        imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 
-		keyObserver = createKeyObserver()
-		sizeObserver = createSizeObserver()
-		bind.tilSearch.editText?.addTextChangedListener(searchTextWatcher)
+        bind.tilSearch.editText?.setText(model.like.value)
+        bind.tilSearch.editText?.setSelection(model.like.value?.length ?: 0)
+        bind.tilSearch.editText?.addTextChangedListener(textWatcher)
 
-		bind.btnSearch.setOnClickListener {
-			if (!globalViewModel.isShowKey.value) {
-				bind.tilSearch.requestFocus()
-				val text = when(adapter){
-					is CardAdapter -> cardViewModel.like.value
-					is NetworkCardAdapter -> networkCardViewModel.like.value
-					else -> ""
-				}
-				bind.tilSearch.editText?.setText(text)
-				bind.tilSearch.editText?.setSelection(text.length)
-				imm?.showSoftInput(bind.tilSearch.editText, InputMethodManager.SHOW_FORCED)
-			} else {
-				imm?.hideSoftInputFromWindow(view.windowToken, 0)
-			}
-		}
+        bind.btnAdd.setOnClickListener { navigateToEdit() }
+        bind.btnNetwork.setOnClickListener { model.cloud.setOpposite() }
+        bind.btnSearch.setOnClickListener { model.search.setOpposite() }
+        bind.btnLang.setOnClickListener {
+            model.languageFirst.toNull().ifTrue { return@setOnClickListener }
+            ChoiceLanguageDialog(listOf(Locale.getDefault())) {
+                model.languageFirst.value = it
+            }.show(requireActivity().supportFragmentManager, ChoiceLanguageDialog.TAG)
+        }
+        bind.btnLangSecond.setOnClickListener {
+            model.languageSecond.toNull().ifTrue { return@setOnClickListener }
+            ChoiceLanguageDialog(listOf(Locale.getDefault())) {
+                model.languageSecond.value = it
+            }.show(requireActivity().supportFragmentManager, ChoiceLanguageDialog.TAG)
+        }
+        bind.btnCountry.setOnClickListener {
+            model.countryFirst.toNull().ifTrue { return@setOnClickListener }
+            ChoiceCountryDialog {
+				model.countryFirst.value = it
+            }.show(requireActivity().supportFragmentManager, ChoiceCountryDialog.TAG)
+        }
+        bind.btnCountrySecond.setOnClickListener {
+            model.countrySecond.toNull().ifTrue { return@setOnClickListener }
+            ChoiceCountryDialog{
+                model.countrySecond.value = it
+            }.show(requireActivity().supportFragmentManager, ChoiceCountryDialog.TAG)
+        }
 
-		bind.btnAdd.setOnClickListener { navigateToEdit() }
+        lifecycleScope.launch {
+            delay(300)
+            bind.recycler.adapter = CardAdapter(model, player) {
+                model.recyclerStat = bind.recycler.layoutManager?.onSaveInstanceState()
+                navigateToEdit(it)
+            }
+        }
 
-		adapter = CardAdapter(cardViewModel, player) { navigateToEdit(it) }
+        model.recyclerStat?.let { bind.recycler.layoutManager?.onRestoreInstanceState(it) }
 
-		lifecycleScope.launchWhenStarted {
-			delay(300)
-			bind.recycler.adapter = adapter
-		}
+        observers = lifecycleScope.launch {
+            model.search.observe(this){
+                bind.searchImage.setImageResource(searchImages[if (it) 0 else 1])
+                bind.clSearchBar.visibility = if (it) View.VISIBLE else View.GONE
+            }
+            model.cloud.observe(this){
+                bind.imgNetwork.setImageResource(cloudImages[if (it) 0 else 1])
+            }
+            model.size.observe(this){
+                bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
+            }
+            model.languageFirst.observe(this) {
+                bind.tvLanguage.text = if (it != null) it.displayLanguage
+                else requireContext().getText(R.string.label_all)
+            }
+            model.languageSecond.observe(this) {
+                bind.tvLanguageSecond.text = if(it != null) it.displayLanguage
+                else requireContext().getText(R.string.label_all)
+            }
+            model.countryFirst.observe(this){
+                if (it != null) bind.imgFlag.setImageResource(it.res)
+                else bind.imgFlag.setImageResource(R.drawable.ic_baseline_add_24)
+            }
+            model.countrySecond.observe(this) {
+                if (it != null) bind.imgFlagSecond.setImageResource(it.res)
+                else bind.imgFlagSecond.setImageResource(R.drawable.ic_baseline_add_24)
+            }
+        }
 
-		bind.btnNetwork.setOnClickListener {
-			lifecycleScope.launchWhenStarted {
-				cloud = !cloud
-				adapter?.close()
-				if (cloud) {
-					adapter = NetworkCardAdapter(networkCardViewModel, player)
-					bind.imgNetwork.setImageResource(R.drawable.ic_baseline_cloud_off_24)
-					bind.btnAdd.visibility = View.GONE
-					bind.recycler.adapter = null
-					delay(50)
-					networkCardViewModel.like.value = cardViewModel.like.value
-					bind.txtBookEmpty.visibility = if (networkCardViewModel.size.value == 0L) View.VISIBLE else View.GONE
-					bind.recycler.adapter = adapter
-				} else {
-					val ca = CardAdapter(cardViewModel, player) { navigateToEdit(it) }
-					adapter = ca
-					bind.imgNetwork.setImageResource(R.drawable.ic_baseline_cloud_24)
-					bind.btnAdd.visibility = View.VISIBLE
-					bind.recycler.adapter = null
-					delay(50)
-					cardViewModel.like.value = networkCardViewModel.like.value
-					bind.txtBookEmpty.visibility = if (cardViewModel.size.value == 0) View.VISIBLE else View.GONE
-					bind.recycler.adapter = adapter
-				}
-			}
-		}
-	}
+    }
 
-	private fun navigateToEdit(bundle: Bundle? = null) {
-		imm?.hideSoftInputFromWindow(view?.windowToken, 0)
-		requireActivity().findNavController(R.id.nav_host_fragment).navigate(
-			R.id.editCardFragment,
-			bundle,
-			navOptions {
-				anim {
-					enter = R.anim.from_bottom
-					exit = R.anim.hide
-					popEnter = R.anim.show
-					popExit = R.anim.to_bottom
-				}
-			}
-		)
-	}
+    private fun navigateToEdit(bundle: Bundle? = null) {
+        imm?.hideSoftInputFromWindow(view?.windowToken, 0)
+        requireActivity().findNavController(R.id.nav_host_fragment).navigate(
+            R.id.editCardFragment,
+            bundle,
+            navOptions {
+                anim {
+                    enter = R.anim.from_bottom
+                    exit = R.anim.hide
+                    popEnter = R.anim.show
+                    popExit = R.anim.to_bottom
+                }
+            }
+        )
+    }
 
-	private fun navigateToEdit(card: Card) = navigateToEdit(bundleOf(EditCardFragment.EDIT_ID to card.id))
+    private fun navigateToEdit(card: LocalCard) =
+        navigateToEdit(bundleOf(EditCardFragment.EDIT_ID to card.id))
 
-	private fun createKeyObserver(): Job = globalViewModel.isShowKey.observeWhenStarted(lifecycleScope) {
-		bind.tilSearch.visibility = if (it) View.VISIBLE else View.GONE
-		bind.btnAdd.visibility = if (it || cloud) View.GONE else View.VISIBLE
-		if (it) {
-			bind.searchImage.setImageResource(R.drawable.ic_baseline_close_24)
-		} else {
-			bind.searchImage.setImageResource(R.drawable.ic_baseline_search_24)
-		}
-	}
+    private fun createSearchTextWatcher(): TextWatcher = ShortTextWatcher {
+        model.like.value = it?.toString() ?: ""
+    }
 
-	private fun createSizeObserver(): Job = lifecycleScope.launchWhenStarted {
-		cardViewModel.size.observeWhile(this) {
-			if (adapter is CardAdapter)
-				bind.txtBookEmpty.visibility = if (!cloud && it == 0) View.VISIBLE else View.GONE
-		}
-		networkCardViewModel.size.observeWhile(this) {
-			if (adapter is NetworkCardAdapter)
-				bind.txtBookEmpty.visibility = if (cloud && it == 0L) View.VISIBLE else View.GONE
-		}
-	}
-
-	private fun createSearchTextWatcher(): TextWatcher = ShortTextWatcher {
-		when (adapter) {
-			is CardAdapter -> cardViewModel.like.value = it.toString()
-			is NetworkCardAdapter -> networkCardViewModel.like.value = it.toString()
-		}
-	}
-
-	override fun onDestroyView() {
-		super.onDestroyView()
-		keyObserver?.cancel()
-		sizeObserver?.cancel()
-		bind.tilSearch.editText?.removeTextChangedListener(searchTextWatcher)
-		adapter?.close()
-		imm?.hideSoftInputFromWindow(view?.windowToken, 0)
-		adapter = null
-		imm = null
-		_bind = null
-	}
+    override fun onDestroyView() {
+        super.onDestroyView()
+        observers?.cancel()
+        bind.tilSearch.editText?.removeTextChangedListener(textWatcher)
+        (bind.recycler.adapter as? CardAdapter)?.close()
+        bind.recycler.adapter = null
+        imm?.hideSoftInputFromWindow(view?.windowToken, 0)
+        imm = null
+        _bind = null
+        closed = true
+    }
 }

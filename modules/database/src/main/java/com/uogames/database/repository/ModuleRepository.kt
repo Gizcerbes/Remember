@@ -3,32 +3,42 @@ package com.uogames.database.repository
 import com.uogames.database.dao.ModuleDAO
 import com.uogames.database.map.ModuleMap.toDTO
 import com.uogames.database.map.ModuleMap.toEntity
-import com.uogames.dto.local.Module
+import com.uogames.dto.local.LocalModule
 import kotlinx.coroutines.flow.map
 import java.util.*
 
-class ModuleRepository(private val moduleDAO: ModuleDAO) {
+class ModuleRepository(private val dao: ModuleDAO) {
 
-	suspend fun insert(module: Module) = moduleDAO.insert(module.toEntity())
+	suspend fun insert(module: LocalModule) = dao.insert(module.toEntity())
 
-	suspend fun delete(module: Module) = moduleDAO.delete(module.toEntity()) > 0
+	suspend fun delete(module: LocalModule) = dao.delete(module.toEntity()) > 0
 
-	suspend fun update(module: Module) = moduleDAO.update(module.toEntity()) > 0
+	suspend fun update(module: LocalModule) = dao.update(module.toEntity()) > 0
 
-	fun getCount() = moduleDAO.getCount()
+	suspend fun count(text: String?): Int {
+		return if (text == null) dao.count()
+		 else dao.count(text)
+	}
 
-	fun getCountLike(like: String) = moduleDAO.getCountLike(like)
+	suspend fun get(text: String?, position: Int): LocalModule? {
+		return if (text == null) dao.get(position)?.toDTO()
+		else dao.get(text, position)?.toDTO()
+	}
 
-	fun getList() = moduleDAO.getList().map { it.map { module -> module.toDTO() } }
+	fun getCount() = dao.getCount()
 
-	fun getListLike(like: String) = moduleDAO.getListLike(like).map { it.map { module -> module.toDTO() } }
+	fun getCountLike(like: String) = dao.getCountLike(like)
 
-	suspend fun getById(id: Int) = moduleDAO.getById(id)?.toDTO()
+	fun getList() = dao.getList().map { it.map { module -> module.toDTO() } }
 
-	suspend fun getByGlobalId(globalId: UUID) = moduleDAO.getByGlobalId(globalId)?.toDTO()
+	fun getListLike(like: String) = dao.getListLike(like).map { it.map { module -> module.toDTO() } }
 
-	suspend fun getByPosition(like: String, position: Int) = moduleDAO.getByPosition(like, position)?.toDTO()
+	suspend fun getById(id: Int) = dao.getById(id)?.toDTO()
 
-	fun getByIdFlow(id: Int) = moduleDAO.getByIdFlow(id).map { it?.toDTO() }
+	suspend fun getByGlobalId(globalId: UUID) = dao.getByGlobalId(globalId)?.toDTO()
+
+	suspend fun getByPosition(like: String, position: Int) = dao.getByPosition(like, position)?.toDTO()
+
+	fun getByIdFlow(id: Int) = dao.getByIdFlow(id).map { it?.toDTO() }
 
 }
