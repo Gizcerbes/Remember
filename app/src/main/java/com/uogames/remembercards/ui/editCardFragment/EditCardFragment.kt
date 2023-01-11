@@ -77,7 +77,7 @@ class EditCardFragment : DaggerFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        if (closed) return
+        //if (closed) return
         globalViewModel.shouldReset.ifTrue {
             editCardViewModel.reset()
         }
