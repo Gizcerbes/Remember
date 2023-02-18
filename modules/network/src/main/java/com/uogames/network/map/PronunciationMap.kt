@@ -1,19 +1,17 @@
 package com.uogames.network.map
 
-import android.util.Log
-import com.uogames.dto.DefaultUUID
-import com.uogames.dto.global.Pronunciation
+import com.uogames.dto.global.GlobalPronunciation
 import com.uogames.network.response.PronunciationResponse
 
-object PronunciationMap : Map<PronunciationResponse, Pronunciation> {
-	override fun PronunciationResponse.toDTO() = Pronunciation(
+object PronunciationMap : Map<PronunciationResponse, GlobalPronunciation> {
+	override fun PronunciationResponse.toDTO() = GlobalPronunciation(
 		globalId = globalId,
 		globalOwner = globalOwner,
 		audioUri = audioUri
 	)
 
 
-	override fun Pronunciation.toResponse() = PronunciationResponse(
+	override fun GlobalPronunciation.toResponse() = PronunciationResponse(
 		globalId = globalId,
 		globalOwner = globalOwner,
 		audioUri = audioUri

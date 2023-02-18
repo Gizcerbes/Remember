@@ -14,13 +14,18 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import com.uogames.dto.global.GlobalPhrase
 import com.uogames.dto.local.LocalPhrase
 import com.uogames.remembercards.GlobalViewModel
+import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentChoicePhraseBinding
 import com.uogames.remembercards.ui.choiceCountry.ChoiceCountryDialog
 import com.uogames.remembercards.ui.choiceLanguageDialog.ChoiceLanguageDialog
 import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseFragment
+import com.uogames.remembercards.ui.reportFragment.ReportFragment
 import com.uogames.remembercards.utils.*
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.Job
@@ -46,7 +51,6 @@ class ChoicePhraseFragment() : DaggerFragment() {
 
     private var _bind: FragmentChoicePhraseBinding? = null
     private val bind get() = _bind!!
-    private var closed = false
 
     private var observers: Job? = null
 
@@ -54,10 +58,11 @@ class ChoicePhraseFragment() : DaggerFragment() {
 
     private val textWatcher = createTextWatcher()
 
-    private val searchImages =
-        listOf(R.drawable.ic_baseline_search_off_24, R.drawable.ic_baseline_search_24)
-    private val cloudImages =
-        listOf(R.drawable.ic_baseline_cloud_off_24, R.drawable.ic_baseline_cloud_24)
+    private val searchImages = listOf(R.drawable.ic_baseline_search_off_24, R.drawable.ic_baseline_search_24)
+    private val cloudImages = listOf(R.drawable.ic_baseline_cloud_off_24, R.drawable.ic_baseline_cloud_24)
+
+    private val choiceCall = { lp: LocalPhrase -> selectPhrase(lp) }
+    private val reportCall = { gp: GlobalPhrase -> navigateToReport(gp) }
 
     private var receivedTAG: String? = null
 
@@ -71,8 +76,6 @@ class ChoicePhraseFragment() : DaggerFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        if (closed) return
-
         globalViewModel.shouldReset.ifTrue { vm.reset() }
 
         vm.update()
@@ -108,9 +111,12 @@ class ChoicePhraseFragment() : DaggerFragment() {
             }.show(requireActivity().supportFragmentManager, ChoiceCountryDialog.TAG)
         }
 
+        vm.addChoiceCall(choiceCall)
+        vm.addReportCall(reportCall)
+
         lifecycleScope.launch {
-            delay(300)
-            bind.recycler.adapter = ChoicePhraseAdapter(vm, player, selectedCall())
+            delay(250)
+            bind.recycler.adapter = vm.adapter
         }
 
         vm.recyclerStat?.let { bind.recycler.layoutManager?.onRestoreInstanceState(it) }
@@ -141,9 +147,9 @@ class ChoicePhraseFragment() : DaggerFragment() {
         vm.like.value = it?.toString() ?: ""
     }
 
-    private fun selectedCall(): (LocalPhrase) -> Unit = { phrase ->
+    private fun selectPhrase(lp: LocalPhrase) {
         receivedTAG?.let {
-            setFragmentResult(it, bundleOf("ID" to phrase.id))
+            setFragmentResult(it, bundleOf("ID" to lp.id))
         }.ifNull {
             Toast.makeText(requireContext(), "Argument Problem", Toast.LENGTH_SHORT).show()
         }
@@ -151,37 +157,32 @@ class ChoicePhraseFragment() : DaggerFragment() {
     }
 
 
-    private fun editCall(): (LocalPhrase) -> Unit = {
-        openEditFragment(bundleOf(EditPhraseFragment.ID_PHRASE to it.id))
-    }
-
-    private fun openEditFragment() = openEditFragment(bundleOf(
-        EditPhraseFragment.CREATE_FOR to receivedTAG,
-        EditPhraseFragment.POP_BACK_TO to findNavController().currentDestination?.id.ifNull { 0 }
-    ))
-
-    private fun openEditFragment(bundle: Bundle? = null) {
-        imm?.hideSoftInputFromWindow(view?.windowToken, 0)
-        requireActivity().findNavController(R.id.nav_host_fragment).navigate(
-            R.id.addPhraseFragment,
-            bundle,
-            navOptions {
-                anim {
-                    enter = R.anim.from_bottom
-                    exit = R.anim.hide
-                    popEnter = R.anim.show
-                    popExit = R.anim.to_bottom
-                }
-            }
+    private fun openEditFragment() = navigate(
+        R.id.addPhraseFragment,
+        bundleOf(
+            EditPhraseFragment.CREATE_FOR to receivedTAG,
+            EditPhraseFragment.POP_BACK_TO to findNavController().currentDestination?.id.ifNull { 0 }
         )
-    }
+    )
+
+    private fun navigateToReport(gp: GlobalPhrase) = navigate(
+        R.id.reportFragment,
+        bundleOf(
+            ReportFragment.TYPE to ReportFragment.types.PHRASE,
+            ReportFragment.CLAIMANT to Firebase.auth.currentUser?.uid,
+            ReportFragment.ACCUSED to gp.globalOwner,
+            ReportFragment.ITEM_ID to gp.globalId
+        )
+    )
 
     override fun onDestroyView() {
-        super.onDestroyView()
         bind.tilSearch.editText?.removeTextChangedListener(textWatcher)
+        vm.removeReportCall(reportCall)
+        vm.removeChoiceCall(choiceCall)
+        bind.recycler.adapter = null
         imm?.hideSoftInputFromWindow(view?.windowToken, 0)
         imm = null
         _bind = null
-        closed = true
+        super.onDestroyView()
     }
 }

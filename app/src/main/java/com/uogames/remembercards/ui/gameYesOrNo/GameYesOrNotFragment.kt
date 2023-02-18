@@ -14,7 +14,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import com.google.android.material.card.MaterialCardView
 import com.squareup.picasso.Picasso
-import com.uogames.dto.local.Image
+import com.uogames.dto.local.LocalImage
 import com.uogames.dto.local.LocalPhrase
 import com.uogames.dto.local.Pronunciation
 import com.uogames.remembercards.GlobalViewModel
@@ -246,15 +246,15 @@ class GameYesOrNotFragment : DaggerFragment() {
 	}
 
 	private fun setData(
-            phrase: LocalPhrase?,
-            pronunciation: Pronunciation?,
-            image: Image?,
-            langView: TextView,
-            phraseView: TextView,
-            soundImg: ImageView,
-            button: MaterialCardView,
-            phraseImage: ImageView,
-            definition: TextView
+        phrase: LocalPhrase?,
+        pronunciation: Pronunciation?,
+        image: LocalImage?,
+        langView: TextView,
+        phraseView: TextView,
+        soundImg: ImageView,
+        button: MaterialCardView,
+        phraseImage: ImageView,
+        definition: TextView
 	) {
 		phrase?.let {
 			langView.text = Locale.forLanguageTag(phrase.lang).displayLanguage

@@ -85,4 +85,10 @@
 	<string name="label_country">Country:</string>
 	<string name="label_language">Language:</string>
     <string name="label_all">All</string>
+    <string name="new_report">New Report</string>
+    <string name="report">Report</string>
+	<string name="message">Message</string>
+    <string name="phrase_id">Phrase ID:</string>
+	<string name="card_id">Card ID:</string>
+	<string name="module_id">Module ID:</string>
 </resources>

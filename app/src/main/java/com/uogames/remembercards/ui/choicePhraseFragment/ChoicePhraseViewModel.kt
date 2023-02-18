@@ -2,26 +2,28 @@ package com.uogames.remembercards.ui.choicePhraseFragment
 
 import android.content.Context
 import android.os.Parcelable
+import androidx.lifecycle.ViewModel
 import com.uogames.dto.global.GlobalImage
 import com.uogames.dto.global.GlobalPhrase
 import com.uogames.dto.local.LocalPhrase
 import com.uogames.flags.Countries
 import com.uogames.map.PhraseMap.update
-import com.uogames.remembercards.ui.phrasesFragment.PhraseViewModel
+import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observe
+import com.uogames.remembercards.utils.toNull
 import com.uogames.repository.DataProvider
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import java.util.*
 import javax.inject.Inject
 import kotlin.collections.HashMap
 
 class ChoicePhraseViewModel @Inject constructor(
-    private val provider: DataProvider
-) {
+    private val provider: DataProvider,
+    player: ObservableMediaPlayer
+) : ViewModel() {
 
     private val viewModelScope = CoroutineScope(Dispatchers.IO)
 
@@ -30,6 +32,7 @@ class ChoicePhraseViewModel @Inject constructor(
         val image by lazy { viewModelScope.async { phrase.idImage?.let { provider.images.getById(it) } } }
         val lang: String by lazy { Locale.forLanguageTag(phrase.lang).displayLanguage }
     }
+
     inner class GlobalPhraseModel(val phrase: GlobalPhrase) {
         val image by lazy { viewModelScope.async { phrase.idImage?.let { getImageById(it) } } }
         val pronounceData by lazy { viewModelScope.async { phrase.idPronounce?.let { getPronounceData(it) } } }
@@ -38,6 +41,7 @@ class ChoicePhraseViewModel @Inject constructor(
 
     private class ShareAction(val job: Job, var callback: (String) -> Unit)
     private class DownloadAction(val job: Job, var callback: (String) -> Unit)
+
     private val shareActions = HashMap<Int, ShareAction>()
     private val downloadActions = HashMap<UUID, DownloadAction>()
 
@@ -53,56 +57,68 @@ class ChoicePhraseViewModel @Inject constructor(
     var recyclerStat: Parcelable? = null
     private var searchJob: Job? = null
 
+    val adapter = ChoicePhraseAdapter(
+        model = this,
+        player = player,
+        reportCall = { gp -> reportCallList.forEach { it(gp) } },
+        choiceCall = { id -> choiceCallList.forEach { it(id) } }
+    )
+    private val reportCallList = ArrayList<(GlobalPhrase) -> Unit>()
+    private val choiceCallList = ArrayList<(LocalPhrase) -> Unit>()
+
     init {
-        like.observe(viewModelScope) { getSize() }
-        country.observe(viewModelScope) { getSize() }
-        language.observe(viewModelScope) { getSize() }
+        like.observe(viewModelScope) { updateSize() }
+        country.observe(viewModelScope) { updateSize() }
+        language.observe(viewModelScope) { updateSize() }
         cloud.observe(viewModelScope) {
             _size.value = 0
-            getSize()
+            updateSize()
         }
     }
 
-    private suspend fun getSize() {
+    private fun updateSize() {
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
-            val text = like.value.ifNull { "" }
+            val text = like.value
             val language = language.value?.isO3Language
             val country = country.value?.toString()
-            try {
+            runCatching {
                 _size.value = if (cloud.value) {
-                    provider.phrase.countGlobal(text).toInt()
+                    provider.phrase.countGlobal(text, language, country).toInt()
                 } else {
-                    provider.phrase.count(text,language,country)
-//                    if (language != null && country != null) provider.phrase.countFlow(text, language, country).first()
-//                    else if (language != null) provider.phrase.countFlow(text, language).first()
-//                    else if (text.isNotEmpty()) provider.phrase.countFlow(text).first()
-//                    else provider.phrase.countFlow().first()
+                    provider.phrase.count(text, language, country)
                 }
-            } catch (e: Exception) {
-                _size.value = 0
             }
         }
     }
 
     fun reset() {
-        like.value = ""
-        country.value = null
-        language.value = null
+        like.toNull()
+        country.toNull()
+        language.toNull()
+        cloud.value = false
+        search.value = false
+        reportCallList.clear()
+        choiceCallList.clear()
     }
 
-    fun update(){
-        viewModelScope.launch { getSize() }
+    fun update() {
+        updateSize()
     }
 
-    suspend fun getLocalBookModel(position: Int): ChoicePhraseViewModel.LocalBookModel? {
+    fun addReportCall(call: (GlobalPhrase) -> Unit) = reportCallList.add(call)
+
+    fun removeReportCall(call: (GlobalPhrase) -> Unit) = reportCallList.remove(call)
+
+    fun addChoiceCall(call: (LocalPhrase) -> Unit) = choiceCallList.add(call)
+
+    fun removeChoiceCall(call: (LocalPhrase) -> Unit) = choiceCallList.remove(call)
+
+    suspend fun getLocalBookModel(position: Int): LocalBookModel? {
         val text = like.value
         val language = language.value?.isO3Language
         val country = country.value?.toString()
-        return provider.phrase.get(text,language,country,position)?.let { LocalBookModel(it) }
-//        return if (language != null && country != null) provider.phrase.get(text, language, country, position)?.let { LocalBookModel(it) }
-//        else if (language != null) provider.phrase.get(text, language, position)?.let { LocalBookModel(it) }
-//        else provider.phrase.get(text, position)?.let { LocalBookModel(it) }
+        return provider.phrase.get(text, language, country, position)?.let { LocalBookModel(it) }
     }
 
     fun share(phrase: LocalPhrase, loading: (String) -> Unit) {
@@ -136,10 +152,15 @@ class ChoicePhraseViewModel @Inject constructor(
         shareActions.remove(phrase.id)
     }
 
-    suspend fun getByGlobalId(uuid: UUID) = viewModelScope.async { provider.phrase.getByGlobalId(uuid) }.await()
+    suspend fun getByGlobalId(uuid: UUID) =  provider.phrase.getByGlobalId(uuid)
 
-    suspend fun getByPosition(position: Long): ChoicePhraseViewModel.GlobalPhraseModel? {
-        runCatching { return GlobalPhraseModel(provider.phrase.getGlobal(like.value.toString(), position)) }
+    suspend fun getByPosition(position: Long): GlobalPhraseModel? {
+        runCatching { return GlobalPhraseModel(provider.phrase.getGlobal(
+            text = like.value,
+            lang = language.value?.isO3Language,
+            country = country.value?.toString(),
+            number = position
+        )) }
         return null
     }
 
@@ -166,7 +187,7 @@ class ChoicePhraseViewModel @Inject constructor(
     }
 
     fun save(phraseModel: GlobalPhraseModel, loading: (String) -> Unit) {
-        val job = viewModelScope.launch{
+        val job = viewModelScope.launch {
             runCatching {
                 val image = phraseModel.phrase.idImage?.let {
                     provider.images.getByGlobalId(it).ifNull { provider.images.download(it) }
@@ -177,7 +198,7 @@ class ChoicePhraseViewModel @Inject constructor(
                 provider.phrase.getByGlobalId(phraseModel.phrase.globalId)?.let {
                     provider.phrase.update(it.update(phraseModel.phrase, pronounce?.id, image?.id))
                 }.ifNull {
-                    provider.phrase.add(com.uogames.dto.local.LocalPhrase().update(phraseModel.phrase, pronounce?.id, image?.id))
+                    provider.phrase.add(LocalPhrase().update(phraseModel.phrase, pronounce?.id, image?.id))
                 }
             }.onSuccess {
                 launch(Dispatchers.Main) {

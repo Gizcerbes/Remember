@@ -1,11 +1,11 @@
 package com.uogames.repository.providers
 
+import com.uogames.clientApi.version3.network.NetworkProvider
 import com.uogames.database.repository.ModuleCardRepository
 import com.uogames.dto.local.LocalModule
 import com.uogames.dto.local.ModuleCard
 import com.uogames.map.ModuleCardMap.toGlobal
 import com.uogames.map.ModuleCardMap.update
-import com.uogames.network.NetworkProvider
 import com.uogames.repository.DataProvider
 import java.util.*
 

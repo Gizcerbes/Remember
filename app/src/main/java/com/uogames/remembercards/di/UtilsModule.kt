@@ -21,6 +21,7 @@ import com.uogames.remembercards.ui.libraryFragment.LibraryViewModel
 import com.uogames.remembercards.ui.mainNav.NavigationViewModel
 import com.uogames.remembercards.ui.phrasesFragment.PhraseViewModel
 import com.uogames.remembercards.ui.registerFragment.RegisterViewModel
+import com.uogames.remembercards.ui.reportFragment.ReportViewModel
 import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.repository.DataProvider
 import dagger.Module
@@ -44,7 +45,7 @@ class UtilsModule {
             context,
             {
                 if (BuildConfig.DEBUG) "secret"
-                else "It isn't matter"
+                else "It doesn't matter"
             },
             {
                 mapOf(
@@ -69,7 +70,7 @@ class UtilsModule {
 
     @Provides
     @Singleton
-    fun providePhraseViewModel(provider: DataProvider): PhraseViewModel = PhraseViewModel(provider)
+    fun providePhraseViewModel(provider: DataProvider, player: ObservableMediaPlayer): PhraseViewModel = PhraseViewModel(provider, player)
 
     @Provides
     @Singleton
@@ -77,7 +78,7 @@ class UtilsModule {
 
     @Provides
     @Singleton
-    fun provideAddPhraseViewModel(provider: DataProvider): EditPhraseViewModel = EditPhraseViewModel(provider)
+    fun provideAddPhraseViewModel(provider: DataProvider, player: ObservableMediaPlayer): EditPhraseViewModel = EditPhraseViewModel(provider, player)
 
     @Provides
     @Singleton
@@ -89,11 +90,11 @@ class UtilsModule {
 
     @Provides
     @Singleton
-    fun provideEditCardViewModel(provider: DataProvider): EditCardViewModel = EditCardViewModel(provider)
+    fun provideEditCardViewModel(provider: DataProvider, player: ObservableMediaPlayer): EditCardViewModel = EditCardViewModel(provider, player)
 
     @Provides
     @Singleton
-    fun provideCardViewModel(provider: DataProvider): CardViewModel = CardViewModel(provider)
+    fun provideCardViewModel(provider: DataProvider, player: ObservableMediaPlayer): CardViewModel = CardViewModel(provider, player)
 
     @Provides
     @Singleton
@@ -114,4 +115,8 @@ class UtilsModule {
     @Provides
     @Singleton
     fun provideGameViewModel(provider: DataProvider): GamesViewModel = GamesViewModel(provider)
+
+    @Provides
+    @Singleton
+    fun provideReportViewModel(provider: DataProvider): ReportViewModel = ReportViewModel(provider)
 }

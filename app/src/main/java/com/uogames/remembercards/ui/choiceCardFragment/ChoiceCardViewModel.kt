@@ -5,7 +5,7 @@ import android.os.Parcelable
 import com.uogames.dto.global.GlobalCard
 import com.uogames.dto.global.GlobalImage
 import com.uogames.dto.global.GlobalPhrase
-import com.uogames.dto.global.Pronunciation
+import com.uogames.dto.global.GlobalPronunciation
 import com.uogames.dto.local.LocalCard
 import com.uogames.flags.Countries
 import com.uogames.map.CardMap.update
@@ -126,7 +126,10 @@ class ChoiceCardViewModel @Inject constructor(
     suspend fun getByGlobalId(uuid: UUID) = viewModelScope.async { provider.cards.getByGlobalId(uuid) }.await()
 
     suspend fun getByPosition(position: Long): GlobalCardModel? {
-        runCatching { return GlobalCardModel(provider.cards.getGlobal(like.value.orEmpty(), position)) }
+        runCatching { return GlobalCardModel(provider.cards.getGlobal(
+            text = like.value.orEmpty(),
+            number = position
+        )) }
         return null
     }
 
@@ -140,7 +143,7 @@ class ChoiceCardViewModel @Inject constructor(
         return null
     }
 
-    private suspend fun getPronunciationById(id: UUID): Pronunciation? {
+    private suspend fun getPronunciationById(id: UUID): GlobalPronunciation? {
         runCatching { return provider.pronounce.getGlobalById(id) }
         return null
     }

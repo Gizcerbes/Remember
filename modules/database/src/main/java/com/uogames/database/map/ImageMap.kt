@@ -1,18 +1,17 @@
 package com.uogames.database.map
 
 import com.uogames.database.entity.ImageEntity
-import com.uogames.dto.local.Image
-import java.util.*
+import com.uogames.dto.local.LocalImage
 
-object ImageMap : Map<ImageEntity, Image> {
-	override fun ImageEntity.toDTO() = Image(
+object ImageMap : Map<ImageEntity, LocalImage> {
+	override fun ImageEntity.toDTO() = LocalImage(
 		id = id,
 		imgUri = imgUri,
 		globalId = globalId,
 		globalOwner = globalOwner
 	)
 
-	override fun Image.toEntity() = ImageEntity(
+	override fun LocalImage.toEntity() = ImageEntity(
 		id = id,
 		imgUri = imgUri,
 		globalId = globalId,

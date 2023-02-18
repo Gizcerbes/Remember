@@ -1,6 +1,6 @@
 package com.uogames.remembercards.ui.libraryFragment
 
-import com.uogames.dto.global.Module
+import com.uogames.dto.global.GlobalModule
 import com.uogames.dto.local.LocalModule
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observe
@@ -19,8 +19,17 @@ class LibraryViewModel @Inject constructor(
 
     private val viewModelScope = CoroutineScope(Dispatchers.IO)
 
+    inner class LocalModuleModel(val module: LocalModule) {
+        val count = viewModelScope.async { getCountByModule(module) }
+    }
+
+    inner class GlobalModuleModel(val module: GlobalModule){
+        val count = viewModelScope.async { getModuleCardCount(module) }
+    }
+
     private class ShareAction(val job: Job, var callback: (String) -> Unit)
     private class DownloadAction(val job: Job, var callback: (String) -> Unit)
+
     private val shareActions = HashMap<Int, ShareAction>()
     private val downloadAction = HashMap<UUID, DownloadAction>()
 
@@ -31,10 +40,13 @@ class LibraryViewModel @Inject constructor(
     val search = MutableStateFlow(false)
     val cloud = MutableStateFlow(false)
 
+    val adapter = LibraryAdapter(this) { module -> selectCall.forEach { it(module) } }
+    private val selectCall = ArrayList<(LocalModule) -> Unit>()
+
     private var searchJob: Job? = null
 
     init {
-        like.observe(viewModelScope){ updateSize() }
+        like.observe(viewModelScope) { updateSize() }
         search.observe(viewModelScope) { updateSize() }
         cloud.observe(viewModelScope) {
             _size.value = 0
@@ -42,12 +54,12 @@ class LibraryViewModel @Inject constructor(
         }
     }
 
-    private fun updateSize(){
+    private fun updateSize() {
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
-            delay(50)
-            _size.value = if (cloud.value){
-                provider.module.countGlobal(like.value.orEmpty()).toInt()
+            delay(100)
+            _size.value = if (cloud.value) {
+                provider.module.countGlobal(like.value).toInt()
             } else {
                 provider.module.count(like.value)
             }
@@ -58,18 +70,23 @@ class LibraryViewModel @Inject constructor(
         like.value = null
         search.value = false
         cloud.value = false
+        selectCall.clear()
     }
 
-    fun update(){
+    fun update() {
         updateSize()
     }
+
+    fun addSelectCall(call: (LocalModule) -> Unit) = selectCall.add(call)
+
+    fun removeSelectCall(call: (LocalModule) -> Unit) = selectCall.remove(call)
 
     fun createModule(name: String, call: (Int) -> Unit) = viewModelScope.launch {
         val res = provider.module.add(LocalModule(name = name))
         launch(Dispatchers.Main) { call(res.toInt()) }
     }
 
-    suspend fun get(position: Int) = provider.module.get(like.value, position)
+    suspend fun get(position: Int) = provider.module.get(like.value, position)?.let { LocalModuleModel(it) }
 
     suspend fun getCountByModule(id: LocalModule) = provider.moduleCard.getCountByModule(id)
 
@@ -122,12 +139,17 @@ class LibraryViewModel @Inject constructor(
         shareActions.remove(module.id)
     }
 
-    suspend fun getByPosition(position: Long): Module? {
-        runCatching { return provider.module.getGlobal(like.value.orEmpty(), position) }
+    suspend fun getByPosition(position: Int): GlobalModuleModel? {
+        runCatching {
+            return GlobalModuleModel(provider.module.getGlobal(
+                text = like.value.orEmpty(),
+                number = position.toLong()
+            ))
+        }
         return null
     }
 
-    suspend fun getModuleCardCount(module: Module): Long {
+    suspend fun getModuleCardCount(module: GlobalModule): Long {
         runCatching { return provider.moduleCard.getGlobalCount(module.globalId) }
         return 0
     }

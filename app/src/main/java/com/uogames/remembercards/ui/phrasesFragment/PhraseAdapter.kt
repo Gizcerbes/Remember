@@ -1,17 +1,16 @@
 package com.uogames.remembercards.ui.phrasesFragment
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.net.toUri
-import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.squareup.picasso.Picasso
 import com.uogames.dto.global.GlobalImage
-import com.uogames.dto.local.Image
+import com.uogames.dto.global.GlobalPhrase
+import com.uogames.dto.local.LocalImage
 import com.uogames.dto.local.Pronunciation
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardPhraseBinding
@@ -21,6 +20,7 @@ import kotlinx.coroutines.*
 class PhraseAdapter(
         private val vm: PhraseViewModel,
         private val player: ObservableMediaPlayer,
+        private val reportCall: ((GlobalPhrase) -> Unit)? = null,
         private val editCall: ((Int) -> Unit)? = null
 ) : ClosableAdapter() {
 
@@ -94,13 +94,14 @@ class PhraseAdapter(
             bind.progressLoading.visibility = View.GONE
             bind.btnStop.visibility = View.GONE
             bind.btnDownload.visibility = View.GONE
+            bind.btnReport.visibility = View.GONE
             auth.currentUser.ifNull { bind.btnShare.visibility = View.GONE }
             bind.imgAction.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
         }
 
-        private suspend fun showImage(image: Deferred<Image?>) = showImage(image.await())
+        private suspend fun showImage(image: Deferred<LocalImage?>) = showImage(image.await())
 
-        private fun showImage(image: Image?) {
+        private fun showImage(image: LocalImage?) {
             image?.let {
                 bind.mcvImgPhrase.visibility = View.VISIBLE
                 val uri = it.imgUri.toUri()
@@ -133,13 +134,13 @@ class PhraseAdapter(
 
         private var full = false
 
-        val startAction: () -> Unit = {
+        private val startAction: () -> Unit = {
             bind.progressLoading.visibility = View.VISIBLE
             bind.btnStop.visibility = View.VISIBLE
             bind.btnDownload.visibility = View.GONE
         }
 
-        val endAction: (String) -> Unit = {
+        private val endAction: (String) -> Unit = {
             bind.progressLoading.visibility = View.GONE
             bind.btnStop.visibility = View.GONE
             bind.btnDownload.visibility = View.VISIBLE
@@ -157,6 +158,8 @@ class PhraseAdapter(
                 showPronounce(phraseView)
                 bind.txtLang.text = phraseView.lang
                 vm.setDownloadAction(phrase.globalId, endAction).ifTrue(startAction)
+
+                bind.btnReport.setOnClickListener { reportCall?.let { it(phrase) } }
 
                 bind.btnDownload.setOnClickListener {
                     startAction()
@@ -187,6 +190,7 @@ class PhraseAdapter(
             bind.btnEdit.visibility = View.GONE
             bind.btnShare.visibility = View.GONE
             bind.imgAction.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
+            auth.currentUser.ifNull { bind.btnReport.visibility = View.GONE }
         }
 
         private suspend fun showImage(image: Deferred<GlobalImage?>) {
@@ -204,8 +208,9 @@ class PhraseAdapter(
                 bind.btnSound.visibility = View.VISIBLE
                 bind.btnSound.setOnClickListener {
                     recyclerScope.launch {
+                        val data = phraseModel.pronounceData.await()
                         player.play(
-                                MediaBytesSource(phraseModel.pronounceData.await()),
+                                MediaBytesSource(data),
                                 bind.imgBtnSound.background.asAnimationDrawable()
                         )
                     }

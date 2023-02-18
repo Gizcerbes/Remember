@@ -1,21 +1,27 @@
 package com.uogames.remembercards.ui.editCardFragment
 
+import android.graphics.drawable.AnimationDrawable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.uogames.dto.local.LocalCard
 import com.uogames.dto.local.LocalPhrase
+import com.uogames.dto.local.Pronunciation
+import com.uogames.remembercards.utils.MediaBytesSource
+import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.ifNullOrEmpty
 import com.uogames.repository.DataProvider
+import com.uogames.repository.DataProvider.Companion.toPronounce
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class EditCardViewModel @Inject constructor(val provider: DataProvider) : ViewModel() {
-
-    private val argCardId: MutableStateFlow<Int?> = MutableStateFlow(null)
+class EditCardViewModel @Inject constructor(
+    private val provider: DataProvider,
+    private val player: ObservableMediaPlayer
+) : ViewModel() {
 
     private val _cardID = MutableStateFlow(0)
 
@@ -29,12 +35,6 @@ class EditCardViewModel @Inject constructor(val provider: DataProvider) : ViewMo
     val reason = _reason.asStateFlow()
 
     private var loadedCard: LocalCard? = null
-
-    fun setArgCardId(int: Int?): Boolean {
-        val res = argCardId.value != int
-        argCardId.value = int
-        return res
-    }
 
     fun reset() {
         _firstPhrase.value = null
@@ -78,6 +78,17 @@ class EditCardViewModel @Inject constructor(val provider: DataProvider) : ViewMo
         _reason.value = reason
     }
 
+    fun playFirst(anim: AnimationDrawable) = viewModelScope.launch { _firstPhrase.value?.toPronounce()?.let { play(anim, it) } }
+
+
+    fun playSecond(anim: AnimationDrawable) = viewModelScope.launch { _secondPhrase.value?.toPronounce()?.let { play(anim, it) } }
+
+    fun play(anim: AnimationDrawable, phrase: LocalPhrase) = viewModelScope.launch { phrase.toPronounce()?.let { play(anim, it) } }
+
+    private fun play(anim: AnimationDrawable, pronounce: Pronunciation) = player.play(MediaBytesSource(provider.pronounce.load(pronounce)), anim)
+
+    fun stopPlaying() = player.stop()
+
     fun save(call: (Long?) -> Unit) = viewModelScope.launch {
         val card = build().ifNull { return@launch call(null) }
         val res = provider.cards.add(card)
@@ -110,4 +121,5 @@ class EditCardViewModel @Inject constructor(val provider: DataProvider) : ViewMo
             globalId = loadedCard?.globalId
         )
     }
+
 }

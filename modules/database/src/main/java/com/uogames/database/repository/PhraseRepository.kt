@@ -37,6 +37,7 @@ class PhraseRepository(private val dao: PhraseDAO) {
 			if (params.isNotEmpty()) builder.append("AND ")
             builder.append("lang = ? ")
             params.add(lang)
+
         }
         country?.let {
 			if (params.isNotEmpty()) builder.append("AND ")

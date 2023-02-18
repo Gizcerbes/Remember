@@ -153,6 +153,7 @@
 					android:layout_height="wrap_content">
 
 					<com.google.android.material.card.MaterialCardView
+						android:id="@+id/btn_report"
 						style="@style/Theme.RememberCards.CardView.Button.Icon"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"

@@ -8,31 +8,35 @@ import com.uogames.dto.global.GlobalImage
 import com.uogames.dto.local.LocalPhrase
 import com.uogames.flags.Countries
 import com.uogames.map.PhraseMap.update
+import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observe
+import com.uogames.remembercards.utils.toNull
 import com.uogames.repository.DataProvider
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.util.*
 import javax.inject.Inject
+import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 class PhraseViewModel @Inject constructor(
-    private val provider: DataProvider
+    private val provider: DataProvider,
+    player: ObservableMediaPlayer
 ) : ViewModel() {
 
     private val viewModelScope = CoroutineScope(Dispatchers.IO)
 
     inner class LocalBookModel(val phrase: LocalPhrase) {
-        val pronounce by lazy { viewModelScope.async { phrase.idPronounce?.let { provider.pronounce.getById(it)}}}
-        val image by lazy { viewModelScope.async { phrase.idImage?.let { provider.images.getById(it) }}}
+        val pronounce by lazy { viewModelScope.async { phrase.idPronounce?.let { provider.pronounce.getById(it) } } }
+        val image by lazy { viewModelScope.async { phrase.idImage?.let { provider.images.getById(it) } } }
         val lang: String by lazy { Locale.forLanguageTag(phrase.lang).displayLanguage }
     }
 
     inner class GlobalPhraseModel(val phrase: GlobalPhrase) {
-        val image by lazy { viewModelScope.async { phrase.idImage?.let { getImageById(it) }}}
-        val pronounceData by lazy { viewModelScope.async { phrase.idPronounce?.let { getPronounceData(it) }}}
+        val image by lazy { viewModelScope.async { phrase.idImage?.let { getImageById(it) } } }
+        val pronounceData by lazy { viewModelScope.async { phrase.idPronounce?.let { getPronounceData(it) } } }
         val lang by lazy { Locale.forLanguageTag(phrase.lang).displayLanguage }
     }
 
@@ -54,6 +58,15 @@ class PhraseViewModel @Inject constructor(
     var recyclerStat: Parcelable? = null
     private var searchJob: Job? = null
 
+    val adapter = PhraseAdapter(
+        vm = this,
+        player = player,
+        reportCall = { gp -> reportCallList.forEach { it(gp) } },
+        editCall = { id -> editCalList.forEach { it(id) } }
+    )
+    private val reportCallList = ArrayList<(GlobalPhrase) -> Unit>()
+    private val editCalList = ArrayList<(Int) -> Unit>()
+
     init {
         like.observe(viewModelScope) { updateSize() }
         country.observe(viewModelScope) { updateSize() }
@@ -72,7 +85,7 @@ class PhraseViewModel @Inject constructor(
             val country = country.value?.toString()
             runCatching {
                 _size.value = if (cloud.value) {
-                    provider.phrase.countGlobal(text.orEmpty()).toInt()
+                    provider.phrase.countGlobal(text, language, country).toInt()
                 } else {
                     provider.phrase.count(text, language, country)
                 }
@@ -81,16 +94,26 @@ class PhraseViewModel @Inject constructor(
     }
 
     fun reset() {
-        like.value = null
-        country.value = null
-        language.value = null
+        like.toNull()
+        country.toNull()
+        language.toNull()
         cloud.value = false
         search.value = false
+        reportCallList.clear()
+        editCalList.clear()
     }
 
     fun update() {
         updateSize()
     }
+
+    fun addReportCall(call: (GlobalPhrase) -> Unit) = reportCallList.add(call)
+
+    fun removeReportCall(call: (GlobalPhrase) -> Unit) = reportCallList.remove(call)
+
+    fun addEditCall(call: (Int) -> Unit) = editCalList.add(call)
+
+    fun removeEditCall(call: (Int) -> Unit) = editCalList.remove(call)
 
     suspend fun getLocalBookModel(position: Int): LocalBookModel? {
         val text = like.value
@@ -134,8 +157,10 @@ class PhraseViewModel @Inject constructor(
         runCatching {
             return GlobalPhraseModel(
                 provider.phrase.getGlobal(
-                    like.value.toString(),
-                    position
+                    text = like.value,
+                    lang = language.value?.isO3Language,
+                    country = country.value?.toString(),
+                    number = position
                 )
             )
         }
@@ -176,10 +201,7 @@ class PhraseViewModel @Inject constructor(
                 provider.phrase.getByGlobalId(phraseModel.phrase.globalId)?.let {
                     provider.phrase.update(it.update(phraseModel.phrase, pronounce?.id, image?.id))
                 }.ifNull {
-                    provider.phrase.add(
-                        com.uogames.dto.local.LocalPhrase()
-                            .update(phraseModel.phrase, pronounce?.id, image?.id)
-                    )
+                    provider.phrase.add(LocalPhrase().update(phraseModel.phrase, pronounce?.id, image?.id))
                 }
             }.onSuccess {
                 launch(Dispatchers.Main) {
@@ -188,11 +210,7 @@ class PhraseViewModel @Inject constructor(
                 }
             }.onFailure {
                 launch(Dispatchers.Main) {
-                    downloadActions[phraseModel.phrase.globalId]?.callback?.let { back ->
-                        back(
-                            it.message ?: "Error"
-                        )
-                    }
+                    downloadActions[phraseModel.phrase.globalId]?.callback?.let { back -> back(it.message ?: "Error") }
                     downloadActions.remove(phraseModel.phrase.globalId)
                 }
             }

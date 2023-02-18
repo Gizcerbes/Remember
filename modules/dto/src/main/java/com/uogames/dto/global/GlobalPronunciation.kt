@@ -4,9 +4,8 @@ import com.uogames.dto.DefaultUUID
 import java.util.*
 
 
-data class ModuleCard(
+data class GlobalPronunciation(
 	val globalId: UUID = DefaultUUID.value,
 	val globalOwner: String,
-	val idModule: UUID,
-	val idCard: UUID
+	val audioUri: String
 )

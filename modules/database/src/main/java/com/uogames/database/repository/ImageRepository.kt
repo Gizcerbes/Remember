@@ -3,7 +3,7 @@ package com.uogames.database.repository
 import com.uogames.database.dao.ImageDAO
 import com.uogames.database.map.ImageMap.toDTO
 import com.uogames.database.map.ImageMap.toEntity
-import com.uogames.dto.local.Image
+import com.uogames.dto.local.LocalImage
 import com.uogames.dto.local.LocalCard
 import com.uogames.dto.local.LocalPhrase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,11 +13,11 @@ import java.util.*
 
 class ImageRepository(private val imageDAO: ImageDAO) {
 
-	suspend fun insert(image: Image) = imageDAO.insert(image.toEntity())
+	suspend fun insert(image: LocalImage) = imageDAO.insert(image.toEntity())
 
-	suspend fun delete(image: Image) = imageDAO.delete(image.toEntity()) > 0
+	suspend fun delete(image: LocalImage) = imageDAO.delete(image.toEntity()) > 0
 
-	suspend fun update(image: Image) = imageDAO.update(image.toEntity()) > 0
+	suspend fun update(image: LocalImage) = imageDAO.update(image.toEntity()) > 0
 
 	suspend fun getById(id: Int) = imageDAO.getById(id)?.toDTO()
 

@@ -1,11 +1,11 @@
 package com.uogames.network.map
 
-import com.uogames.dto.global.Module
+import com.uogames.dto.global.GlobalModule
 import com.uogames.network.response.ModuleResponse
 
-object ModuleMap : Map<ModuleResponse, Module> {
+object ModuleMap : Map<ModuleResponse, GlobalModule> {
 
-	override fun ModuleResponse.toDTO() = Module(
+	override fun ModuleResponse.toDTO() = GlobalModule(
 		globalId = globalId,
 		globalOwner = globalOwner,
 		name = name,
@@ -14,7 +14,7 @@ object ModuleMap : Map<ModuleResponse, Module> {
 		dislike = dislike
 	)
 
-	override fun Module.toResponse() = ModuleResponse(
+	override fun GlobalModule.toResponse() = ModuleResponse(
 		globalId = globalId,
 		globalOwner = globalOwner,
 		name = name,

@@ -1,8 +1,6 @@
 package com.uogames.network
 
 import android.content.Context
-import android.util.Log
-import com.squareup.picasso.Picasso
 import com.uogames.network.provider.*
 import com.uogames.network.service.*
 
@@ -12,7 +10,7 @@ class NetworkProvider private constructor(private val client: HttpClient) {
 
 		private var INSTANCE: NetworkProvider? = null
 
-		fun getInstance(context: Context, secret: () -> String, data: () -> Map<String, String>): NetworkProvider {
+		fun getInstance(context: Context,  secret: () -> String, data: () -> Map<String, String>):NetworkProvider {
 			if (INSTANCE == null) synchronized(this) {
 				if (INSTANCE == null) {
 					val keystore = context.assets.open("keys/keystore.bks").readBytes()

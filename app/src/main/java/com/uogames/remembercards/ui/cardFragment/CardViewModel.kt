@@ -2,16 +2,20 @@ package com.uogames.remembercards.ui.cardFragment
 
 import android.content.Context
 import android.os.Parcelable
+import android.util.Log
 import com.uogames.dto.global.GlobalCard
 import com.uogames.dto.global.GlobalImage
 import com.uogames.dto.global.GlobalPhrase
-import com.uogames.dto.global.Pronunciation
+import com.uogames.dto.global.GlobalPronunciation
 import com.uogames.dto.local.LocalCard
+import com.uogames.dto.local.LocalPhrase
 import com.uogames.flags.Countries
 import com.uogames.map.CardMap.update
 import com.uogames.map.PhraseMap.update
+import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observe
+import com.uogames.remembercards.utils.toNull
 import com.uogames.repository.DataProvider
 import com.uogames.repository.DataProvider.Companion.toImage
 import com.uogames.repository.DataProvider.Companion.toPronounce
@@ -20,10 +24,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.util.*
 import javax.inject.Inject
+import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 class CardViewModel @Inject constructor(
-    private val provider: DataProvider
+    private val provider: DataProvider,
+    player: ObservableMediaPlayer
 ) {
 
     private val viewModelScope = CoroutineScope(Dispatchers.IO)
@@ -52,6 +58,7 @@ class CardViewModel @Inject constructor(
 
     private class ShareAction(val job: Job, var callback: (String) -> Unit)
     private class DownloadAction(val job: Job, var callback: (String) -> Unit)
+
     private val shareActions = HashMap<Int, ShareAction>()
     private val downloadAction = HashMap<UUID, DownloadAction>()
 
@@ -68,11 +75,20 @@ class CardViewModel @Inject constructor(
     val search = MutableStateFlow(false)
 
     var recyclerStat: Parcelable? = null
+    val adapter = CardAdapter(
+        model = this,
+        player = player,
+        reportCall = { gc -> reportCallList.forEach { it(gc) } },
+        cardAction = { card -> editCalList.forEach { it(card) } }
+    )
+
+    private val reportCallList = ArrayList<(GlobalCard) -> Unit>()
+    private val editCalList = ArrayList<(LocalCard) -> Unit>()
 
     private var searchJob: Job? = null
 
     init {
-        like.observe(viewModelScope){ updateSize() }
+        like.observe(viewModelScope) { updateSize() }
         languageFirst.observe(viewModelScope) { updateSize() }
         languageSecond.observe(viewModelScope) { updateSize() }
         countryFirst.observe(viewModelScope) { updateSize() }
@@ -93,28 +109,40 @@ class CardViewModel @Inject constructor(
             val countryFirst = countryFirst.value?.toString()
             val countrySecond = countrySecond.value?.toString()
             runCatching {
-                _size.value = if (cloud.value){
-                    provider.cards.countGlobal(text.orEmpty()).toInt()
+                _size.value = if (cloud.value) {
+                    val res = provider.cards.countGlobal(text, langFirst, langSecond, countryFirst, countrySecond)
+                    res.toInt()
                 } else {
-                    provider.cards.count(text,langFirst,langSecond,countryFirst,countrySecond)
+                    provider.cards.count(text, langFirst, langSecond, countryFirst, countrySecond)
                 }
             }
         }
     }
 
-    fun reset(){
-        like.value = null
-        languageFirst.value = null
-        languageSecond.value = null
-        countryFirst.value = null
-        countrySecond.value = null
+    fun reset() {
+        like.toNull()
+        languageFirst.toNull()
+        languageSecond.toNull()
+        countryFirst.toNull()
+        countrySecond.toNull()
         cloud.value = false
         search.value = false
+        reportCallList.clear()
+        editCalList.clear()
     }
 
-    fun update(){
+    fun update() {
         updateSize()
     }
+
+    fun addReportListener(call: (GlobalCard) -> Unit) = reportCallList.add(call)
+
+    fun removeReportListener(call: (GlobalCard) -> Unit) = reportCallList.remove(call)
+
+    fun addEditCall(call: (LocalCard) -> Unit) = editCalList.add(call)
+
+    fun removeEditCall(call: (LocalCard) -> Unit) = editCalList.remove(call)
+
 
     suspend fun get(position: Int) = provider.cards.get(
         like = like.value,
@@ -157,7 +185,18 @@ class CardViewModel @Inject constructor(
     }
 
     suspend fun getByPosition(position: Long): GlobalCardModel? {
-        runCatching { return GlobalCardModel(provider.cards.getGlobal(like.value.orEmpty(), position)) }
+        runCatching {
+            return GlobalCardModel(
+                provider.cards.getGlobal(
+                    text = like.value,
+                    langFirst = languageFirst.value?.isO3Language,
+                    langSecond = languageSecond.value?.isO3Language,
+                    countryFirst = countryFirst.value?.toString(),
+                    countrySecond = countrySecond.value?.toString(),
+                    number = position
+                )
+            )
+        }
         return null
     }
 
@@ -171,7 +210,7 @@ class CardViewModel @Inject constructor(
         return null
     }
 
-    private suspend fun getPronunciationById(id: UUID): Pronunciation? {
+    private suspend fun getPronunciationById(id: UUID): GlobalPronunciation? {
         runCatching { return provider.pronounce.getGlobalById(id) }
         return null
     }
@@ -205,9 +244,7 @@ class CardViewModel @Inject constructor(
                 val phrase = cardModel.phrase.await()?.globalId?.let { provider.phrase.getByGlobalId(it) }
                 phrase?.let {
                     provider.phrase.update(it.update(cardModel.phrase.await(), phrasePronounce?.id, phraseImage?.id))
-                }.ifNull {
-                    provider.phrase.add(com.uogames.dto.local.LocalPhrase().update(cardModel.phrase.await(), phrasePronounce?.id, phraseImage?.id))
-                }
+                }.ifNull { provider.phrase.add(LocalPhrase().update(cardModel.phrase.await(), phrasePronounce?.id, phraseImage?.id)) }
                 val translateImage = cardModel.translateImage.await()?.globalId?.let {
                     provider.images.getByGlobalId(it).ifNull { provider.images.download(it) }
                 }
@@ -217,15 +254,14 @@ class CardViewModel @Inject constructor(
                 val translate = cardModel.translate.await()?.globalId?.let { provider.phrase.getByGlobalId(it) }
                 translate?.let {
                     provider.phrase.update(it.update(cardModel.translate.await(), translatePronounce?.id, translateImage?.id))
-                }.ifNull {
-                    provider.phrase.add(
-                        com.uogames.dto.local.LocalPhrase().update(cardModel.translate.await(), translatePronounce?.id, translateImage?.id)
-                    )
-                }
+                }.ifNull { provider.phrase.add(LocalPhrase().update(cardModel.translate.await(), translatePronounce?.id, translateImage?.id)) }
 
-                val phraseID = cardModel.phrase.await()?.globalId?.let { provider.phrase.getByGlobalId(it) }?.id.ifNull { throw Exception("Error") }
-                val translateID =
-                    cardModel.translate.await()?.globalId?.let { provider.phrase.getByGlobalId(it) }?.id.ifNull { throw Exception("Error") }
+                val phraseID = cardModel.phrase.await()?.globalId?.let { provider.phrase.getByGlobalId(it) }?.id.ifNull {
+                    throw Exception("Error")
+                }
+                val translateID = cardModel.translate.await()?.globalId?.let { provider.phrase.getByGlobalId(it) }?.id.ifNull {
+                    throw Exception("Error")
+                }
                 val cardImage = cardModel.image.await()?.globalId?.let {
                     provider.images.getByGlobalId(it).ifNull { provider.images.download(it) }
                 }
@@ -233,7 +269,7 @@ class CardViewModel @Inject constructor(
                 provider.cards.getByGlobalId(cardModel.card.globalId)?.let {
                     provider.cards.update(it.update(cardModel.card, phraseID, translateID, cardImage?.id))
                 }.ifNull {
-                    provider.cards.add(com.uogames.dto.local.LocalCard().update(cardModel.card, phraseID, translateID, cardImage?.id))
+                    provider.cards.add(LocalCard().update(cardModel.card, phraseID, translateID, cardImage?.id))
                 }
             }.onSuccess {
                 launch(Dispatchers.Main) {

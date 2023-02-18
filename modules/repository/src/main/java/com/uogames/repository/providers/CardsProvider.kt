@@ -1,11 +1,10 @@
 package com.uogames.repository.providers
 
+import com.uogames.clientApi.version3.network.NetworkProvider
 import com.uogames.database.repository.CardRepository
 import com.uogames.dto.local.LocalCard
-import com.uogames.dto.local.ModuleCard
 import com.uogames.map.CardMap.toGlobal
 import com.uogames.map.CardMap.update
-import com.uogames.network.NetworkProvider
 import com.uogames.repository.DataProvider
 import java.util.*
 
@@ -39,17 +38,11 @@ class CardsProvider(
         position: Int? = null
     ) = repository.get(like, langFirst, langSecond, countryFirst, countrySecond, position)
 
-    fun getCountFlow(like: String = "") = repository.getCountFlow()
-
     fun getCountFlow() = repository.getCountFlow()
-
-   // fun getCardFlow(like: String = "", number: Int) = repository.getCardFlow(like, number)
 
     fun getByIdFlow(id: Int) = repository.getByIdFlow(id)
 
     suspend fun getById(id: Int) = repository.getById(id)
-
-   // fun getByModuleCardFlow(moduleCard: ModuleCard) = repository.getByIdFlow(moduleCard.idCard)
 
     suspend fun getRandom() = repository.getRandom()
 
@@ -57,11 +50,35 @@ class CardsProvider(
 
     suspend fun getByGlobalId(globalId: UUID) = repository.getByGlobalId(globalId)
 
-    suspend fun countGlobal(like: String) = network.card.count(like)
+    suspend fun countGlobal(
+        text: String? = null,
+        langFirst: String? = null,
+        langSecond: String? = null,
+        countryFirst: String? = null,
+        countrySecond: String? = null
+    ) = network.card.count(
+        text = text,
+        langFirst = langFirst,
+        langSecond = langSecond,
+        countryFirst = countryFirst,
+        countrySecond = countrySecond
+    )
 
-  //  suspend fun getGlobalById(globalId: UUID) = network.card.get(globalId)
-
-    suspend fun getGlobal(like: String, number: Long) = network.card.get(like, number)
+    suspend fun getGlobal(
+        text: String? = null,
+        langFirst: String? = null,
+        langSecond: String? = null,
+        countryFirst: String? = null,
+        countrySecond: String? = null,
+        number: Long
+    ) = network.card.get(
+        text = text,
+        langFirst = langFirst,
+        langSecond = langSecond,
+        countryFirst = countryFirst,
+        countrySecond = countrySecond,
+        number = number
+    )
 
     suspend fun share(id: Int): LocalCard? {
         val card = getById(id)

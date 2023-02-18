@@ -5,10 +5,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.net.toUri
-import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import com.uogames.dto.global.GlobalImage
-import com.uogames.dto.local.Image
+import com.uogames.dto.global.GlobalPhrase
+import com.uogames.dto.local.LocalImage
 import com.uogames.dto.local.LocalPhrase
 import com.uogames.dto.local.Pronunciation
 import com.uogames.remembercards.R
@@ -19,7 +19,8 @@ import kotlinx.coroutines.*
 class ChoicePhraseAdapter(
     private val model: ChoicePhraseViewModel,
     private val player: ObservableMediaPlayer,
-    private val call: (LocalPhrase) -> Unit
+    private val reportCall: ((GlobalPhrase) -> Unit)? = null,
+    private val choiceCall: (LocalPhrase) -> Unit
 ) : ClosableAdapter() {
 
     private val recyclerScope = CoroutineScope(Dispatchers.Main)
@@ -62,7 +63,7 @@ class ChoicePhraseAdapter(
                 showPronounce(bookView.pronounce)
                 bind.txtLang.text = bookView.lang
                 model.setShareAction(phrase, endAction).ifTrue(startAction)
-                bind.btnEdit.setOnClickListener { call(phrase) }
+                bind.btnEdit.setOnClickListener { choiceCall(phrase) }
             }
             bind.btnAction.setOnClickListener {
                 full = !full
@@ -88,9 +89,9 @@ class ChoicePhraseAdapter(
             bind.imgAction.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
         }
 
-        private suspend fun showImage(image: Deferred<Image?>) = showImage(image.await())
+        private suspend fun showImage(image: Deferred<LocalImage?>) = showImage(image.await())
 
-        private fun showImage(image: Image?) {
+        private fun showImage(image: LocalImage?) {
             image?.let {
                 bind.mcvImgPhrase.visibility = View.VISIBLE
                 val uri = it.imgUri.toUri()
@@ -145,7 +146,7 @@ class ChoicePhraseAdapter(
                     bind.btnStop.visibility = View.GONE
                     bind.btnDownload.visibility = View.VISIBLE
                     recyclerScope.launch {
-                        model.getByGlobalId(phraseView.phrase.globalId)?.let { phrase -> call(phrase) }
+                        model.getByGlobalId(phraseView.phrase.globalId)?.let { phrase -> choiceCall(phrase) }
                     }
                 }
 

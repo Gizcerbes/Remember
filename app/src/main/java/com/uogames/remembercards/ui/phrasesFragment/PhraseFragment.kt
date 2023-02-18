@@ -7,16 +7,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import androidx.annotation.IdRes
 import androidx.core.os.bundleOf
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.navOptions
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import com.uogames.dto.global.GlobalPhrase
 import com.uogames.remembercards.GlobalViewModel
+import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentBookBinding
 import com.uogames.remembercards.ui.choiceCountry.ChoiceCountryDialog
 import com.uogames.remembercards.ui.choiceLanguageDialog.ChoiceLanguageDialog
 import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseFragment
+import com.uogames.remembercards.ui.reportFragment.ReportFragment
 import com.uogames.remembercards.utils.*
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.Job
@@ -33,23 +40,19 @@ class PhraseFragment : DaggerFragment() {
     @Inject
     lateinit var globalViewModel: GlobalViewModel
 
-    @Inject
-    lateinit var player: ObservableMediaPlayer
-
     private var _bind: FragmentBookBinding? = null
     private val bind get() = _bind!!
-    private var closed = false
 
     private var observers: Job? = null
 
     private var imm: InputMethodManager? = null
 
     private val textWatcher = createTextWatcher()
+    private val editCall: (Int) -> Unit = { navigateToAdd(it) }
+    private val reportCall = { gp: GlobalPhrase -> navigateToReport(gp) }
 
-    private val searchImages =
-        listOf(R.drawable.ic_baseline_search_off_24, R.drawable.ic_baseline_search_24)
-    private val cloudImages =
-        listOf(R.drawable.ic_baseline_cloud_off_24, R.drawable.ic_baseline_cloud_24)
+    private val searchImages = listOf(R.drawable.ic_baseline_search_off_24, R.drawable.ic_baseline_search_24)
+    private val cloudImages = listOf(R.drawable.ic_baseline_cloud_off_24, R.drawable.ic_baseline_cloud_24)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -61,7 +64,6 @@ class PhraseFragment : DaggerFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        if (closed) return
         globalViewModel.shouldReset.ifTrue { model.reset() }
 
         model.update()
@@ -88,12 +90,12 @@ class PhraseFragment : DaggerFragment() {
             }.show(requireActivity().supportFragmentManager, ChoiceCountryDialog.TAG)
         }
 
-        lifecycleScope.launch {
-            delay(300)
-            bind.recycler.adapter = PhraseAdapter(model, player) {
-                model.recyclerStat = bind.recycler.layoutManager?.onSaveInstanceState()
-                navigateToAdd(it)
-            }
+        model.addEditCall(editCall)
+        model.addReportCall(reportCall)
+
+        lifecycleScope.launchWhenStarted {
+            delay(250)
+            bind.recycler.adapter = model.adapter
         }
 
         model.recyclerStat?.let { bind.recycler.layoutManager?.onRestoreInstanceState(it) }
@@ -119,41 +121,36 @@ class PhraseFragment : DaggerFragment() {
             }
         }
 
-
     }
 
     private fun createTextWatcher(): TextWatcher = ShortTextWatcher {
         model.like.value = it?.toString() ?: ""
     }
 
-    private fun navigateToAdd(id: Int) = navigateToAdd(bundleOf(EditPhraseFragment.ID_PHRASE to id))
+    private fun navigateToAdd(id: Int) = navigateToAdd( bundleOf(EditPhraseFragment.ID_PHRASE to id))
 
-    private fun navigateToAdd(bundle: Bundle? = null) {
-        imm?.hideSoftInputFromWindow(view?.windowToken, 0)
-        requireActivity().findNavController(R.id.nav_host_fragment).navigate(
-            R.id.addPhraseFragment,
-            bundle,
-            navOptions {
-                anim {
-                    enter = R.anim.from_bottom
-                    exit = R.anim.hide
-                    popEnter = R.anim.show
-                    popExit = R.anim.to_bottom
-                }
-            }
+    private fun navigateToAdd(bundle: Bundle? = null) = navigate(R.id.addPhraseFragment, bundle)
+
+    private fun navigateToReport(gp: GlobalPhrase) = navigate(
+        R.id.reportFragment,
+        bundleOf(
+            ReportFragment.TYPE to ReportFragment.types.PHRASE,
+            ReportFragment.CLAIMANT to Firebase.auth.currentUser?.uid,
+            ReportFragment.ACCUSED to gp.globalOwner,
+            ReportFragment.ITEM_ID to gp.globalId
         )
-    }
+    )
 
     override fun onDestroyView() {
-        super.onDestroyView()
         observers?.cancel()
         bind.tilSearch.editText?.removeTextChangedListener(textWatcher)
-        (bind.recycler.adapter as? PhraseAdapter)?.close()
-        bind.recycler.adapter = null
+        model.removeEditCall(editCall)
+        model.removeReportCall(reportCall)
         imm?.hideSoftInputFromWindow(view?.windowToken, 0)
+        bind.recycler.adapter = null
         imm = null
         _bind = null
-        closed = true
+        super.onDestroyView()
     }
 
 }

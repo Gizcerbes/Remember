@@ -24,4 +24,5 @@ abstract class ClosableAdapter : RecyclerView.Adapter<ClosableAdapter.ClosableHo
 
 
 
+
 }

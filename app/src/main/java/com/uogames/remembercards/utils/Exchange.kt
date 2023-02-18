@@ -56,7 +56,7 @@ fun <T> Flow<T>.observe(
 inline fun <C> C?.ifNull(defaultValue: () -> C): C =
     this ?: defaultValue()
 
-inline fun <C : CharSequence?> C.ifNullOrEmpty(defaultValue: () -> C): C {
+inline fun <C : CharSequence?> C?.ifNullOrEmpty(defaultValue: () -> C): C {
     return if (isNullOrEmpty()) {
         defaultValue()
     } else {

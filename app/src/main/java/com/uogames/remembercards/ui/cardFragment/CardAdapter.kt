@@ -1,5 +1,6 @@
 package com.uogames.remembercards.ui.cardFragment
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,9 +12,10 @@ import com.google.android.material.card.MaterialCardView
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.squareup.picasso.Picasso
+import com.uogames.dto.global.GlobalCard
 import com.uogames.dto.global.GlobalImage
 import com.uogames.dto.global.GlobalPhrase
-import com.uogames.dto.local.Image
+import com.uogames.dto.local.LocalImage
 import com.uogames.dto.local.LocalCard
 import com.uogames.dto.local.LocalPhrase
 import com.uogames.dto.local.Pronunciation
@@ -26,6 +28,7 @@ import java.util.*
 class CardAdapter(
     private val model: CardViewModel,
     private val player: ObservableMediaPlayer,
+    private val reportCall: ((GlobalCard) -> Unit)? = null,
     private val cardAction: (LocalCard) -> Unit
 ) : ClosableAdapter() {
 
@@ -137,12 +140,13 @@ class CardAdapter(
             bind.btnDownload.visibility = View.GONE
             bind.btnStop.visibility = View.GONE
             bind.imgBtnAction.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
+            bind.btnReport.visibility = View.GONE
         }
 
         private fun setData(
             phrase: LocalPhrase?,
             pronunciation: Pronunciation?,
-            image: Image?,
+            image: LocalImage?,
             langView: TextView,
             phraseView: TextView,
             soundImg: ImageView,
@@ -212,6 +216,8 @@ class CardAdapter(
                 )
                 bind.root.visibility = View.VISIBLE
 
+                bind.btnReport.setOnClickListener { reportCall?.let { it(cardView.card) } }
+
                 val startAction: () -> Unit = {
                     bind.progressLoading.visibility = View.VISIBLE
                     bind.btnStop.visibility = View.VISIBLE
@@ -269,6 +275,7 @@ class CardAdapter(
             bind.btnShare.visibility = View.GONE
             bind.btnStop.visibility = View.GONE
             bind.imgBtnAction.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
+            auth.uid.ifNull { bind.btnReport.visibility = View.GONE }
         }
 
         private fun setData(
@@ -319,6 +326,7 @@ class CardAdapter(
         val bind = CardCardBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return when(viewType){
             0 -> LocalCardHolder(bind)
+            1 -> GlobalCardHolder(bind)
             else -> GlobalCardHolder(bind)
         }
     }
