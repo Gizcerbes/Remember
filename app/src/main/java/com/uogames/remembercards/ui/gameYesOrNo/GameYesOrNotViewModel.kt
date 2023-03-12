@@ -1,8 +1,7 @@
 package com.uogames.remembercards.ui.gameYesOrNo
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.uogames.dto.local.Card
+import com.uogames.dto.local.LocalCard
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.repository.DataProvider
 import com.uogames.repository.DataProvider.Companion.toCard
@@ -20,7 +19,7 @@ class GameYesOrNotViewModel @Inject constructor(
         const val MAX_TIME = 60000
     }
 
-    data class AnswersCard(val firs: Card, val second: Card, var truth: Boolean)
+    data class AnswersCard(val firs: LocalCard, val second: LocalCard, var truth: Boolean)
 
     private val viewModelScope = CoroutineScope(Dispatchers.IO)
 

@@ -67,6 +67,16 @@
 		android:name="com.uogames.remembercards.ui.settingFragment.SettingFragment"
 		android:label="SettingFragment"
 		tools:layout="@layout/fragment_settings"/>
+	<fragment
+		android:id="@+id/reportFragment"
+		tools:layout="@layout/fragment_report"
+		android:name="com.uogames.remembercards.ui.reportFragment.ReportFragment"
+		android:label="ReportFragment" />
+	<fragment
+		android:id="@+id/privacyPolicy"
+		tools:layout="@layout/fragment_privacy_policy"
+		android:name="com.uogames.remembercards.ui.privacy.PrivacyPolicy"
+		android:label="PrivacyPolicy" />
 
 
 </navigation>

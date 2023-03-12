@@ -8,10 +8,9 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.uogames.remembercards.BuildConfig
 import com.uogames.remembercards.GlobalViewModel
-import com.uogames.remembercards.ui.bookFragment.BookViewModel
-import com.uogames.remembercards.ui.bookFragment.NetworkBookViewModel
 import com.uogames.remembercards.ui.cardFragment.CardViewModel
-import com.uogames.remembercards.ui.cardFragment.NetworkCardViewModel
+import com.uogames.remembercards.ui.choiceCardFragment.ChoiceCardViewModel
+import com.uogames.remembercards.ui.choicePhraseFragment.ChoicePhraseViewModel
 import com.uogames.remembercards.ui.cropFragment.CropViewModel
 import com.uogames.remembercards.ui.editCardFragment.EditCardViewModel
 import com.uogames.remembercards.ui.editModuleFragment.EditModuleViewModel
@@ -19,9 +18,10 @@ import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseViewModel
 import com.uogames.remembercards.ui.gameYesOrNo.GameYesOrNotViewModel
 import com.uogames.remembercards.ui.gamesFragment.GamesViewModel
 import com.uogames.remembercards.ui.libraryFragment.LibraryViewModel
-import com.uogames.remembercards.ui.libraryFragment.NetworkLibraryViewModel
 import com.uogames.remembercards.ui.mainNav.NavigationViewModel
+import com.uogames.remembercards.ui.phrasesFragment.PhraseViewModel
 import com.uogames.remembercards.ui.registerFragment.RegisterViewModel
+import com.uogames.remembercards.ui.reportFragment.ReportViewModel
 import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.repository.DataProvider
 import dagger.Module
@@ -36,25 +36,11 @@ class UtilsModule {
 
     @Singleton
     @Provides
-    fun provideAuth(): FirebaseAuth = Firebase.auth
+    fun provideAuth(gvm: GlobalViewModel): FirebaseAuth = gvm.auth
 
     @Provides
     @Singleton
-    fun provideDataProvider(context: Context, auth: FirebaseAuth): DataProvider = DataProvider
-        .get(
-            context,
-            {
-                if (BuildConfig.DEBUG) "secret"
-                else "It isn't matter"
-            },
-            {
-                mapOf(
-                    "Identifier" to (auth.currentUser?.displayName ?: ""),
-                    "User UID" to (auth.currentUser?.uid ?: ""),
-                    "UTM" to System.currentTimeMillis().toString()
-                )
-            }
-        )
+    fun provideDataProvider(gvm: GlobalViewModel): DataProvider = gvm.provider
 
     @Provides
     @Singleton
@@ -66,19 +52,28 @@ class UtilsModule {
 
     @Provides
     @Singleton
-    fun provideGlobalViewModel(provider: DataProvider): GlobalViewModel = GlobalViewModel(provider)
+    fun provideGlobalViewModel(context: Context): GlobalViewModel = GlobalViewModel(context)
 
     @Provides
     @Singleton
-    fun provideBookViewModel(provider: DataProvider): BookViewModel = BookViewModel(provider)
+    fun providePhraseViewModel(
+        globalViewModel: GlobalViewModel,
+        player: ObservableMediaPlayer
+    ): PhraseViewModel = PhraseViewModel(globalViewModel, player)
 
     @Provides
     @Singleton
-    fun provideNetworkBookViewModel(provider: DataProvider): NetworkBookViewModel = NetworkBookViewModel(provider)
+    fun provideChoicePhraseViewModel(
+        provider: DataProvider,
+        player: ObservableMediaPlayer
+    ) : ChoicePhraseViewModel = ChoicePhraseViewModel(provider, player)
 
     @Provides
     @Singleton
-    fun provideAddPhraseViewModel(provider: DataProvider): EditPhraseViewModel = EditPhraseViewModel(provider)
+    fun provideAddPhraseViewModel(
+        provider: DataProvider,
+        player: ObservableMediaPlayer
+    ): EditPhraseViewModel = EditPhraseViewModel(provider, player)
 
     @Provides
     @Singleton
@@ -90,15 +85,18 @@ class UtilsModule {
 
     @Provides
     @Singleton
-    fun provideEditCardViewModel(provider: DataProvider): EditCardViewModel = EditCardViewModel(provider)
+    fun provideEditCardViewModel(provider: DataProvider, player: ObservableMediaPlayer): EditCardViewModel = EditCardViewModel(provider, player)
 
     @Provides
     @Singleton
-    fun provideCardViewModel(provider: DataProvider): CardViewModel = CardViewModel(provider)
+    fun provideCardViewModel(
+        globalViewModel: GlobalViewModel,
+        player: ObservableMediaPlayer
+    ): CardViewModel = CardViewModel(globalViewModel, player)
 
     @Provides
     @Singleton
-    fun provideNetworkCardViewModel(provider: DataProvider): NetworkCardViewModel = NetworkCardViewModel(provider)
+    fun provideChoiceCardViewModel(provider: DataProvider) : ChoiceCardViewModel = ChoiceCardViewModel(provider)
 
     @Provides
     @Singleton
@@ -106,11 +104,9 @@ class UtilsModule {
 
     @Provides
     @Singleton
-    fun provideLibraryViewModel(provider: DataProvider): LibraryViewModel = LibraryViewModel(provider)
-
-    @Provides
-    @Singleton
-    fun provideNetworkLibraryViewModel(provider: DataProvider): NetworkLibraryViewModel = NetworkLibraryViewModel(provider)
+    fun provideLibraryViewModel(
+        globalViewModel: GlobalViewModel
+    ): LibraryViewModel = LibraryViewModel(globalViewModel)
 
     @Provides
     @Singleton
@@ -119,4 +115,8 @@ class UtilsModule {
     @Provides
     @Singleton
     fun provideGameViewModel(provider: DataProvider): GamesViewModel = GamesViewModel(provider)
+
+    @Provides
+    @Singleton
+    fun provideReportViewModel(provider: DataProvider): ReportViewModel = ReportViewModel(provider)
 }

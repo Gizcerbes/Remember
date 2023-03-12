@@ -1,14 +1,11 @@
 package com.uogames.repository.providers
 
-import android.util.Log
 import androidx.core.net.toUri
-import com.uogames.database.DatabaseRepository
+import com.uogames.clientApi.version3.network.NetworkProvider
 import com.uogames.database.repository.PronunciationRepository
-import com.uogames.dto.local.Phrase
+import com.uogames.dto.local.LocalPhrase
 import com.uogames.dto.local.Pronunciation
 import com.uogames.map.PronunciationMap.update
-import com.uogames.network.NetworkProvider
-import com.uogames.network.provider.PronunciationProvider
 import com.uogames.repository.DataProvider
 import com.uogames.repository.fileRepository.FileRepository
 import kotlinx.coroutines.flow.first
@@ -37,20 +34,20 @@ class PronunciationProvider(
 
 	suspend fun update(pronunciation: Pronunciation, bytes: ByteArray): Boolean {
 		return database.getByIdFlow(pronunciation.id).first()?.let {
-			val uri = fileRepository.saveFile("${it.id}.gpp", bytes)
+			val uri = fileRepository.saveFile("${it.id}.mp4", bytes)
 			return database.update(Pronunciation(pronunciation.id, uri.toString()))
 		} ?: false
 	}
 
-	fun getCount() = database.countFlow()
+	fun load(pronunciation: Pronunciation): ByteArray? {
+		return fileRepository.readFile(pronunciation.audioUri.toUri())
+	}
 
 	suspend fun getById(id: Int) = database.getById(id)
 
 	fun getByIdFlow(id: Int) = database.getByIdFlow(id)
 
-	fun getByNumber(number: Int) = database.getByNumberFlow(number)
-
-	fun getByPhrase(phrase: Phrase) = database.getByPhrase(phrase)
+	fun getByPhrase(phrase: LocalPhrase) = database.getByPhrase(phrase)
 
 	suspend fun getByGlobalId(id: UUID) = database.getByGlobalId(id)
 

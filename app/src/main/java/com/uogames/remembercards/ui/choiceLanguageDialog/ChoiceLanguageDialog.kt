@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.lifecycle.lifecycleScope
+import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentChoiceLanguageBinding
 import com.uogames.remembercards.utils.*
 import kotlinx.coroutines.delay
@@ -48,7 +49,7 @@ class ChoiceLanguageDialog(val list: List<Locale>, call: (Locale) -> Unit) : Obs
         adapter?.setItemList(list)
 
         bind.btnSeeAll.setOnClickListener {
-            seeAll = seeAll != true
+            seeAll = !seeAll
             val searchedText = bind.tilSearch.editText?.text.ifNull { "" }.toString().uppercase()
             seeAll.ifTrue {
                 adapter?.setItemList(
@@ -56,12 +57,16 @@ class ChoiceLanguageDialog(val list: List<Locale>, call: (Locale) -> Unit) : Obs
                         it.displayLanguage.uppercase().contains(searchedText)
                     }
                 )
+                bind.txtType.text = requireContext().getText(R.string.label_all)
+
             }.ifFalse {
                 adapter?.setItemList(
                     list.filter {
                         it.displayLanguage.uppercase().contains(searchedText)
                     }
                 )
+                bind.txtType.text = requireContext().getText(R.string.label_recommend)
+                bind.btnSeeAll.setText(R.string.see_all)
             }
         }
 

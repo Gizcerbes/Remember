@@ -33,11 +33,13 @@ interface ImageDAO {
 	fun getByIdFlow(id: Int): Flow<ImageEntity?>
 
 	@Query(
-		"SELECT * FROM images_table " +
-				"WHERE " +
-				"NOT EXISTS (SELECT * FROM phrase_table pt WHERE pt.id_image = images_table.id ) " +
-				"AND " +
-				"NOT EXISTS (SELECT * FROM cards_table nct WHERE nct.id_image = images_table.id)"
+		"SELECT it.* FROM images_table AS it " +
+				"LEFT JOIN  phrase_table AS pt " +
+				"ON pt.id_image = it.id " +
+				"LEFT JOIN cards_table AS ct " +
+				"ON ct.id_image = it.id " +
+				"WHERE pt.id_image IS NULL " +
+				"AND ct.id_image IS NULL"
 	)
 	suspend fun freeImages(): List<ImageEntity>
 

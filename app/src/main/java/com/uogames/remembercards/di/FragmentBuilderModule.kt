@@ -1,6 +1,5 @@
 package com.uogames.remembercards.di
 
-import com.uogames.remembercards.ui.bookFragment.BookFragment
 import com.uogames.remembercards.ui.cardFragment.CardFragment
 import com.uogames.remembercards.ui.choiceCardFragment.ChoiceCardFragment
 import com.uogames.remembercards.ui.choicePhraseFragment.ChoicePhraseFragment
@@ -14,7 +13,9 @@ import com.uogames.remembercards.ui.gamesFragment.GamesFragment
 import com.uogames.remembercards.ui.libraryFragment.LibraryFragment
 import com.uogames.remembercards.ui.mainNav.MainNaviFragment
 import com.uogames.remembercards.ui.personFragment.PersonFragment
+import com.uogames.remembercards.ui.phrasesFragment.PhraseFragment
 import com.uogames.remembercards.ui.registerFragment.RegisterFragment
+import com.uogames.remembercards.ui.reportFragment.ReportFragment
 import com.uogames.remembercards.ui.rootFragment.RootFragment
 import com.uogames.remembercards.ui.settingFragment.SettingFragment
 import dagger.Module
@@ -33,7 +34,7 @@ abstract class FragmentBuilderModule {
     abstract fun contributeRegisterFragment(): RegisterFragment
 
     @ContributesAndroidInjector
-    abstract fun contributeBookFragment(): BookFragment
+    abstract fun contributePhraseFragment(): PhraseFragment
 
     @ContributesAndroidInjector
     abstract fun contributeLibraryFragment(): LibraryFragment
@@ -73,4 +74,7 @@ abstract class FragmentBuilderModule {
 
     @ContributesAndroidInjector
     abstract fun contributeChoiceCardFragment(): ChoiceCardFragment
+
+    @ContributesAndroidInjector
+    abstract fun contributeReportFragment():ReportFragment
 }

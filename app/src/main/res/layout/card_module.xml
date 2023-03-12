@@ -105,23 +105,46 @@
 				android:layout_marginStart="7dp"
 				android:layout_marginEnd="7dp" />
 
-			<androidx.constraintlayout.widget.ConstraintLayout
+			<RelativeLayout
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content">
 
-				<com.google.android.material.progressindicator.LinearProgressIndicator
-					android:id="@+id/progress_loading"
-					android:layout_width="0dp"
-					android:layout_height="50dp"
-					android:layout_marginStart="7dp"
-					android:layout_marginEnd="7dp"
-					android:indeterminate="true"
-					app:layout_constraintBottom_toBottomOf="parent"
-					app:layout_constraintEnd_toStartOf="@id/ll_btns"
-					app:layout_constraintStart_toStartOf="parent"
-					app:layout_constraintTop_toTopOf="parent"
-					app:trackCornerRadius="7dp"
-					app:trackThickness="30dp" />
+				<LinearLayout
+					android:layout_width="wrap_content"
+					android:layout_alignParentTop="true"
+					android:orientation="horizontal"
+					android:layout_alignParentStart="true"
+					android:layout_centerVertical="true"
+					android:layout_toStartOf="@id/ll_btns"
+					android:layout_height="wrap_content">
+
+					<com.google.android.material.card.MaterialCardView
+						android:id="@+id/btn_report"
+						style="@style/Theme.RememberCards.CardView.Button.Icon"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="center"
+						android:layout_margin="0dp"
+						android:visibility="visible">
+
+						<ImageView
+							android:layout_width="@dimen/card_button"
+							android:layout_height="@dimen/card_button"
+							android:src="@drawable/ic_baseline_report_24" />
+					</com.google.android.material.card.MaterialCardView>
+
+					<com.google.android.material.progressindicator.LinearProgressIndicator
+						android:id="@+id/progress_loading"
+						android:layout_width="match_parent"
+						android:layout_height="50dp"
+						android:layout_gravity="center"
+						android:layout_marginStart="7dp"
+						android:layout_marginEnd="7dp"
+						android:indeterminate="true"
+						app:trackCornerRadius="7dp"
+						app:trackThickness="30dp" />
+
+				</LinearLayout>
 
 
 				<LinearLayout
@@ -131,9 +154,8 @@
 					android:layout_gravity="end"
 					android:orientation="horizontal"
 					android:visibility="visible"
-					app:layout_constraintBottom_toBottomOf="parent"
-					app:layout_constraintEnd_toEndOf="parent"
-					app:layout_constraintTop_toTopOf="parent">
+					android:layout_alignParentEnd="true"
+					android:layout_centerVertical="true">
 
 
 					<com.google.android.material.card.MaterialCardView
@@ -210,7 +232,7 @@
 
 				</LinearLayout>
 
-			</androidx.constraintlayout.widget.ConstraintLayout>
+			</RelativeLayout>
 
 		</LinearLayout>
 

@@ -1,6 +1,6 @@
 package com.uogames.network.provider
 
-import com.uogames.dto.global.Card
+import com.uogames.dto.global.GlobalCard
 import com.uogames.network.map.CardMap.toDTO
 import com.uogames.network.map.CardMap.toResponse
 import com.uogames.network.service.CardService
@@ -14,7 +14,7 @@ class CardProvider(private val service: CardService) {
 
 	suspend fun count(like: String) = service.count(like)
 
-	suspend fun post(cardResponse: Card) = service.post(cardResponse.toResponse()).toDTO()
+	suspend fun post(cardResponse: GlobalCard) = service.post(cardResponse.toResponse()).toDTO()
 
 
 }

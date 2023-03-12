@@ -26,10 +26,12 @@ import com.google.firebase.ktx.Firebase
 import com.uogames.flags.Countries
 import com.uogames.remembercards.BuildConfig
 import com.uogames.remembercards.GlobalViewModel
+import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.ComponentTextImputLayoutBinding
 import com.uogames.remembercards.databinding.FragmentSettingsBinding
 import com.uogames.remembercards.ui.choiceCountry.ChoiceCountryDialog
+import com.uogames.remembercards.utils.UserGlobalName
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.ifNullOrEmpty
 import com.uogames.remembercards.utils.observeNotNull
@@ -55,12 +57,11 @@ class SettingFragment : DaggerFragment() {
 	}
 
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-		if (_bind == null) _bind = FragmentSettingsBinding.inflate(inflater, container, false)
+		_bind = FragmentSettingsBinding.inflate(inflater, container, false)
 		return bind.root
 	}
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-		super.onViewCreated(view, savedInstanceState)
 
 		observeJob = createObservers()
 		setUser(auth.currentUser)
@@ -91,6 +92,7 @@ class SettingFragment : DaggerFragment() {
 				}
 				.show()
 		}
+		bind.btnPolicy.setOnClickListener { navigate(R.id.privacyPolicy) }
 	}
 
 	@SuppressLint("ResourceType")
@@ -122,8 +124,7 @@ class SettingFragment : DaggerFragment() {
 	private fun setUser(user: FirebaseUser?) {
 		user?.let {
 			bind.txtLogIn.setTextColor(bind.labelLogIn.currentTextColor)
-			val src = CRC32().apply { update((it.displayName + it.uid).toByteArray()) }
-			bind.txtLogIn.text = "${it.displayName}#${src.value}"
+			bind.txtLogIn.text = UserGlobalName(globalViewModel.userName.value, it.uid).userName
 			bind.labelLogIn.text = requireContext().getText(R.string.log_out)
 		}.ifNull {
 			bind.txtLogIn.text = requireContext().getText(R.string.disconnected)

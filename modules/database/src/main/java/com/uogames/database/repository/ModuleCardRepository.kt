@@ -3,7 +3,7 @@ package com.uogames.database.repository
 import com.uogames.database.dao.ModuleCardDAO
 import com.uogames.database.map.ModuleCardMap.toDTO
 import com.uogames.database.map.ModuleCardMap.toEntity
-import com.uogames.dto.local.Module
+import com.uogames.dto.local.LocalModule
 import com.uogames.dto.local.ModuleCard
 import kotlinx.coroutines.flow.map
 import java.util.*
@@ -18,7 +18,7 @@ class ModuleCardRepository(private val dao: ModuleCardDAO) {
 
 	fun getByModuleID(id: Int) = dao.getByModuleID(id).map { it.map { mc -> mc.toDTO() } }
 
-	fun getByModule(module: Module) = dao.getByModuleID(module.id).map { it.map { mc -> mc.toDTO() } }
+	fun getByModule(module: LocalModule) = dao.getByModuleID(module.id).map { it.map { mc -> mc.toDTO() } }
 
 	fun getCountByModuleIdFlow(id: Int) = dao.getCountByModuleIdFlow(id)
 

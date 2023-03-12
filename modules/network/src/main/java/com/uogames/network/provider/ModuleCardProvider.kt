@@ -1,6 +1,6 @@
 package com.uogames.network.provider
 
-import com.uogames.dto.global.ModuleCard
+import com.uogames.dto.global.GlobalModuleCard
 import com.uogames.network.map.ModuleCardMap.toDTO
 import com.uogames.network.map.ModuleCardMap.toResponse
 import com.uogames.network.service.ModuleCardService
@@ -14,7 +14,7 @@ class ModuleCardProvider(private val service: ModuleCardService) {
 
 	suspend fun count(globalID: UUID) = service.count(globalID)
 
-	suspend fun post(moduleCardResponse: ModuleCard) = service.post(moduleCardResponse.toResponse()).toDTO()
+	suspend fun post(moduleCardResponse: GlobalModuleCard) = service.post(moduleCardResponse.toResponse()).toDTO()
 
 
 }

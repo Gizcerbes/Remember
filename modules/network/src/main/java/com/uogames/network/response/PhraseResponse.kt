@@ -13,7 +13,9 @@ data class PhraseResponse(
 	@SerializedName("definition")
 	var definition: String? = null,
 	@SerializedName("lang")
-	var lang: String = "eng-gb",
+	var lang: String = "eng",
+	@SerializedName("country")
+	var country: String = "UNITED_KINGDOM",
 	@SerializedName("id_pronounce")
 	var idPronounce: UUID? = null,
 	@SerializedName("id_image")

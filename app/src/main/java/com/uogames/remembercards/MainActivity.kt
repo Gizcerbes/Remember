@@ -3,9 +3,17 @@ package com.uogames.remembercards
 import android.os.Bundle
 import android.view.View
 import android.view.ViewTreeObserver
+import androidx.annotation.IdRes
+import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import androidx.navigation.findNavController
+import androidx.navigation.navOptions
+import com.uogames.remembercards.MainActivity.Companion.findNavHostFragment
+import com.uogames.remembercards.ui.editModuleFragment.EditModuleFragment
 import com.uogames.remembercards.utils.Permission
 import com.uogames.remembercards.utils.observeWhenStarted
 import dagger.android.support.DaggerAppCompatActivity
@@ -19,6 +27,31 @@ class MainActivity : DaggerAppCompatActivity() {
 
     private var backStackObserver: Job? = null
     private var keyListener: ViewTreeObserver.OnGlobalLayoutListener? = null
+
+    companion object {
+        fun FragmentActivity.findNavHostFragment() : NavController{
+           return findNavController(R.id.nav_host_fragment)
+        }
+
+        fun Fragment.findNavHostFragment(): NavController{
+            return requireActivity().findNavHostFragment()
+        }
+
+        fun Fragment.navigate(@IdRes res: Int, bundle: Bundle? = null) {
+            findNavHostFragment().navigate(
+                res,
+                bundle,
+                navOptions {
+                    anim {
+                        enter = R.anim.from_bottom
+                        exit = R.anim.hide
+                        popEnter = R.anim.show
+                        popExit = R.anim.to_bottom
+                    }
+                }
+            )
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

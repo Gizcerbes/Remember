@@ -7,23 +7,23 @@ import androidx.core.net.toUri
 import androidx.core.view.setMargins
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
-import com.uogames.dto.local.Image
-import com.uogames.remembercards.utils.observeWhile
+import com.uogames.dto.local.LocalImage
+import com.uogames.remembercards.utils.observe
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 
 class ImageAdapter(
     editCardViewModel: EditPhraseViewModel,
-    val call: (Image) -> Unit
+    val call: (LocalImage) -> Unit
 ) :	RecyclerView.Adapter<ImageAdapter.ImageHolder>() {
 
     private val recyclerScope = CoroutineScope(Dispatchers.Main)
 
-    private var list = listOf<Image>()
+    private var list = listOf<LocalImage>()
 
     init {
-        editCardViewModel.listImageFlow.observeWhile(recyclerScope) {
+        editCardViewModel.listImageFlow.observe(recyclerScope) {
             list = it
             notifyDataSetChanged()
         }

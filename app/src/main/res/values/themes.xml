@@ -47,6 +47,10 @@
 		<item name="cardBackgroundColor">@color/btn_positive</item>
 	</style>
 
+	<style name="Theme.RememberCards.CardView.Button.Inform" parent="Theme.RememberCards.CardView.Button">
+		<item name="cardBackgroundColor">@color/btn_inform</item>
+	</style>
+
 	<style name="Theme.RememberCards.CardView.Button.Icon" parent="Theme.RememberCards.CardView.Button">
 		<item name="cardElevation">0dp</item>
 		<item name="cardBackgroundColor">@color/transparent</item>

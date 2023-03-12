@@ -1,13 +1,13 @@
 package com.uogames.map
 
 import com.uogames.dto.DefaultUUID
-import com.uogames.dto.local.Card
-import com.uogames.dto.local.Image
-import com.uogames.dto.local.Phrase
+import com.uogames.dto.local.LocalCard
+import com.uogames.dto.local.LocalImage
+import com.uogames.dto.local.LocalPhrase
 
 object CardMap {
 
-	fun Card.toGlobal(phrase: Phrase?, translate: Phrase?, image: Image?) = com.uogames.dto.global.Card(
+	fun LocalCard.toGlobal(phrase: LocalPhrase?, translate: LocalPhrase?, image: LocalImage?) = com.uogames.dto.global.GlobalCard(
 		globalId = globalId ?: DefaultUUID.value,
 		globalOwner = globalOwner ?: "",
 		idPhrase = phrase?.globalId ?: DefaultUUID.value,
@@ -19,7 +19,7 @@ object CardMap {
 		dislike = 0
 	)
 
-	fun Card.update(card: com.uogames.dto.global.Card) = Card(
+	fun LocalCard.update(card: com.uogames.dto.global.GlobalCard) = LocalCard(
 		id = id,
 		idPhrase = idPhrase,
 		idTranslate = idTranslate,
@@ -32,7 +32,7 @@ object CardMap {
 		globalOwner = card.globalOwner
 	)
 
-	fun Card.update(card: com.uogames.dto.global.Card, idPhrase: Int, idTranslate: Int, idImage: Int?) = Card(
+	fun LocalCard.update(card: com.uogames.dto.global.GlobalCard, idPhrase: Int, idTranslate: Int, idImage: Int?) = LocalCard(
 		id = id,
 		idPhrase = idPhrase,
 		idTranslate = idTranslate,

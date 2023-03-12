@@ -38,10 +38,18 @@ interface PronunciationDAO {
 	@Query("SELECT * FROM pronounce_table LIMIT :number, 1")
 	fun getByNumberFlow(number: Int): Flow<PronunciationEntity?>
 
+//	@Query(
+//		"SELECT * FROM pronounce_table " +
+//				"WHERE " +
+//				"NOT EXISTS (SELECT * FROM phrase_table pt WHERE pt.id_pronounce = pronounce_table.id )"
+//	)
+//	suspend fun freePronounce(): List<PronunciationEntity>
+
 	@Query(
-		"SELECT * FROM pronounce_table " +
-				"WHERE " +
-				"NOT EXISTS (SELECT * FROM phrase_table pt WHERE pt.id_pronounce = pronounce_table.id )"
+		"SELECT prt.* FROM pronounce_table AS prt " +
+				"LEFT JOIN phrase_table AS pht " +
+				"ON prt.id = pht.id_pronounce " +
+				"WHERE pht.id_pronounce IS NULL"
 	)
 	suspend fun freePronounce(): List<PronunciationEntity>
 

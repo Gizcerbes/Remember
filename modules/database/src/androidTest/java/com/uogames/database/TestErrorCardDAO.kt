@@ -11,6 +11,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
+import java.util.*
 
 @RunWith(AndroidJUnit4::class)
 class TestErrorCardDAO {
@@ -30,10 +31,12 @@ class TestErrorCardDAO {
 	}
 
 	private fun setData() = runBlocking {
-		db.phraseDAO().insert(PhraseEntity(1, "1", null, null, null, 1, 0, 0, 0, 0, ""))
-		db.phraseDAO().insert(PhraseEntity(2, "2", null, null, null, 2, 0, 0, 0, 0, ""))
-		db.phraseDAO().insert(PhraseEntity(3, "3", null, null, null, 2, 0, 0, 0, 0, ""))
-		db.phraseDAO().insert(PhraseEntity(4, "4", null, null, null, 2, 0, 0, 0, 0, ""))
+		db.phraseDAO().insert(PhraseEntity(1, "Hello", null, "en", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
+		db.phraseDAO().insert(PhraseEntity(2, "World", null, "en", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
+		db.phraseDAO().insert(PhraseEntity(3, "Hello World", null, "en", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
+		db.phraseDAO().insert(PhraseEntity(4, "Привет", null, "ru", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
+		db.phraseDAO().insert(PhraseEntity(5, "Мир", null, "ru", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
+		db.phraseDAO().insert(PhraseEntity(6, "Привет Мир", null, "ru", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
 		db.errorCardDAO().insert(ErrorCardEntity(0, 1, 2, 0, 0, 100))
 		db.errorCardDAO().insert(ErrorCardEntity(0, 1, 3, 0, 0, 100))
 		db.errorCardDAO().insert(ErrorCardEntity(0, 2, 3, 0, 0, 100))

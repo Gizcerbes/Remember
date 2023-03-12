@@ -117,10 +117,10 @@ class EditModuleFragment : DaggerFragment() {
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
         moduleCardObserver?.cancel()
         adapter?.onDestroy()
         adapter = null
         _bind = null
+        super.onDestroyView()
     }
 }

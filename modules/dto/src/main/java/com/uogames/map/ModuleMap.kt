@@ -1,11 +1,11 @@
 package com.uogames.map
 
 import com.uogames.dto.DefaultUUID
-import com.uogames.dto.local.Module
+import com.uogames.dto.local.LocalModule
 
 object ModuleMap {
 
-	fun Module.toGlobal() = com.uogames.dto.global.Module(
+	fun LocalModule.toGlobal() = com.uogames.dto.global.GlobalModule(
 		globalId = globalId ?: DefaultUUID.value,
 		globalOwner = globalOwner ?: "",
 		name = name,
@@ -14,7 +14,7 @@ object ModuleMap {
 		dislike = 0
 	)
 
-	fun Module.update(module: com.uogames.dto.global.Module) = Module(
+	fun LocalModule.update(module: com.uogames.dto.global.GlobalModule) = LocalModule(
 		id = id,
 		name = module.name,
 		owner = owner,

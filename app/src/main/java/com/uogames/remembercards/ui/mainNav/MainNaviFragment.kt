@@ -1,15 +1,18 @@
 package com.uogames.remembercards.ui.mainNav
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.navOptions
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentMainNaviBinding
+import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observeWhenStarted
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.Job
@@ -42,12 +45,22 @@ class MainNaviFragment : DaggerFragment() {
         keyObserver = globalViewModel.isShowKey.observeWhenStarted(lifecycleScope) {
             bind.bottomNavigation.visibility = if (it) View.GONE else View.VISIBLE
         }
+
+        lifecycleScope.launchWhenStarted {
+            globalViewModel.getAcceptRules().ifNull {
+                MaterialAlertDialogBuilder(requireContext())
+                    .setMessage(requireContext().getString(R.string.notification_privacy_changed))
+                    .setPositiveButton(R.string.ok){ _, _ ->
+                        globalViewModel.acceptRules()
+                    }.show()
+            }
+        }
     }
 
     override fun onStart() {
         super.onStart()
         val nav = bind.navFragment.findNavController()
-        if (navigationViewModel.id.value != -1) nav.navigate(navigationViewModel.id.value)
+        //if (navigationViewModel.id.value != -1) nav.navigate(navigationViewModel.id.value)
         bind.bottomNavigation.setOnItemSelectedListener {
             if (it.itemId != navigationViewModel.id.value) {
                 nav.navigate(

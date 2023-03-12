@@ -1,15 +1,11 @@
 package com.uogames.database
 
 import android.content.Context
-import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.uogames.database.dao.*
 import com.uogames.database.entity.*
-import com.uogames.dto.User
 
 @Database(
 	entities = [
@@ -23,7 +19,7 @@ import com.uogames.dto.User
 		ErrorCardEntity::class,
 		UserEntity::class
 	],
-	version = 2
+	version = 3
 )
 abstract class MyDatabase : RoomDatabase() {
 
@@ -53,7 +49,10 @@ abstract class MyDatabase : RoomDatabase() {
 			if (INSTANCE == null) synchronized(this) {
 				if (INSTANCE == null) INSTANCE = Room
 					.databaseBuilder(context, MyDatabase::class.java, "cardBase")
-					.addMigrations(UserEntity.migration_1_2())
+					.addMigrations(
+						UserEntity.migration_1_2(),
+						PhraseEntity.migration_2_3()
+					)
 					.build()
 			}
 			return INSTANCE as MyDatabase

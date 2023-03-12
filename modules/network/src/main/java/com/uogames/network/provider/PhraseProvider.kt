@@ -1,6 +1,6 @@
 package com.uogames.network.provider
 
-import com.uogames.dto.global.Phrase
+import com.uogames.dto.global.GlobalPhrase
 import com.uogames.network.map.PhraseMap.toDTO
 import com.uogames.network.map.PhraseMap.toResponse
 import com.uogames.network.service.PhraseService
@@ -14,6 +14,6 @@ class PhraseProvider(private val service: PhraseService) {
 
 	suspend fun get(globalId: UUID) = service.get(globalId).toDTO()
 
-	suspend fun post(phraseResponse: Phrase) = service.post(phraseResponse.toResponse()).toDTO()
+	suspend fun post(phraseResponse: GlobalPhrase) = service.post(phraseResponse.toResponse()).toDTO()
 
 }

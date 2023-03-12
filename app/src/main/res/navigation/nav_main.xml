@@ -13,12 +13,6 @@
 	</fragment>
 
 	<fragment
-		android:id="@+id/book_fragment"
-		android:name="com.uogames.remembercards.ui.bookFragment.BookFragment"
-		android:label="BookFragment"
-		tools:layout="@layout/fragment_book" />
-
-	<fragment
 		android:id="@+id/library_fragment"
 		android:name="com.uogames.remembercards.ui.libraryFragment.LibraryFragment"
 		android:label="BookFragment"
@@ -36,6 +30,12 @@
 		android:label="CardFragment"
 		tools:layout="@layout/fragment_card" />
 
+	<fragment
+		android:id="@+id/phrase_fragment"
+		android:name="com.uogames.remembercards.ui.phrasesFragment.PhraseFragment"
+		android:label="PhraseFragment"
+		tools:layout="@layout/fragment_book"
+		/>
 
 
 </navigation>

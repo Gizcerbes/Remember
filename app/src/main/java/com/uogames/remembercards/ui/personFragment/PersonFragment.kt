@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.findNavController
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -21,8 +20,6 @@ import com.uogames.remembercards.databinding.FragmentPersonBinding
 import com.uogames.remembercards.utils.*
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import java.util.zip.CRC32
 import javax.inject.Inject
 
@@ -44,12 +41,11 @@ class PersonFragment : DaggerFragment() {
     private lateinit var auth: FirebaseAuth
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        if (_bind == null) _bind = FragmentPersonBinding.inflate(inflater, container, false)
+        _bind = FragmentPersonBinding.inflate(inflater, container, false)
         return bind.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
         auth = Firebase.auth
         auth.currentUser?.reload()
@@ -57,8 +53,7 @@ class PersonFragment : DaggerFragment() {
         auth.currentUser?.let {
             bind.txtStatus.text = requireContext().getText(R.string.connected)
             bind.txtStatus.setTextColor(requireContext().getColor(R.color.btn_positive))
-            val src = CRC32().apply { update((it.displayName + it.uid).toByteArray()) }
-            bind.txtGlobalName.text = it.displayName + "#" + src.value
+            bind.txtGlobalName.text = UserGlobalName(globalViewModel.userName.value, it.uid).userName
         }.ifNull {
             bind.txtStatus.text = requireContext().getText(R.string.disconnected)
             bind.txtStatus.setTextColor(requireContext().getColor(R.color.btn_negative))
@@ -68,6 +63,7 @@ class PersonFragment : DaggerFragment() {
         bind.btnSetting.setOnClickListener {
             requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.settingFragment)
         }
+
     }
 
     private fun createObservers(): Job = lifecycleScope.launchWhenStarted {
@@ -94,30 +90,6 @@ class PersonFragment : DaggerFragment() {
         globalViewModel.getGameYesOrNotGameCount().observe(this) {
             bind.txtYesOrNoCount.text = it.ifNullOrEmpty { "0" }
         }
-    }
-
-    private fun aut() {
-        if (auth.currentUser != null) {
-            Toast.makeText(requireContext(), "${auth.currentUser}", Toast.LENGTH_SHORT).show()
-            AuthUI.getInstance().signOut(requireContext())
-            return
-        }
-
-        val providers = arrayListOf(
-            AuthUI.IdpConfig.GoogleBuilder().setSignInOptions(
-                GoogleSignInOptions.Builder().requestIdToken(
-                    "572904362912-bm9tiqhnj5gsjmjvudkc499be6rena5r.apps.googleusercontent.com"
-                ).requestEmail().build()
-            ).build(),
-            AuthUI.IdpConfig.EmailBuilder().build()
-        )
-
-        val signInIntent = AuthUI.getInstance()
-            .createSignInIntentBuilder()
-            .setAvailableProviders(providers)
-            .build()
-
-        signInLauncher.launch(signInIntent)
     }
 
     override fun onDestroyView() {
