@@ -72,11 +72,13 @@ class LibraryViewModel @Inject constructor(
     private fun updateSize() {
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
-            delay(100)
-            _size.value = if (cloud.value) {
-                provider.module.countGlobal(like.value).toInt()
-            } else {
-                provider.module.count(like.value)
+            runCatching {
+                delay(100)
+                _size.value = if (cloud.value) {
+                    provider.module.countGlobal(like.value).toInt()
+                } else {
+                    provider.module.count(like.value)
+                }
             }
         }
     }

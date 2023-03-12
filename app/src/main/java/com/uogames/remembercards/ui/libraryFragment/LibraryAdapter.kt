@@ -173,7 +173,7 @@ class LibraryAdapter(
             full = false
             bind.llBar.visibility = View.GONE
             bind.progressLoading.visibility = View.GONE
-            bind.btnDownload.visibility = View.GONE
+            bind.btnEdit.visibility = View.GONE
             bind.btnStop.visibility = View.GONE
             bind.btnShare.visibility = View.GONE
             bind.imgAction.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
