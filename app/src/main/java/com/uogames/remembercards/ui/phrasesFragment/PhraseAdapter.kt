@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.net.toUri
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.squareup.picasso.Picasso
@@ -14,14 +15,15 @@ import com.uogames.dto.local.LocalImage
 import com.uogames.dto.local.Pronunciation
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardPhraseBinding
+import com.uogames.remembercards.databinding.DialogShareAttentionBinding
 import com.uogames.remembercards.utils.*
 import kotlinx.coroutines.*
 
 class PhraseAdapter(
-        private val vm: PhraseViewModel,
-        private val player: ObservableMediaPlayer,
-        private val reportCall: ((GlobalPhrase) -> Unit)? = null,
-        private val editCall: ((Int) -> Unit)? = null
+    private val vm: PhraseViewModel,
+    private val player: ObservableMediaPlayer,
+    private val reportCall: ((GlobalPhrase) -> Unit)? = null,
+    private val editCall: ((Int) -> Unit)? = null
 ) : ClosableAdapter() {
 
     private val recyclerScope = CoroutineScope(Dispatchers.Main)
@@ -70,8 +72,20 @@ class PhraseAdapter(
                 bind.btnEdit.setOnClickListener { editCall?.let { it1 -> it1(phrase.id) } }
                 vm.setShareAction(phrase, endAction).ifTrue(startAction)
                 bind.btnShare.setOnClickListener {
-                    startAction()
-                    vm.share(phrase, endAction)
+                    vm.shareNotice.value?.let {
+                        startAction()
+                        vm.share(phrase, endAction)
+                    }.ifNull {
+                        val viewBin = DialogShareAttentionBinding.inflate(LayoutInflater.from(itemView.context))
+                        MaterialAlertDialogBuilder(itemView.context)
+                            .setView(viewBin.root)
+                            .setPositiveButton("Apply") { _, _ ->
+                                startAction()
+                                vm.share(phrase, endAction)
+                                if (viewBin.cbDnshow.isChecked) vm.showShareNotice(false)
+                            }.setNegativeButton("Cancel") { _, _ ->
+                            }.show()
+                    }
                 }
                 bind.btnStop.setOnClickListener { vm.stopSharing(phrase) }
             }
@@ -118,9 +132,9 @@ class PhraseAdapter(
                 bind.btnSound.visibility = View.VISIBLE
                 bind.btnSound.setOnClickListener {
                     player.play(
-                            itemView.context,
-                            pron.audioUri.toUri(),
-                            bind.imgBtnSound.background.asAnimationDrawable()
+                        itemView.context,
+                        pron.audioUri.toUri(),
+                        bind.imgBtnSound.background.asAnimationDrawable()
                     )
                 }
             }.ifNull {
@@ -210,8 +224,8 @@ class PhraseAdapter(
                     recyclerScope.launch {
                         val data = phraseModel.pronounceData.await()
                         player.play(
-                                MediaBytesSource(data),
-                                bind.imgBtnSound.background.asAnimationDrawable()
+                            MediaBytesSource(data),
+                            bind.imgBtnSound.background.asAnimationDrawable()
                         )
                     }
                 }

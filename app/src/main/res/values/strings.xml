@@ -1,5 +1,6 @@
 <resources>
 	<string name="app_name">Cue Cards</string>
+	<string name="ok">Ok</string>
 	<string name="home">Home</string>
 	<string name="play">Play</string>
 	<string name="library">Library</string>
@@ -62,7 +63,7 @@
 	<string name="yes_or_no_game_count">Yes or no games count:</string>
 	<string name="let_s_start">Let\'s Start</string>
 	<string name="we_need_a_little_information_about_you">We need a little information about you.</string>
-	<string name="how_are_we_should_call_you">How are we should call you?</string>
+	<string name="how_are_we_should_call_you">What should we call you?</string>
 	<string name="user_name">User Name</string>
 	<string name="user_name_label">User Name:</string>
 	<string name="what_are_you_from">What are you from?</string>
@@ -91,4 +92,12 @@
     <string name="phrase_id">Phrase ID:</string>
 	<string name="card_id">Card ID:</string>
 	<string name="module_id">Module ID:</string>
+    <string name="agree_with">Agree with</string>
+	<string name="privacy_and_policy">Privacy and Policy?</string>
+	<string name="label_privacy_and_policy">Privacy and Policy</string>
+	<string name="label_privacy_policy">Privacy Policy</string>
+	<string name="label_terms_of_service">Terms of service</string>
+    <string name="notification_privacy_changed">If you see this notice, it means that we have changed our privacy policy or terms. We recommend to read.</string>
+    <string name="notice_share">If you see this notification, you are about to share your content. Related content will also be sent.</string>
+	<string name="dont_show">Don\'t show again</string>
 </resources>

@@ -4,6 +4,7 @@ import android.content.Context
 import com.uogames.Singleton
 import com.uogames.clientApi.version3.network.NetworkProvider
 import com.uogames.database.DatabaseRepository
+import com.uogames.database.repository.UserRepository
 import com.uogames.dto.local.LocalCard
 import com.uogames.dto.local.ModuleCard
 import com.uogames.dto.local.LocalPhrase
@@ -22,7 +23,7 @@ class DataProvider private constructor(
         fun get(
             context: Context,
             secret: () -> String,
-            data: () -> Map<String, String>
+            data: (() -> Map<String, String>)?
         ) = dp.get {
             DataProvider(
                 DatabaseRepository.getINSTANCE(context),
@@ -77,6 +78,8 @@ class DataProvider private constructor(
     val moduleCard by lazy { ModuleCardProvider(this, database.moduleCardRepository, networkProvider) }
 
     val report by lazy { ReportProvider(networkProvider) }
+
+    val user by lazy { UserProvider(this, database.userRepository, networkProvider) }
 
     suspend fun clean() {
         images.clear()

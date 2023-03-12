@@ -1,7 +1,10 @@
 package com.uogames.remembercards.ui.libraryFragment
 
+import com.uogames.dto.User
 import com.uogames.dto.global.GlobalModule
 import com.uogames.dto.local.LocalModule
+import com.uogames.remembercards.GlobalViewModel
+import com.uogames.remembercards.utils.UserGlobalName
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observe
 import com.uogames.repository.DataProvider
@@ -11,20 +14,25 @@ import kotlinx.coroutines.flow.asStateFlow
 import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
 import javax.inject.Inject
+import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 class LibraryViewModel @Inject constructor(
-    private val provider: DataProvider
+    //private val provider: DataProvider
+    private val globalViewModel: GlobalViewModel
 ) {
 
+    private val provider = globalViewModel.provider
     private val viewModelScope = CoroutineScope(Dispatchers.IO)
 
     inner class LocalModuleModel(val module: LocalModule) {
         val count = viewModelScope.async { getCountByModule(module) }
+        val owner = viewModelScope.async { module.globalOwner?.let { getUserName(it) } ?: UserGlobalName(module.owner) }
     }
 
-    inner class GlobalModuleModel(val module: GlobalModule){
+    inner class GlobalModuleModel(val module: GlobalModule) {
         val count = viewModelScope.async { getModuleCardCount(module) }
+        val owner = viewModelScope.async { getGlobalUsername(module.globalOwner) ?: UserGlobalName("") }
     }
 
     private class ShareAction(val job: Job, var callback: (String) -> Unit)
@@ -33,6 +41,8 @@ class LibraryViewModel @Inject constructor(
     private val shareActions = HashMap<Int, ShareAction>()
     private val downloadAction = HashMap<UUID, DownloadAction>()
 
+    val shareNotice get() = globalViewModel.shareNotice
+
     private val _size = MutableStateFlow(0)
     val size = _size.asStateFlow()
 
@@ -40,8 +50,13 @@ class LibraryViewModel @Inject constructor(
     val search = MutableStateFlow(false)
     val cloud = MutableStateFlow(false)
 
-    val adapter = LibraryAdapter(this) { module -> selectCall.forEach { it(module) } }
+    val adapter = LibraryAdapter(
+        model = this,
+        reportCall = { gm -> reportCall.forEach { it(gm) } },
+        selectCall = { module -> selectCall.forEach { it(module) } }
+    )
     private val selectCall = ArrayList<(LocalModule) -> Unit>()
+    private val reportCall = ArrayList<(GlobalModule) -> Unit>()
 
     private var searchJob: Job? = null
 
@@ -71,6 +86,7 @@ class LibraryViewModel @Inject constructor(
         search.value = false
         cloud.value = false
         selectCall.clear()
+        reportCall.clear()
     }
 
     fun update() {
@@ -81,6 +97,10 @@ class LibraryViewModel @Inject constructor(
 
     fun removeSelectCall(call: (LocalModule) -> Unit) = selectCall.remove(call)
 
+    fun addReportCall(call: (GlobalModule) -> Unit) = reportCall.add(call)
+
+    fun removeReportCall(call: (GlobalModule) -> Unit) = reportCall.remove(call)
+
     fun createModule(name: String, call: (Int) -> Unit) = viewModelScope.launch {
         val res = provider.module.add(LocalModule(name = name))
         launch(Dispatchers.Main) { call(res.toInt()) }
@@ -89,6 +109,26 @@ class LibraryViewModel @Inject constructor(
     suspend fun get(position: Int) = provider.module.get(like.value, position)?.let { LocalModuleModel(it) }
 
     suspend fun getCountByModule(id: LocalModule) = provider.moduleCard.getCountByModule(id)
+
+    suspend fun getUserName(uid: String): UserGlobalName? {
+        val name = provider.user.getByUid(uid)
+        return if (name != null) {
+            UserGlobalName(name.name, uid)
+        } else {
+            getGlobalUsername(uid)
+        }
+    }
+
+    suspend fun getGlobalUsername(uid: String): UserGlobalName? {
+        return try {
+            val n = provider.user.getGlobalByUid(uid)
+            provider.user.insert(User(n.globalOwner, n.name))
+            UserGlobalName(n.name, uid)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
 
     fun share(module: LocalModule, loading: (String) -> Unit) {
         val job = viewModelScope.launch {
@@ -141,10 +181,12 @@ class LibraryViewModel @Inject constructor(
 
     suspend fun getByPosition(position: Int): GlobalModuleModel? {
         runCatching {
-            return GlobalModuleModel(provider.module.getGlobal(
-                text = like.value.orEmpty(),
-                number = position.toLong()
-            ))
+            return GlobalModuleModel(
+                provider.module.getGlobal(
+                    text = like.value.orEmpty(),
+                    number = position.toLong()
+                )
+            )
         }
         return null
     }
@@ -202,4 +244,5 @@ class LibraryViewModel @Inject constructor(
         downloadAction.remove(id)
     }
 
+    fun showShareNotice(b: Boolean) = globalViewModel.showShareNotice(b)
 }

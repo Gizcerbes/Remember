@@ -9,7 +9,7 @@ import io.ktor.client.request.*
 class UserService(private val client: HttpClient) {
 
 	suspend fun get(globalOwner: String): UserResponse = client
-		.get("/remember-card/user/info/$globalOwner")
+		.get("/remember-card/v3/user/info/$globalOwner")
 		.ifSuccess()
 
 }

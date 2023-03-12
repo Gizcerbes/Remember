@@ -12,6 +12,7 @@ import com.uogames.dto.local.LocalPhrase
 import com.uogames.flags.Countries
 import com.uogames.map.CardMap.update
 import com.uogames.map.PhraseMap.update
+import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observe
@@ -28,10 +29,12 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 class CardViewModel @Inject constructor(
-    private val provider: DataProvider,
+    //private val provider: DataProvider,
+    private val globalViewModel: GlobalViewModel,
     player: ObservableMediaPlayer
 ) {
 
+    private val provider = globalViewModel.provider
     private val viewModelScope = CoroutineScope(Dispatchers.IO)
 
     inner class LocalCardModel(val card: LocalCard) {
@@ -61,6 +64,8 @@ class CardViewModel @Inject constructor(
 
     private val shareActions = HashMap<Int, ShareAction>()
     private val downloadAction = HashMap<UUID, DownloadAction>()
+
+    val shareNotice get() = globalViewModel.shareNotice
 
     private val _size = MutableStateFlow(0)
     val size = _size.asStateFlow()
@@ -287,7 +292,9 @@ class CardViewModel @Inject constructor(
     }
 
 
-    fun getPicasso(context: Context) = provider.images.getPicasso(context)
+    fun showShareNotice(b: Boolean) = globalViewModel.showShareNotice(b)
+
+    fun getPicasso(context: Context) = globalViewModel.getPicasso(context)
 
 
 }

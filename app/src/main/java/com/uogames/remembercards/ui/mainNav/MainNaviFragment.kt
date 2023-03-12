@@ -8,9 +8,11 @@ import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.navOptions
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentMainNaviBinding
+import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observeWhenStarted
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.Job
@@ -42,6 +44,16 @@ class MainNaviFragment : DaggerFragment() {
         navigationViewModel.id.value.let { if (it != -1) bind.bottomNavigation.selectedItemId = it }
         keyObserver = globalViewModel.isShowKey.observeWhenStarted(lifecycleScope) {
             bind.bottomNavigation.visibility = if (it) View.GONE else View.VISIBLE
+        }
+
+        lifecycleScope.launchWhenStarted {
+            globalViewModel.getAcceptRules().ifNull {
+                MaterialAlertDialogBuilder(requireContext())
+                    .setMessage(requireContext().getString(R.string.notification_privacy_changed))
+                    .setPositiveButton(R.string.ok){ _, _ ->
+                        globalViewModel.acceptRules()
+                    }.show()
+            }
         }
     }
 

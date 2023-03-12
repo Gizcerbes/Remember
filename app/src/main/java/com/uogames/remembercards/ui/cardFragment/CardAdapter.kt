@@ -9,6 +9,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.net.toUri
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.squareup.picasso.Picasso
@@ -21,6 +22,7 @@ import com.uogames.dto.local.LocalPhrase
 import com.uogames.dto.local.Pronunciation
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardCardBinding
+import com.uogames.remembercards.databinding.DialogShareAttentionBinding
 import com.uogames.remembercards.utils.*
 import kotlinx.coroutines.*
 import java.util.*
@@ -51,64 +53,81 @@ class CardAdapter(
 
         override fun show() {
             clear()
-            cardObserver = recyclerScope.launch(Dispatchers.IO) {
-                val cardView = model.get(adapterPosition).ifNull { return@launch  }
+            cardObserver = recyclerScope.launch(Dispatchers.Main) {
+                val cardView = model.get(adapterPosition).ifNull { return@launch }
+
                 if (auth.currentUser == null || (cardView.card.globalOwner != null && cardView.card.globalOwner != auth.currentUser?.uid)) {
                     bind.btnShare.visibility = View.GONE
                 }
-                launch(Dispatchers.Main) {
-                    bind.txtReason.text = cardView.card.reason
-                    bind.btnEdit.setOnClickListener { cardAction(cardView.card) }
-                    setData(
-                        cardView.phrase.await(),
-                        cardView.phrasePronounce.await(),
-                        cardView.phraseImage.await(),
-                        bind.txtLangFirst,
-                        bind.txtPhraseFirst,
-                        bind.imgSoundFirst,
-                        bind.mcvFirst,
-                        bind.imgCardFirst,
-                        bind.txtDefinitionFirst
-                    )
-                    setData(
-                        cardView.translate.await(),
-                        cardView.translatePronounce.await(),
-                        cardView.translateImage.await(),
-                        bind.txtLangSecond,
-                        bind.txtPhraseSecond,
-                        bind.imgSoundSecond,
-                        bind.mcvSecond,
-                        bind.imgCardSecond,
-                        bind.txtDefinitionSecond
-                    )
-                    bind.root.visibility = View.VISIBLE
+                bind.txtReason.text = cardView.card.reason
+                bind.btnEdit.setOnClickListener { cardAction(cardView.card) }
+                setData(
+                    cardView.phrase.await(),
+                    cardView.phrasePronounce.await(),
+                    cardView.phraseImage.await(),
+                    bind.txtLangFirst,
+                    bind.txtPhraseFirst,
+                    bind.imgSoundFirst,
+                    bind.mcvFirst,
+                    bind.imgCardFirst,
+                    bind.txtDefinitionFirst
+                )
+                setData(
+                    cardView.translate.await(),
+                    cardView.translatePronounce.await(),
+                    cardView.translateImage.await(),
+                    bind.txtLangSecond,
+                    bind.txtPhraseSecond,
+                    bind.imgSoundSecond,
+                    bind.mcvSecond,
+                    bind.imgCardSecond,
+                    bind.txtDefinitionSecond
+                )
+                bind.root.visibility = View.VISIBLE
 
-                    val startAction: () -> Unit = {
-                        bind.progressLoading.visibility = View.VISIBLE
-                        bind.btnStop.visibility = View.VISIBLE
-                        bind.btnShare.visibility = View.GONE
-                        bind.btnEdit.visibility = View.GONE
-                    }
+                val startAction: () -> Unit = {
+                    bind.progressLoading.visibility = View.VISIBLE
+                    bind.btnStop.visibility = View.VISIBLE
+                    bind.btnShare.visibility = View.GONE
+                    bind.btnEdit.visibility = View.GONE
+                }
 
-                    val endAction: (String) -> Unit = {
-                        bind.progressLoading.visibility = View.GONE
-                        bind.btnStop.visibility = View.GONE
-                        bind.btnShare.visibility = View.VISIBLE
-                        bind.btnEdit.visibility = View.VISIBLE
-                        Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
-                    }
+                val endAction: (String) -> Unit = {
+                    bind.progressLoading.visibility = View.GONE
+                    bind.btnStop.visibility = View.GONE
+                    bind.btnShare.visibility = View.VISIBLE
+                    bind.btnEdit.visibility = View.VISIBLE
+                    Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
+                }
 
-                    model.setShareAction(cardView.card, endAction).ifTrue(startAction)
+                model.setShareAction(cardView.card, endAction).ifTrue(startAction)
 
-                    bind.btnShare.setOnClickListener {
+                bind.btnShare.setOnClickListener {
+                    startAction()
+                    model.share(cardView.card, endAction)
+                }
+
+                bind.btnShare.setOnClickListener {
+                    model.shareNotice.value?.let {
                         startAction()
                         model.share(cardView.card, endAction)
-                    }
-
-                    bind.btnStop.setOnClickListener {
-                        model.stopSharing(cardView.card)
+                    }.ifNull {
+                        val viewBin = DialogShareAttentionBinding.inflate(LayoutInflater.from(itemView.context))
+                        MaterialAlertDialogBuilder(itemView.context)
+                            .setView(viewBin.root)
+                            .setPositiveButton("Apply") { _, _ ->
+                                startAction()
+                                model.share(cardView.card, endAction)
+                                if (viewBin.cbDnshow.isChecked) model.showShareNotice(false)
+                            }.setNegativeButton("Cancel") { _, _ ->
+                            }.show()
                     }
                 }
+
+                bind.btnStop.setOnClickListener {
+                    model.stopSharing(cardView.card)
+                }
+
             }
             bind.btnCardAction.setOnClickListener {
                 full = !full
@@ -117,7 +136,7 @@ class CardAdapter(
                 bind.txtDefinitionSecond.visibility = if (full && bind.txtDefinitionSecond.text.isNotEmpty()) View.VISIBLE else View.GONE
                 val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
                 bind.imgBtnAction.setImageResource(img)
-                if (!full) notifyItemChanged(adapterPosition)
+                //if (!full) notifyItemChanged(adapterPosition)
             }
         }
 
@@ -251,7 +270,7 @@ class CardAdapter(
                 bind.txtDefinitionSecond.visibility = if (full && bind.txtDefinitionSecond.text.isNotEmpty()) View.VISIBLE else View.GONE
                 val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
                 bind.imgBtnAction.setImageResource(img)
-                if (!full) notifyItemChanged(adapterPosition)
+                    //if (!full) notifyItemChanged(adapterPosition)
             }
         }
 
@@ -324,7 +343,7 @@ class CardAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ClosableHolder {
         val bind = CardCardBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return when(viewType){
+        return when (viewType) {
             0 -> LocalCardHolder(bind)
             1 -> GlobalCardHolder(bind)
             else -> GlobalCardHolder(bind)

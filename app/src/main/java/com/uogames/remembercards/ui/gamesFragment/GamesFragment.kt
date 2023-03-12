@@ -4,10 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.navOptions
 import com.uogames.remembercards.GlobalViewModel
+import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentGamesBinding
 import com.uogames.remembercards.ui.choiceModuleDialog.ChoiceModuleDialog
@@ -36,7 +38,6 @@ class GamesFragment : DaggerFragment() {
 
     private var _bind: FragmentGamesBinding? = null
     private val bind get() = _bind!!
-    private var closed = false
 
     private var selectedModuleObserver: Job? = null
     private var cardOwnerObserver: Job? = null
@@ -52,7 +53,6 @@ class GamesFragment : DaggerFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        if (closed) return
         val nav = requireActivity().findNavController(R.id.nav_host_fragment)
 
         bind.gameYesOrNot.visibility = View.GONE
@@ -65,31 +65,12 @@ class GamesFragment : DaggerFragment() {
 
         bind.gameYesOrNot.setOnClickListener {
             gamesViewModel.selectedModule.value?.let {
-                nav.navigate(
+                navigate(
                     R.id.gameYesOrNotFragment,
-                    Bundle().apply { putInt(GameYesOrNotFragment.MODULE_ID, it.id) },
-                    navOptions {
-                        anim {
-                            enter = R.anim.from_bottom
-                            exit = R.anim.hide
-                            popEnter = R.anim.show
-                            popExit = R.anim.to_bottom
-                        }
-                    }
+                    bundleOf(GameYesOrNotFragment.MODULE_ID to it.id)
                 )
             }.ifNull {
-                nav.navigate(
-                    R.id.gameYesOrNotFragment,
-                    null,
-                    navOptions {
-                        anim {
-                            enter = R.anim.from_bottom
-                            exit = R.anim.hide
-                            popEnter = R.anim.show
-                            popExit = R.anim.to_bottom
-                        }
-                    }
-                )
+                navigate(R.id.gameYesOrNotFragment)
             }
         }
 
@@ -139,6 +120,5 @@ class GamesFragment : DaggerFragment() {
         cardOwnerObserver?.cancel()
         countItemsObserver?.cancel()
         _bind = null
-        closed = true
     }
 }

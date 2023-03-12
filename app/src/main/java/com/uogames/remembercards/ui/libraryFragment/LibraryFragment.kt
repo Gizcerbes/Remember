@@ -10,7 +10,10 @@ import android.view.inputmethod.InputMethodManager
 import androidx.core.os.bundleOf
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.navOptions
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.uogames.dto.global.GlobalModule
+import com.uogames.dto.global.GlobalPhrase
 import com.uogames.dto.local.LocalModule
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.MainActivity.Companion.findNavHostFragment
@@ -18,6 +21,7 @@ import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentLbraryBinding
 import com.uogames.remembercards.ui.editModuleFragment.EditModuleFragment
+import com.uogames.remembercards.ui.reportFragment.ReportFragment
 import com.uogames.remembercards.utils.*
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.*
@@ -38,8 +42,8 @@ class LibraryFragment : DaggerFragment() {
 
     private val textWatcher: TextWatcher = createTextWatcher()
 
-    private val reportCaLL = { gm: GlobalModule -> Unit}
-    private val selectCall = { module: LocalModule ->  navigateToEdit(module.id) }
+    private val reportCall = { gm: GlobalModule -> navigateToReport(gm) }
+    private val selectCall = { module: LocalModule -> navigateToEdit(module.id) }
 
     private val searchImages = listOf(R.drawable.ic_baseline_search_off_24, R.drawable.ic_baseline_search_24)
     private val cloudImages = listOf(R.drawable.ic_baseline_cloud_off_24, R.drawable.ic_baseline_cloud_24)
@@ -76,9 +80,10 @@ class LibraryFragment : DaggerFragment() {
         bind.btnSearch.setOnClickListener { model.search.setOpposite() }
 
         model.addSelectCall(selectCall)
+        model.addReportCall(reportCall)
 
         lifecycleScope.launchWhenStarted {
-            delay(300)
+            delay(250)
             bind.recycler.adapter = model.adapter
         }
 
@@ -105,12 +110,23 @@ class LibraryFragment : DaggerFragment() {
         bundleOf(EditModuleFragment.MODULE_ID to moduleID)
     )
 
+    private fun navigateToReport(gp: GlobalModule) = navigate(
+        R.id.reportFragment,
+        bundleOf(
+            ReportFragment.TYPE to ReportFragment.types.MODULE,
+            ReportFragment.CLAIMANT to Firebase.auth.currentUser?.uid,
+            ReportFragment.ACCUSED to gp.globalOwner,
+            ReportFragment.ITEM_ID to gp.globalId
+        )
+    )
+
     override fun onDestroyView() {
         super.onDestroyView()
         observers?.cancel()
         bind.tilSearch.editText?.removeTextChangedListener(textWatcher)
         imm?.hideSoftInputFromWindow(view?.windowToken, 0)
         model.removeSelectCall(selectCall)
+        model.removeReportCall(reportCall)
         bind.recycler.adapter = null
         imm = null
         _bind = null

@@ -9,9 +9,12 @@ import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.uogames.remembercards.GlobalViewModel
+import com.uogames.remembercards.MainActivity.Companion.findNavHostFragment
+import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentRegisterBinding
 import com.uogames.remembercards.ui.choiceCountry.ChoiceCountryDialog
+import com.uogames.remembercards.utils.ifFalse
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.ifNullOrEmpty
 import com.uogames.remembercards.utils.observeWhenStarted
@@ -30,18 +33,16 @@ class RegisterFragment : DaggerFragment() {
 
     private var _bind: FragmentRegisterBinding? = null
     private val bind get() = _bind!!
-    private var closed = false
 
     private var isRegisterObserver: Job? = null
     private var countryObserver: Job? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        if (_bind == null) _bind = FragmentRegisterBinding.inflate(inflater, container, false)
+        _bind = FragmentRegisterBinding.inflate(inflater, container, false)
         return bind.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        if (closed) return
 
         isRegisterObserver = createIsRegisterObserver()
         countryObserver = createCountryObserver()
@@ -60,13 +61,19 @@ class RegisterFragment : DaggerFragment() {
         }
 
         bind.btnEnd.setOnClickListener {
-            val txt = bind.tilName.editText?.text.toString()
+            val txt = bind.tilName.editText?.text?.toString()
                 .ifNullOrEmpty { return@setOnClickListener }
                 .also { if (it.length > bind.tilName.counterMaxLength) return@setOnClickListener }
+            bind.cbAgreeWithRules.isActivated.ifFalse { return@setOnClickListener }
             globalViewModel.saveUserName(txt)
             globalViewModel.saveUserNativeCountry(registerViewModel.country.value.toString())
+            globalViewModel.acceptRules()
             registerViewModel.isRegister.value = true
         }
+
+        bind.tvPrivacy.setOnClickListener { navigate(R.id.privacyPolicy) }
+
+
     }
 
     private fun createIsRegisterObserver() = registerViewModel.isRegister.observeWhenStarted(lifecycleScope) {
@@ -96,10 +103,9 @@ class RegisterFragment : DaggerFragment() {
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
         isRegisterObserver?.cancel()
         countryObserver?.cancel()
         _bind = null
-        closed = true
+        super.onDestroyView()
     }
 }

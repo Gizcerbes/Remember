@@ -2,12 +2,14 @@ package com.uogames.remembercards.ui.phrasesFragment
 
 import android.content.Context
 import android.os.Parcelable
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.uogames.dto.global.GlobalPhrase
 import com.uogames.dto.global.GlobalImage
 import com.uogames.dto.local.LocalPhrase
 import com.uogames.flags.Countries
 import com.uogames.map.PhraseMap.update
+import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observe
@@ -15,17 +17,20 @@ import com.uogames.remembercards.utils.toNull
 import com.uogames.repository.DataProvider
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 class PhraseViewModel @Inject constructor(
-    private val provider: DataProvider,
+    private val globalViewModel: GlobalViewModel,
     player: ObservableMediaPlayer
 ) : ViewModel() {
 
+    private val provider = globalViewModel.provider
     private val viewModelScope = CoroutineScope(Dispatchers.IO)
 
     inner class LocalBookModel(val phrase: LocalPhrase) {
@@ -45,6 +50,8 @@ class PhraseViewModel @Inject constructor(
 
     private val shareActions = HashMap<Int, ShareAction>()
     private val downloadActions = HashMap<UUID, DownloadAction>()
+
+    val shareNotice get() = globalViewModel.shareNotice
 
     val like = MutableStateFlow<String?>(null)
     val country = MutableStateFlow<Countries?>(null)
@@ -218,7 +225,8 @@ class PhraseViewModel @Inject constructor(
         downloadActions[phraseModel.phrase.globalId] = DownloadAction(job, loading)
     }
 
-    fun getPicasso(context: Context) = provider.images.getPicasso(context)
+    fun showShareNotice(b: Boolean) = globalViewModel.showShareNotice(b)
+    fun getPicasso(context: Context) = globalViewModel.getPicasso(context)
 
 
 }

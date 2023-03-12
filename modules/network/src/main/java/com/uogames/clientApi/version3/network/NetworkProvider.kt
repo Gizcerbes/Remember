@@ -29,7 +29,7 @@ class NetworkProvider private constructor(private val c: Client) {
         fun getInstance(
             context: Context,
             secret: () -> String,
-            data: () -> Map<String, String>
+            data: (() -> Map<String, String>)?
         ): NetworkProvider {
             return instance.get {
                 val keystore = context.assets.open("keys/keystore.bks").readBytes()

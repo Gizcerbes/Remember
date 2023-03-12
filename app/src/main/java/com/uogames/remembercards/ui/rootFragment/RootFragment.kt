@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.utils.ifNull
@@ -35,6 +36,8 @@ class RootFragment : DaggerFragment() {
                 val graph = findNavController().navInflater.inflate(R.navigation.nav_graph).apply { setStartDestination(R.id.registerFragment) }
                 findNavController().setGraph(graph, null)
             }
+
         }
+
     }
 }

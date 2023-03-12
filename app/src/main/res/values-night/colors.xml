@@ -12,6 +12,7 @@
 	<color name="btn_negative">#501414</color>
 	<color name="btn_positive">#145014</color>
     <color name="btn_inform">#141450</color>
+    <color name="txt_inform">#2196F3</color>
 
     <color name="redwood">#5b342e</color>
     <color name="linen">#faf0e6</color>

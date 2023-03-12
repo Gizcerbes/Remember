@@ -36,25 +36,11 @@ class UtilsModule {
 
     @Singleton
     @Provides
-    fun provideAuth(): FirebaseAuth = Firebase.auth
+    fun provideAuth(gvm: GlobalViewModel): FirebaseAuth = gvm.auth
 
     @Provides
     @Singleton
-    fun provideDataProvider(context: Context, auth: FirebaseAuth): DataProvider = DataProvider
-        .get(
-            context,
-            {
-                if (BuildConfig.DEBUG) "secret"
-                else "It doesn't matter"
-            },
-            {
-                mapOf(
-                    "Identifier" to (auth.currentUser?.displayName ?: ""),
-                    "User UID" to (auth.currentUser?.uid ?: ""),
-                    "UTM" to System.currentTimeMillis().toString()
-                )
-            }
-        )
+    fun provideDataProvider(gvm: GlobalViewModel): DataProvider = gvm.provider
 
     @Provides
     @Singleton
@@ -66,19 +52,28 @@ class UtilsModule {
 
     @Provides
     @Singleton
-    fun provideGlobalViewModel(provider: DataProvider): GlobalViewModel = GlobalViewModel(provider)
+    fun provideGlobalViewModel(context: Context): GlobalViewModel = GlobalViewModel(context)
 
     @Provides
     @Singleton
-    fun providePhraseViewModel(provider: DataProvider, player: ObservableMediaPlayer): PhraseViewModel = PhraseViewModel(provider, player)
+    fun providePhraseViewModel(
+        globalViewModel: GlobalViewModel,
+        player: ObservableMediaPlayer
+    ): PhraseViewModel = PhraseViewModel(globalViewModel, player)
 
     @Provides
     @Singleton
-    fun provideChoicePhraseViewModel(provider: DataProvider) : ChoicePhraseViewModel = ChoicePhraseViewModel(provider)
+    fun provideChoicePhraseViewModel(
+        provider: DataProvider,
+        player: ObservableMediaPlayer
+    ) : ChoicePhraseViewModel = ChoicePhraseViewModel(provider, player)
 
     @Provides
     @Singleton
-    fun provideAddPhraseViewModel(provider: DataProvider, player: ObservableMediaPlayer): EditPhraseViewModel = EditPhraseViewModel(provider, player)
+    fun provideAddPhraseViewModel(
+        provider: DataProvider,
+        player: ObservableMediaPlayer
+    ): EditPhraseViewModel = EditPhraseViewModel(provider, player)
 
     @Provides
     @Singleton
@@ -94,7 +89,10 @@ class UtilsModule {
 
     @Provides
     @Singleton
-    fun provideCardViewModel(provider: DataProvider, player: ObservableMediaPlayer): CardViewModel = CardViewModel(provider, player)
+    fun provideCardViewModel(
+        globalViewModel: GlobalViewModel,
+        player: ObservableMediaPlayer
+    ): CardViewModel = CardViewModel(globalViewModel, player)
 
     @Provides
     @Singleton
@@ -106,7 +104,9 @@ class UtilsModule {
 
     @Provides
     @Singleton
-    fun provideLibraryViewModel(provider: DataProvider): LibraryViewModel = LibraryViewModel(provider)
+    fun provideLibraryViewModel(
+        globalViewModel: GlobalViewModel
+    ): LibraryViewModel = LibraryViewModel(globalViewModel)
 
     @Provides
     @Singleton

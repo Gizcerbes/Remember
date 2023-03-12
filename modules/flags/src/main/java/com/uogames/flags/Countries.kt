@@ -129,7 +129,7 @@ enum class Countries(@DrawableRes val res: Int, val isoCode: String, val country
 		)
 	),
 	BELARUS(
-		R.drawable.ic_flag_by, "BY", arrayOf(
+		R.drawable.ic_flag_white_russia, "BY", arrayOf(
 			Text(Locale("en"), "Republic of Belarus"),
 			Text(Locale("be"), "Рэспубліка Беларусь"),
 			Text(Locale("ru"), "Республика Беларусь")

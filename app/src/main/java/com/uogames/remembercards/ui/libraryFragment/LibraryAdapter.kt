@@ -4,12 +4,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.uogames.dto.global.GlobalModule
 import com.uogames.dto.local.LocalModule
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardModuleBinding
+import com.uogames.remembercards.databinding.DialogShareAttentionBinding
 import com.uogames.remembercards.utils.ClosableAdapter
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.ifTrue
@@ -65,7 +67,7 @@ class LibraryAdapter(
                 val count = mm.count.await().toString()
                 bind.txtCountItems.text = itemView.context.getString(R.string.count_items).replace("||COUNT||", count)
 
-                bind.txtOwner.text = owner
+                bind.txtOwner.text = mm.owner.await().userName
 
                 bind.btnEdit.setOnClickListener { selectCall(mm.module) }
 
@@ -74,6 +76,23 @@ class LibraryAdapter(
                 bind.btnShare.setOnClickListener {
                     startAction()
                     model.share(mm.module, endAction)
+                }
+
+                bind.btnShare.setOnClickListener {
+                    model.shareNotice.value?.let {
+                        startAction()
+                        model.share(mm.module, endAction)
+                    }.ifNull {
+                        val viewBin = DialogShareAttentionBinding.inflate(LayoutInflater.from(itemView.context))
+                        MaterialAlertDialogBuilder(itemView.context)
+                            .setView(viewBin.root)
+                            .setPositiveButton("Apply") { _, _ ->
+                                startAction()
+                                model.share(mm.module, endAction)
+                                if (viewBin.cbDnshow.isChecked) model.showShareNotice(false)
+                            }.setNegativeButton("Cancel") { _, _ ->
+                            }.show()
+                    }
                 }
 
                 bind.btnStop.setOnClickListener {
@@ -86,7 +105,6 @@ class LibraryAdapter(
                 bind.llBar.visibility = if (full) View.VISIBLE else View.GONE
                 val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
                 bind.imgAction.setImageResource(img)
-                if (!full) notifyItemChanged(adapterPosition)
             }
 
         }
@@ -127,7 +145,8 @@ class LibraryAdapter(
                 bind.txtName.text = mm.module.name
                 val count = mm.count.await().toString()
                 bind.txtCountItems.text = itemView.context.getString(R.string.count_items).replace("||COUNT||", count)
-                bind.txtOwner.text = mm.module.globalOwner
+
+                bind.txtOwner.text = mm.owner.await().userName
 
                 bind.btnReport.setOnClickListener { reportCall?.let { it(mm.module) } }
 
@@ -147,7 +166,6 @@ class LibraryAdapter(
                 bind.llBar.visibility = if (full) View.VISIBLE else View.GONE
                 val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
                 bind.imgAction.setImageResource(img)
-                if (!full) notifyItemChanged(adapterPosition)
             }
         }
 
@@ -171,8 +189,8 @@ class LibraryAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ClosableHolder {
         val bind = CardModuleBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return when (viewType) {
-            1 -> LocalModuleHolder(bind)
-            2 -> GlobalModuleHolder(bind)
+            0 -> LocalModuleHolder(bind)
+            1 -> GlobalModuleHolder(bind)
             else -> LocalModuleHolder(bind)
         }
     }
