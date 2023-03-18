@@ -9,7 +9,7 @@ import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import com.squareup.picasso.Picasso
-import com.uogames.dto.local.ModuleCard
+import com.uogames.dto.local.LocalModuleCard
 import com.uogames.dto.local.LocalPhrase
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardCardBinding
@@ -29,9 +29,9 @@ class EditModuleAdapter(
 
     private val recyclerScope = CoroutineScope(Dispatchers.Main)
 
-    private var listItems: List<ModuleCard> = arrayListOf()
+    private var listItems: List<LocalModuleCard> = arrayListOf()
 
-    fun setListItems(list: List<ModuleCard>) {
+    fun setListItems(list: List<LocalModuleCard>) {
         listItems = list
         notifyDataSetChanged()
     }

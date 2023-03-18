@@ -1,12 +1,15 @@
 package com.uogames.clientApi.version3.network.provider
 
 import com.uogames.clientApi.version3.network.map.PronunciationMap.toDTO
+import com.uogames.clientApi.version3.network.map.PronunciationViewMap.toDTO
 import com.uogames.clientApi.version3.network.service.PronunciationService
 import java.util.*
 
 class PronunciationProvider(private val s: PronunciationService) {
 
     suspend fun get(globalId: UUID) = s.get(globalId).toDTO()
+
+    suspend fun getView(globalId: UUID) = s.getView(globalId).toDTO()
 
     suspend fun load(globalId: UUID) = s.load(globalId)
 

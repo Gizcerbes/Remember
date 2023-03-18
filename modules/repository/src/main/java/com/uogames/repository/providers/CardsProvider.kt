@@ -2,6 +2,7 @@ package com.uogames.repository.providers
 
 import com.uogames.clientApi.version3.network.NetworkProvider
 import com.uogames.database.repository.CardRepository
+import com.uogames.dto.global.GlobalCardView
 import com.uogames.dto.local.LocalCard
 import com.uogames.map.CardMap.toGlobal
 import com.uogames.map.CardMap.update
@@ -80,6 +81,22 @@ class CardsProvider(
         number = number
     )
 
+    suspend fun getGlobalView(
+        text: String? = null,
+        langFirst: String? = null,
+        langSecond: String? = null,
+        countryFirst: String? = null,
+        countrySecond: String? = null,
+        number: Long
+    ) = network.card.getView(
+        text = text,
+        langFirst = langFirst,
+        langSecond = langSecond,
+        countryFirst = countryFirst,
+        countrySecond = countrySecond,
+        number = number
+    )
+
     suspend fun share(id: Int): LocalCard? {
         val card = getById(id)
         return card?.let {
@@ -109,6 +126,37 @@ class CardsProvider(
             repository.getById(localId)
         } else {
             null
+        }
+    }
+
+    suspend fun save(view: GlobalCardView): LocalCard {
+        val l1 = repository.getByGlobalId(view.globalId)
+        if (l1 == null) {
+            val localID = add(
+                LocalCard(
+                    idPhrase = view.phrase.let { dataProvider.phrase.save(it) }.id,
+                    idTranslate = view.translate.let { dataProvider.phrase.save(it) }.id,
+                    reason = view.reason,
+                    idImage = view.image?.let { dataProvider.images.save(it) }?.id,
+                    timeChange = view.timeChange,
+                    like = view.like,
+                    dislike = view.dislike,
+                    globalId = view.globalId,
+                    globalOwner = view.user.globalOwner
+                )
+            ).toInt()
+            return repository.getById(localID) ?: throw Exception("Card wasn't saved")
+        } else if (l1.timeChange != view.timeChange){
+            val l2 = l1.update(
+                view = view,
+                idPhrase = view.phrase.let { dataProvider.phrase.save(it) }.id,
+                idTranslate = view.translate.let { dataProvider.phrase.save(it) }.id,
+                idImage = view.image?.let { dataProvider.images.save(it) }?.id,
+            )
+            update(l2)
+            return l2
+        } else {
+            return l1
         }
     }
 

@@ -2,6 +2,7 @@ package com.uogames.remembercards.ui.libraryFragment
 
 import com.uogames.dto.User
 import com.uogames.dto.global.GlobalModule
+import com.uogames.dto.global.GlobalModuleView
 import com.uogames.dto.local.LocalModule
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.utils.UserGlobalName
@@ -30,9 +31,14 @@ class LibraryViewModel @Inject constructor(
         val owner = viewModelScope.async { module.globalOwner?.let { getUserName(it) } ?: UserGlobalName(module.owner) }
     }
 
-    inner class GlobalModuleModel(val module: GlobalModule) {
+//    inner class GlobalModuleModel(val module: GlobalModule) {
+//        val count = viewModelScope.async { getModuleCardCount(module) }
+//        val owner = viewModelScope.async { getGlobalUsername(module.globalOwner) ?: UserGlobalName("") }
+//    }
+
+    inner class GlobalModuleModel(val module: GlobalModuleView) {
         val count = viewModelScope.async { getModuleCardCount(module) }
-        val owner = viewModelScope.async { getGlobalUsername(module.globalOwner) ?: UserGlobalName("") }
+        val owner = viewModelScope.async { getGlobalUsername(module.user.globalOwner) ?: UserGlobalName("") }
     }
 
     private class ShareAction(val job: Job, var callback: (String) -> Unit)
@@ -184,7 +190,7 @@ class LibraryViewModel @Inject constructor(
     suspend fun getByPosition(position: Int): GlobalModuleModel? {
         runCatching {
             return GlobalModuleModel(
-                provider.module.getGlobal(
+                provider.module.getGlobalView(
                     text = like.value.orEmpty(),
                     number = position.toLong()
                 )
@@ -193,45 +199,46 @@ class LibraryViewModel @Inject constructor(
         return null
     }
 
-    suspend fun getModuleCardCount(module: GlobalModule): Long {
+    suspend fun getModuleCardCount(module: GlobalModuleView): Long {
         runCatching { return provider.moduleCard.getGlobalCount(module.globalId) }
         return 0
     }
 
-    fun download(id: UUID, loading: (String) -> Unit) {
+    fun download(view: GlobalModuleView, loading: (String) -> Unit) {
         val job = viewModelScope.launch {
             runCatching {
-                val module = provider.module.download(id).ifNull {
-                    launch(Dispatchers.Main) {
-                        downloadAction[id]?.callback?.let { back -> back("Error") }
-                        downloadAction.remove(id)
-                    }
-                    return@launch
-                }
-                val count = provider.moduleCard.countGlobal(id)
-                val downloadBuffer = LinkedBlockingQueue<Job>(16)
-                for (i in 0 until count) {
-                    val job = viewModelScope.launch { provider.moduleCard.download(module, i) }
-                    viewModelScope.launch {
-                        job.join()
-                        downloadBuffer.remove(job)
-                    }
-                    downloadBuffer.put(job)
-                }
-                downloadBuffer.forEach { it.join() }
+//                val module = provider.module.download(id).ifNull {
+//                    launch(Dispatchers.Main) {
+//                        downloadAction[id]?.callback?.let { back -> back("Error") }
+//                        downloadAction.remove(id)
+//                    }
+//                    return@launch
+//                }
+//                val count = provider.moduleCard.countGlobal(id)
+//                val downloadBuffer = LinkedBlockingQueue<Job>(16)
+//                for (i in 0 until count) {
+//                    val job = viewModelScope.launch { provider.moduleCard.download(module, i) }
+//                    viewModelScope.launch {
+//                        job.join()
+//                        downloadBuffer.remove(job)
+//                    }
+//                    downloadBuffer.put(job)
+//                }
+//                downloadBuffer.forEach { it.join() }
+                provider.module.save(view)
             }.onSuccess {
                 launch(Dispatchers.Main) {
-                    downloadAction[id]?.callback?.let { back -> back("Ok") }
-                    downloadAction.remove(id)
+                    downloadAction[view.globalId]?.callback?.let { back -> back("Ok") }
+                    downloadAction.remove(view.globalId)
                 }
             }.onFailure {
                 launch(Dispatchers.Main) {
-                    downloadAction[id]?.callback?.let { back -> back(it.message ?: "Error") }
-                    downloadAction.remove(id)
+                    downloadAction[view.globalId]?.callback?.let { back -> back(it.message ?: "Error") }
+                    downloadAction.remove(view.globalId)
                 }
             }
         }
-        downloadAction[id] = DownloadAction(job, loading)
+        downloadAction[view.globalId] = DownloadAction(job, loading)
     }
 
     fun setDownloadAction(id: UUID, loading: (String) -> Unit): Boolean {

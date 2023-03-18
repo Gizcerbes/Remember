@@ -12,7 +12,7 @@ import com.uogames.dto.global.GlobalImage
 import com.uogames.dto.global.GlobalPhrase
 import com.uogames.dto.local.LocalImage
 import com.uogames.dto.local.LocalPhrase
-import com.uogames.dto.local.Pronunciation
+import com.uogames.dto.local.LocalPronunciation
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardCardBinding
 import com.uogames.remembercards.utils.*
@@ -105,7 +105,7 @@ class ChoiceCardAdapter(
 
         private fun setData(
             phrase: LocalPhrase?,
-            pronunciation: Pronunciation?,
+            pronunciation: LocalPronunciation?,
             image: LocalImage?,
             langView: TextView,
             phraseView: TextView,

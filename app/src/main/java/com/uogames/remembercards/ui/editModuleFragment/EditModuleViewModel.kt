@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.uogames.dto.local.LocalCard
 import com.uogames.dto.local.LocalModule
-import com.uogames.dto.local.ModuleCard
+import com.uogames.dto.local.LocalModuleCard
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.repository.DataProvider
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,11 +29,11 @@ class EditModuleViewModel @Inject constructor(val provider: DataProvider) : View
     suspend fun delete(module: LocalModule) = provider.module.delete(module)
 
     fun addModuleCard(moduleID: Int, card: LocalCard, call: (Boolean) -> Unit) = viewModelScope.launch {
-        val res = provider.moduleCard.insert(ModuleCard(idModule = moduleID, idCard = card.id))
+        val res = provider.moduleCard.insert(LocalModuleCard(idModule = moduleID, idCard = card.id))
         call(res > 0)
     }
 
-    fun removeModuleCard(moduleCard: ModuleCard, call: (Boolean) -> Unit) = viewModelScope.launch {
+    fun removeModuleCard(moduleCard: LocalModuleCard, call: (Boolean) -> Unit) = viewModelScope.launch {
         val res = provider.moduleCard.delete(moduleCard)
         call(res)
     }

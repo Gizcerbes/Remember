@@ -3,10 +3,7 @@ package com.uogames.remembercards.ui.cardFragment
 import android.content.Context
 import android.os.Parcelable
 import android.util.Log
-import com.uogames.dto.global.GlobalCard
-import com.uogames.dto.global.GlobalImage
-import com.uogames.dto.global.GlobalPhrase
-import com.uogames.dto.global.GlobalPronunciation
+import com.uogames.dto.global.*
 import com.uogames.dto.local.LocalCard
 import com.uogames.dto.local.LocalPhrase
 import com.uogames.flags.Countries
@@ -47,16 +44,21 @@ class CardViewModel @Inject constructor(
         val translateImage by lazy { viewModelScope.async { translate.await()?.toImage() } }
     }
 
-    inner class GlobalCardModel(val card: GlobalCard) {
-        val phrase by lazy { viewModelScope.async { getPhraseById(card.idPhrase) } }
-        val translate by lazy { viewModelScope.async { getPhraseById(card.idTranslate) } }
-        val image by lazy { viewModelScope.async { card.idImage?.let { getImageById(it) } } }
-        val phrasePronounce by lazy { viewModelScope.async { phrase.await()?.idPronounce?.let { getPronunciationById(it) } } }
-        val phrasePronounceData by lazy { viewModelScope.async { phrase.await()?.idPronounce?.let { getPronounceData(it) } } }
-        val phraseImage by lazy { viewModelScope.async { phrase.await()?.idImage?.let { getImageById(it) } } }
-        val translatePronounce by lazy { viewModelScope.async { translate.await()?.idPronounce?.let { getPronunciationById(it) } } }
-        val translatePronounceData by lazy { viewModelScope.async { translate.await()?.idPronounce?.let { getPronounceData(it) } } }
-        val translateImage by lazy { viewModelScope.async { translate.await()?.idImage?.let { getImageById(it) } } }
+//    inner class GlobalCardModel(val card: GlobalCard) {
+//        val phrase by lazy { viewModelScope.async { getPhraseById(card.idPhrase) } }
+//        val translate by lazy { viewModelScope.async { getPhraseById(card.idTranslate) } }
+//        val image by lazy { viewModelScope.async { card.idImage?.let { getImageById(it) } } }
+//        val phrasePronounce by lazy { viewModelScope.async { phrase.await()?.idPronounce?.let { getPronunciationById(it) } } }
+//        val phrasePronounceData by lazy { viewModelScope.async { phrase.await()?.idPronounce?.let { getPronounceData(it) } } }
+//        val phraseImage by lazy { viewModelScope.async { phrase.await()?.idImage?.let { getImageById(it) } } }
+//        val translatePronounce by lazy { viewModelScope.async { translate.await()?.idPronounce?.let { getPronunciationById(it) } } }
+//        val translatePronounceData by lazy { viewModelScope.async { translate.await()?.idPronounce?.let { getPronounceData(it) } } }
+//        val translateImage by lazy { viewModelScope.async { translate.await()?.idImage?.let { getImageById(it) } } }
+//    }
+
+    inner class GlobalCardModel(val card: GlobalCardView) {
+        val phrasePronounceData by lazy { viewModelScope.async { card.phrase.pronounce?.globalId?.let { getPronounceData(it) } } }
+        val translatePronounceData by lazy { viewModelScope.async { card.translate.pronounce?.globalId?.let { getPronounceData(it) } } }
     }
 
     private class ShareAction(val job: Job, var callback: (String) -> Unit)
@@ -192,7 +194,7 @@ class CardViewModel @Inject constructor(
     suspend fun getByPosition(position: Long): GlobalCardModel? {
         runCatching {
             return GlobalCardModel(
-                provider.cards.getGlobal(
+                provider.cards.getGlobalView(
                     text = like.value,
                     langFirst = languageFirst.value?.isO3Language,
                     langSecond = languageSecond.value?.isO3Language,
@@ -240,42 +242,7 @@ class CardViewModel @Inject constructor(
     fun save(cardModel: GlobalCardModel, loading: (String) -> Unit) {
         val job = viewModelScope.launch {
             runCatching {
-                val phraseImage = cardModel.phraseImage.await()?.globalId?.let {
-                    provider.images.getByGlobalId(it).ifNull { provider.images.download(it) }
-                }
-                val phrasePronounce = cardModel.phrasePronounce.await()?.globalId?.let {
-                    provider.pronounce.getByGlobalId(it).ifNull { provider.pronounce.download(it) }
-                }
-                val phrase = cardModel.phrase.await()?.globalId?.let { provider.phrase.getByGlobalId(it) }
-                phrase?.let {
-                    provider.phrase.update(it.update(cardModel.phrase.await(), phrasePronounce?.id, phraseImage?.id))
-                }.ifNull { provider.phrase.add(LocalPhrase().update(cardModel.phrase.await(), phrasePronounce?.id, phraseImage?.id)) }
-                val translateImage = cardModel.translateImage.await()?.globalId?.let {
-                    provider.images.getByGlobalId(it).ifNull { provider.images.download(it) }
-                }
-                val translatePronounce = cardModel.translatePronounce.await()?.globalId?.let {
-                    provider.pronounce.getByGlobalId(it).ifNull { provider.pronounce.download(it) }
-                }
-                val translate = cardModel.translate.await()?.globalId?.let { provider.phrase.getByGlobalId(it) }
-                translate?.let {
-                    provider.phrase.update(it.update(cardModel.translate.await(), translatePronounce?.id, translateImage?.id))
-                }.ifNull { provider.phrase.add(LocalPhrase().update(cardModel.translate.await(), translatePronounce?.id, translateImage?.id)) }
-
-                val phraseID = cardModel.phrase.await()?.globalId?.let { provider.phrase.getByGlobalId(it) }?.id.ifNull {
-                    throw Exception("Error")
-                }
-                val translateID = cardModel.translate.await()?.globalId?.let { provider.phrase.getByGlobalId(it) }?.id.ifNull {
-                    throw Exception("Error")
-                }
-                val cardImage = cardModel.image.await()?.globalId?.let {
-                    provider.images.getByGlobalId(it).ifNull { provider.images.download(it) }
-                }
-
-                provider.cards.getByGlobalId(cardModel.card.globalId)?.let {
-                    provider.cards.update(it.update(cardModel.card, phraseID, translateID, cardImage?.id))
-                }.ifNull {
-                    provider.cards.add(LocalCard().update(cardModel.card, phraseID, translateID, cardImage?.id))
-                }
+                provider.cards.save(cardModel.card)
             }.onSuccess {
                 launch(Dispatchers.Main) {
                     downloadAction[cardModel.card.globalId]?.callback?.let { back -> back("Ok") }

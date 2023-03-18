@@ -4,9 +4,8 @@ import android.content.Context
 import com.uogames.Singleton
 import com.uogames.clientApi.version3.network.NetworkProvider
 import com.uogames.database.DatabaseRepository
-import com.uogames.database.repository.UserRepository
 import com.uogames.dto.local.LocalCard
-import com.uogames.dto.local.ModuleCard
+import com.uogames.dto.local.LocalModuleCard
 import com.uogames.dto.local.LocalPhrase
 import com.uogames.repository.fileRepository.FileRepository
 import com.uogames.repository.providers.*
@@ -32,13 +31,13 @@ class DataProvider private constructor(
             )
         }
 
-        suspend fun ModuleCard.toModule() = dp.get()?.module?.getById(idModule)
+        suspend fun LocalModuleCard.toModule() = dp.get()?.module?.getById(idModule)
 
-        fun ModuleCard.toModuleFlow() = dp.get()?.module?.getByIdFlow(idModule)
+        fun LocalModuleCard.toModuleFlow() = dp.get()?.module?.getByIdFlow(idModule)
 
-        suspend fun ModuleCard.toCard() = dp.get()?.cards?.getById(idCard)
+        suspend fun LocalModuleCard.toCard() = dp.get()?.cards?.getById(idCard)
 
-        fun ModuleCard.toCardFlow() = dp.get()?.cards?.getByIdFlow(idCard)
+        fun LocalModuleCard.toCardFlow() = dp.get()?.cards?.getByIdFlow(idCard)
 
         suspend fun LocalCard.toPhrase() = dp.get()?.phrase?.getById(idPhrase)
 

@@ -4,17 +4,17 @@ import com.uogames.database.dao.ModuleCardDAO
 import com.uogames.database.map.ModuleCardMap.toDTO
 import com.uogames.database.map.ModuleCardMap.toEntity
 import com.uogames.dto.local.LocalModule
-import com.uogames.dto.local.ModuleCard
+import com.uogames.dto.local.LocalModuleCard
 import kotlinx.coroutines.flow.map
 import java.util.*
 
 class ModuleCardRepository(private val dao: ModuleCardDAO) {
 
-	suspend fun insert(moduleCard: ModuleCard) = dao.insert(moduleCard.toEntity())
+	suspend fun insert(moduleCard: LocalModuleCard) = dao.insert(moduleCard.toEntity())
 
-	suspend fun delete(moduleCard: ModuleCard) = dao.delete(moduleCard.toEntity()) > 0
+	suspend fun delete(moduleCard: LocalModuleCard) = dao.delete(moduleCard.toEntity()) > 0
 
-	suspend fun update(moduleCard: ModuleCard) = dao.update(moduleCard.toEntity()) > 0
+	suspend fun update(moduleCard: LocalModuleCard) = dao.update(moduleCard.toEntity()) > 0
 
 	fun getByModuleID(id: Int) = dao.getByModuleID(id).map { it.map { mc -> mc.toDTO() } }
 

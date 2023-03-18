@@ -7,6 +7,6 @@ class UserProvider(private val s: UserService) {
 
     suspend fun get(globalOwner: String) = s.get(globalOwner).toDTO()
 
-
+    suspend fun getView(globalOwner: String) = s.getView(globalOwner).toDTO()
 
 }

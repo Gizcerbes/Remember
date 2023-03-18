@@ -4,7 +4,7 @@ import com.uogames.database.dao.PronunciationDAO
 import com.uogames.database.map.PronunciationMap.toDTO
 import com.uogames.database.map.PronunciationMap.toEntity
 import com.uogames.dto.local.LocalPhrase
-import com.uogames.dto.local.Pronunciation
+import com.uogames.dto.local.LocalPronunciation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
@@ -12,11 +12,11 @@ import java.util.*
 
 class PronunciationRepository(private val dao: PronunciationDAO) {
 
-	suspend fun insert(pronunciation: Pronunciation) = dao.insert(pronunciation.toEntity())
+	suspend fun insert(pronunciation: LocalPronunciation) = dao.insert(pronunciation.toEntity())
 
-	suspend fun delete(pronunciation: Pronunciation) = dao.delete(pronunciation.toEntity()) > 0
+	suspend fun delete(pronunciation: LocalPronunciation) = dao.delete(pronunciation.toEntity()) > 0
 
-	suspend fun update(pronunciation: Pronunciation) = dao.update(pronunciation.toEntity()) > 0
+	suspend fun update(pronunciation: LocalPronunciation) = dao.update(pronunciation.toEntity()) > 0
 
 	suspend fun count() = dao.count()
 

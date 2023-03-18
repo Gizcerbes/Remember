@@ -2,9 +2,10 @@ package com.uogames.dto.local
 
 import java.util.*
 
-data class Pronunciation(
-	val id: Int,
-	val audioUri: String,
+data class LocalModuleCard(
+	val id: Int = 0,
+	val idModule: Int,
+	val idCard: Int,
 	val globalId: UUID? = null,
 	val globalOwner: String? = null
 )

@@ -9,10 +9,11 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.squareup.picasso.Picasso
-import com.uogames.dto.global.GlobalImage
+import com.uogames.dto.global.GlobalImageView
 import com.uogames.dto.global.GlobalPhrase
 import com.uogames.dto.local.LocalImage
-import com.uogames.dto.local.Pronunciation
+import com.uogames.dto.local.LocalPronunciation
+import com.uogames.map.PhraseMap.toGlobalPhrase
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardPhraseBinding
 import com.uogames.remembercards.databinding.DialogShareAttentionBinding
@@ -125,9 +126,9 @@ class PhraseAdapter(
             }
         }
 
-        private suspend fun showPronounce(pronounce: Deferred<Pronunciation?>) = showPronounce(pronounce.await())
+        private suspend fun showPronounce(pronounce: Deferred<LocalPronunciation?>) = showPronounce(pronounce.await())
 
-        private fun showPronounce(pronunciation: Pronunciation?) {
+        private fun showPronounce(pronunciation: LocalPronunciation?) {
             pronunciation?.let { pron ->
                 bind.btnSound.visibility = View.VISIBLE
                 bind.btnSound.setOnClickListener {
@@ -165,7 +166,7 @@ class PhraseAdapter(
             clear()
             observer = recyclerScope.launch {
                 val phraseView = vm.getByPosition(adapterPosition.toLong()).ifNull { return@launch }
-                val phrase = phraseView.phrase
+                val phrase = phraseView.phraseView
                 bind.txtPhrase.text = phrase.phrase
                 bind.txtDefinition.text = phrase.definition.orEmpty()
                 showImage(phraseView.image)
@@ -173,7 +174,7 @@ class PhraseAdapter(
                 bind.txtLang.text = phraseView.lang
                 vm.setDownloadAction(phrase.globalId, endAction).ifTrue(startAction)
 
-                bind.btnReport.setOnClickListener { reportCall?.let { it(phrase) } }
+                bind.btnReport.setOnClickListener { reportCall?.let { it(phrase.toGlobalPhrase()) } }
 
                 bind.btnDownload.setOnClickListener {
                     startAction()
@@ -207,8 +208,8 @@ class PhraseAdapter(
             auth.currentUser.ifNull { bind.btnReport.visibility = View.GONE }
         }
 
-        private suspend fun showImage(image: Deferred<GlobalImage?>) {
-            image.await()?.let {
+        private suspend fun showImage(image: GlobalImageView?) {
+            image?.let {
                 val uri = it.imageUri.toUri()
                 vm.getPicasso(itemView.context).load(uri).placeholder(R.drawable.noise).into(bind.imgPhrase)
                 bind.imgPhrase.visibility = View.VISIBLE
@@ -218,7 +219,7 @@ class PhraseAdapter(
         }
 
         private suspend fun showPronounce(phraseModel: PhraseViewModel.GlobalPhraseModel) {
-            phraseModel.phrase.idPronounce?.let {
+            phraseModel.phraseView.pronounce?.let {
                 bind.btnSound.visibility = View.VISIBLE
                 bind.btnSound.setOnClickListener {
                     recyclerScope.launch {

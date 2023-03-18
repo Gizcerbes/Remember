@@ -12,4 +12,8 @@ class UserService(private val client: HttpClient) {
 		.get("/remember-card/v3/user/info/$globalOwner")
 		.ifSuccess()
 
+	suspend fun getView(globalOwner: String): UserResponse = client
+		.get("/remember-card/v3/user/info/view/$globalOwner")
+		.ifSuccess()
+
 }

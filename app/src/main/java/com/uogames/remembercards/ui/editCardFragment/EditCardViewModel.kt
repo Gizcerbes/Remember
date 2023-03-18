@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.uogames.dto.local.LocalCard
 import com.uogames.dto.local.LocalPhrase
-import com.uogames.dto.local.Pronunciation
+import com.uogames.dto.local.LocalPronunciation
 import com.uogames.remembercards.utils.MediaBytesSource
 import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.remembercards.utils.ifNull
@@ -85,7 +85,7 @@ class EditCardViewModel @Inject constructor(
 
     fun play(anim: AnimationDrawable, phrase: LocalPhrase) = viewModelScope.launch { phrase.toPronounce()?.let { play(anim, it) } }
 
-    private fun play(anim: AnimationDrawable, pronounce: Pronunciation) = player.play(MediaBytesSource(provider.pronounce.load(pronounce)), anim)
+    private fun play(anim: AnimationDrawable, pronounce: LocalPronunciation) = player.play(MediaBytesSource(provider.pronounce.load(pronounce)), anim)
 
     fun stopPlaying() = player.stop()
 

@@ -3,8 +3,9 @@ package com.uogames.repository.providers
 import androidx.core.net.toUri
 import com.uogames.clientApi.version3.network.NetworkProvider
 import com.uogames.database.repository.PronunciationRepository
+import com.uogames.dto.global.GlobalPronunciationView
 import com.uogames.dto.local.LocalPhrase
-import com.uogames.dto.local.Pronunciation
+import com.uogames.dto.local.LocalPronunciation
 import com.uogames.map.PronunciationMap.update
 import com.uogames.repository.DataProvider
 import com.uogames.repository.fileRepository.FileRepository
@@ -19,27 +20,27 @@ class PronunciationProvider(
 ) {
 
 	suspend fun add(bytes: ByteArray): Int {
-		val id = database.insert(Pronunciation(0, "")).toInt()
+		val id = database.insert(LocalPronunciation(0, "")).toInt()
 		val uri = fileRepository.saveFile("$id.mp4", bytes)
-		database.update(Pronunciation(id, uri.toString()))
+		database.update(LocalPronunciation(id, uri.toString()))
 		return id
 	}
 
-	suspend fun delete(pronunciation: Pronunciation): Boolean {
+	suspend fun delete(pronunciation: LocalPronunciation): Boolean {
 		return database.getByIdFlow(pronunciation.id).first()?.let {
 			fileRepository.deleteFile(it.audioUri.toUri())
 			return database.delete(pronunciation)
 		} ?: false
 	}
 
-	suspend fun update(pronunciation: Pronunciation, bytes: ByteArray): Boolean {
+	suspend fun update(pronunciation: LocalPronunciation, bytes: ByteArray): Boolean {
 		return database.getByIdFlow(pronunciation.id).first()?.let {
 			val uri = fileRepository.saveFile("${it.id}.mp4", bytes)
-			return database.update(Pronunciation(pronunciation.id, uri.toString()))
+			return database.update(LocalPronunciation(pronunciation.id, uri.toString()))
 		} ?: false
 	}
 
-	fun load(pronunciation: Pronunciation): ByteArray? {
+	fun load(pronunciation: LocalPronunciation): ByteArray? {
 		return fileRepository.readFile(pronunciation.audioUri.toUri())
 	}
 
@@ -53,6 +54,8 @@ class PronunciationProvider(
 
 	suspend fun getGlobalById(id: UUID) = network.pronounce.get(id)
 
+	suspend fun getGlobalViewByID(id: UUID) = network.pronounce.getView(id)
+
 	suspend fun downloadData(id: UUID) = network.pronounce.load(id)
 
 	suspend fun clear() {
@@ -62,17 +65,17 @@ class PronunciationProvider(
 		}
 	}
 
-	suspend fun share(id: Int): Pronunciation? {
+	suspend fun share(id: Int): LocalPronunciation? {
 		val pronounce = getById(id)
 		pronounce?.globalId?.let { if (network.pronounce.exists(it)) return pronounce }
 		val res = pronounce?.let {
 			fileRepository.readFile(it.audioUri.toUri())?.let { bytes -> network.pronounce.upload(bytes) }
-		}?.let { Pronunciation(pronounce.id, pronounce.audioUri, it.globalId, it.globalOwner) }
+		}?.let { LocalPronunciation(pronounce.id, pronounce.audioUri, it.globalId, it.globalOwner) }
 		res?.let { database.update(it) }
 		return res ?: pronounce
 	}
 
-	suspend fun download(id: UUID): Pronunciation? {
+	suspend fun download(id: UUID): LocalPronunciation? {
 		val local = database.getByGlobalId(id)
 
 		if (local == null) {
@@ -83,6 +86,18 @@ class PronunciationProvider(
 			return new
 		}
 		return local
+	}
+
+	suspend fun save(view: GlobalPronunciationView): LocalPronunciation {
+		val l1 = database.getByGlobalId(view.globalId)
+		return if (l1 == null){
+			val localID = add(network.pronounce.load(view.globalId))
+			val l = database.getById(localID)?.update(view) ?: throw Exception("Pronunciation wasn't saved")
+			database.update(l)
+			l
+		}else {
+			l1
+		}
 	}
 
 }

@@ -1,6 +1,8 @@
 package com.uogames.map
 
 import com.uogames.dto.DefaultUUID
+import com.uogames.dto.global.GlobalModule
+import com.uogames.dto.global.GlobalModuleView
 import com.uogames.dto.local.LocalModule
 
 object ModuleMap {
@@ -23,6 +25,15 @@ object ModuleMap {
 		dislike = module.dislike,
 		globalId = module.globalId,
 		globalOwner = module.globalOwner
+	)
+
+	fun GlobalModuleView.toGlobalModule() = GlobalModule(
+		globalId = globalId,
+		globalOwner = user.globalOwner,
+		name = name,
+		timeChange = timeChange,
+		like = like,
+		dislike = dislike
 	)
 
 }

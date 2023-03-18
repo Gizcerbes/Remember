@@ -46,7 +46,6 @@ class ChoiceCardFragment : DaggerFragment() {
 
     private var _bind: FragmentChoiceCardBinding? = null
     private val bind get() = _bind!!
-    private var closed = false
 
     private var imm: InputMethodManager? = null
 
@@ -56,10 +55,8 @@ class ChoiceCardFragment : DaggerFragment() {
 
     private var receivedTAG: String? = null
 
-    private val searchImages =
-        listOf(R.drawable.ic_baseline_search_off_24, R.drawable.ic_baseline_search_24)
-    private val cloudImages =
-        listOf(R.drawable.ic_baseline_cloud_off_24, R.drawable.ic_baseline_cloud_24)
+    private val searchImages = listOf(R.drawable.ic_baseline_search_off_24, R.drawable.ic_baseline_search_24)
+    private val cloudImages = listOf(R.drawable.ic_baseline_cloud_off_24, R.drawable.ic_baseline_cloud_24)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -71,7 +68,6 @@ class ChoiceCardFragment : DaggerFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        if (closed) return
         globalViewModel.shouldReset.ifTrue { model.reset() }
 
         model.update()
@@ -108,27 +104,27 @@ class ChoiceCardFragment : DaggerFragment() {
         }
         bind.btnCountrySecond.setOnClickListener {
             model.countrySecond.toNull().ifTrue { return@setOnClickListener }
-            ChoiceCountryDialog{
+            ChoiceCountryDialog {
                 model.countrySecond.value = it
             }.show(requireActivity().supportFragmentManager, ChoiceCountryDialog.TAG)
         }
 
-        lifecycleScope.launch{
+        lifecycleScope.launch {
             delay(300)
-            bind.recycler.adapter = ChoiceCardAdapter(model, player,receiveCall())
+            bind.recycler.adapter = ChoiceCardAdapter(model, player, receiveCall())
         }
 
         model.recyclerStat?.let { bind.recycler.layoutManager?.onRestoreInstanceState(it) }
 
-        observers = lifecycleScope.launch{
-            model.search.observe(this){
+        observers = lifecycleScope.launch {
+            model.search.observe(this) {
                 bind.searchImage.setImageResource(searchImages[if (it) 0 else 1])
                 bind.clSearchBar.visibility = if (it) View.VISIBLE else View.GONE
             }
-            model.cloud.observe(this){
+            model.cloud.observe(this) {
                 bind.imgNetwork.setImageResource(cloudImages[if (it) 0 else 1])
             }
-            model.size.observe(this){
+            model.size.observe(this) {
                 bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
             }
             model.languageFirst.observe(this) {
@@ -136,10 +132,10 @@ class ChoiceCardFragment : DaggerFragment() {
                 else requireContext().getText(R.string.label_all)
             }
             model.languageSecond.observe(this) {
-                bind.tvLanguageSecond.text = if(it != null) it.displayLanguage
+                bind.tvLanguageSecond.text = if (it != null) it.displayLanguage
                 else requireContext().getText(R.string.label_all)
             }
-            model.countryFirst.observe(this){
+            model.countryFirst.observe(this) {
                 if (it != null) bind.imgFlag.setImageResource(it.res)
                 else bind.imgFlag.setImageResource(R.drawable.ic_baseline_add_24)
             }
@@ -208,6 +204,5 @@ class ChoiceCardFragment : DaggerFragment() {
         bind.recycler.adapter = null
         imm = null
         _bind = null
-        closed = true
     }
 }

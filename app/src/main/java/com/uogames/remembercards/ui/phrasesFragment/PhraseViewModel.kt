@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.uogames.dto.global.GlobalPhrase
 import com.uogames.dto.global.GlobalImage
+import com.uogames.dto.global.GlobalPhraseView
 import com.uogames.dto.local.LocalPhrase
 import com.uogames.flags.Countries
 import com.uogames.map.PhraseMap.update
@@ -39,10 +40,10 @@ class PhraseViewModel @Inject constructor(
         val lang: String by lazy { Locale.forLanguageTag(phrase.lang).displayLanguage }
     }
 
-    inner class GlobalPhraseModel(val phrase: GlobalPhrase) {
-        val image by lazy { viewModelScope.async { phrase.idImage?.let { getImageById(it) } } }
-        val pronounceData by lazy { viewModelScope.async { phrase.idPronounce?.let { getPronounceData(it) } } }
-        val lang by lazy { Locale.forLanguageTag(phrase.lang).displayLanguage }
+    inner class GlobalPhraseModel(val phraseView: GlobalPhraseView) {
+        val image = phraseView.image
+        val pronounceData by lazy { viewModelScope.async { phraseView.pronounce?.let { getPronounceData(it.globalId) } } }
+        val lang: String = Locale.forLanguageTag(phraseView.lang).displayLanguage
     }
 
     private class ShareAction(val job: Job, var callback: (String) -> Unit)
@@ -163,7 +164,7 @@ class PhraseViewModel @Inject constructor(
     suspend fun getByPosition(position: Long): GlobalPhraseModel? {
         runCatching {
             return GlobalPhraseModel(
-                provider.phrase.getGlobal(
+                provider.phrase.getGlobalView(
                     text = like.value,
                     lang = language.value?.isO3Language,
                     country = country.value?.toString(),
@@ -199,30 +200,20 @@ class PhraseViewModel @Inject constructor(
     fun save(phraseModel: GlobalPhraseModel, loading: (String) -> Unit) {
         val job = viewModelScope.launch {
             runCatching {
-                val image = phraseModel.phrase.idImage?.let {
-                    provider.images.getByGlobalId(it).ifNull { provider.images.download(it) }
-                }
-                val pronounce = phraseModel.phrase.idPronounce?.let {
-                    provider.pronounce.getByGlobalId(it).ifNull { provider.pronounce.download(it) }
-                }
-                provider.phrase.getByGlobalId(phraseModel.phrase.globalId)?.let {
-                    provider.phrase.update(it.update(phraseModel.phrase, pronounce?.id, image?.id))
-                }.ifNull {
-                    provider.phrase.add(LocalPhrase().update(phraseModel.phrase, pronounce?.id, image?.id))
-                }
+                provider.phrase.save(phraseModel.phraseView)
             }.onSuccess {
                 launch(Dispatchers.Main) {
-                    downloadActions[phraseModel.phrase.globalId]?.callback?.let { back -> back("Ok") }
-                    downloadActions.remove(phraseModel.phrase.globalId)
+                    downloadActions[phraseModel.phraseView.globalId]?.callback?.let { back -> back("Ok") }
+                    downloadActions.remove(phraseModel.phraseView.globalId)
                 }
             }.onFailure {
                 launch(Dispatchers.Main) {
-                    downloadActions[phraseModel.phrase.globalId]?.callback?.let { back -> back(it.message ?: "Error") }
-                    downloadActions.remove(phraseModel.phrase.globalId)
+                    downloadActions[phraseModel.phraseView.globalId]?.callback?.let { back -> back(it.message ?: "Error") }
+                    downloadActions.remove(phraseModel.phraseView.globalId)
                 }
             }
         }
-        downloadActions[phraseModel.phrase.globalId] = DownloadAction(job, loading)
+        downloadActions[phraseModel.phraseView.globalId] = DownloadAction(job, loading)
     }
 
     fun showShareNotice(b: Boolean) = globalViewModel.showShareNotice(b)
