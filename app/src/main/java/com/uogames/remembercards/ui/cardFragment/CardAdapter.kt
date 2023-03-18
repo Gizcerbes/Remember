@@ -1,6 +1,5 @@
 package com.uogames.remembercards.ui.cardFragment
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,13 +12,12 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.squareup.picasso.Picasso
-import com.uogames.dto.global.GlobalCard
-import com.uogames.dto.global.GlobalImage
-import com.uogames.dto.global.GlobalPhrase
+import com.uogames.dto.global.*
 import com.uogames.dto.local.LocalImage
 import com.uogames.dto.local.LocalCard
 import com.uogames.dto.local.LocalPhrase
-import com.uogames.dto.local.Pronunciation
+import com.uogames.dto.local.LocalPronunciation
+import com.uogames.map.CardMap.toGlobalCard
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardCardBinding
 import com.uogames.remembercards.databinding.DialogShareAttentionBinding
@@ -164,7 +162,7 @@ class CardAdapter(
 
         private fun setData(
             phrase: LocalPhrase?,
-            pronunciation: Pronunciation?,
+            pronunciation: LocalPronunciation?,
             image: LocalImage?,
             langView: TextView,
             phraseView: TextView,
@@ -212,9 +210,9 @@ class CardAdapter(
                 val cardView = model.getByPosition(adapterPosition.toLong()).ifNull { return@launch }
                 bind.txtReason.text = cardView.card.reason
                 setData(
-                    cardView.phrase.await(),
+                    cardView.card.phrase,
                     cardView.phrasePronounceData,
-                    cardView.phraseImage.await(),
+                    cardView.card.phrase.image,
                     bind.txtLangFirst,
                     bind.txtPhraseFirst,
                     bind.imgSoundFirst,
@@ -223,9 +221,9 @@ class CardAdapter(
                     bind.txtDefinitionFirst
                 )
                 setData(
-                    cardView.translate.await(),
+                    cardView.card.translate,
                     cardView.translatePronounceData,
-                    cardView.translateImage.await(),
+                    cardView.card.translate.image,
                     bind.txtLangSecond,
                     bind.txtPhraseSecond,
                     bind.imgSoundSecond,
@@ -235,7 +233,7 @@ class CardAdapter(
                 )
                 bind.root.visibility = View.VISIBLE
 
-                bind.btnReport.setOnClickListener { reportCall?.let { it(cardView.card) } }
+                bind.btnReport.setOnClickListener { reportCall?.let { it(cardView.card.toGlobalCard()) } }
 
                 val startAction: () -> Unit = {
                     bind.progressLoading.visibility = View.VISIBLE
@@ -298,9 +296,9 @@ class CardAdapter(
         }
 
         private fun setData(
-            phrase: GlobalPhrase?,
+            phrase: GlobalPhraseView?,
             pronunciationData: Deferred<ByteArray?>,
-            image: GlobalImage?,
+            image: GlobalImageView?,
             langView: TextView,
             phraseView: TextView,
             soundImg: ImageView,
@@ -319,7 +317,7 @@ class CardAdapter(
                 phraseImage.visibility = View.VISIBLE
             }.ifNull { phraseImage.visibility = View.GONE }
 
-            phrase?.idPronounce?.let { _ ->
+            phrase?.pronounce?.let { _ ->
                 soundImg.visibility = View.VISIBLE
                 button.setOnClickListener {
                     recyclerScope.launch {

@@ -10,7 +10,7 @@ import com.uogames.dto.global.GlobalImage
 import com.uogames.dto.global.GlobalPhrase
 import com.uogames.dto.local.LocalImage
 import com.uogames.dto.local.LocalPhrase
-import com.uogames.dto.local.Pronunciation
+import com.uogames.dto.local.LocalPronunciation
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardPhraseBinding
 import com.uogames.remembercards.utils.*
@@ -101,9 +101,9 @@ class ChoicePhraseAdapter(
             }
         }
 
-        private suspend fun showPronounce(pronounce: Deferred<Pronunciation?>) = showPronounce(pronounce.await())
+        private suspend fun showPronounce(pronounce: Deferred<LocalPronunciation?>) = showPronounce(pronounce.await())
 
-        private fun showPronounce(pronunciation: Pronunciation?) {
+        private fun showPronounce(pronunciation: LocalPronunciation?) {
             pronunciation?.let { pron ->
                 bind.btnSound.visibility = View.VISIBLE
                 bind.btnSound.setOnClickListener {

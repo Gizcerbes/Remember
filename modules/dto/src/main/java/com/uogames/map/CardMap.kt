@@ -1,13 +1,15 @@
 package com.uogames.map
 
 import com.uogames.dto.DefaultUUID
+import com.uogames.dto.global.GlobalCard
+import com.uogames.dto.global.GlobalCardView
 import com.uogames.dto.local.LocalCard
 import com.uogames.dto.local.LocalImage
 import com.uogames.dto.local.LocalPhrase
 
 object CardMap {
 
-	fun LocalCard.toGlobal(phrase: LocalPhrase?, translate: LocalPhrase?, image: LocalImage?) = com.uogames.dto.global.GlobalCard(
+	fun LocalCard.toGlobal(phrase: LocalPhrase?, translate: LocalPhrase?, image: LocalImage?) = GlobalCard(
 		globalId = globalId ?: DefaultUUID.value,
 		globalOwner = globalOwner ?: "",
 		idPhrase = phrase?.globalId ?: DefaultUUID.value,
@@ -19,7 +21,7 @@ object CardMap {
 		dislike = 0
 	)
 
-	fun LocalCard.update(card: com.uogames.dto.global.GlobalCard) = LocalCard(
+	fun LocalCard.update(card: GlobalCard) = LocalCard(
 		id = id,
 		idPhrase = idPhrase,
 		idTranslate = idTranslate,
@@ -32,7 +34,7 @@ object CardMap {
 		globalOwner = card.globalOwner
 	)
 
-	fun LocalCard.update(card: com.uogames.dto.global.GlobalCard, idPhrase: Int, idTranslate: Int, idImage: Int?) = LocalCard(
+	fun LocalCard.update(card: GlobalCard, idPhrase: Int, idTranslate: Int, idImage: Int?) = LocalCard(
 		id = id,
 		idPhrase = idPhrase,
 		idTranslate = idTranslate,
@@ -43,6 +45,31 @@ object CardMap {
 		dislike = card.dislike,
 		globalId = card.globalId,
 		globalOwner = card.globalOwner
+	)
+
+	fun LocalCard.update(view: GlobalCardView, idPhrase: Int, idTranslate: Int, idImage: Int?) = LocalCard(
+		id = id,
+		idPhrase = idPhrase,
+		idTranslate = idTranslate,
+		reason = view.reason,
+		idImage = idImage,
+		timeChange = view.timeChange,
+		like = like,
+		dislike = dislike,
+		globalId = view.globalId,
+		globalOwner = view.user.globalOwner
+	)
+
+	fun GlobalCardView.toGlobalCard() = GlobalCard(
+		globalId = globalId,
+		globalOwner = user.globalOwner,
+		idPhrase = phrase.globalId,
+		idTranslate = translate.globalId,
+		idImage = image?.globalId,
+		reason = reason,
+		timeChange = timeChange,
+		like = like,
+		dislike = dislike
 	)
 
 }

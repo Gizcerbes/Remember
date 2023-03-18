@@ -2,6 +2,7 @@ package com.uogames.repository.providers
 
 import com.uogames.clientApi.version3.network.NetworkProvider
 import com.uogames.database.repository.PhraseRepository
+import com.uogames.dto.global.GlobalPhraseView
 import com.uogames.dto.local.LocalPhrase
 import com.uogames.map.PhraseMap.toGlobal
 import com.uogames.map.PhraseMap.update
@@ -55,7 +56,21 @@ class PhraseProvider(
         number = number
     )
 
+    suspend fun getGlobalView(
+        text: String? = null,
+        lang: String? = null,
+        country: String? = null,
+        number: Long
+    ) = network.phrase.getView(
+        text = text,
+        lang = lang,
+        country = country,
+        number = number
+    )
+
     suspend fun getGlobalById(globalId: UUID) = network.phrase.get(globalId)
+
+    suspend fun getGlobalViewByID(id: UUID) = network.phrase.getView(id)
 
     suspend fun share(id: Int): LocalPhrase? {
         val phrase = getById(id)
@@ -83,6 +98,38 @@ class PhraseProvider(
             add(LocalPhrase().update(network.phrase.get(id), pronounce?.id, image?.id)).toInt()
         }
         return pr.getById(localId)
+    }
+
+    suspend fun save(view: GlobalPhraseView): LocalPhrase {
+        val l1 = pr.getByGlobalId(view.globalId)
+        if (l1 == null) {
+            val localID = add(
+                LocalPhrase(
+                    phrase = view.phrase,
+                    definition = view.definition,
+                    lang = view.lang,
+                    country = view.country,
+                    idPronounce = view.pronounce?.let { dataProvider.pronounce.save(it) }?.id,
+                    idImage = view.image?.let { dataProvider.images.save(it) }?.id,
+                    timeChange = view.timeChange,
+                    like = view.like,
+                    dislike = view.dislike,
+                    globalId = view.globalId,
+                    globalOwner = view.user.globalOwner
+                )
+            ).toInt()
+            return pr.getById(localID) ?: throw Exception("Phrase wasn't saved")
+        } else if (l1.timeChange != view.timeChange){
+            val l2 = l1.update(
+                view = view,
+                idPronounce = view.pronounce?.let { dataProvider.pronounce.save(it) }?.id,
+                idImage = view.image?.let { dataProvider.images.save(it) }?.id
+            )
+            update(l2)
+            return l2
+        } else {
+            return l1
+        }
     }
 
 }

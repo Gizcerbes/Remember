@@ -16,7 +16,7 @@ import com.google.android.material.card.MaterialCardView
 import com.squareup.picasso.Picasso
 import com.uogames.dto.local.LocalImage
 import com.uogames.dto.local.LocalPhrase
-import com.uogames.dto.local.Pronunciation
+import com.uogames.dto.local.LocalPronunciation
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentYesOrNotGameBinding
@@ -50,7 +50,6 @@ class GameYesOrNotFragment : DaggerFragment() {
 
 	private var _bind: FragmentYesOrNotGameBinding? = null
 	private val bind get() = _bind!!
-	private var closed = false
 
 	private var moduleId: Int? = null
 
@@ -74,7 +73,6 @@ class GameYesOrNotFragment : DaggerFragment() {
 	}
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-		if (closed) return
 		globalViewModel.shouldReset.ifTrue {
 			gameModel.reset()
 		}
@@ -247,7 +245,7 @@ class GameYesOrNotFragment : DaggerFragment() {
 
 	private fun setData(
         phrase: LocalPhrase?,
-        pronunciation: Pronunciation?,
+        pronunciation: LocalPronunciation?,
         image: LocalImage?,
         langView: TextView,
         phraseView: TextView,
@@ -301,6 +299,5 @@ class GameYesOrNotFragment : DaggerFragment() {
 		timeObserver?.cancel()
 		startObserver?.cancel()
 		_bind = null
-		closed = true
 	}
 }

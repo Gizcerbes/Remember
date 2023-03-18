@@ -22,7 +22,6 @@ class CropFragment : DaggerFragment() {
 
     private var _bind: FragmentCropBinding? = null
     private val bind get() = _bind!!
-    private var closed = false
 
     private var cropper: BitmapCropper? = null
 
@@ -34,8 +33,6 @@ class CropFragment : DaggerFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        if (closed) return
-
         bind.btnBack.setOnClickListener {
             cropViewModel.reset()
             findNavController().popBackStack()
@@ -95,6 +92,5 @@ class CropFragment : DaggerFragment() {
         rotateJob?.cancel()
         cropper = null
         _bind = null
-        closed = true
     }
 }

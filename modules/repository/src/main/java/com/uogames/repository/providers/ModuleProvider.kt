@@ -2,6 +2,8 @@ package com.uogames.repository.providers
 
 import com.uogames.clientApi.version3.network.NetworkProvider
 import com.uogames.database.repository.ModuleRepository
+import com.uogames.dto.global.GlobalModule
+import com.uogames.dto.global.GlobalModuleView
 import com.uogames.dto.local.LocalModule
 import com.uogames.map.ModuleMap.toGlobal
 import com.uogames.map.ModuleMap.update
@@ -62,6 +64,22 @@ class ModuleProvider(
         number = number
     )
 
+    suspend fun getGlobalView(
+        text: String? = null,
+        langFirst: String? = null,
+        langSecond: String? = null,
+        countryFirst: String? = null,
+        countrySecond: String? = null,
+        number: Long
+    ) = network.module.getView(
+        text = text,
+        langFirst = langFirst,
+        langSecond = langSecond,
+        countryFirst = countryFirst,
+        countrySecond = countrySecond,
+        number = number
+    )
+
     suspend fun share(id: Int): LocalModule? {
         val module = getById(id)
         return module?.let {
@@ -83,6 +101,25 @@ class ModuleProvider(
             add(LocalModule().update(nm)).toInt()
         }
         return mr.getById(localId)
+    }
+
+    suspend fun save(view: GlobalModuleView): LocalModule {
+        val l1 = mr.getByGlobalId(view.globalId)
+        if (l1 != null) mr.delete(l1)
+        val localID = add(
+            LocalModule(
+                name = view.name,
+                owner = view.user.globalOwner,
+                timeChange = view.timeChange,
+                like = view.like,
+                dislike = view.dislike,
+                globalId = view.globalId,
+                globalOwner = view.user.globalOwner
+            )
+        ).toInt()
+        val l2 = mr.getById(localID) ?: throw Exception("Module wasn't saved")
+        dataProvider.moduleCard.save(l2)
+        return l2
     }
 
 }

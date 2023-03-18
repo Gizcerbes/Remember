@@ -1,10 +1,10 @@
 package com.uogames.database.map
 
 import com.uogames.database.entity.PronunciationEntity
-import com.uogames.dto.local.Pronunciation
+import com.uogames.dto.local.LocalPronunciation
 
-object PronunciationMap : Map<PronunciationEntity, Pronunciation> {
-	override fun PronunciationEntity.toDTO() = Pronunciation(
+object PronunciationMap : Map<PronunciationEntity, LocalPronunciation> {
+	override fun PronunciationEntity.toDTO() = LocalPronunciation(
 		id = id,
 		audioUri = audioUri,
 		globalId = globalId,
@@ -12,7 +12,7 @@ object PronunciationMap : Map<PronunciationEntity, Pronunciation> {
 	)
 
 
-	override fun Pronunciation.toEntity() = PronunciationEntity(
+	override fun LocalPronunciation.toEntity() = PronunciationEntity(
 		id = id,
 		audioUri = audioUri,
 		globalId = globalId,

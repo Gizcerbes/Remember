@@ -3,7 +3,6 @@ package com.uogames.database.dao
 import androidx.room.*
 import androidx.room.OnConflictStrategy.REPLACE
 import com.uogames.database.entity.ModuleCardEntity
-import com.uogames.dto.local.ModuleCard
 import kotlinx.coroutines.flow.Flow
 import java.util.*
 

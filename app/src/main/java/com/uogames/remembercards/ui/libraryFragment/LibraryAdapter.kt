@@ -9,6 +9,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.uogames.dto.global.GlobalModule
 import com.uogames.dto.local.LocalModule
+import com.uogames.map.ModuleMap.toGlobalModule
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardModuleBinding
 import com.uogames.remembercards.databinding.DialogShareAttentionBinding
@@ -148,13 +149,13 @@ class LibraryAdapter(
 
                 bind.txtOwner.text = mm.owner.await().userName
 
-                bind.btnReport.setOnClickListener { reportCall?.let { it(mm.module) } }
+                bind.btnReport.setOnClickListener { reportCall?.let { it(mm.module.toGlobalModule()) } }
 
                 model.setDownloadAction(mm.module.globalId, endAction).ifTrue(startAction)
 
                 bind.btnDownload.setOnClickListener {
                     startAction()
-                    model.download(mm.module.globalId, endAction)
+                    model.download(mm.module, endAction)
                 }
 
                 bind.btnStop.setOnClickListener {
