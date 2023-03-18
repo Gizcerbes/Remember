@@ -1,16 +1,22 @@
 package com.uogames.database.repository
 
 import com.uogames.database.dao.PronunciationDAO
+import com.uogames.database.entity.PronunciationEntity
 import com.uogames.database.map.PronunciationMap.toDTO
 import com.uogames.database.map.PronunciationMap.toEntity
+import com.uogames.database.map.ViewMap
 import com.uogames.dto.local.LocalPhrase
 import com.uogames.dto.local.LocalPronunciation
+import com.uogames.dto.local.LocalPronunciationView
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import java.util.*
 
-class PronunciationRepository(private val dao: PronunciationDAO) {
+class PronunciationRepository(
+	private val dao: PronunciationDAO,
+	private val map: ViewMap<PronunciationEntity, LocalPronunciationView>
+	) {
 
 	suspend fun insert(pronunciation: LocalPronunciation) = dao.insert(pronunciation.toEntity())
 
@@ -25,6 +31,8 @@ class PronunciationRepository(private val dao: PronunciationDAO) {
 	suspend fun getById(id: Int) = dao.getById(id)?.toDTO()
 
 	suspend fun getByGlobalId(id: UUID) = dao.getByGlobalId(id)?.toDTO()
+
+	suspend fun getViewById(id: Int) = dao.getById(id)?.let { map.toDTO(it) }
 
 	fun getByIdFlow(id: Int) = dao.getByIdFlow(id).map { it?.toDTO() }
 

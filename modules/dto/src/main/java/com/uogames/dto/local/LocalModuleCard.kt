@@ -9,3 +9,11 @@ data class LocalModuleCard(
 	val globalId: UUID? = null,
 	val globalOwner: String? = null
 )
+
+data class LocalModuleCardView(
+	val id: Int = 0,
+	val module: LocalModuleView,
+	val card: LocalCardView,
+	val globalId: UUID? = null,
+	val globalOwner: String? = null
+)

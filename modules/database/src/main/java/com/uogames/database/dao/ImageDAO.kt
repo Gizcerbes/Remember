@@ -29,9 +29,6 @@ interface ImageDAO {
 	@Query("SELECT * FROM images_table WHERE global_id = :id")
 	suspend fun getByGlobalId(id: UUID): ImageEntity?
 
-	@Query("SELECT EXISTS (SELECT * FROM images_table WHERE global_id = :id)")
-	suspend fun existByGlobalId(id: UUID): Boolean
-
 	@Query("SELECT * FROM images_table WHERE id = :id")
 	fun getByIdFlow(id: Int): Flow<ImageEntity?>
 

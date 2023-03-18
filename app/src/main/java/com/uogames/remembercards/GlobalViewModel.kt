@@ -79,6 +79,7 @@ class GlobalViewModel @Inject constructor(
 
     init {
         getUserName().observe(viewModelScope) { _userName.value = it.orEmpty() }
+        auth.currentUser?.reload()
     }
 
     fun setShowKeyboard(view: View) {

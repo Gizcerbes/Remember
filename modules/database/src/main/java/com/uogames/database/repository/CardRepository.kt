@@ -2,20 +2,26 @@ package com.uogames.database.repository
 
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.uogames.database.dao.CardDAO
+import com.uogames.database.entity.CardEntity
 import com.uogames.database.map.CardMap.toDTO
 import com.uogames.database.map.CardMap.toEntity
+import com.uogames.database.map.ViewMap
 import com.uogames.dto.local.LocalCard
+import com.uogames.dto.local.LocalCardView
 import kotlinx.coroutines.flow.map
 import java.util.*
 import kotlin.collections.ArrayList
 
-class CardRepository(private val dao: CardDAO) {
+class CardRepository(
+    private val cardDAO: CardDAO,
+    private val map: ViewMap<CardEntity,LocalCardView>
+) {
 
-    suspend fun insert(card: LocalCard) = dao.insert(card.toEntity())
+    suspend fun insert(card: LocalCard) = cardDAO.insert(card.toEntity())
 
-    suspend fun delete(card: LocalCard) = dao.delete(card.toEntity()) > 0
+    suspend fun delete(card: LocalCard) = cardDAO.delete(card.toEntity()) > 0
 
-    suspend fun update(card: LocalCard) = dao.update(card.toEntity()) > 0
+    suspend fun update(card: LocalCard) = cardDAO.update(card.toEntity()) > 0
 
     suspend fun count(
         like: String? = null,
@@ -61,17 +67,17 @@ class CardRepository(private val dao: CardDAO) {
             builder.append("pt1.country =  ? ")
             params.add(countrySecond)
         }
-        return dao.count(SimpleSQLiteQuery(builder.toString(), params.toArray()))
+        return cardDAO.count(SimpleSQLiteQuery(builder.toString(), params.toArray()))
     }
 
-    suspend fun get(
+    private suspend fun getEntity(
         like: String? = null,
         langFirst: String? = null,
         langSecond: String? = null,
         countryFirst: String? = null,
         countrySecond: String? = null,
         position: Int? = null
-    ): LocalCard? {
+    ): CardEntity? {
         val builder = StringBuilder()
         val params = ArrayList<Any>()
         builder.append("SELECT nct.* FROM cards_table AS nct ")
@@ -110,20 +116,31 @@ class CardRepository(private val dao: CardDAO) {
             params.add(countrySecond)
         }
         position?.let { builder.append("LIMIT $position, 1") }
-        return dao.get(SimpleSQLiteQuery(builder.toString(),params.toArray()))?.toDTO()
+        return cardDAO.get(SimpleSQLiteQuery(builder.toString(), params.toArray()))
     }
 
-    fun getCountFlow() = dao.getCountFlow()
+    suspend fun get(
+        like: String? = null,
+        langFirst: String? = null,
+        langSecond: String? = null,
+        countryFirst: String? = null,
+        countrySecond: String? = null,
+        position: Int? = null
+    ) = getEntity(like, langFirst, langSecond, countryFirst, countrySecond, position)?.toDTO()
 
-    suspend fun getById(id: Int) = dao.getById(id)?.toDTO()
+    fun getCountFlow() = cardDAO.getCountFlow()
 
-    suspend fun getByGlobalId(id: UUID) = dao.getByGlobalId(id)?.toDTO()
+    suspend fun getById(id: Int) = cardDAO.getById(id)?.toDTO()
 
-    fun getByIdFlow(id: Int) = dao.getByIdFlow(id).map { it?.toDTO() }
+    suspend fun getViewById(id: Int) = cardDAO.getById(id)?.let { map.toDTO(it) }
 
-    suspend fun getRandom() = dao.getRandom()?.toDTO()
+    suspend fun getByGlobalId(id: UUID) = cardDAO.getByGlobalId(id)?.toDTO()
 
-    suspend fun getRandomWithOut(id: Int) = dao.getRandomWithOut(id)?.toDTO()
+    fun getByIdFlow(id: Int) = cardDAO.getByIdFlow(id).map { it?.toDTO() }
+
+    suspend fun getRandom() = cardDAO.getRandom()?.toDTO()
+
+    suspend fun getRandomWithOut(id: Int) = cardDAO.getRandomWithOut(id)?.toDTO()
 
 
 }

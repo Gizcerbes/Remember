@@ -8,3 +8,10 @@ data class LocalImage(
 	val globalId: UUID? = null,
 	val globalOwner: String? = null
 )
+
+data class LocalImageView(
+	val id: Int = 0,
+	val imgUri: String = "",
+	val globalId: UUID? = null,
+	val globalOwner: String? = null
+)
