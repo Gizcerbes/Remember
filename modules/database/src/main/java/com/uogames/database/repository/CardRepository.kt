@@ -80,7 +80,7 @@ class CardRepository(
     ): CardEntity? {
         val builder = StringBuilder()
         val params = ArrayList<Any>()
-        builder.append("SELECT nct.* FROM cards_table AS nct ")
+        builder.append("SELECT nct.*, pt1.phrase AS ph1, pt2.phrase AS ph2 FROM cards_table AS nct ")
         builder.append("JOIN phrase_table AS pt1 ")
         builder.append("ON pt1.id = nct.id_phrase ")
         builder.append("JOIN phrase_table AS pt2 ")
@@ -115,6 +115,8 @@ class CardRepository(
             builder.append("pt1.country =  ? ")
             params.add(countrySecond)
         }
+        builder.append("ORDER BY length(ph1), ph1, length(ph2), ph2 ")
+        //builder.append("ORDER BY length(ph1), ph1 ")
         position?.let { builder.append("LIMIT $position, 1") }
         return cardDAO.get(SimpleSQLiteQuery(builder.toString(), params.toArray()))
     }

@@ -34,7 +34,7 @@ class PhraseRepository(
     ): PhraseEntity? {
         val builder = StringBuilder()
         val params = ArrayList<Any>()
-        builder.append("SELECT * FROM phrase_table ")
+        builder.append("SELECT phrase_table.*, length(phrase_table.phrase) AS len  FROM phrase_table ")
         if (like != null || lang != null || country != null) builder.append("WHERE ")
         like?.let {
             builder.append("phrase LIKE '%' || ? || '%' ")
@@ -51,6 +51,7 @@ class PhraseRepository(
             builder.append("country = ? ")
             params.add(country)
         }
+        builder.append("ORDER BY len, phrase ASC ")
         position?.let { builder.append("LIMIT $position, 1") }
         return dao.get(SimpleSQLiteQuery(builder.toString(), params.toArray()))
     }

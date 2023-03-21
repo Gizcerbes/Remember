@@ -12,17 +12,15 @@ import android.view.inputmethod.InputMethodManager
 import androidx.activity.OnBackPressedCallback
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
-import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.navOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.squareup.picasso.Picasso
 import com.uogames.dto.local.LocalImage
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.MainActivity.Companion.findNavHostFragment
+import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentEditPhraseBinding
 import com.uogames.remembercards.ui.choiceLanguageDialog.ChoiceLanguageDialog
@@ -58,11 +56,15 @@ class EditPhraseFragment : DaggerFragment() {
 
     private val chooser = FileChooser(this, "image/*")
 
-    private var recorder: MediaRecorder? = null
-
-    private var textWatcher: TextWatcher? = null
+    private val phraseWatcher: TextWatcher = createPhraseWatcher()
+    private val definitionWatcher: TextWatcher = createDefinitionWatcher()
 
     private var bottomSheet: BottomSheetBehavior<View>? = null
+
+    private val audioIcons = listOf(R.drawable.ic_baseline_volume_add_24, R.drawable.ic_baseline_volume_remove_24)
+    private val previewIcons = listOf(R.drawable.ic_preview_show, R.drawable.ic_preview_hide)
+    private val addIcons = listOf(R.drawable.ic_baseline_add_24, R.drawable.ic_baseline_remove_24)
+    private val micIcons = listOf(R.drawable.ic_baseline_mic_24, R.drawable.ic_baseline_mic_off_24)
 
     private var imm: InputMethodManager? = null
 
@@ -103,10 +105,19 @@ class EditPhraseFragment : DaggerFragment() {
         if (idPhrase > 0) {
             bind.txtFragmentName.text = getString(R.string.edit_phrase)
             bind.btnDelete.visibility = View.VISIBLE
-            globalViewModel.shouldReset.ifTrue { model.loadByID(idPhrase) }
+            globalViewModel.shouldReset.ifTrue {
+                lifecycleScope.launchWhenStarted {
+                    model.loadByID(idPhrase).join()
+                    bind.tilEditPhrase.editText?.setText(model.phrase.value)
+                    bind.tilEditPhrase.editText?.setSelection(model.phrase.value.length)
+                    bind.tilEditDefinition.editText?.setText(model.definition.value.orEmpty())
+                    bind.tilEditDefinition.editText?.setSelection(model.definition.value.orEmpty().length)
+                }
+            }
             val r = { res: Boolean -> if (res) findNavController().popBackStack() }
             bind.btnSave.setOnClickListener { model.update(idPhrase, r) }
             bind.btnDelete.setOnClickListener { model.delete(idPhrase, r) }
+
         } else {
             bind.btnSave.setOnClickListener {
                 model.save { res ->
@@ -119,6 +130,11 @@ class EditPhraseFragment : DaggerFragment() {
                 }
             }
         }
+
+        bind.tilEditPhrase.editText?.setText(model.phrase.value)
+        bind.tilEditPhrase.editText?.setSelection(model.phrase.value.length)
+        bind.tilEditDefinition.editText?.setText(model.definition.value.orEmpty())
+        bind.tilEditDefinition.editText?.setSelection(model.definition.value.orEmpty().length)
 
         bottomSheet = BottomSheetBehavior.from(bind.rlBehavior)
         bottomSheet?.halfExpandedRatio = 0.4f
@@ -145,54 +161,29 @@ class EditPhraseFragment : DaggerFragment() {
         bind.btnNewFile.setOnClickListener {
             chooser.getBitmap {
                 cropViewModel.putData(it)
-                findNavHostFragment().navigate(
-                    R.id.cropFragment,
-                    null,
-                    navOptions {
-                        anim {
-                            enter = R.anim.from_bottom
-                            exit = R.anim.hide
-                            popEnter = R.anim.show
-                            popExit = R.anim.to_bottom
-                        }
-                    }
-                )
+                navigate(R.id.cropFragment)
             }
         }
 
         bind.blind.setOnClickListener { bottomSheet?.state = BottomSheetBehavior.STATE_HIDDEN }
 
-        bind.btnEditAudio.setOnClickListener {
+        bind.btnRecord.setOnClickListener {
             Permission.RECORD_AUDIO.requestPermission(requireActivity()) {
-                if (it && !model.isFileWriting.value) {
-                    recorder = if (Build.VERSION.SDK_INT < 31) {
-                        MediaRecorder()
-                    } else {
-                        MediaRecorder(requireContext())
-                    }
-                    recorder?.let { recorder -> model.startRecordAudio(recorder) }
+                if (it && model.dataSize.value == 0) {
+                    model.showRecord.value = true
                 } else {
-                    recorder?.let { recorder -> model.stopRecordAudio(recorder) }
+                    model.stopRecordAudio()
+                    model.resetAudioData()
                 }
             }
         }
 
-        bind.btnEditPhrase.setOnClickListener {
-            textWatcher = setTextWatcher(textWatcher, model.phrase.value) { text, _, _, _ ->
-                text?.let { model.setPhrase(it.toString()) }
-                imm?.currentInputMethodSubtype?.languageTag?.let {
-                    if (it.isNotEmpty()) model.setLang(Locale.forLanguageTag(it))
-                }
-            }
+        bind.btnCloseRecorder.setOnClickListener {
+            model.showRecord.value = false
+            model.stopRecordAudio()
         }
 
-        bind.btnEditDefinition.setOnClickListener {
-            textWatcher = setTextWatcher(textWatcher, model.definition.value.orEmpty()) { text, _, _, _ ->
-                text?.let { model.setDefinition(it.toString()) }
-            }
-        }
-
-        bind.btnEditImage.setOnClickListener {
+        bind.mcvImgEdit.setOnClickListener {
             if (model.imgPhrase.value == null) {
                 bottomSheet?.state = BottomSheetBehavior.STATE_HALF_EXPANDED
             } else {
@@ -200,92 +191,125 @@ class EditPhraseFragment : DaggerFragment() {
             }
         }
 
+        bind.btnDeleteRecord.setOnClickListener { model.resetAudioData() }
+
         bind.btnSound.setOnClickListener { model.play(bind.imgBtnSound.background.asAnimationDrawable()) }
 
         bind.btnBack.setOnClickListener { findNavHostFragment().popBackStack() }
 
-        bind.btnEditLanguage.setOnClickListener {
+        bind.btnPreview.setOnClickListener { model.preview.setOpposite() }
+
+        bind.mcvEditLanguage.setOnClickListener {
             ChoiceLanguageDialog(model.languages.value) {
                 model.forceSetLang(it)
             }.show(requireActivity().supportFragmentManager, ChoiceLanguageDialog.TAG)
         }
 
+        bind.btnStartRecord.setOnLongClickListener {
+            if (!model.isFileWriting.value) model.startRecordAudio(createMediaRecorder())
+            else model.stopRecordAudio()
+            true
+        }
+
+        bind.btnStartRecord.setOnClickListener {
+            model.stopRecordAudio()
+        }
+
+        bind.tilEditPhrase.editText?.addTextChangedListener(phraseWatcher)
+        bind.tilEditDefinition.editText?.addTextChangedListener(definitionWatcher)
+
+        bind.btnPlay.setOnClickListener { model.play(bind.ivBtnPlay.background.asAnimationDrawable()) }
+
         observers = lifecycleScope.launchWhenStarted {
-            globalViewModel.isShowKey.observe(this) {
-                bind.editBar.visibility = if (it) View.GONE else View.VISIBLE
-                bind.tilEdit.visibility = if (it) View.VISIBLE else View.GONE
-            }
+
             model.phrase.observe(this) {
-                bind.txtPhrase.text = it.ifEmpty { requireContext().getString(R.string.phrase2) }
+                bind.txtPhrase.text = it
             }
             model.definition.observe(this) {
-                bind.txtDefinition.text = it.ifNullOrEmpty { requireContext().getString(R.string.definition) }
+                bind.txtDefinition.text = it.orEmpty()
             }
             model.lang.observe(this) {
                 bind.txtLang.text = it.displayLanguage
+                bind.txtEditLanguage.text = it.displayLanguage
             }
             model.isFileWriting.observe(this) {
                 val size = model.tempAudioSource.size.ifNull { 0L }
                 bind.btnSound.visibility = if (it || size <= 0L) View.GONE else View.VISIBLE
-                bind.imgMic.background.asAnimationDrawable().selectDrawable(if (it) 1 else 0)
-                bind.txtEditor.text = if (!model.isFileWriting.value) {
-                    requireContext().getText(R.string.editor)
-                } else {
-                    requireContext().getText(R.string.record_sp).toString().replace("||TIME||", model.timeWriting.value.toString())
-                }
+                bind.ivRecordBtn.setImageResource(micIcons[if (it) 1 else 0])
+                bind.tvPressToRecord.text = requireContext().getText(if (it) R.string.click_to_stop else R.string.press_to_record)
             }
             model.timeWriting.observe(this) {
-                bind.txtEditor.text = if (model.isFileWriting.value) {
-                    requireContext().getText(R.string.record_sp).toString().replace("||TIME||", it.toString())
-                } else {
-                    requireContext().getText(R.string.editor)
-                }
+                bind.txtStatusRecording.text = requireContext().getText(R.string.status_record_sp).toString().replace("||TIME||", model.timeWriting.value.toString())
             }
             model.imgPhrase.observe(this) {
                 setImagePhrase(it)
+                Picasso.get().load(it?.imgUri?.toUri()).placeholder(R.drawable.noise).into(bind.ivEditImagePhrase)
                 if (it != null) bottomSheet?.state = BottomSheetBehavior.STATE_HIDDEN
+                bind.ivIconEditImage.setImageResource(addIcons[if (it == null) 0 else 1])
+
+            }
+            model.dataSize.observe(this) {
+                bind.imgBtnRecord.setImageResource(audioIcons[if (it == 0) 0 else 1])
+                bind.btnPlay.isEnabled = it != 0
+                bind.ivBtnPlay.isEnabled = it != 0
+                bind.ivBtnDeleteRecord.isEnabled = it != 0
+                bind.btnDeleteRecord.isEnabled = it != 0
+            }
+            model.preview.observe(this) {
+                bind.imgPreview.setImageResource(previewIcons[if (it) 1 else 0])
+                bind.mcvCard.visibility = if (it) View.VISIBLE else View.GONE
+                bind.mcEditor.visibility = if (it) View.GONE else View.VISIBLE
+            }
+            model.showRecord.observe(this) {
+                bind.clRecord.visibility = if (it) View.VISIBLE else View.GONE
+            }
+            model.statusRecord.observe(this) {
+                when (it) {
+                    0 -> bind.txtStatusRecording.text = requireContext().getText(R.string.status_ready)
+                    1 -> bind.txtStatusRecording.text = requireContext().getText(R.string.status_record_sp).toString().replace("||TIME||", model.timeWriting.value.toString())
+                    2 -> bind.txtStatusRecording.text = requireContext().getText(R.string.status_recorded)
+                }
             }
         }
     }
 
-    private inline fun setTextWatcher(
-        oldWatcher: TextWatcher?,
-        text: String,
-        crossinline action: (
-            text: CharSequence?,
-            start: Int,
-            before: Int,
-            count: Int
-        ) -> Unit
-    ): TextWatcher? {
-        bind.tilEdit.editText?.removeTextChangedListener(oldWatcher)
-        bind.tilEdit.requestFocus()
-        bind.tilEdit.editText?.setText(text)
-        bind.tilEdit.editText?.setSelection(text.length)
-        val textWatcher = bind.tilEdit.editText?.doOnTextChanged(action)
-        imm?.showSoftInput(bind.tilEdit.editText, InputMethodManager.SHOW_IMPLICIT)
-        return textWatcher
+    private fun createMediaRecorder(): MediaRecorder {
+        return if (Build.VERSION.SDK_INT < 31) {
+            MediaRecorder()
+        } else {
+            MediaRecorder(requireContext())
+        }
+    }
+
+    private fun createPhraseWatcher() = ShortTextWatcher { text ->
+        model.setPhrase(text?.toString().orEmpty())
+        imm?.currentInputMethodSubtype?.languageTag?.let {
+            if (it.isNotEmpty()) model.setLang(Locale.forLanguageTag(it))
+        }
+    }
+
+    private fun createDefinitionWatcher() = ShortTextWatcher { text ->
+        model.setDefinition(text?.toString().orEmpty())
     }
 
     private fun setImagePhrase(image: LocalImage?) = image?.let {
         Picasso.get().load(image.imgUri.toUri()).placeholder(R.drawable.noise).into(bind.imgPhrase)
         bind.imgPhrase.visibility = View.VISIBLE
-        bind.imgBtnImage.setImageResource(R.drawable.ic_baseline_hide_image_24)
     }.ifNull {
         bind.imgPhrase.visibility = View.GONE
-        bind.imgBtnImage.setImageResource(R.drawable.ic_baseline_image_24)
     }
 
     override fun onStop() {
         super.onStop()
         imm?.hideSoftInputFromWindow(view?.windowToken, 0)
-        recorder?.let { model.stopRecordAudio(it) }
+        model.stopRecordAudio()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         observers?.cancel()
-        bind.tilEdit.editText?.removeTextChangedListener(textWatcher)
+        bind.tilEditPhrase.editText?.removeTextChangedListener(phraseWatcher)
+        bind.tilEditDefinition.editText?.removeTextChangedListener(definitionWatcher)
         imm?.hideSoftInputFromWindow(view?.windowToken, 0)
         imm = null
         bottomSheet = null

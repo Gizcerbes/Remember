@@ -36,6 +36,8 @@ class EditCardViewModel @Inject constructor(
 
     private var loadedCard: LocalCard? = null
 
+    val preview = MutableStateFlow(false)
+
     fun reset() {
         _firstPhrase.value = null
         _secondPhrase.value = null
@@ -61,16 +63,18 @@ class EditCardViewModel @Inject constructor(
     }
 
     fun selectFirstPhrase(id: Int?) = viewModelScope.launch {
-        if (id == null) return@launch
-        provider.phrase.getByIdFlow(id).first().let {
-            _firstPhrase.value = it
+        if (id == null) {
+            _firstPhrase.value = null
+        } else {
+            provider.phrase.getByIdFlow(id).first().let { _firstPhrase.value = it }
         }
     }
 
     fun selectSecondPhrase(id: Int?) = viewModelScope.launch {
-        if (id == null) return@launch
-        provider.phrase.getByIdFlow(id).first().let {
-            _secondPhrase.value = it
+        if (id == null) {
+            _secondPhrase.value = null
+        } else {
+            provider.phrase.getByIdFlow(id).first().let { _secondPhrase.value = it }
         }
     }
 
