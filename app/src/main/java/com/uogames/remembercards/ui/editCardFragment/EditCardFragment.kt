@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
 import androidx.fragment.app.setFragmentResult
@@ -21,6 +22,7 @@ import com.squareup.picasso.Picasso
 import com.uogames.dto.local.LocalPhrase
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.MainActivity.Companion.findNavHostFragment
+import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentEditCardBinding
 import com.uogames.remembercards.ui.choicePhraseFragment.ChoicePhraseFragment
@@ -124,6 +126,10 @@ class EditCardFragment : DaggerFragment() {
 
         bind.btnPreview.setOnClickListener { model.preview.setOpposite() }
 
+        bind.btnSave.setOnClickListener { Toast.makeText(requireContext(), requireContext().getText(R.string.press_to_save), Toast.LENGTH_SHORT).show() }
+
+        bind.btnDelete.setOnClickListener { Toast.makeText(requireContext(), requireContext().getText(R.string.press_to_delete), Toast.LENGTH_SHORT).show() }
+
         observers = lifecycleScope.launchWhenStarted {
             model.reason.observe(this) { bind.txtReason.text = it.ifNullOrEmpty { requireContext().getText(R.string.topic) } }
             model.firstPhrase.observe(this) {
@@ -215,19 +221,23 @@ class EditCardFragment : DaggerFragment() {
     private fun loadDataWithID(id: Int) {
         globalViewModel.shouldReset.ifTrue { model.load(id) }
         bind.btnDelete.visibility = View.VISIBLE
-        bind.btnDelete.setOnClickListener {
+        bind.btnDelete.setOnLongClickListener {
             model.delete {
                 if (it) {
                     findNavController().popBackStack()
                 }
             }
+            true
         }
-        bind.btnSave.setOnClickListener { model.update { if (it) findNavController().popBackStack() } }
+        bind.btnSave.setOnLongClickListener {
+            model.update { if (it) findNavController().popBackStack() }
+            true
+        }
     }
 
     private fun loadData(createFor: String?, popBackTo: Int?) {
         bind.btnDelete.visibility = View.GONE
-        bind.btnSave.setOnClickListener {
+        bind.btnSave.setOnLongClickListener {
             model.save { res ->
                 if (res == null) return@save
                 if (!createFor.isNullOrEmpty() && popBackTo != null && popBackTo != 0) {
@@ -239,6 +249,7 @@ class EditCardFragment : DaggerFragment() {
                     model.resetID()
                 }
             }
+            true
         }
     }
 
@@ -309,18 +320,7 @@ class EditCardFragment : DaggerFragment() {
 
 
     private fun openChoicePhraseFragment(bundle: Bundle) {
-        findNavHostFragment().navigate(
-            R.id.choicePhraseDialog,
-            bundle,
-            navOptions {
-                anim {
-                    enter = R.anim.from_bottom
-                    exit = R.anim.hide
-                    popEnter = R.anim.show
-                    popExit = R.anim.to_bottom
-                }
-            }
-        )
+        navigate(R.id.choicePhraseDialog, bundle)
     }
 
     override fun onDestroyView() {

@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
@@ -115,11 +116,17 @@ class EditPhraseFragment : DaggerFragment() {
                 }
             }
             val r = { res: Boolean -> if (res) findNavController().popBackStack() }
-            bind.btnSave.setOnClickListener { model.update(idPhrase, r) }
-            bind.btnDelete.setOnClickListener { model.delete(idPhrase, r) }
+            bind.btnSave.setOnLongClickListener {
+                model.update(idPhrase, r)
+                true
+            }
+            bind.btnDelete.setOnLongClickListener {
+                model.delete(idPhrase, r)
+                true
+            }
 
         } else {
-            bind.btnSave.setOnClickListener {
+            bind.btnSave.setOnLongClickListener {
                 model.save { res ->
                     if (createForCard != null && popBackTo != null && popBackTo != 0) {
                         setFragmentResult(createForCard, bundleOf("ID" to res.toInt()))
@@ -128,8 +135,12 @@ class EditPhraseFragment : DaggerFragment() {
                         findNavController().popBackStack()
                     }
                 }
+                true
             }
         }
+
+        bind.btnSave.setOnClickListener { Toast.makeText(requireContext(), requireContext().getText(R.string.press_to_save), Toast.LENGTH_SHORT).show() }
+        bind.btnDelete.setOnClickListener { Toast.makeText(requireContext(), requireContext().getText(R.string.press_to_delete), Toast.LENGTH_SHORT).show() }
 
         bind.tilEditPhrase.editText?.setText(model.phrase.value)
         bind.tilEditPhrase.editText?.setSelection(model.phrase.value.length)

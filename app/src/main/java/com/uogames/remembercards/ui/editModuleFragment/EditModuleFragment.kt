@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
@@ -12,6 +13,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 import com.uogames.remembercards.GlobalViewModel
+import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentEditModuleBinding
 import com.uogames.remembercards.ui.choiceCardFragment.ChoiceCardFragment
@@ -78,30 +80,21 @@ class EditModuleFragment : DaggerFragment() {
 
         editModuleViewModel.moduleID.value = id
         bind.btnAdd.setOnClickListener {
-            requireActivity().findNavController(R.id.nav_host_fragment).navigate(
-                R.id.choiceCardFragment,
-                bundleOf(ChoiceCardFragment.TAG to CARD_CALL_TAG),
-                navOptions {
-                    anim {
-                        enter = R.anim.from_bottom
-                        exit = R.anim.hide
-                        popEnter = R.anim.show
-                        popExit = R.anim.to_bottom
-                    }
-                }
-            )
+            navigate(R.id.choiceCardFragment, bundleOf(ChoiceCardFragment.TAG to CARD_CALL_TAG))
         }
         bind.btnBack.setOnClickListener {
             findNavController().popBackStack()
         }
 
-        bind.btnDelete.setOnClickListener {
+        bind.btnDelete.setOnClickListener { Toast.makeText(requireContext(), requireContext().getText(R.string.press_to_delete), Toast.LENGTH_SHORT).show() }
+        bind.btnDelete.setOnLongClickListener {
             lifecycleScope.launchWhenStarted {
                 editModuleViewModel.module.first()?.let {
                     editModuleViewModel.delete(it)
                 }
                 findNavController().popBackStack()
             }
+            true
         }
 
         moduleCardObserver = createModuleCardObserver()

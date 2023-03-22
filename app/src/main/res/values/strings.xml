@@ -5,7 +5,7 @@
 	<string name="play">Play</string>
 	<string name="library">Library</string>
 	<string name="book">Book</string>
-	<string name="person">Person</string>
+	<string name="person">Personal</string>
 	<string name="games">Games</string>
 	<string name="add_new_word">ADD NEW WORD</string>
 	<string name="search">Search</string>
@@ -57,6 +57,7 @@
 	<string name="statistic">Statistic</string>
 	<string name="cards_label">Cards:</string>
 	<string name="modules_label">Modules:</string>
+	<string name="modules">Modules</string>
 	<string name="data_statistic">Data Statistic</string>
 	<string name="game_statistic">Game Statistic</string>
 	<string name="yes_or_no_game_count">Yes or no games count:</string>
@@ -113,4 +114,6 @@
 	<string name="list">List</string>
 	<string name="your_phrases">Your phrases</string>
 	<string name="choice_phrase">Choice phrase</string>
+	<string name="press_to_save">Press to save</string>
+	<string name="press_to_delete">Press to delete</string>
 </resources>
