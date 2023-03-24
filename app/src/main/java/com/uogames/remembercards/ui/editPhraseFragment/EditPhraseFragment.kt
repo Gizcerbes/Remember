@@ -64,7 +64,7 @@ class EditPhraseFragment : DaggerFragment() {
 
     private val audioIcons = listOf(R.drawable.ic_baseline_volume_add_24, R.drawable.ic_baseline_volume_remove_24)
     private val previewIcons = listOf(R.drawable.ic_preview_show, R.drawable.ic_preview_hide)
-    private val addIcons = listOf(R.drawable.ic_baseline_add_24, R.drawable.ic_baseline_remove_24)
+    private val addIcons = listOf(R.drawable.ic_baseline_image_24, R.drawable.ic_baseline_hide_image_24)
     private val micIcons = listOf(R.drawable.ic_baseline_mic_24, R.drawable.ic_baseline_mic_off_24)
 
     private var imm: InputMethodManager? = null

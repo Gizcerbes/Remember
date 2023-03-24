@@ -21,6 +21,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="13dp"
+                android:textSize="@dimen/headline6"
                 android:text="@string/new_phrase"
                 android:textAppearance="?attr/textAppearanceHeadline6"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -156,6 +157,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="7dp"
+                                android:textSize="@dimen/body2"
                                 android:textAppearance="?attr/textAppearanceBody2"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintStart_toEndOf="@id/btn_sound"
@@ -191,7 +193,7 @@
                                     android:id="@+id/txt_phrase"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-
+                                    android:textSize="@dimen/body1"
                                     android:textAppearance="?attr/textAppearanceBody1"
                                     app:layout_constraintBottom_toBottomOf="parent"
                                     app:layout_constraintEnd_toEndOf="parent"
@@ -203,7 +205,7 @@
                                     android:id="@+id/txt_definition"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-
+                                    android:textSize="@dimen/body2"
                                     android:textAppearance="?attr/textAppearanceBody2"
                                     tools:text="Irregular fluctuations that accompany a trant part of it and tend to obscure it." />
 
@@ -263,7 +265,12 @@
                                 style="@style/Theme.RememberCards.CardView.Button.Icon"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_margin="0dp"
+                                android:layout_marginTop="5dp"
+                                android:layout_marginStart="7dp"
+                                android:layout_marginEnd="5dp"
+                                android:layout_marginBottom="5dp"
+                                app:strokeColor="?attr/colorControlNormal"
+                                app:strokeWidth="1dp"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="parent">
@@ -280,17 +287,22 @@
                                 android:id="@+id/mcv_edit_language"
                                 style="@style/Theme.RememberCards.CardView.Button.Icon"
                                 android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="0dp"
-                                app:contentPadding="7dp"
+                                android:layout_height="0dp"
+                                android:layout_marginTop="0dp"
+                                android:layout_marginBottom="5dp"
+                                android:layout_marginStart="7dp"
+                                app:strokeColor="?attr/colorControlNormal"
+                                app:strokeWidth="1dp"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintStart_toEndOf="@id/btn_record"
-                                app:layout_constraintTop_toTopOf="parent">
+                                app:layout_constraintTop_toTopOf="@id/btn_record">
 
                                 <TextView
                                     android:id="@+id/txt_edit_language"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:textSize="@dimen/body2"
                                     android:textAppearance="?attr/textAppearanceBody2"
                                     app:layout_constraintBottom_toBottomOf="parent"
                                     app:layout_constraintStart_toEndOf="@id/btn_record"
@@ -342,6 +354,7 @@
                                     <com.google.android.material.textfield.TextInputEditText
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
+                                        android:textSize="@dimen/body1"
                                         android:textAppearance="?attr/textAppearanceBody1"
                                         tools:text="Noise" />
 
@@ -364,6 +377,7 @@
                                     <com.google.android.material.textfield.TextInputEditText
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
+                                        android:textSize="@dimen/body2"
                                         android:textAppearance="?attr/textAppearanceBody2"
                                         tools:text="Irregular fluctuations that accompany a trant part of it and tend to obscure it." />
 
@@ -396,7 +410,7 @@
                                     android:id="@+id/iv_icon_edit_image"
                                     android:layout_width="70dp"
                                     android:layout_height="70dp"
-                                    android:src="@drawable/ic_baseline_add_24" />
+                                    android:src="@drawable/ic_baseline_hide_image_24" />
 
                             </com.google.android.material.card.MaterialCardView>
 
@@ -412,7 +426,7 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_record"
-            android:visibility="visible"
+            android:visibility="gone"
             android:clickable="true"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

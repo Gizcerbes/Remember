@@ -3,6 +3,7 @@ package com.uogames.remembercards
 import android.content.Context
 import android.graphics.Rect
 import android.view.View
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
@@ -26,6 +27,7 @@ class GlobalViewModel @Inject constructor(
         const val USER_NATIVE_COUNTRY = "USER_NATIVE_COUNTRY"
         const val PRIVACY_AND_POLICY = "PRIVACY_AND_POLICY_v1"
         const val SHARE_NOTICE = "SHARE_NOTICE"
+        const val SCREEN_MODE = "SCREEN_MODE"
 
         const val GAME_YES_OR_NO_COUNT = "GAME_YES_OR_NO_COUNT"
     }
@@ -68,11 +70,18 @@ class GlobalViewModel @Inject constructor(
     val nativeCountry = provider.setting.getFlow(USER_NATIVE_COUNTRY).stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
     val privacyAndPolicy = provider.setting.getFlow(PRIVACY_AND_POLICY).stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
     val shareNotice = provider.setting.getFlow(SHARE_NOTICE).stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
+    val screenMode = provider.setting.getFlow(SCREEN_MODE).map {
+        when (it) {
+            "0" -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            "1" -> AppCompatDelegate.MODE_NIGHT_NO
+            "2" -> AppCompatDelegate.MODE_NIGHT_YES
+            else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
 
     val countPhrases = provider.phrase.countFlow().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
 
     val gameYesOrNotCount = provider.setting.getFlow(GAME_YES_OR_NO_COUNT).stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
-
 
 
     private var job: Job? = null
@@ -104,6 +113,10 @@ class GlobalViewModel @Inject constructor(
         }
     }
 
+    fun setScreenMode(mode: Int) {
+        saveData(SCREEN_MODE, mode.toString())
+    }
+
     private fun saveData(key: String, value: String?, finishCall: () -> Unit = {}) {
         viewModelScope.launch {
             provider.setting.save(key, value)
@@ -116,6 +129,7 @@ class GlobalViewModel @Inject constructor(
             provider.setting.remove(key)
         }
     }
+
 
     fun saveUserName(name: String) = viewModelScope.launch { provider.setting.save(USER_NAME, name) }
 
@@ -134,7 +148,8 @@ class GlobalViewModel @Inject constructor(
         val count = provider.setting.getFlow(GAME_YES_OR_NO_COUNT).first()?.toInt().ifNull { 0 }
         provider.setting.save(GAME_YES_OR_NO_COUNT, (count + 1).toString())
     }
-     fun getGameYesOrNotGameCount() = provider.setting.getFlow(GAME_YES_OR_NO_COUNT)
+
+    fun getGameYesOrNotGameCount() = provider.setting.getFlow(GAME_YES_OR_NO_COUNT)
     suspend fun getAcceptRules() = provider.setting.get(PRIVACY_AND_POLICY)
     fun acceptRules() = viewModelScope.launch { provider.setting.save(PRIVACY_AND_POLICY, true.toString()) }
 
@@ -144,6 +159,7 @@ class GlobalViewModel @Inject constructor(
             else saveData(SHARE_NOTICE, false.toString())
         }
     }
+
     fun clean() = viewModelScope.launch { provider.clean() }
 
     fun getPicasso(context: Context) = provider.images.getPicasso(context)

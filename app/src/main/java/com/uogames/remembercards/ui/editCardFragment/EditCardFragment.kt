@@ -16,12 +16,10 @@ import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.navOptions
 import com.google.android.material.card.MaterialCardView
 import com.squareup.picasso.Picasso
 import com.uogames.dto.local.LocalPhrase
 import com.uogames.remembercards.GlobalViewModel
-import com.uogames.remembercards.MainActivity.Companion.findNavHostFragment
 import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentEditCardBinding
@@ -126,14 +124,27 @@ class EditCardFragment : DaggerFragment() {
 
         bind.btnPreview.setOnClickListener { model.preview.setOpposite() }
 
-        bind.btnSave.setOnClickListener { Toast.makeText(requireContext(), requireContext().getText(R.string.press_to_save), Toast.LENGTH_SHORT).show() }
+        bind.btnSave.setOnClickListener {
+            Toast.makeText(requireContext(), requireContext().getText(R.string.press_to_save), Toast.LENGTH_SHORT).show()
+        }
 
-        bind.btnDelete.setOnClickListener { Toast.makeText(requireContext(), requireContext().getText(R.string.press_to_delete), Toast.LENGTH_SHORT).show() }
+        bind.btnDelete.setOnClickListener {
+            Toast.makeText(requireContext(), requireContext().getText(R.string.press_to_delete), Toast.LENGTH_SHORT).show()
+        }
+
+        bind.cbSingleCard.setOnClickListener { model.singleCard.setOpposite() }
 
         observers = lifecycleScope.launchWhenStarted {
             model.reason.observe(this) { bind.txtReason.text = it.ifNullOrEmpty { requireContext().getText(R.string.topic) } }
             model.firstPhrase.observe(this) {
                 it?.let { phrase ->
+                    bind.txtPhraseFirst.text = phrase.phrase
+                    bind.imgSoundFirst.apply {
+                        phrase.idPronounce?.let {
+                            visibility = View.VISIBLE
+                            bind.mcvFirst.setOnClickListener { model.play(bind.imgSoundFirst.background.asAnimationDrawable(), phrase) }
+                        }.ifNull { bind.imgSoundFirst.visibility = View.GONE }
+                    }
                     setButtonData(
                         phrase,
                         bind.mcvFirst,
@@ -197,6 +208,7 @@ class EditCardFragment : DaggerFragment() {
                 bind.mcvCard.visibility = if (it) View.VISIBLE else View.GONE
                 bind.imgPreview.setImageResource(previewIcons[if (it) 1 else 0])
             }
+            model.singleCard.observe(this) { bind.cbSingleCard.isChecked = it }
         }
 
     }
@@ -277,6 +289,13 @@ class EditCardFragment : DaggerFragment() {
             Picasso.get().load(it.imgUri.toUri()).placeholder(R.drawable.noise).into(imageCard)
             imageCard.visibility = View.VISIBLE
         }.ifNull { imageCard.visibility = View.GONE }
+    }
+
+    private suspend fun setPronounceData(
+        container: MaterialCardView,
+        imageSound: ImageView
+    ){
+
     }
 
     private suspend fun setPreviewData(

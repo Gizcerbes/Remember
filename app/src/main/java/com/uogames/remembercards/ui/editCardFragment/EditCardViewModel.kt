@@ -37,6 +37,7 @@ class EditCardViewModel @Inject constructor(
     private var loadedCard: LocalCard? = null
 
     val preview = MutableStateFlow(false)
+    val singleCard = MutableStateFlow(false)
 
     fun reset() {
         _firstPhrase.value = null
@@ -72,6 +73,7 @@ class EditCardViewModel @Inject constructor(
 
     fun selectSecondPhrase(id: Int?) = viewModelScope.launch {
         if (id == null) {
+            singleCard.value = false
             _secondPhrase.value = null
         } else {
             provider.phrase.getByIdFlow(id).first().let { _secondPhrase.value = it }
@@ -81,11 +83,6 @@ class EditCardViewModel @Inject constructor(
     fun setReason(reason: String) {
         _reason.value = reason
     }
-
-    fun playFirst(anim: AnimationDrawable) = viewModelScope.launch { _firstPhrase.value?.toPronounce()?.let { play(anim, it) } }
-
-
-    fun playSecond(anim: AnimationDrawable) = viewModelScope.launch { _secondPhrase.value?.toPronounce()?.let { play(anim, it) } }
 
     fun play(anim: AnimationDrawable, phrase: LocalPhrase) = viewModelScope.launch { phrase.toPronounce()?.let { play(anim, it) } }
 
@@ -113,8 +110,9 @@ class EditCardViewModel @Inject constructor(
     private fun build(): LocalCard? {
         val id = _cardID.value
         val firstID = _firstPhrase.value?.id.ifNull { return null }
-        val secondID = _secondPhrase.value?.id.ifNull { return null }
-        val reason = _reason.value.ifNullOrEmpty { return null }
+        val secondID = if (singleCard.value) firstID
+        else _secondPhrase.value?.id.ifNull { return null }
+        val reason = _reason.value
         return LocalCard(
             id = id,
             idPhrase = firstID,

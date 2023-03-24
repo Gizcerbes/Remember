@@ -4,6 +4,7 @@ import com.uogames.dto.DefaultUUID
 import com.uogames.dto.global.GlobalCard
 import com.uogames.dto.global.GlobalCardView
 import com.uogames.dto.local.LocalCard
+import com.uogames.dto.local.LocalCardView
 import com.uogames.dto.local.LocalImage
 import com.uogames.dto.local.LocalPhrase
 
@@ -70,6 +71,19 @@ object CardMap {
 		timeChange = timeChange,
 		like = like,
 		dislike = dislike
+	)
+
+	fun LocalCardView.toLocalCard() = LocalCard(
+		id = id,
+		idPhrase = phrase.id,
+		idTranslate = translate.id,
+		idImage = image?.id,
+		reason = reason,
+		timeChange = timeChange,
+		like = like,
+		dislike = dislike,
+		globalId = globalId,
+		globalOwner = globalOwner
 	)
 
 }

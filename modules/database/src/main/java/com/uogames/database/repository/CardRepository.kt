@@ -130,6 +130,14 @@ class CardRepository(
         position: Int? = null
     ) = getEntity(like, langFirst, langSecond, countryFirst, countrySecond, position)?.toDTO()
 
+    suspend fun getView(
+        like: String? = null,
+        langFirst: String? = null,
+        langSecond: String? = null,
+        countryFirst: String? = null,
+        countrySecond: String? = null,
+        position: Int? = null
+    ) = getEntity(like, langFirst, langSecond, countryFirst, countrySecond, position)?.let { map.toDTO(it) }
     fun getCountFlow() = cardDAO.getCountFlow()
 
     suspend fun getById(id: Int) = cardDAO.getById(id)?.toDTO()

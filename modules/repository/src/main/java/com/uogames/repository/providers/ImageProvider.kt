@@ -43,15 +43,12 @@ class ImageProvider(
     }
 
     suspend fun getById(id: Int) = database.getById(id)
-
     fun getByIdFlow(id: Int) = database.getByIdFlow(id)
-
     fun getByPhrase(phrase: LocalPhrase) = database.getByPhraseFlow(phrase)
 
+    suspend fun getView(id: Int) = database.getViewByID(id)
     suspend fun getByGlobalId(id: UUID) = database.getByGlobalId(id)
-
     suspend fun getGlobalById(id: UUID) = network.image.get(id)
-
     suspend fun getGlobalView(id: UUID) = network.image.getView(id)
 
     suspend fun clear() {
