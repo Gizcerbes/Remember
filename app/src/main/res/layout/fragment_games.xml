@@ -68,6 +68,7 @@
 						android:id="@+id/txt_name"
 						android:layout_width="0dp"
 						android:layout_height="wrap_content"
+						android:textSize="@dimen/headline6"
 						android:textAppearance="?attr/textAppearanceHeadline6"
 						app:layout_constraintEnd_toStartOf="@id/btn_clear"
 						app:layout_constraintStart_toStartOf="parent"
@@ -78,11 +79,13 @@
 						android:id="@+id/txt_count_items"
 						android:layout_width="0dp"
 						android:layout_height="wrap_content"
-						android:minHeight="40dp"
+						android:layout_marginBottom="20dp"
+						android:textSize="@dimen/body1"
 						android:textAppearance="?attr/textAppearanceBody1"
 						app:layout_constraintBottom_toTopOf="@id/txt_owner"
 						app:layout_constraintStart_toStartOf="parent"
 						app:layout_constraintTop_toBottomOf="@id/txt_name"
+						app:layout_constraintEnd_toEndOf="@id/txt_name"
 						tools:text="100500 cards" />
 
 					<TextView
@@ -90,6 +93,7 @@
 						android:layout_width="0dp"
 						android:layout_height="wrap_content"
 						android:layout_gravity="start"
+						android:textSize="@dimen/body1"
 						android:textAppearance="?attr/textAppearanceBody1"
 						app:layout_constraintBottom_toBottomOf="parent"
 						app:layout_constraintEnd_toStartOf="@id/txt_likes"

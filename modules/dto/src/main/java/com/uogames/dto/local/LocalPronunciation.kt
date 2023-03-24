@@ -8,3 +8,10 @@ data class LocalPronunciation(
 	val globalId: UUID? = null,
 	val globalOwner: String? = null
 )
+
+data class LocalPronunciationView(
+	val id: Int,
+	val audioUri: String,
+	val globalId: UUID? = null,
+	val globalOwner: String? = null
+)

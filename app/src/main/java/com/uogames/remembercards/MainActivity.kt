@@ -1,9 +1,11 @@
 package com.uogames.remembercards
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver
 import androidx.annotation.IdRes
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -15,9 +17,12 @@ import androidx.navigation.navOptions
 import com.uogames.remembercards.MainActivity.Companion.findNavHostFragment
 import com.uogames.remembercards.ui.editModuleFragment.EditModuleFragment
 import com.uogames.remembercards.utils.Permission
+import com.uogames.remembercards.utils.observe
 import com.uogames.remembercards.utils.observeWhenStarted
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import java.util.Locale
 import javax.inject.Inject
 
 class MainActivity : DaggerAppCompatActivity() {
@@ -25,8 +30,8 @@ class MainActivity : DaggerAppCompatActivity() {
     @Inject
     lateinit var globalViewModel: GlobalViewModel
 
-    private var backStackObserver: Job? = null
     private var keyListener: ViewTreeObserver.OnGlobalLayoutListener? = null
+    private var observers: Job? = null
 
     companion object {
         fun FragmentActivity.findNavHostFragment() : NavController{
@@ -56,6 +61,9 @@ class MainActivity : DaggerAppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        Locale.setDefault(Locale.ENGLISH)
+        //AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+
     }
 
     override fun onStart() {
@@ -65,8 +73,12 @@ class MainActivity : DaggerAppCompatActivity() {
         view.viewTreeObserver.addOnGlobalLayoutListener(keyListener)
 
         val navController = findNavController(R.id.nav_host_fragment)
-        backStackObserver = navController.currentBackStackEntryFlow.observeWhenStarted(lifecycleScope) {
-            globalViewModel.setBackQueue(navController.backQueue)
+        observers = lifecycleScope.launchWhenStarted {
+            navController.currentBackStackEntryFlow.observe(this){  globalViewModel.setBackQueue(navController.backQueue) }
+            globalViewModel.screenMode.observe(this){
+                if (AppCompatDelegate.getDefaultNightMode() == it) return@observe
+               AppCompatDelegate.setDefaultNightMode(it)
+            }
         }
     }
 
@@ -76,7 +88,7 @@ class MainActivity : DaggerAppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        backStackObserver?.cancel()
+        observers?.cancel()
         val view = findViewById<FragmentContainerView>(R.id.nav_host_fragment)
         view.viewTreeObserver.removeOnGlobalLayoutListener(keyListener)
     }
@@ -90,16 +102,9 @@ class MainActivity : DaggerAppCompatActivity() {
         Permission.values()[requestCode].onRequestPermissionResult(grantResults)
     }
 
+
     override fun onDestroy() {
         super.onDestroy()
-// 		runBlocking { globalViewModel.clean().join() }
-// 		cacheDir.listFiles()?.forEach {
-// 			try {
-// 				it.delete()
-// 			} catch (e: Exception) {
-// 				Log.e("CLEAN_CACHE_ERROR", "$e")
-// 			}
-// 		}
         globalViewModel.setBackQueue(null)
     }
 }

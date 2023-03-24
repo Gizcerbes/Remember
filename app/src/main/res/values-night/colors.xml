@@ -20,8 +20,5 @@
     <color name="oliveDrab">#6b8e23</color>
     <color name="darkGreen">#006400</color>
 
-	<color name="transparent">#00000000</color>
-	<color name="transparent_25">#40000000</color>
-	<color name="test">#000000</color>
 
 </resources>

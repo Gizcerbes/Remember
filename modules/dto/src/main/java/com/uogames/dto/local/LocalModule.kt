@@ -12,3 +12,14 @@ data class LocalModule(
 	val globalId: UUID? = null,
 	val globalOwner: String? = null
 )
+
+data class LocalModuleView(
+	val id: Int = 0,
+	val name: String = "",
+	val owner: String = "",
+	val timeChange: Long = Date().time,
+	val like: Long = 0,
+	val dislike: Long = 0,
+	val globalId: UUID? = null,
+	val globalOwner: String? = null
+)

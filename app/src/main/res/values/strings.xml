@@ -1,11 +1,11 @@
 <resources>
 	<string name="app_name">Cue Cards</string>
-	<string name="ok">Ok</string>
+	<string name="ok">OK</string>
 	<string name="home">Home</string>
 	<string name="play">Play</string>
 	<string name="library">Library</string>
 	<string name="book">Book</string>
-	<string name="person">Person</string>
+	<string name="person">Personal</string>
 	<string name="games">Games</string>
 	<string name="add_new_word">ADD NEW WORD</string>
 	<string name="search">Search</string>
@@ -37,7 +37,6 @@
 	<string name="phrase2">Phrase</string>
 	<string name="languages">Languages</string>
 	<string name="record">Record</string>
-	<string name="record_sp">Record ||TIME||s / 60s</string>
 	<string name="crop_picture">Crop picture</string>
 	<string name="edit_card">Edit Card</string>
 	<string name="edit_phrase">Edit Phrase</string>
@@ -58,6 +57,7 @@
 	<string name="statistic">Statistic</string>
 	<string name="cards_label">Cards:</string>
 	<string name="modules_label">Modules:</string>
+	<string name="modules">Modules</string>
 	<string name="data_statistic">Data Statistic</string>
 	<string name="game_statistic">Game Statistic</string>
 	<string name="yes_or_no_game_count">Yes or no games count:</string>
@@ -100,4 +100,27 @@
     <string name="notification_privacy_changed">If you see this notice, it means that we have changed our privacy policy or terms. We recommend to read.</string>
     <string name="notice_share">If you see this notification, you are about to share your content. Related content will also be sent.</string>
 	<string name="dont_show">Don\'t show again</string>
+    <string name="label_status">Status:</string>
+	<string name="status_ready">Ready</string>
+	<string name="status_record_sp">Recording ||TIME||s / 60s</string>
+	<string name="status_recorded">Recorded</string>
+	<string name="press_to_record">Press to record</string>
+	<string name="click_to_stop">Click to stop</string>
+    <string name="first_phrase">First phrase</string>
+	<string name="fist_suggestion">Click to select the first phrase of future card</string>
+	<string name="second_phrase">Second phrase</string>
+	<string name="second_suggestion">Click to select the second phrase of future card</string>
+	<string name="topic">Topic</string>
+	<string name="list">List</string>
+	<string name="your_phrases">Your phrases</string>
+	<string name="choice_phrase">Choice phrase</string>
+	<string name="press_to_save">Press to save</string>
+	<string name="press_to_delete">Press to delete</string>
+    <string name="label_screen_theme">Theme:</string>
+	<string name="screen_theme_system">SYSTEM THEME</string>
+	<string name="screen_theme_day">LIGHT THEM</string>
+	<string name="screen_theme_dark">DARK THEM</string>
+	<string name="themes">Themes</string>
+	<string name="clue">Clue</string>
+    <string name="single_card">Single Card</string>
 </resources>

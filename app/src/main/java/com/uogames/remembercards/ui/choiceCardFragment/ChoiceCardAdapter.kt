@@ -23,7 +23,7 @@ class ChoiceCardAdapter(
     private val model: ChoiceCardViewModel,
     private val player: ObservableMediaPlayer,
     private val callChoiceCardID: (Int) -> Unit
-): ClosableAdapter() {
+) : ClosableAdapter() {
 
     private val recyclerScope = CoroutineScope(Dispatchers.Main)
     private var size = 0
@@ -47,26 +47,48 @@ class ChoiceCardAdapter(
                 launch(Dispatchers.Main) {
                     bind.txtReason.text = cardView.card.reason
                     bind.btnDownload.setOnClickListener { callChoiceCardID(cardView.card.id) }
-                    setData(
-                        cardView.phrase.await(),
-                        cardView.phrasePronounce.await(),
-                        cardView.phraseImage.await(),
-                        bind.txtLangFirst,
-                        bind.txtPhraseFirst,
-                        bind.imgSoundFirst,
-                        bind.mcvFirst,
-                        bind.imgCardFirst
-                    )
-                    setData(
-                        cardView.translate.await(),
-                        cardView.translatePronounce.await(),
-                        cardView.translateImage.await(),
-                        bind.txtLangSecond,
-                        bind.txtPhraseSecond,
-                        bind.imgSoundSecond,
-                        bind.mcvSecond,
-                        bind.imgCardSecond
-                    )
+                    cardView.card.phrase.let { phrase ->
+                        bind.txtLangFirst.text = Locale.forLanguageTag(phrase.lang).displayLanguage
+                        bind.txtPhraseFirst.text = phrase.phrase
+                        phrase.image?.let { image ->
+                            bind.imgCardFirst.visibility = View.VISIBLE
+                            Picasso.get().load(image.imgUri.toUri()).placeholder(R.drawable.noise).into(bind.imgCardFirst)
+                        }.ifNull {
+                            bind.imgCardFirst.visibility = View.GONE
+                        }
+                        phrase.pronounce?.let { pronounce ->
+                            bind.imgSoundFirst.visibility = View.VISIBLE
+                            bind.mcvFirst.setOnClickListener {
+                                player.play(
+                                    itemView.context,
+                                    pronounce.audioUri.toUri(),
+                                    bind.imgSoundFirst.background.asAnimationDrawable()
+                                )
+                            }
+                        }.ifNull { bind.imgSoundFirst.visibility = View.GONE }
+                        bind.txtDefinitionFirst.text = phrase.definition.orEmpty()
+                    }
+                    cardView.card.translate.let { translate ->
+                        bind.txtLangSecond.text = Locale.forLanguageTag(translate.lang).displayLanguage
+                        bind.txtPhraseSecond.text = translate.phrase
+                        translate.image?.let { image ->
+                            bind.imgCardSecond.visibility = View.VISIBLE
+                            Picasso.get().load(image.imgUri.toUri()).placeholder(R.drawable.noise).into(bind.imgCardSecond)
+                        }.ifNull {
+                            bind.imgCardSecond.visibility = View.GONE
+                        }
+                        translate.pronounce?.let { pronounce ->
+                            bind.imgSoundSecond.visibility = View.VISIBLE
+                            bind.mcvSecond.setOnClickListener {
+                                player.play(
+                                    itemView.context,
+                                    pronounce.audioUri.toUri(),
+                                    bind.imgSoundSecond.background.asAnimationDrawable()
+                                )
+                            }
+                        }.ifNull { bind.imgSoundSecond.visibility = View.GONE }
+                        bind.txtDefinitionSecond.text = translate.definition.orEmpty()
+                    }
                 }
             }
             bind.btnCardAction.setOnClickListener {
@@ -76,7 +98,6 @@ class ChoiceCardAdapter(
                 bind.txtDefinitionSecond.visibility = if (full && bind.txtDefinitionSecond.text.isNotEmpty()) View.VISIBLE else View.GONE
                 val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
                 bind.imgBtnAction.setImageResource(img)
-                if (!full) notifyItemChanged(adapterPosition)
             }
         }
 
@@ -101,34 +122,7 @@ class ChoiceCardAdapter(
             bind.btnStop.visibility = View.GONE
             bind.imgBtnAction.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
             bind.imgBtnDownload.setImageResource(R.drawable.ic_baseline_add_24)
-        }
-
-        private fun setData(
-            phrase: LocalPhrase?,
-            pronunciation: LocalPronunciation?,
-            image: LocalImage?,
-            langView: TextView,
-            phraseView: TextView,
-            soundImg: ImageView,
-            button: MaterialCardView,
-            phraseImage: ImageView
-        ) {
-            phrase?.let {
-                langView.text = Locale.forLanguageTag(phrase.lang).displayLanguage
-                phraseView.text = phrase.phrase
-            }
-
-            image?.let {
-                Picasso.get().load(it.imgUri.toUri()).placeholder(R.drawable.noise).into(phraseImage)
-                phraseImage.visibility = View.VISIBLE
-            }.ifNull { phraseImage.visibility = View.GONE }
-
-            pronunciation?.let { pronounce ->
-                soundImg.visibility = View.VISIBLE
-                button.setOnClickListener {
-                    player.play(itemView.context, pronounce.audioUri.toUri(), soundImg.background.asAnimationDrawable())
-                }
-            }.ifNull { soundImg.visibility = View.GONE }
+            bind.btnReport.visibility = View.GONE
         }
 
         override fun onDestroy() {
@@ -146,28 +140,48 @@ class ChoiceCardAdapter(
             cardObserver = recyclerScope.launch {
                 val cardView = model.getByPosition(adapterPosition.toLong()).ifNull { return@launch }
                 bind.txtReason.text = cardView.card.reason
-                setData(
-                    cardView.phrase.await(),
-                    cardView.phrasePronounceData,
-                    cardView.phraseImage.await(),
-                    bind.txtLangFirst,
-                    bind.txtPhraseFirst,
-                    bind.imgSoundFirst,
-                    bind.mcvFirst,
-                    bind.imgCardFirst,
-                    bind.txtDefinitionFirst
-                )
-                setData(
-                    cardView.translate.await(),
-                    cardView.translatePronounceData,
-                    cardView.translateImage.await(),
-                    bind.txtLangSecond,
-                    bind.txtPhraseSecond,
-                    bind.imgSoundSecond,
-                    bind.mcvSecond,
-                    bind.imgCardSecond,
-                    bind.txtDefinitionSecond
-                )
+                cardView.card.phrase.let { phrase ->
+                    bind.txtLangFirst.text = Locale.forLanguageTag(phrase.lang).displayLanguage
+                    bind.txtPhraseFirst.text = phrase.phrase
+                    phrase.image?.let { image ->
+                        bind.imgCardFirst.visibility = View.VISIBLE
+                        model.getPicasso(itemView.context).load(image.imageUri.toUri()).placeholder(R.drawable.noise).into(bind.imgCardFirst)
+                    }.ifNull {
+                        bind.imgCardFirst.visibility = View.GONE
+                    }
+                    phrase.pronounce?.let { pronounce ->
+                        bind.imgSoundFirst.visibility = View.VISIBLE
+                        bind.mcvFirst.setOnClickListener {
+                            player.play(
+                                itemView.context,
+                                pronounce.audioUri.toUri(),
+                                bind.imgSoundFirst.background.asAnimationDrawable()
+                            )
+                        }
+                    }.ifNull { bind.imgSoundFirst.visibility = View.GONE }
+                    bind.txtDefinitionFirst.text = phrase.definition.orEmpty()
+                }
+                cardView.card.translate.let { translate ->
+                    bind.txtLangSecond.text = Locale.forLanguageTag(translate.lang).displayLanguage
+                    bind.txtPhraseSecond.text = translate.phrase
+                    translate.image?.let { image ->
+                        bind.imgCardSecond.visibility = View.VISIBLE
+                        model.getPicasso(itemView.context).load(image.imageUri.toUri()).placeholder(R.drawable.noise).into(bind.imgCardSecond)
+                    }.ifNull {
+                        bind.imgCardSecond.visibility = View.GONE
+                    }
+                    translate.pronounce?.let { pronounce ->
+                        bind.imgSoundSecond.visibility = View.VISIBLE
+                        bind.mcvSecond.setOnClickListener {
+                            player.play(
+                                itemView.context,
+                                pronounce.audioUri.toUri(),
+                                bind.imgSoundSecond.background.asAnimationDrawable()
+                            )
+                        }
+                    }.ifNull { bind.imgSoundSecond.visibility = View.GONE }
+                    bind.txtDefinitionSecond.text = translate.definition.orEmpty()
+                }
                 bind.root.visibility = View.VISIBLE
 
                 val startAction: () -> Unit = {
@@ -205,7 +219,6 @@ class ChoiceCardAdapter(
                 bind.txtDefinitionSecond.visibility = if (full && bind.txtDefinitionSecond.text.isNotEmpty()) View.VISIBLE else View.GONE
                 val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
                 bind.imgBtnAction.setImageResource(img)
-                if (adapterPosition == size - 1 && !full) notifyItemChanged(adapterPosition)
             }
         }
 
@@ -231,41 +244,6 @@ class ChoiceCardAdapter(
             bind.imgBtnAction.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
         }
 
-        private fun setData(
-            phrase: GlobalPhrase?,
-            pronunciationData: Deferred<ByteArray?>,
-            image: GlobalImage?,
-            langView: TextView,
-            phraseView: TextView,
-            soundImg: ImageView,
-            button: MaterialCardView,
-            phraseImage: ImageView,
-            definition: TextView
-        ) {
-            phrase?.let {
-                langView.text = Locale.forLanguageTag(phrase.lang).displayLanguage
-                phraseView.text = phrase.phrase
-                definition.text = phrase.definition.orEmpty()
-            }
-
-            image?.let {
-                model.getPicasso(itemView.context).load(it.imageUri.toUri()).placeholder(R.drawable.noise).into(phraseImage)
-                phraseImage.visibility = View.VISIBLE
-            }.ifNull { phraseImage.visibility = View.GONE }
-
-            phrase?.idPronounce?.let { _ ->
-                soundImg.visibility = View.VISIBLE
-                button.setOnClickListener {
-                    recyclerScope.launch {
-                        player.play(MediaBytesSource(pronunciationData.await()), soundImg.background.asAnimationDrawable())
-                    }
-                }
-            }.ifNull {
-                soundImg.visibility = View.GONE
-                button.setOnClickListener(null)
-            }
-        }
-
         override fun onDestroy() {
             cardObserver?.cancel()
         }
@@ -278,8 +256,9 @@ class ChoiceCardAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ClosableHolder {
         val bind = CardCardBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return when(viewType) {
+        return when (viewType) {
             0 -> LocalCardHolder(bind)
+            1 -> GlobalCardHolder(bind)
             else -> LocalCardHolder(bind)
         }
     }

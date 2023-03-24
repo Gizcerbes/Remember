@@ -1,5 +1,6 @@
 package com.uogames.remembercards.ui.cardFragment
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,11 +14,9 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.squareup.picasso.Picasso
 import com.uogames.dto.global.*
-import com.uogames.dto.local.LocalImage
 import com.uogames.dto.local.LocalCard
-import com.uogames.dto.local.LocalPhrase
-import com.uogames.dto.local.LocalPronunciation
 import com.uogames.map.CardMap.toGlobalCard
+import com.uogames.map.CardMap.toLocalCard
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardCardBinding
 import com.uogames.remembercards.databinding.DialogShareAttentionBinding
@@ -53,34 +52,54 @@ class CardAdapter(
             clear()
             cardObserver = recyclerScope.launch(Dispatchers.Main) {
                 val cardView = model.get(adapterPosition).ifNull { return@launch }
-
                 if (auth.currentUser == null || (cardView.card.globalOwner != null && cardView.card.globalOwner != auth.currentUser?.uid)) {
                     bind.btnShare.visibility = View.GONE
                 }
                 bind.txtReason.text = cardView.card.reason
-                bind.btnEdit.setOnClickListener { cardAction(cardView.card) }
-                setData(
-                    cardView.phrase.await(),
-                    cardView.phrasePronounce.await(),
-                    cardView.phraseImage.await(),
-                    bind.txtLangFirst,
-                    bind.txtPhraseFirst,
-                    bind.imgSoundFirst,
-                    bind.mcvFirst,
-                    bind.imgCardFirst,
-                    bind.txtDefinitionFirst
-                )
-                setData(
-                    cardView.translate.await(),
-                    cardView.translatePronounce.await(),
-                    cardView.translateImage.await(),
-                    bind.txtLangSecond,
-                    bind.txtPhraseSecond,
-                    bind.imgSoundSecond,
-                    bind.mcvSecond,
-                    bind.imgCardSecond,
-                    bind.txtDefinitionSecond
-                )
+                bind.btnEdit.setOnClickListener { cardAction(cardView.card.toLocalCard()) }
+                cardView.card.phrase.let { phrase ->
+                    bind.txtLangFirst.text = Locale.forLanguageTag(phrase.lang).displayLanguage
+                    bind.txtPhraseFirst.text = phrase.phrase
+                    phrase.image?.let { image ->
+                        bind.imgCardFirst.visibility = View.VISIBLE
+                        Picasso.get().load(image.imgUri.toUri()).placeholder(R.drawable.noise).into(bind.imgCardFirst)
+                    }.ifNull {
+                        bind.imgCardFirst.visibility = View.GONE
+                    }
+                    phrase.pronounce?.let { pronounce ->
+                        bind.imgSoundFirst.visibility = View.VISIBLE
+                        bind.mcvFirst.setOnClickListener {
+                            player.play(
+                                itemView.context,
+                                pronounce.audioUri.toUri(),
+                                bind.imgSoundFirst.background.asAnimationDrawable()
+                            )
+                        }
+                    }.ifNull { bind.imgSoundFirst.visibility = View.GONE }
+                    bind.txtDefinitionFirst.text = phrase.definition.orEmpty()
+                }
+                cardView.card.translate.let { translate ->
+                    bind.txtLangSecond.text = Locale.forLanguageTag(translate.lang).displayLanguage
+                    bind.txtPhraseSecond.text = translate.phrase
+                    translate.image?.let { image ->
+                        bind.imgCardSecond.visibility = View.VISIBLE
+                        Picasso.get().load(image.imgUri.toUri()).placeholder(R.drawable.noise).into(bind.imgCardSecond)
+                    }.ifNull {
+                        bind.imgCardSecond.visibility = View.GONE
+                    }
+                    translate.pronounce?.let { pronounce ->
+                        bind.imgSoundSecond.visibility = View.VISIBLE
+                        bind.mcvSecond.setOnClickListener {
+                            player.play(
+                                itemView.context,
+                                pronounce.audioUri.toUri(),
+                                bind.imgSoundSecond.background.asAnimationDrawable()
+                            )
+                        }
+                    }.ifNull { bind.imgSoundSecond.visibility = View.GONE }
+                    bind.txtDefinitionSecond.text = translate.definition.orEmpty()
+                }
+
                 bind.root.visibility = View.VISIBLE
 
                 val startAction: () -> Unit = {
@@ -160,39 +179,6 @@ class CardAdapter(
             bind.btnReport.visibility = View.GONE
         }
 
-        private fun setData(
-            phrase: LocalPhrase?,
-            pronunciation: LocalPronunciation?,
-            image: LocalImage?,
-            langView: TextView,
-            phraseView: TextView,
-            soundImg: ImageView,
-            button: MaterialCardView,
-            phraseImage: ImageView,
-            definition: TextView
-        ) {
-            phrase?.let {
-                langView.text = Locale.forLanguageTag(phrase.lang).displayLanguage
-                phraseView.text = phrase.phrase
-                definition.text = phrase.definition.orEmpty()
-            }
-
-            image?.let {
-                Picasso.get().load(it.imgUri.toUri()).placeholder(R.drawable.noise).into(phraseImage)
-                phraseImage.visibility = View.VISIBLE
-            }.ifNull { phraseImage.visibility = View.GONE }
-
-            pronunciation?.let { pronounce ->
-                soundImg.visibility = View.VISIBLE
-                button.setOnClickListener {
-                    player.play(itemView.context, pronounce.audioUri.toUri(), soundImg.background.asAnimationDrawable())
-                }
-            }.ifNull {
-                soundImg.visibility = View.GONE
-                button.setOnClickListener(null)
-            }
-        }
-
         override fun onDestroy() {
             cardObserver?.cancel()
         }
@@ -268,7 +254,7 @@ class CardAdapter(
                 bind.txtDefinitionSecond.visibility = if (full && bind.txtDefinitionSecond.text.isNotEmpty()) View.VISIBLE else View.GONE
                 val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
                 bind.imgBtnAction.setImageResource(img)
-                    //if (!full) notifyItemChanged(adapterPosition)
+                //if (!full) notifyItemChanged(adapterPosition)
             }
         }
 

@@ -6,7 +6,6 @@ import android.media.MediaRecorder
 import androidx.core.net.toFile
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.mlkit.nl.languageid.LanguageIdentification
 import com.google.mlkit.nl.languageid.LanguageIdentificationOptions
 import com.uogames.dto.local.LocalImage
@@ -71,7 +70,9 @@ class EditPhraseViewModel @Inject constructor(
     private val phraseObject = PhraseObject()
 
     val phrase = phraseObject.phrase.asStateFlow()
+    val phraseWatcher = ShortTextWatcher { phraseObject.phrase.value = it?.toString().orEmpty() }
     val definition = phraseObject.definition.asStateFlow()
+    val definitionWatcher = ShortTextWatcher { phraseObject.definition.value = it?.toString().orEmpty() }
 
     private val _imgPhrase: MutableStateFlow<LocalImage?> = MutableStateFlow(null)
     val imgPhrase = _imgPhrase.asStateFlow()
@@ -96,14 +97,31 @@ class EditPhraseViewModel @Inject constructor(
 
     private var _audioChanged = MutableStateFlow(false)
     private var _tempAudioFile = File.createTempFile("audio", ".mp4")
-    private var _tempAudioBytes: ByteArray? = null
-    val tempAudioSource get() = MediaBytesSource(_tempAudioBytes)
+    private var _tempAudioBytes = MutableStateFlow(ByteArray(0))
+    val dataSize = _tempAudioBytes.map { it.size }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
+    val tempAudioSource get() = MediaBytesSource(_tempAudioBytes.value)
+    private val _statusRecorder = MutableStateFlow(0)
+    val statusRecord = _statusRecorder.asStateFlow()
 
     val listImageFlow = provider.images.getListFlow()
 
     val adapter = ImageAdapter(this) { selectImage(it) }
 
+    val preview = MutableStateFlow(false)
+    val showRecord = MutableStateFlow(false)
+
+    private var recorder: MediaRecorder? = null
+
     init {
+        dataSize.observe(viewModelScope) {
+            _statusRecorder.value = statusRecord()
+        }
+        isFileWriting.observe(viewModelScope) {
+            _statusRecorder.value = statusRecord()
+        }
+        timeWriting.observe(viewModelScope) {
+            _statusRecorder.value = statusRecord()
+        }
         phraseObject.idImage.observe(viewModelScope) {
             _imgPhrase.value = it?.let { provider.images.getByIdFlow(it).first() }
         }
@@ -129,9 +147,29 @@ class EditPhraseViewModel @Inject constructor(
         _isFileWriting.value = false
         _timeWriting.value = -1
         _audioChanged.value = false
-        _tempAudioBytes = ByteArray(0)
+        _tempAudioBytes.value = ByteArray(0)
         _languages.value = listOf()
         _enableLanguageChoice.value = false
+    }
+
+    fun resetAudioData() {
+        _tempAudioBytes.value = ByteArray(0)
+    }
+
+    private fun initRecorder(recorder: MediaRecorder) {
+        this.recorder = recorder
+        stopRecordAudio()
+        recorder.setAudioSource(MediaRecorder.AudioSource.MIC)
+        recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+        recorder.setOutputFile(_tempAudioFile)
+        recorder.prepare()
+    }
+
+    fun statusRecord(): Int {
+        if (isFileWriting.value) return 1
+        return if (dataSize.value == 0) 0
+        else 2
     }
 
     fun loadByID(id: Int): Job {
@@ -143,8 +181,8 @@ class EditPhraseViewModel @Inject constructor(
             _country.value = Countries.valueOf(phrase.country)
             _imgPhrase.value = provider.images.getByPhrase(phrase).first()
             val audio = provider.pronounce.getByPhrase(phrase).first()
-            _tempAudioBytes = audio?.audioUri?.let { if (it.isNotEmpty()) it.toUri().toFile().readBytes() else null }
-            _tempAudioBytes?.let { _tempAudioFile.writeBytes(it) }
+            _tempAudioBytes.value = audio?.audioUri?.let { if (it.isNotEmpty()) it.toUri().toFile().readBytes() else null } ?: ByteArray(0)
+            _tempAudioBytes.value.let { _tempAudioFile.writeBytes(it) }
             _audioChanged.value = false
             _isFileWriting.value = false
             _timeWriting.value = -1
@@ -169,15 +207,23 @@ class EditPhraseViewModel @Inject constructor(
         phraseObject.idImage.value = null
     }
 
+    //fun startRecord() = recorder?.let { startRecordAudio(it) }
+
     fun startRecordAudio(recorder: MediaRecorder) {
-        stopRecordAudio(recorder)
-        _tempAudioFile = File.createTempFile("audio", ".mp4")
+//        stopRecordAudio(recorder)
+//        Log.e("TAG", "startRecordAudio: ")
+//        _tempAudioFile = File.createTempFile("audio", ".mp4")
+        resetAudioData()
         _timeWriting.value = 0
-        recorder.setAudioSource(MediaRecorder.AudioSource.MIC)
-        recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-        recorder.setOutputFile(_tempAudioFile)
-        recorder.prepare()
+        initRecorder(recorder)
+        player.stop()
+//        recorder.stop()
+//        recorder.reset()
+//        recorder.setAudioSource(MediaRecorder.AudioSource.MIC)
+//        recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+//        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+//        recorder.setOutputFile(_tempAudioFile)
+//        recorder.prepare()
         recorder.start()
         _isFileWriting.value = true
         jobWriting = viewModelScope.launch {
@@ -190,11 +236,14 @@ class EditPhraseViewModel @Inject constructor(
         _audioChanged.value = true
     }
 
-    fun stopRecordAudio(recorder: MediaRecorder): Boolean = _isFileWriting.value.ifTrue {
+    fun stopRecordAudio() = recorder?.let { stopRecordAudio(it) }
+
+    private fun stopRecordAudio(recorder: MediaRecorder): Boolean = _isFileWriting.value.ifTrue {
+        //      Log.e("TAG", "stopRecordAudio: ")
         recorder.stop()
         recorder.release()
         val bytes = _tempAudioFile.readBytes()
-        if (bytes.isNotEmpty()) _tempAudioBytes = bytes
+        if (bytes.isNotEmpty()) _tempAudioBytes.value = bytes
         _isFileWriting.value = false
         jobWriting?.cancel()
     }
@@ -255,7 +304,7 @@ class EditPhraseViewModel @Inject constructor(
     }
 
     private suspend fun savePronounceToId(): Int? {
-        val bytes = _tempAudioBytes.ifNull { ByteArray(0) }
+        val bytes = _tempAudioBytes.value.ifNull { ByteArray(0) }
         return if (_audioChanged.value && bytes.isNotEmpty()) {
             provider.pronounce.add(bytes)
         } else {

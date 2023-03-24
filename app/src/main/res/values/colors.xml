@@ -22,8 +22,7 @@
 
 	<color name="transparent">#00000000</color>
 	<color name="transparent_25">#40000000</color>
+    <color name="transparent_50">#80000000</color>
 	<color name="test">#000000</color>
-
-	<color name="ic_launcher_background">#8685C2</color>
 
 </resources>

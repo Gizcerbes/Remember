@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
@@ -48,7 +49,11 @@ class EditModuleAdapter(
                 launch(Dispatchers.Main) {
                     bind.txtReason.text = card.reason
                     bind.btnCardAction.setOnClickListener {
+                        Toast.makeText(itemView.context, itemView.context.getText(R.string.press_to_delete), Toast.LENGTH_SHORT).show()
+                    }
+                    bind.btnCardAction.setOnLongClickListener {
                         model.removeModuleCard(moduleCard) {}
+                        true
                     }
                     card.toPhrase()?.let { phrase ->
                         setData(phrase, bind.txtLangFirst, bind.txtPhraseFirst, bind.imgSoundFirst, bind.mcvFirst, bind.imgCardFirst)
@@ -78,12 +83,12 @@ class EditModuleAdapter(
         }
 
         private suspend fun setData(
-                phrase: LocalPhrase,
-                langView: TextView,
-                phraseView: TextView,
-                soundImg: ImageView,
-                button: MaterialCardView,
-                phraseImage: ImageView
+            phrase: LocalPhrase,
+            langView: TextView,
+            phraseView: TextView,
+            soundImg: ImageView,
+            button: MaterialCardView,
+            phraseImage: ImageView
         ) {
             langView.text = Locale.forLanguageTag(phrase.lang).displayLanguage
             phraseView.text = phrase.phrase

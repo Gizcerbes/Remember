@@ -33,6 +33,7 @@
 					android:layout_width="@dimen/card_button"
 					android:layout_height="@dimen/card_button"
 					android:background="@drawable/list_music_play" />
+
 			</com.google.android.material.card.MaterialCardView>
 
 			<TextView

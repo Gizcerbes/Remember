@@ -5,6 +5,7 @@ import android.os.Parcelable
 import android.util.Log
 import com.uogames.dto.global.*
 import com.uogames.dto.local.LocalCard
+import com.uogames.dto.local.LocalCardView
 import com.uogames.dto.local.LocalPhrase
 import com.uogames.flags.Countries
 import com.uogames.map.CardMap.update
@@ -34,28 +35,17 @@ class CardViewModel @Inject constructor(
     private val provider = globalViewModel.provider
     private val viewModelScope = CoroutineScope(Dispatchers.IO)
 
-    inner class LocalCardModel(val card: LocalCard) {
-        val phrase by lazy { viewModelScope.async { provider.phrase.getById(card.idPhrase) } }
-        val translate by lazy { viewModelScope.async { provider.phrase.getById(card.idTranslate) } }
-        val image by lazy { viewModelScope.async { card.toImage() } }
-        val phrasePronounce by lazy { viewModelScope.async { phrase.await()?.toPronounce() } }
-        val phraseImage by lazy { viewModelScope.async { phrase.await()?.toImage() } }
-        val translatePronounce by lazy { viewModelScope.async { translate.await()?.toPronounce() } }
-        val translateImage by lazy { viewModelScope.async { translate.await()?.toImage() } }
-    }
-
-//    inner class GlobalCardModel(val card: GlobalCard) {
-//        val phrase by lazy { viewModelScope.async { getPhraseById(card.idPhrase) } }
-//        val translate by lazy { viewModelScope.async { getPhraseById(card.idTranslate) } }
-//        val image by lazy { viewModelScope.async { card.idImage?.let { getImageById(it) } } }
-//        val phrasePronounce by lazy { viewModelScope.async { phrase.await()?.idPronounce?.let { getPronunciationById(it) } } }
-//        val phrasePronounceData by lazy { viewModelScope.async { phrase.await()?.idPronounce?.let { getPronounceData(it) } } }
-//        val phraseImage by lazy { viewModelScope.async { phrase.await()?.idImage?.let { getImageById(it) } } }
-//        val translatePronounce by lazy { viewModelScope.async { translate.await()?.idPronounce?.let { getPronunciationById(it) } } }
-//        val translatePronounceData by lazy { viewModelScope.async { translate.await()?.idPronounce?.let { getPronounceData(it) } } }
-//        val translateImage by lazy { viewModelScope.async { translate.await()?.idImage?.let { getImageById(it) } } }
+//    inner class LocalCardModel(val card: LocalCard) {
+//        val phrase by lazy { viewModelScope.async { provider.phrase.getById(card.idPhrase) } }
+//        val translate by lazy { viewModelScope.async { provider.phrase.getById(card.idTranslate) } }
+//        val image by lazy { viewModelScope.async { card.toImage() } }
+//        val phrasePronounce by lazy { viewModelScope.async { phrase.await()?.toPronounce() } }
+//        val phraseImage by lazy { viewModelScope.async { phrase.await()?.toImage() } }
+//        val translatePronounce by lazy { viewModelScope.async { translate.await()?.toPronounce() } }
+//        val translateImage by lazy { viewModelScope.async { translate.await()?.toImage() } }
 //    }
 
+    inner class LocalCardModel(val card: LocalCardView)
     inner class GlobalCardModel(val card: GlobalCardView) {
         val phrasePronounceData by lazy { viewModelScope.async { card.phrase.pronounce?.globalId?.let { getPronounceData(it) } } }
         val translatePronounceData by lazy { viewModelScope.async { card.translate.pronounce?.globalId?.let { getPronounceData(it) } } }
@@ -150,8 +140,7 @@ class CardViewModel @Inject constructor(
 
     fun removeEditCall(call: (LocalCard) -> Unit) = editCalList.remove(call)
 
-
-    suspend fun get(position: Int) = provider.cards.get(
+    suspend fun get(position: Int) = provider.cards.getView(
         like = like.value,
         langFirst = languageFirst.value?.isO3Language,
         langSecond = languageSecond.value?.isO3Language,
@@ -160,7 +149,7 @@ class CardViewModel @Inject constructor(
         position = position
     )?.let { LocalCardModel(it) }
 
-    fun share(card: LocalCard, result: (String) -> Unit) {
+    fun share(card: LocalCardView, result: (String) -> Unit) {
         val job = viewModelScope.launch {
             runCatching {
                 provider.cards.share(card.id)
@@ -179,12 +168,12 @@ class CardViewModel @Inject constructor(
         shareActions[card.id] = ShareAction(job, result)
     }
 
-    fun setShareAction(card: LocalCard, loading: (String) -> Unit): Boolean {
+    fun setShareAction(card: LocalCardView, loading: (String) -> Unit): Boolean {
         shareActions[card.id]?.callback = loading
         return shareActions[card.id]?.job?.isActive.ifNull { false }
     }
 
-    fun stopSharing(card: LocalCard) {
+    fun stopSharing(card: LocalCardView) {
         val action = shareActions[card.id].ifNull { return }
         action.job.cancel()
         action.callback("Cancel")
@@ -206,22 +195,6 @@ class CardViewModel @Inject constructor(
         }
         return null
     }
-
-    private suspend fun getPhraseById(id: UUID): GlobalPhrase? {
-        runCatching { return provider.phrase.getGlobalById(id) }
-        return null
-    }
-
-    private suspend fun getImageById(id: UUID): GlobalImage? {
-        runCatching { return provider.images.getGlobalById(id) }
-        return null
-    }
-
-    private suspend fun getPronunciationById(id: UUID): GlobalPronunciation? {
-        runCatching { return provider.pronounce.getGlobalById(id) }
-        return null
-    }
-
     private suspend fun getPronounceData(id: UUID): ByteArray? {
         runCatching { return provider.pronounce.downloadData(id) }
         return null
