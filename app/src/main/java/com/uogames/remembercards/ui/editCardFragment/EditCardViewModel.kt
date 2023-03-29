@@ -6,10 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.uogames.dto.local.LocalCard
 import com.uogames.dto.local.LocalPhrase
 import com.uogames.dto.local.LocalPronunciation
-import com.uogames.remembercards.utils.MediaBytesSource
-import com.uogames.remembercards.utils.ObservableMediaPlayer
-import com.uogames.remembercards.utils.ifNull
-import com.uogames.remembercards.utils.ifNullOrEmpty
+import com.uogames.remembercards.utils.*
 import com.uogames.repository.DataProvider
 import com.uogames.repository.DataProvider.Companion.toPronounce
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,10 +31,20 @@ class EditCardViewModel @Inject constructor(
     private val _reason = MutableStateFlow("")
     val reason = _reason.asStateFlow()
 
+    private val _clues = MutableStateFlow<List<String>>(listOf())
+    val clues = _clues.asStateFlow()
+
     private var loadedCard: LocalCard? = null
 
     val preview = MutableStateFlow(false)
     val singleCard = MutableStateFlow(false)
+
+
+    init {
+        _reason.observe(viewModelScope) {
+            if (it.length > 1) _clues.value = provider.cards.getClues(it)
+        }
+    }
 
     fun reset() {
         _firstPhrase.value = null

@@ -78,7 +78,7 @@ class EditModuleAdapter(
             bind.txtDefinitionSecond.text = ""
             bind.txtLangSecond.text = ""
             bind.txtPhraseSecond.text = ""
-            bind.btns.visibility = View.GONE
+            bind.llBtns.visibility = View.GONE
             bind.imgBtnAction.setImageResource(R.drawable.ic_baseline_remove_24)
         }
 

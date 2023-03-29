@@ -451,7 +451,9 @@
 
                             <com.google.android.material.textfield.TextInputLayout
                                 android:id="@+id/txt_reason_prev"
-                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                                app:boxBackgroundMode="outline"
+                                style="@style/MyDenseOutlined"
+                                app:boxCollapsedPaddingTop="0dp"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="3dp"
@@ -466,10 +468,12 @@
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="parent">
 
-                                <com.google.android.material.textfield.TextInputEditText
+                                <AutoCompleteTextView
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:textAppearance="?attr/textAppearanceBody1" />
+                                    android:inputType="text"
+                                    tools:text="fdgdg"
+                                    />
 
                             </com.google.android.material.textfield.TextInputLayout>
 

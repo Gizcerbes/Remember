@@ -49,6 +49,8 @@ class CardsProvider(
     ) = repository.getView(like, langFirst, langSecond, countryFirst, countrySecond, position)
     fun getCountFlow() = repository.getCountFlow()
 
+    suspend fun getClues(text: String) = repository.getClues(text)
+
     fun getByIdFlow(id: Int) = repository.getByIdFlow(id)
 
     suspend fun getById(id: Int) = repository.getById(id)

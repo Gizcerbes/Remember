@@ -90,4 +90,11 @@
     <style name="Theme.RememberCards.Headline6" parent="TextAppearance.MaterialComponents.Headline6">
         <item name="android:textSize">15sp</item>
     </style>
+
+    <style name="MyDenseOutlined" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+        <item name="materialThemeOverlay">@null</item>
+
+    </style>
+
+    
 </resources>

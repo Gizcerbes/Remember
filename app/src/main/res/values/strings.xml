@@ -123,4 +123,6 @@
 	<string name="themes">Themes</string>
 	<string name="clue">Clue</string>
     <string name="single_card">Single Card</string>
+	<string name="apply">Apply</string>
+	<string name="cancel">Cancel</string>
 </resources>

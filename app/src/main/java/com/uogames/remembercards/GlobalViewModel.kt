@@ -2,6 +2,7 @@ package com.uogames.remembercards
 
 import android.content.Context
 import android.graphics.Rect
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.ViewModel
@@ -67,9 +68,9 @@ class GlobalViewModel @Inject constructor(
     private var _shouldReset: Boolean = false
     val shouldReset get() = _shouldReset
 
-    val nativeCountry = provider.setting.getFlow(USER_NATIVE_COUNTRY).stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
-    val privacyAndPolicy = provider.setting.getFlow(PRIVACY_AND_POLICY).stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
-    val shareNotice = provider.setting.getFlow(SHARE_NOTICE).stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
+    val nativeCountry = provider.setting.getFlow(USER_NATIVE_COUNTRY).stateIn(viewModelScope, SharingStarted.Eagerly, null)
+    val privacyAndPolicy = provider.setting.getFlow(PRIVACY_AND_POLICY).stateIn(viewModelScope, SharingStarted.Eagerly, null)
+    val shareNotice = provider.setting.getFlow(SHARE_NOTICE).stateIn(viewModelScope, SharingStarted.Eagerly, null)
     val screenMode = provider.setting.getFlow(SCREEN_MODE).map {
         when (it) {
             "0" -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
@@ -77,11 +78,11 @@ class GlobalViewModel @Inject constructor(
             "2" -> AppCompatDelegate.MODE_NIGHT_YES
             else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
         }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
 
-    val countPhrases = provider.phrase.countFlow().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
+    val countPhrases = provider.phrase.countFlow().stateIn(viewModelScope, SharingStarted.Eagerly, 0)
 
-    val gameYesOrNotCount = provider.setting.getFlow(GAME_YES_OR_NO_COUNT).stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
+    val gameYesOrNotCount = provider.setting.getFlow(GAME_YES_OR_NO_COUNT).stateIn(viewModelScope, SharingStarted.Eagerly, 0)
 
 
     private var job: Job? = null

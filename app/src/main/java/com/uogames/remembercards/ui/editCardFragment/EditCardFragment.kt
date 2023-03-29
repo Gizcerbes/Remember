@@ -6,7 +6,10 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.autofill.AutofillValue
 import android.view.inputmethod.InputMethodManager
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -17,6 +20,8 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.squareup.picasso.Picasso
 import com.uogames.dto.local.LocalPhrase
 import com.uogames.remembercards.GlobalViewModel
@@ -90,7 +95,9 @@ class EditCardFragment : DaggerFragment() {
             model.selectSecondPhrase(b.getInt("ID"))
         }
 
-        if (id > 0) loadDataWithID(id)
+        if (id > 0) {
+            loadDataWithID(id)
+        }
         else loadData(createFor, popBackTo)
 
         bind.btnBack.setOnClickListener {
@@ -190,7 +197,7 @@ class EditCardFragment : DaggerFragment() {
                         bind.imgSoundSecondPrev,
                         bind.txtLangSecondPrev,
                         bind.imgCardSecondPrev,
-                        bind.txtDefinitionFirstPrev
+                        bind.txtDefinitionSecondPrev
                     )
                 }.ifNull {
                     setDefaultButtonData(bind.imgSoundSecond, bind.txtPhraseSecond, bind.txtLangSecond, bind.imgCardSecond, bind.txtDefinitionSecond)
@@ -209,6 +216,9 @@ class EditCardFragment : DaggerFragment() {
                 bind.imgPreview.setImageResource(previewIcons[if (it) 1 else 0])
             }
             model.singleCard.observe(this) { bind.cbSingleCard.isChecked = it }
+            model.clues.observe(this) {
+                (bind.txtReasonPrev.editText as AutoCompleteTextView).setAdapter(ArrayAdapter(requireContext(), R.layout.list_item, it))
+            }
         }
 
     }
@@ -231,7 +241,15 @@ class EditCardFragment : DaggerFragment() {
     }
 
     private fun loadDataWithID(id: Int) {
-        globalViewModel.shouldReset.ifTrue { model.load(id) }
+        globalViewModel.shouldReset.ifTrue {
+            lifecycleScope.launch {
+                model.load(id).join()
+                bind.txtReasonPrev.editText?.setText(model.reason.value)
+                bind.txtReasonPrev.editText?.setSelection(model.reason.value.length)
+                bind.txtReasonPrev.editText?.addTextChangedListener(reasonTextWatcher)
+                bind.btnCardActionPrev.isEnabled = false
+            }
+        }
         bind.btnDelete.visibility = View.VISIBLE
         bind.btnDelete.setOnLongClickListener {
             model.delete {
@@ -289,13 +307,6 @@ class EditCardFragment : DaggerFragment() {
             Picasso.get().load(it.imgUri.toUri()).placeholder(R.drawable.noise).into(imageCard)
             imageCard.visibility = View.VISIBLE
         }.ifNull { imageCard.visibility = View.GONE }
-    }
-
-    private suspend fun setPronounceData(
-        container: MaterialCardView,
-        imageSound: ImageView
-    ){
-
     }
 
     private suspend fun setPreviewData(

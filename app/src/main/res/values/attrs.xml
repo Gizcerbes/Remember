@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <attr name="opened" format="boolean" />
+    <attr name="show_button_report" format="boolean" />
+    <attr name="show_progress_loading" format="boolean" />
+    <attr name="show_button_stop" format="boolean" />
+    <attr name="show_button_download" format="boolean" />
+    <attr name="show_button_share" format="boolean" />
+    <attr name="show_button_edit" format="boolean" />
+    <attr name="show_button_add" format="boolean" />
+    <attr name="show_buttons" format="boolean" />
+
+    <declare-styleable name="PhraseView">
+        <attr name="opened" />
+        <attr name="language_tag" format="string" />
+        <attr name="phrase" format="string" />
+        <attr name="definition" format="string" />
+        <attr name="show_image" format="boolean" />
+        <attr name="show_button_sound" format="boolean" />
+        <attr name="show_button_report" />
+        <attr name="show_progress_loading" />
+        <attr name="show_button_stop" />
+        <attr name="show_button_download" />
+        <attr name="show_button_share" />
+        <attr name="show_button_edit" />
+        <attr name="show_button_add" />
+        <attr name="show_buttons" />
+    </declare-styleable>
+
+    <declare-styleable name="CardView">
+        <attr name="opened" />
+        <attr name="clue" format="string" />
+        <attr name="language_tag_first" format="string" />
+        <attr name="show_audio_first" format="boolean" />
+        <attr name="phrase_first" format="string" />
+        <attr name="definition_first" format="string" />
+        <attr name="show_definition_first" format="boolean" />
+        <attr name="show_image_first" format="boolean" />
+        <attr name="language_tag_second" format="string" />
+        <attr name="show_audio_second" format="boolean" />
+        <attr name="phrase_second" format="string" />
+        <attr name="definition_second" format="string" />
+        <attr name="show_definition_second" format="boolean" />
+        <attr name="show_image_second" format="boolean" />
+        <attr name="show_button_report" />
+        <attr name="show_progress_loading" />
+        <attr name="show_button_stop" />
+        <attr name="show_button_download" />
+        <attr name="show_button_share" />
+        <attr name="show_button_edit" />
+        <attr name="show_button_add" />
+        <attr name="show_buttons" />
+    </declare-styleable>
+
+</resources>

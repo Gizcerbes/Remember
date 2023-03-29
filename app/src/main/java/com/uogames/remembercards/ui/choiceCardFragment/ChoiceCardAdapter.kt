@@ -93,7 +93,7 @@ class ChoiceCardAdapter(
             }
             bind.btnCardAction.setOnClickListener {
                 full = !full
-                bind.btns.visibility = if (full) View.VISIBLE else View.GONE
+                bind.llBtns.visibility = if (full) View.VISIBLE else View.GONE
                 bind.txtDefinitionFirst.visibility = if (full && bind.txtDefinitionFirst.text.isNotEmpty()) View.VISIBLE else View.GONE
                 bind.txtDefinitionSecond.visibility = if (full && bind.txtDefinitionSecond.text.isNotEmpty()) View.VISIBLE else View.GONE
                 val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
@@ -115,13 +115,13 @@ class ChoiceCardAdapter(
             bind.txtDefinitionSecond.text = ""
             bind.txtLangSecond.text = ""
             bind.txtPhraseSecond.text = ""
-            bind.btns.visibility = View.GONE
+            bind.llBtns.visibility = View.GONE
             bind.progressLoading.visibility = View.GONE
             bind.btnEdit.visibility = View.GONE
             bind.btnShare.visibility = View.GONE
             bind.btnStop.visibility = View.GONE
             bind.imgBtnAction.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
-            bind.imgBtnDownload.setImageResource(R.drawable.ic_baseline_add_24)
+            //bind.imgBtnDownload.setImageResource(R.drawable.ic_baseline_add_24)
             bind.btnReport.visibility = View.GONE
         }
 
@@ -214,7 +214,7 @@ class ChoiceCardAdapter(
 
             bind.btnCardAction.setOnClickListener {
                 full = !full
-                bind.btns.visibility = if (full) View.VISIBLE else View.GONE
+                bind.llBtns.visibility = if (full) View.VISIBLE else View.GONE
                 bind.txtDefinitionFirst.visibility = if (full && bind.txtDefinitionFirst.text.isNotEmpty()) View.VISIBLE else View.GONE
                 bind.txtDefinitionSecond.visibility = if (full && bind.txtDefinitionSecond.text.isNotEmpty()) View.VISIBLE else View.GONE
                 val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
@@ -236,7 +236,7 @@ class ChoiceCardAdapter(
             bind.txtDefinitionSecond.text = ""
             bind.txtLangSecond.text = ""
             bind.txtPhraseSecond.text = ""
-            bind.btns.visibility = View.GONE
+            bind.llBtns.visibility = View.GONE
             bind.progressLoading.visibility = View.GONE
             bind.btnEdit.visibility = View.GONE
             bind.btnShare.visibility = View.GONE

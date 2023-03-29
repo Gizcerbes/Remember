@@ -2,22 +2,15 @@ package com.uogames.remembercards.ui.cardFragment
 
 import android.content.Context
 import android.os.Parcelable
-import android.util.Log
 import com.uogames.dto.global.*
 import com.uogames.dto.local.LocalCard
 import com.uogames.dto.local.LocalCardView
-import com.uogames.dto.local.LocalPhrase
 import com.uogames.flags.Countries
-import com.uogames.map.CardMap.update
-import com.uogames.map.PhraseMap.update
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observe
 import com.uogames.remembercards.utils.toNull
-import com.uogames.repository.DataProvider
-import com.uogames.repository.DataProvider.Companion.toImage
-import com.uogames.repository.DataProvider.Companion.toPronounce
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -140,7 +133,18 @@ class CardViewModel @Inject constructor(
 
     fun removeEditCall(call: (LocalCard) -> Unit) = editCalList.remove(call)
 
-    suspend fun get(position: Int) = provider.cards.getView(
+    suspend fun getViewAsync(position: Int) = viewModelScope.async {
+        provider.cards.getView(
+            like = like.value,
+            langFirst = languageFirst.value?.isO3Language,
+            langSecond = languageSecond.value?.isO3Language,
+            countryFirst = countryFirst.value?.toString(),
+            countrySecond = countrySecond.value?.toString(),
+            position = position
+        )?.let { LocalCardModel(it) }
+    }
+
+    suspend fun getView(position: Int) = provider.cards.getView(
         like = like.value,
         langFirst = languageFirst.value?.isO3Language,
         langSecond = languageSecond.value?.isO3Language,
@@ -195,6 +199,7 @@ class CardViewModel @Inject constructor(
         }
         return null
     }
+
     private suspend fun getPronounceData(id: UUID): ByteArray? {
         runCatching { return provider.pronounce.downloadData(id) }
         return null

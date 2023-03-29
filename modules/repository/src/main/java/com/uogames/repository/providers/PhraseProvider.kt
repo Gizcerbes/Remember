@@ -23,6 +23,9 @@ class PhraseProvider(
     suspend fun get(like: String?, lang: String?, country: String?, position: Int?) =
         pr.get(like, lang, country, position)
 
+    suspend fun getView(like: String?, lang: String?, country: String?, position: Int?) =
+        pr.getView(like, lang, country, position)
+
     fun countFlow() = pr.countFlow()
 
     suspend fun count(like: String?, lang: String?, country: String?) =

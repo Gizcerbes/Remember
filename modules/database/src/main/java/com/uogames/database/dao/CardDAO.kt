@@ -104,4 +104,7 @@ interface CardDAO {
 	@Query("SELECT * FROM cards_table WHERE id <> :id ORDER BY RANDOM() LIMIT 1")
 	suspend fun getRandomWithOut(id: Int): CardEntity?
 
+	@Query("SELECT DISTINCT(reason) FROM cards_table WHERE reason LIKE '%' || :text || '%' ORDER BY LENGTH(reason), reason LIMIT 5")
+	suspend fun getClues(text:String): List<String>
+
 }
