@@ -5,6 +5,7 @@ import com.uogames.dto.global.GlobalPhrase
 import com.uogames.dto.global.GlobalPhraseView
 import com.uogames.dto.local.LocalImage
 import com.uogames.dto.local.LocalPhrase
+import com.uogames.dto.local.LocalPhraseView
 import com.uogames.dto.local.LocalPronunciation
 
 object PhraseMap {
@@ -77,6 +78,21 @@ object PhraseMap {
         timeChange = timeChange,
         like = like,
         dislike = dislike
+    )
+
+    fun LocalPhraseView.toLocalPhrase() = LocalPhrase(
+        id = id,
+        phrase = phrase,
+        definition = definition,
+        lang = lang,
+        country = country,
+        idPronounce = pronounce?.id,
+        idImage = image?.id,
+        timeChange = timeChange,
+        like = like,
+        dislike = dislike,
+        globalId = globalId,
+        globalOwner = globalOwner
     )
 
 }

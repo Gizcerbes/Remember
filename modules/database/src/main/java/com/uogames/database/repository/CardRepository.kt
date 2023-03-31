@@ -152,5 +152,7 @@ class CardRepository(
 
     suspend fun getRandomWithOut(id: Int) = cardDAO.getRandomWithOut(id)?.toDTO()
 
+    suspend fun getClues(text: String) = cardDAO.getClues(text)
+
 
 }

@@ -19,12 +19,12 @@
 
 	<fragment
 		android:id="@+id/gameYesOrNotFragment"
-		android:name="com.uogames.remembercards.ui.gameYesOrNo.GameYesOrNotFragment"
+		android:name="com.uogames.remembercards.ui.games.gameYesOrNo.GameYesOrNotFragment"
 		android:label="GameYesOrNotFragment"
 		tools:layout="@layout/fragment_yes_or_not_game" />
 	<fragment
 		android:id="@+id/resultYesOrNotFragment"
-		android:name="com.uogames.remembercards.ui.gameYesOrNo.ResultYesOrNotFragment"
+		android:name="com.uogames.remembercards.ui.games.gameYesOrNo.ResultYesOrNotFragment"
 		android:label="ResultYesOrNotFragment"
 		tools:layout="@layout/fragment_result_mistakes" />
 	<fragment
@@ -77,6 +77,13 @@
 		tools:layout="@layout/fragment_privacy_policy"
 		android:name="com.uogames.remembercards.ui.privacy.PrivacyPolicy"
 		android:label="PrivacyPolicy" />
+	<fragment
+		android:id="@+id/watchCardFragment"
+		android:name="com.uogames.remembercards.ui.games.watchCard.WatchCardFragment"
+		android:label="WatchCardFragment"
+		tools:layout="@layout/fragment_game_warch_card"
+		/>
+
 
 
 </navigation>

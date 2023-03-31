@@ -1,4 +1,4 @@
-package com.uogames.remembercards.ui.gameYesOrNo
+package com.uogames.remembercards.ui.games.gameYesOrNo
 
 import androidx.lifecycle.ViewModel
 import com.uogames.dto.local.LocalCard

@@ -139,8 +139,12 @@ class EditPhraseFragment : DaggerFragment() {
             }
         }
 
-        bind.btnSave.setOnClickListener { Toast.makeText(requireContext(), requireContext().getText(R.string.press_to_save), Toast.LENGTH_SHORT).show() }
-        bind.btnDelete.setOnClickListener { Toast.makeText(requireContext(), requireContext().getText(R.string.press_to_delete), Toast.LENGTH_SHORT).show() }
+        bind.btnSave.setOnClickListener {
+            Toast.makeText(requireContext(), requireContext().getText(R.string.press_to_save), Toast.LENGTH_SHORT).show()
+        }
+        bind.btnDelete.setOnClickListener {
+            Toast.makeText(requireContext(), requireContext().getText(R.string.press_to_delete), Toast.LENGTH_SHORT).show()
+        }
 
         bind.tilEditPhrase.editText?.setText(model.phrase.value)
         bind.tilEditPhrase.editText?.setSelection(model.phrase.value.length)
@@ -180,12 +184,7 @@ class EditPhraseFragment : DaggerFragment() {
 
         bind.btnRecord.setOnClickListener {
             Permission.RECORD_AUDIO.requestPermission(requireActivity()) {
-                if (it && model.dataSize.value == 0) {
-                    model.showRecord.value = true
-                } else {
-                    model.stopRecordAudio()
-                    model.resetAudioData()
-                }
+                model.showRecord.value = true
             }
         }
 
@@ -202,9 +201,20 @@ class EditPhraseFragment : DaggerFragment() {
             }
         }
 
-        bind.btnDeleteRecord.setOnClickListener { model.resetAudioData() }
+        bind.btnDeleteRecord.setOnClickListener {
+            Toast.makeText(
+                requireContext(),
+                requireContext().getText(R.string.press_to_delete),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
 
-        bind.btnSound.setOnClickListener { model.play(bind.imgBtnSound.background.asAnimationDrawable()) }
+        bind.btnDeleteRecord.setOnLongClickListener {
+            model.resetAudioData()
+            true
+        }
+
+        bind.pvPhraseView.setOnClickButtonSound { model.play(it.background.asAnimationDrawable()) }
 
         bind.btnBack.setOnClickListener { findNavHostFragment().popBackStack() }
 
@@ -234,30 +244,35 @@ class EditPhraseFragment : DaggerFragment() {
         observers = lifecycleScope.launchWhenStarted {
 
             model.phrase.observe(this) {
-                bind.txtPhrase.text = it
+                // bind.txtPhrase.text = it
+                bind.pvPhraseView.phrase = it
             }
             model.definition.observe(this) {
-                bind.txtDefinition.text = it.orEmpty()
+                //bind.txtDefinition.text = it.orEmpty()
+                bind.pvPhraseView.definition = it.orEmpty()
             }
             model.lang.observe(this) {
-                bind.txtLang.text = it.displayLanguage
+                // bind.txtLang.text = it.displayLanguage
                 bind.txtEditLanguage.text = it.displayLanguage
+                bind.pvPhraseView.language = it
             }
             model.isFileWriting.observe(this) {
                 val size = model.tempAudioSource.size.ifNull { 0L }
-                bind.btnSound.visibility = if (it || size <= 0L) View.GONE else View.VISIBLE
+                //bind.btnSound.visibility = if (it || size <= 0L) View.GONE else View.VISIBLE
                 bind.ivRecordBtn.setImageResource(micIcons[if (it) 1 else 0])
                 bind.tvPressToRecord.text = requireContext().getText(if (it) R.string.click_to_stop else R.string.press_to_record)
             }
             model.timeWriting.observe(this) {
-                bind.txtStatusRecording.text = requireContext().getText(R.string.status_record_sp).toString().replace("||TIME||", model.timeWriting.value.toString())
+                bind.txtStatusRecording.text =
+                    requireContext().getText(R.string.status_record_sp).toString().replace("||TIME||", model.timeWriting.value.toString())
             }
             model.imgPhrase.observe(this) {
-                setImagePhrase(it)
+                //setImagePhrase(it)
                 Picasso.get().load(it?.imgUri?.toUri()).placeholder(R.drawable.noise).into(bind.ivEditImagePhrase)
                 if (it != null) bottomSheet?.state = BottomSheetBehavior.STATE_HIDDEN
                 bind.ivIconEditImage.setImageResource(addIcons[if (it == null) 0 else 1])
-
+                Picasso.get().load(it?.imgUri?.toUri()).placeholder(R.drawable.noise).into(bind.pvPhraseView.getImageView())
+                bind.pvPhraseView.showImage = it != null
             }
             model.dataSize.observe(this) {
                 bind.imgBtnRecord.setImageResource(audioIcons[if (it == 0) 0 else 1])
@@ -265,10 +280,11 @@ class EditPhraseFragment : DaggerFragment() {
                 bind.ivBtnPlay.isEnabled = it != 0
                 bind.ivBtnDeleteRecord.isEnabled = it != 0
                 bind.btnDeleteRecord.isEnabled = it != 0
+                bind.pvPhraseView.showButtonSound = it != 0
             }
             model.preview.observe(this) {
                 bind.imgPreview.setImageResource(previewIcons[if (it) 1 else 0])
-                bind.mcvCard.visibility = if (it) View.VISIBLE else View.GONE
+                bind.pvPhraseView.visibility = if (it) View.VISIBLE else View.GONE
                 bind.mcEditor.visibility = if (it) View.GONE else View.VISIBLE
             }
             model.showRecord.observe(this) {
@@ -277,7 +293,8 @@ class EditPhraseFragment : DaggerFragment() {
             model.statusRecord.observe(this) {
                 when (it) {
                     0 -> bind.txtStatusRecording.text = requireContext().getText(R.string.status_ready)
-                    1 -> bind.txtStatusRecording.text = requireContext().getText(R.string.status_record_sp).toString().replace("||TIME||", model.timeWriting.value.toString())
+                    1 -> bind.txtStatusRecording.text =
+                        requireContext().getText(R.string.status_record_sp).toString().replace("||TIME||", model.timeWriting.value.toString())
                     2 -> bind.txtStatusRecording.text = requireContext().getText(R.string.status_recorded)
                 }
             }
@@ -303,12 +320,12 @@ class EditPhraseFragment : DaggerFragment() {
         model.setDefinition(text?.toString().orEmpty())
     }
 
-    private fun setImagePhrase(image: LocalImage?) = image?.let {
-        Picasso.get().load(image.imgUri.toUri()).placeholder(R.drawable.noise).into(bind.imgPhrase)
-        bind.imgPhrase.visibility = View.VISIBLE
-    }.ifNull {
-        bind.imgPhrase.visibility = View.GONE
-    }
+//    private fun setImagePhrase(image: LocalImage?) = image?.let {
+//        Picasso.get().load(image.imgUri.toUri()).placeholder(R.drawable.noise).into(bind.imgPhrase)
+//        bind.imgPhrase.visibility = View.VISIBLE
+//    }.ifNull {
+//        bind.imgPhrase.visibility = View.GONE
+//    }
 
     override fun onStop() {
         super.onStop()

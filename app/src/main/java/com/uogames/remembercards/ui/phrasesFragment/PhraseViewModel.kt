@@ -8,6 +8,7 @@ import com.uogames.dto.global.GlobalPhrase
 import com.uogames.dto.global.GlobalImage
 import com.uogames.dto.global.GlobalPhraseView
 import com.uogames.dto.local.LocalPhrase
+import com.uogames.dto.local.LocalPhraseView
 import com.uogames.flags.Countries
 import com.uogames.map.PhraseMap.update
 import com.uogames.remembercards.GlobalViewModel
@@ -34,11 +35,7 @@ class PhraseViewModel @Inject constructor(
     private val provider = globalViewModel.provider
     private val viewModelScope = CoroutineScope(Dispatchers.IO)
 
-    inner class LocalBookModel(val phrase: LocalPhrase) {
-        val pronounce by lazy { viewModelScope.async { phrase.idPronounce?.let { provider.pronounce.getById(it) } } }
-        val image by lazy { viewModelScope.async { phrase.idImage?.let { provider.images.getById(it) } } }
-        val lang: String by lazy { Locale.forLanguageTag(phrase.lang).displayLanguage }
-    }
+    inner class LocalBookModel(val phrase: LocalPhraseView)
 
     inner class GlobalPhraseModel(val phraseView: GlobalPhraseView) {
         val image = phraseView.image
@@ -127,10 +124,10 @@ class PhraseViewModel @Inject constructor(
         val text = like.value
         val language = language.value?.isO3Language
         val country = country.value?.toString()
-        return provider.phrase.get(text, language, country, position)?.let { LocalBookModel(it) }
+        return provider.phrase.getView(text, language, country, position)?.let { LocalBookModel(it) }
     }
 
-    fun share(phrase: LocalPhrase, loading: (String) -> Unit) {
+    fun share(phrase: LocalPhraseView, loading: (String) -> Unit) {
         val job = viewModelScope.launch {
             runCatching {
                 provider.phrase.share(phrase.id)
@@ -149,12 +146,12 @@ class PhraseViewModel @Inject constructor(
         shareActions[phrase.id] = ShareAction(job, loading)
     }
 
-    fun setShareAction(phrase: LocalPhrase, loading: (String) -> Unit): Boolean {
+    fun setShareAction(phrase: LocalPhraseView, loading: (String) -> Unit): Boolean {
         shareActions[phrase.id]?.callback = loading
         return shareActions[phrase.id]?.job?.isActive.ifNull { false }
     }
 
-    fun stopSharing(phrase: LocalPhrase) {
+    fun stopSharing(phrase: LocalPhraseView) {
         val action = shareActions[phrase.id].ifNull { return }
         action.job.cancel()
         action.callback("Cancel")

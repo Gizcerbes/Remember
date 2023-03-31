@@ -5,20 +5,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.net.toUri
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.squareup.picasso.Picasso
 import com.uogames.dto.global.GlobalImageView
 import com.uogames.dto.global.GlobalPhrase
-import com.uogames.dto.local.LocalImage
-import com.uogames.dto.local.LocalPronunciation
 import com.uogames.map.PhraseMap.toGlobalPhrase
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardPhraseBinding
-import com.uogames.remembercards.databinding.DialogShareAttentionBinding
+import com.uogames.remembercards.ui.dialogs.ShareAttentionDialog
+import com.uogames.remembercards.ui.views.PhraseView
 import com.uogames.remembercards.utils.*
 import kotlinx.coroutines.*
+import java.util.*
 
 class PhraseAdapter(
     private val vm: PhraseViewModel,
@@ -38,203 +36,120 @@ class PhraseAdapter(
         }
     }
 
-    inner class LocalPhraseHolder(val bind: CardPhraseBinding) : ClosableHolder(bind.root) {
-
-        private var full = false
+    inner class LocalPhraseHolder(val view: PhraseView) : ClosableHolder(view) {
 
         private val startAction: () -> Unit = {
-            bind.progressLoading.visibility = View.VISIBLE
-            bind.btnStop.visibility = View.VISIBLE
-            bind.btnShare.visibility = View.GONE
-            bind.btnEdit.visibility = View.GONE
+            view.showProgressLoading = true
+            view.showButtonStop = true
+            view.showButtonShare = false
+            view.showButtonEdit = false
         }
 
         private val endAction: (String) -> Unit = {
-            bind.progressLoading.visibility = View.GONE
-            bind.btnStop.visibility = View.GONE
-            bind.btnShare.visibility = View.VISIBLE
-            bind.btnEdit.visibility = View.VISIBLE
+            view.showProgressLoading = false
+            view.showButtonStop = false
+            view.showButtonShare = true
+            view.showButtonEdit = true
             Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
         }
 
         override fun show() {
-            clear()
+            view.reset()
             observer = recyclerScope.safeLaunch {
-                val bookView = vm.getLocalBookModel(adapterPosition).ifNull { return@safeLaunch }
-                val phrase = bookView.phrase
-                if (auth.currentUser == null || (phrase.globalOwner != null && phrase.globalOwner != auth.currentUser?.uid)) {
-                    bind.btnShare.visibility = View.GONE
-                }
-                bind.txtPhrase.text = phrase.phrase
-                bind.txtDefinition.text = phrase.definition.orEmpty()
-                showImage(bookView.image)
-                showPronounce(bookView.pronounce)
-                bind.txtLang.text = bookView.lang
-                bind.btnEdit.setOnClickListener { editCall?.let { it1 -> it1(phrase.id) } }
+                val phraseView = vm.getLocalBookModel(adapterPosition).ifNull { return@safeLaunch }
+                val phrase = phraseView.phrase
+                view.phrase = phrase.phrase
+                view.definition = phrase.definition.orEmpty()
+                phrase.image?.imgUri?.let { uri ->
+                    vm.getPicasso(itemView.context).load(uri).placeholder(R.drawable.noise).into(view.getImageView())
+                    view.showImage = true
+                }.ifNull { view.showImage = false }
+                phrase.pronounce?.audioUri?.let { uri ->
+                    view.setOnClickButtonSound {
+                        player.play(itemView.context, uri.toUri(), it.background.asAnimationDrawable())
+                    }
+                }.ifNull { view.setOnClickButtonSound(false, null) }
+                view.language = Locale.forLanguageTag(phraseView.phrase.lang)
+                view.setOnClickListenerButtonEdit { editCall?.let { it1 -> it1(phrase.id) } }
                 vm.setShareAction(phrase, endAction).ifTrue(startAction)
-                bind.btnShare.setOnClickListener {
+                view.setOnClickButtonShare(
+                    auth.currentUser != null && (phrase.globalOwner != null && phrase.globalOwner == auth.currentUser?.uid)
+                ) {
                     vm.shareNotice.value?.let {
                         startAction()
                         vm.share(phrase, endAction)
                     }.ifNull {
-                        val viewBin = DialogShareAttentionBinding.inflate(LayoutInflater.from(itemView.context))
-                        MaterialAlertDialogBuilder(itemView.context)
-                            .setView(viewBin.root)
-                            .setPositiveButton("Apply") { _, _ ->
-                                startAction()
-                                vm.share(phrase, endAction)
-                                if (viewBin.cbDnshow.isChecked) vm.showShareNotice(false)
-                            }.setNegativeButton("Cancel") { _, _ ->
-                            }.show()
+                        ShareAttentionDialog.show(itemView.context) {
+                            startAction()
+                            vm.share(phrase, endAction)
+                            it.ifTrue { vm.showShareNotice(false) }
+                        }
                     }
                 }
-                bind.btnStop.setOnClickListener { vm.stopSharing(phrase) }
-            }
-            bind.btnAction.setOnClickListener {
-                full = !full
-                bind.btns.visibility = if (full) View.VISIBLE else View.GONE
-                val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
-                bind.imgAction.setImageResource(img)
+                view.setOnClickButtonStop(false) { vm.stopSharing(phrase) }
             }
         }
 
-        private fun clear() {
-            full = false
-            bind.btns.visibility = View.GONE
-            bind.mcvImgPhrase.visibility = View.GONE
-            bind.btnSound.visibility = View.GONE
-            bind.txtPhrase.text = ""
-            bind.txtLang.text = ""
-            bind.txtDefinition.text = ""
-            bind.progressLoading.visibility = View.GONE
-            bind.btnStop.visibility = View.GONE
-            bind.btnDownload.visibility = View.GONE
-            bind.btnReport.visibility = View.GONE
-            auth.currentUser.ifNull { bind.btnShare.visibility = View.GONE }
-            bind.imgAction.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
-        }
-
-        private suspend fun showImage(image: Deferred<LocalImage?>) = showImage(image.await())
-
-        private fun showImage(image: LocalImage?) {
-            image?.let {
-                bind.mcvImgPhrase.visibility = View.VISIBLE
-                val uri = it.imgUri.toUri()
-                Picasso.get().load(uri).placeholder(R.drawable.noise).into(bind.imgPhrase)
-            }.ifNull {
-                bind.mcvImgPhrase.visibility = View.GONE
-            }
-        }
-
-        private suspend fun showPronounce(pronounce: Deferred<LocalPronunciation?>) = showPronounce(pronounce.await())
-
-        private fun showPronounce(pronunciation: LocalPronunciation?) {
-            pronunciation?.let { pron ->
-                bind.btnSound.visibility = View.VISIBLE
-                bind.btnSound.setOnClickListener {
-                    player.play(
-                        itemView.context,
-                        pron.audioUri.toUri(),
-                        bind.imgBtnSound.background.asAnimationDrawable()
-                    )
-                }
-            }.ifNull {
-                bind.btnSound.visibility = View.GONE
-            }
+        override fun onDestroy() {
+            super.onDestroy()
+            view.reset()
         }
 
     }
 
-    inner class GlobalPhraseHolder(val bind: CardPhraseBinding) : ClosableHolder(bind.root) {
-
-        private var full = false
+    inner class GlobalPhraseHolder(val view: PhraseView) : ClosableHolder(view) {
 
         private val startAction: () -> Unit = {
-            bind.progressLoading.visibility = View.VISIBLE
-            bind.btnStop.visibility = View.VISIBLE
-            bind.btnDownload.visibility = View.GONE
+            view.showProgressLoading = true
+            view.showButtonStop = true
+            view.showButtonDownload = false
         }
 
         private val endAction: (String) -> Unit = {
-            bind.progressLoading.visibility = View.GONE
-            bind.btnStop.visibility = View.GONE
-            bind.btnDownload.visibility = View.VISIBLE
+            view.showProgressLoading = false
+            view.showButtonStop = false
+            view.showButtonDownload = true
             Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
         }
 
         override fun show() {
-            clear()
+            view.reset()
             observer = recyclerScope.launch {
                 val phraseView = vm.getByPosition(adapterPosition.toLong()).ifNull { return@launch }
                 val phrase = phraseView.phraseView
-                bind.txtPhrase.text = phrase.phrase
-                bind.txtDefinition.text = phrase.definition.orEmpty()
-                showImage(phraseView.image)
-                showPronounce(phraseView)
-                bind.txtLang.text = phraseView.lang
+                view.phrase = phrase.phrase
+                view.definition = phrase.definition.orEmpty()
+
+                phraseView.image?.imageUri?.let { uri ->
+                    vm.getPicasso(itemView.context).load(uri).placeholder(R.drawable.noise).into(view.getImageView())
+                    view.showImage = true
+                }.ifNull { view.showImage = false }
+                phrase.pronounce?.let {
+                    view.setOnClickButtonSound { v ->
+                        recyclerScope.launch {
+                            phraseView.pronounceData.await()?.let {
+                                player.play(MediaBytesSource(it), v.background.asAnimationDrawable())
+                            }
+                        }
+                    }
+                }.ifNull { view.setOnClickButtonSound(false, null) }
+                view.language = Locale.forLanguageTag(phrase.lang)
                 vm.setDownloadAction(phrase.globalId, endAction).ifTrue(startAction)
 
-                bind.btnReport.setOnClickListener { reportCall?.let { it(phrase.toGlobalPhrase()) } }
+                view.setOnClickButtonReport { reportCall?.let { it(phrase.toGlobalPhrase()) } }
 
-                bind.btnDownload.setOnClickListener {
+                view.setOnClickButtonDownload {
                     startAction()
                     vm.save(phraseView, endAction)
                 }
-                bind.btnStop.setOnClickListener {
-                    vm.stopDownloading(phrase.globalId)
-                }
-            }
-            bind.btnAction.setOnClickListener {
-                full = !full
-                bind.btns.visibility = if (full) View.VISIBLE else View.GONE
-                val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
-                bind.imgAction.setImageResource(img)
+                view.setOnClickButtonStop(false) { vm.stopDownloading(phrase.globalId) }
             }
         }
 
-        fun clear() {
-            full = false
-            bind.btns.visibility = View.GONE
-            bind.imgPhrase.visibility = View.GONE
-            bind.btnSound.visibility = View.GONE
-            bind.txtPhrase.text = ""
-            bind.txtLang.text = ""
-            bind.txtDefinition.text = ""
-            bind.progressLoading.visibility = View.GONE
-            bind.btnStop.visibility = View.GONE
-            bind.btnEdit.visibility = View.GONE
-            bind.btnShare.visibility = View.GONE
-            bind.imgAction.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
-            auth.currentUser.ifNull { bind.btnReport.visibility = View.GONE }
+        override fun onDestroy() {
+            super.onDestroy()
+            view.reset()
         }
-
-        private suspend fun showImage(image: GlobalImageView?) {
-            image?.let {
-                val uri = it.imageUri.toUri()
-                vm.getPicasso(itemView.context).load(uri).placeholder(R.drawable.noise).into(bind.imgPhrase)
-                bind.imgPhrase.visibility = View.VISIBLE
-            }.ifNull {
-                bind.imgPhrase.visibility = View.GONE
-            }
-        }
-
-        private suspend fun showPronounce(phraseModel: PhraseViewModel.GlobalPhraseModel) {
-            phraseModel.phraseView.pronounce?.let {
-                bind.btnSound.visibility = View.VISIBLE
-                bind.btnSound.setOnClickListener {
-                    recyclerScope.launch {
-                        val data = phraseModel.pronounceData.await()
-                        player.play(
-                            MediaBytesSource(data),
-                            bind.imgBtnSound.background.asAnimationDrawable()
-                        )
-                    }
-                }
-            }.ifNull {
-                bind.btnSound.visibility = View.GONE
-            }
-        }
-
 
     }
 
@@ -245,8 +160,8 @@ class PhraseAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ClosableHolder {
         val bind = CardPhraseBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return when (viewType) {
-            0 -> LocalPhraseHolder(bind)
-            else -> GlobalPhraseHolder(bind)
+            0 -> LocalPhraseHolder(PhraseView(parent.context))
+            else -> GlobalPhraseHolder(PhraseView(parent.context))
         }
     }
 

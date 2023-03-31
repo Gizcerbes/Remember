@@ -1,7 +1,6 @@
 package com.uogames.remembercards.ui.settingFragment
 
 import android.annotation.SuppressLint
-import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -9,17 +8,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.marginTop
-import androidx.core.view.setMargins
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -31,12 +25,9 @@ import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.ComponentTextImputLayoutBinding
 import com.uogames.remembercards.databinding.FragmentSettingsBinding
 import com.uogames.remembercards.ui.choiceCountry.ChoiceCountryDialog
-import com.uogames.remembercards.ui.dialogs.ChoiceThemeDialog
 import com.uogames.remembercards.utils.*
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import java.util.zip.CRC32
 import javax.inject.Inject
 
 class SettingFragment : DaggerFragment() {

@@ -1,4 +1,4 @@
-package com.uogames.remembercards.ui.gameYesOrNo
+package com.uogames.remembercards.ui.games.gameYesOrNo
 
 import android.content.Context
 import android.os.*
@@ -68,14 +68,12 @@ class GameYesOrNotFragment : DaggerFragment() {
 		container: ViewGroup?,
 		savedInstanceState: Bundle?
 	): View {
-		if (_bind == null) _bind = FragmentYesOrNotGameBinding.inflate(inflater, container, false)
+		_bind = FragmentYesOrNotGameBinding.inflate(inflater, container, false)
 		return bind.root
 	}
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-		globalViewModel.shouldReset.ifTrue {
-			gameModel.reset()
-		}
+		globalViewModel.shouldReset.ifTrue { gameModel.reset() }
 
 		moduleId = arguments?.getInt(MODULE_ID)
 

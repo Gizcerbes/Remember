@@ -5,14 +5,25 @@ import androidx.lifecycle.viewModelScope
 import com.uogames.dto.local.LocalCard
 import com.uogames.dto.local.LocalModule
 import com.uogames.dto.local.LocalModuleCard
+import com.uogames.remembercards.GlobalViewModel
+import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.remembercards.utils.ifNull
+import com.uogames.remembercards.utils.observe
 import com.uogames.repository.DataProvider
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class EditModuleViewModel @Inject constructor(val provider: DataProvider) : ViewModel() {
+class EditModuleViewModel @Inject constructor(
+    private val globalViewModel: GlobalViewModel,
+    player: ObservableMediaPlayer
+) : ViewModel() {
+
+    private val provider = globalViewModel.provider
+    private val viewModelScope = CoroutineScope(Dispatchers.IO)
 
     val moduleID = MutableStateFlow(0)
 
@@ -20,11 +31,21 @@ class EditModuleViewModel @Inject constructor(val provider: DataProvider) : View
 
     val moduleCardsList = module.flatMapLatest { provider.moduleCard.getByModuleFlow(it.ifNull { LocalModule() }) }
 
+   // val size = moduleID.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0).map { provider.moduleCard.getCountByModuleId(it) }
+
+    val size = moduleID.flatMapLatest { provider.moduleCard.getCountByModuleIdFlow(it) }
+
+    val adapter = EditModuleAdapter(this, player)
+
     fun reset() {
         moduleID.value = 0
     }
 
     fun getCard(id: Int) = provider.cards.getByIdFlow(id)
+
+    fun getModuleCardViewAsync(position: Int) = viewModelScope.async { getModuleCardView(position) }
+
+    suspend fun getModuleCardView(position: Int) = provider.moduleCard.getView(moduleID.value, position)
 
     suspend fun delete(module: LocalModule) = provider.module.delete(module)
 

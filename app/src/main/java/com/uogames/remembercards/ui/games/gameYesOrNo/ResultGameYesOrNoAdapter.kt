@@ -1,4 +1,4 @@
-package com.uogames.remembercards.ui.gameYesOrNo
+package com.uogames.remembercards.ui.games.gameYesOrNo
 
 import android.view.LayoutInflater
 import android.view.View

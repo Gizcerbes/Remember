@@ -31,11 +31,6 @@ class LibraryViewModel @Inject constructor(
         val owner = viewModelScope.async { module.globalOwner?.let { getUserName(it) } ?: UserGlobalName(module.owner) }
     }
 
-//    inner class GlobalModuleModel(val module: GlobalModule) {
-//        val count = viewModelScope.async { getModuleCardCount(module) }
-//        val owner = viewModelScope.async { getGlobalUsername(module.globalOwner) ?: UserGlobalName("") }
-//    }
-
     inner class GlobalModuleModel(val module: GlobalModuleView) {
         val count = viewModelScope.async { getModuleCardCount(module) }
         val owner = viewModelScope.async { getGlobalUsername(module.user.globalOwner) ?: UserGlobalName("") }
@@ -207,24 +202,6 @@ class LibraryViewModel @Inject constructor(
     fun download(view: GlobalModuleView, loading: (String) -> Unit) {
         val job = viewModelScope.launch {
             runCatching {
-//                val module = provider.module.download(id).ifNull {
-//                    launch(Dispatchers.Main) {
-//                        downloadAction[id]?.callback?.let { back -> back("Error") }
-//                        downloadAction.remove(id)
-//                    }
-//                    return@launch
-//                }
-//                val count = provider.moduleCard.countGlobal(id)
-//                val downloadBuffer = LinkedBlockingQueue<Job>(16)
-//                for (i in 0 until count) {
-//                    val job = viewModelScope.launch { provider.moduleCard.download(module, i) }
-//                    viewModelScope.launch {
-//                        job.join()
-//                        downloadBuffer.remove(job)
-//                    }
-//                    downloadBuffer.put(job)
-//                }
-//                downloadBuffer.forEach { it.join() }
                 provider.module.save(view)
             }.onSuccess {
                 launch(Dispatchers.Main) {

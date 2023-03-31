@@ -15,7 +15,7 @@ android {
         }
     }
     compileSdk 33
-    ndkVersion '0.1.6'
+    ndkVersion '0.1.7'
     defaultConfig {
         applicationId "com.uogames.remembercards"
         minSdk 26

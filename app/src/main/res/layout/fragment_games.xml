@@ -159,6 +159,38 @@
 				android:orientation="vertical">
 
 				<com.google.android.material.card.MaterialCardView
+					android:id="@+id/game_watch_card"
+					style="@style/Theme.RememberCards.CardView.Button"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content">
+
+					<RelativeLayout
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content">
+
+						<ImageView
+							android:id="@+id/iv_read"
+							android:layout_width="50dp"
+							android:layout_height="50dp"
+							android:layout_margin="17dp"
+							android:src="@drawable/ic_read" />
+
+						<TextView
+							android:layout_width="match_parent"
+							android:layout_height="match_parent"
+							android:layout_alignTop="@id/iv_read"
+							android:layout_alignBottom="@id/iv_read"
+							android:layout_alignParentStart="true"
+							android:layout_alignParentEnd="true"
+							android:layout_marginStart="17dp"
+							android:layout_marginEnd="17dp"
+							android:gravity="center"
+							android:text="@string/read"
+							android:textAppearance="?attr/textAppearanceHeadline5" />
+					</RelativeLayout>
+				</com.google.android.material.card.MaterialCardView>
+
+				<com.google.android.material.card.MaterialCardView
 					android:id="@+id/game_yes_or_not"
 					style="@style/Theme.RememberCards.CardView.Button"
 					android:layout_width="match_parent"
@@ -189,6 +221,8 @@
 							android:textAppearance="?attr/textAppearanceHeadline5" />
 					</RelativeLayout>
 				</com.google.android.material.card.MaterialCardView>
+
+
 
 			</LinearLayout>
 
