@@ -6,6 +6,7 @@ import com.uogames.database.repository.PronunciationRepository
 import com.uogames.dto.global.GlobalPronunciationView
 import com.uogames.dto.local.LocalPhrase
 import com.uogames.dto.local.LocalPronunciation
+import com.uogames.dto.local.LocalPronunciationView
 import com.uogames.map.PronunciationMap.update
 import com.uogames.repository.DataProvider
 import com.uogames.repository.fileRepository.FileRepository
@@ -40,9 +41,9 @@ class PronunciationProvider(
 		} ?: false
 	}
 
-	fun load(pronunciation: LocalPronunciation): ByteArray? {
-		return fileRepository.readFile(pronunciation.audioUri.toUri())
-	}
+	fun load(pronunciation: LocalPronunciation): ByteArray? = fileRepository.readFile(pronunciation.audioUri.toUri())
+
+	fun load(pv: LocalPronunciationView): ByteArray? = fileRepository.readFile(pv.audioUri.toUri())
 
 	suspend fun getById(id: Int) = database.getById(id)
 

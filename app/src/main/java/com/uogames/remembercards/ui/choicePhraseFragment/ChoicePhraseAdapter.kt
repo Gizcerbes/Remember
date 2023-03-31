@@ -79,10 +79,23 @@ class ChoicePhraseAdapter(
 
     inner class GlobalPhraseHolder(val view: PhraseView) : ClosableHolder(view) {
 
+        private val startAction: () -> Unit = {
+            view.showProgressLoading = true
+            view.showButtonStop = true
+            view.showButtonDownload = false
+        }
+
+        private val endAction: (String, LocalPhrase?) -> Unit = { _, phrase ->
+            view.showProgressLoading = false
+            view.showButtonStop = false
+            view.showButtonDownload = true
+            phrase?.let{ recyclerScope.launch { choiceCall(phrase) }}
+        }
+
         override fun show() {
             view.reset()
             observer = recyclerScope.launch {
-                val phraseView = vm.getByPosition(adapterPosition.toLong()).ifNull { return@launch }
+                val phraseView = vm.getGlobalAsync(adapterPosition.toLong()).await().ifNull { return@launch }
                 val phrase = phraseView.phraseView
                 view.phrase = phrase.phrase
                 view.definition = phrase.definition.orEmpty()
@@ -101,29 +114,16 @@ class ChoicePhraseAdapter(
                 }.ifNull { view.setOnClickButtonSound(false,null) }
                 view.language = Locale.forLanguageTag(phrase.lang)
 
-                val startAction: () -> Unit = {
-                    view.showProgressLoading = true
-                    view.showButtonStop = true
-                    view.showButtonDownload = false
-                }
-
-                val endAction: (String) -> Unit = {
-                    view.showProgressLoading = false
-                    view.showButtonStop = false
-                    view.showButtonDownload = true
-                    recyclerScope.launch {
-                        vm.getByGlobalId(phraseView.phraseView.globalId)?.let { phrase -> choiceCall(phrase) }
-                    }
-                }
-                vm.setDownloadAction(phrase.globalId, endAction).ifTrue(startAction)
                 view.setOnClickButtonReport { reportCall?.let { it(phrase.toGlobalPhrase()) } }
 
                 view.setOnClickButtonDownload {
                     startAction()
                     vm.save(phraseView, endAction)
                 }
-                view.setOnClickButtonStop { vm.stopDownloading(phrase.globalId) }
-                view.showButtonStop = false
+
+                view.setOnClickButtonStop(false) { vm.stopDownloading(phrase.globalId) }
+
+                vm.setDownloadAction(phrase.globalId, endAction).ifTrue(startAction)
             }
 
         }

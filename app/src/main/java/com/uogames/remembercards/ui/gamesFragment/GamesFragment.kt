@@ -13,8 +13,9 @@ import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentGamesBinding
 import com.uogames.remembercards.ui.choiceModuleDialog.ChoiceModuleDialog
-import com.uogames.remembercards.ui.gameYesOrNo.GameYesOrNotFragment
-import com.uogames.remembercards.ui.gameYesOrNo.GameYesOrNotViewModel
+import com.uogames.remembercards.ui.games.gameYesOrNo.GameYesOrNotFragment
+import com.uogames.remembercards.ui.games.gameYesOrNo.GameYesOrNotViewModel
+import com.uogames.remembercards.ui.games.watchCard.WatchCardFragment
 import com.uogames.remembercards.ui.libraryFragment.LibraryViewModel
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observeWhenStarted
@@ -74,6 +75,18 @@ class GamesFragment : DaggerFragment() {
             }
         }
 
+
+        bind.gameWatchCard.setOnClickListener {
+            gamesViewModel.selectedModule.value?.let {
+                navigate(
+                    R.id.watchCardFragment,
+                    bundleOf(WatchCardFragment.MODULE_ID to it.id)
+                )
+            }.ifNull {
+                navigate(R.id.watchCardFragment)
+            }
+        }
+
         bind.mcvSelectModule.setOnClickListener {
             val dialog = ChoiceModuleDialog(libraryViewModel) {
                 gamesViewModel.selectedModule.value = it
@@ -107,11 +120,11 @@ class GamesFragment : DaggerFragment() {
 
     private fun createCountItemObserver() = gamesViewModel.countItems.observeWhenStarted(lifecycleScope) {
         bind.txtCountItems.text = requireContext().getString(R.string.count_items).replace("||COUNT||", it.toString())
-        if (it > 2) {
-            bind.gameYesOrNot.visibility = View.VISIBLE
-        } else {
-            bind.gameYesOrNot.visibility = View.GONE
-        }
+        if (it > 2) bind.gameYesOrNot.visibility = View.VISIBLE
+        else bind.gameYesOrNot.visibility = View.GONE
+
+        if (it > 0) bind.gameWatchCard.visibility = View.VISIBLE
+        else bind.gameWatchCard.visibility = View.GONE
     }
 
     override fun onDestroyView() {

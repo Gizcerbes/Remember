@@ -20,23 +20,12 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 class CardViewModel @Inject constructor(
-    //private val provider: DataProvider,
     private val globalViewModel: GlobalViewModel,
     player: ObservableMediaPlayer
 ) {
 
     private val provider = globalViewModel.provider
     private val viewModelScope = CoroutineScope(Dispatchers.IO)
-
-//    inner class LocalCardModel(val card: LocalCard) {
-//        val phrase by lazy { viewModelScope.async { provider.phrase.getById(card.idPhrase) } }
-//        val translate by lazy { viewModelScope.async { provider.phrase.getById(card.idTranslate) } }
-//        val image by lazy { viewModelScope.async { card.toImage() } }
-//        val phrasePronounce by lazy { viewModelScope.async { phrase.await()?.toPronounce() } }
-//        val phraseImage by lazy { viewModelScope.async { phrase.await()?.toImage() } }
-//        val translatePronounce by lazy { viewModelScope.async { translate.await()?.toPronounce() } }
-//        val translateImage by lazy { viewModelScope.async { translate.await()?.toImage() } }
-//    }
 
     inner class LocalCardModel(val card: LocalCardView)
     inner class GlobalCardModel(val card: GlobalCardView) {
@@ -133,16 +122,7 @@ class CardViewModel @Inject constructor(
 
     fun removeEditCall(call: (LocalCard) -> Unit) = editCalList.remove(call)
 
-    suspend fun getViewAsync(position: Int) = viewModelScope.async {
-        provider.cards.getView(
-            like = like.value,
-            langFirst = languageFirst.value?.isO3Language,
-            langSecond = languageSecond.value?.isO3Language,
-            countryFirst = countryFirst.value?.toString(),
-            countrySecond = countrySecond.value?.toString(),
-            position = position
-        )?.let { LocalCardModel(it) }
-    }
+    fun getViewAsync(position: Int) = viewModelScope.async { getView(position) }
 
     suspend fun getView(position: Int) = provider.cards.getView(
         like = like.value,
@@ -183,6 +163,8 @@ class CardViewModel @Inject constructor(
         action.callback("Cancel")
         shareActions.remove(card.id)
     }
+
+    fun getGlobalViewAsync(position: Long) = viewModelScope.async { getByPosition(position) }
 
     suspend fun getByPosition(position: Long): GlobalCardModel? {
         runCatching {

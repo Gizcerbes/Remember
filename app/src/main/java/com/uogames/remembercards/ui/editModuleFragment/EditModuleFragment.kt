@@ -40,13 +40,9 @@ class EditModuleFragment : DaggerFragment() {
     @Inject
     lateinit var globalViewModel: GlobalViewModel
 
-    @Inject
-    lateinit var player: ObservableMediaPlayer
 
     private var _bind: FragmentEditModuleBinding? = null
     private val bind get() = _bind!!
-
-    private var adapter: EditModuleAdapter? = null
 
     private var moduleCardObserver: Job? = null
 
@@ -56,11 +52,8 @@ class EditModuleFragment : DaggerFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        globalViewModel.shouldReset.ifTrue {
-            editModuleViewModel.reset()
-        }
+        globalViewModel.shouldReset.ifTrue { editModuleViewModel.reset() }
 
-        adapter = EditModuleAdapter(editModuleViewModel, player)
         val id = arguments?.getInt(MODULE_ID)
         id?.let {
             setData(it)
@@ -86,7 +79,9 @@ class EditModuleFragment : DaggerFragment() {
             findNavController().popBackStack()
         }
 
-        bind.btnDelete.setOnClickListener { Toast.makeText(requireContext(), requireContext().getText(R.string.press_to_delete), Toast.LENGTH_SHORT).show() }
+        bind.btnDelete.setOnClickListener {
+            Toast.makeText(requireContext(), requireContext().getText(R.string.press_to_delete), Toast.LENGTH_SHORT).show()
+        }
         bind.btnDelete.setOnLongClickListener {
             lifecycleScope.launchWhenStarted {
                 editModuleViewModel.module.first()?.let {
@@ -97,22 +92,17 @@ class EditModuleFragment : DaggerFragment() {
             true
         }
 
-        moduleCardObserver = createModuleCardObserver()
-
         lifecycleScope.launchWhenStarted {
-            delay(300)
-            bind.rvCards.adapter = adapter
+            delay(250)
+            bind.rvCards.adapter = editModuleViewModel.adapter
         }
     }
 
-    private fun createModuleCardObserver(): Job = editModuleViewModel.moduleCardsList.observeWhenStarted(lifecycleScope) {
-        adapter?.setListItems(it)
-    }
+
 
     override fun onDestroyView() {
         moduleCardObserver?.cancel()
-        adapter?.onDestroy()
-        adapter = null
+        bind.rvCards.adapter = null
         _bind = null
         super.onDestroyView()
     }

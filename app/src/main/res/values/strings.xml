@@ -116,13 +116,18 @@
 	<string name="choice_phrase">Choice phrase</string>
 	<string name="press_to_save">Press to save</string>
 	<string name="press_to_delete">Press to delete</string>
+	<string name="press_to_remove">Press to remove</string>
     <string name="label_screen_theme">Theme:</string>
 	<string name="screen_theme_system">SYSTEM THEME</string>
 	<string name="screen_theme_day">LIGHT THEM</string>
 	<string name="screen_theme_dark">DARK THEM</string>
 	<string name="themes">Themes</string>
 	<string name="clue">Clue</string>
+	<string name="label_clue">Clue:</string>
     <string name="single_card">Single Card</string>
 	<string name="apply">Apply</string>
 	<string name="cancel">Cancel</string>
+    <string name="read">Read</string>
+    <string name="label_count">Count:</string>
+    <string name="read_cards">Read cards</string>
 </resources>

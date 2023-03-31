@@ -3,9 +3,7 @@ package com.uogames.remembercards.ui.editCardFragment
 import android.graphics.drawable.AnimationDrawable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.uogames.dto.local.LocalCard
-import com.uogames.dto.local.LocalPhrase
-import com.uogames.dto.local.LocalPronunciation
+import com.uogames.dto.local.*
 import com.uogames.remembercards.utils.*
 import com.uogames.repository.DataProvider
 import com.uogames.repository.DataProvider.Companion.toPronounce
@@ -22,10 +20,10 @@ class EditCardViewModel @Inject constructor(
 
     private val _cardID = MutableStateFlow(0)
 
-    private val _firstPhrase: MutableStateFlow<LocalPhrase?> = MutableStateFlow(null)
+    private val _firstPhrase: MutableStateFlow<LocalPhraseView?> = MutableStateFlow(null)
     val firstPhrase = _firstPhrase.asStateFlow()
 
-    private val _secondPhrase: MutableStateFlow<LocalPhrase?> = MutableStateFlow(null)
+    private val _secondPhrase: MutableStateFlow<LocalPhraseView?> = MutableStateFlow(null)
     val secondPhrase = _secondPhrase.asStateFlow()
 
     private val _reason = MutableStateFlow("")
@@ -34,7 +32,7 @@ class EditCardViewModel @Inject constructor(
     private val _clues = MutableStateFlow<List<String>>(listOf())
     val clues = _clues.asStateFlow()
 
-    private var loadedCard: LocalCard? = null
+    private var loadedCard: LocalCardView? = null
 
     val preview = MutableStateFlow(false)
     val singleCard = MutableStateFlow(false)
@@ -60,12 +58,13 @@ class EditCardViewModel @Inject constructor(
 
     fun load(id: Int) = viewModelScope.launch {
         reset()
-        val card = provider.cards.getByIdFlow(id).first()
+            //val card = provider.cards.getByIdFlow(id).first()
+        val card = provider.cards.getViewByID(id)
         card?.let {
             loadedCard = it
             _cardID.value = card.id
-            _firstPhrase.value = provider.phrase.getByIdFlow(card.idPhrase).first()
-            _secondPhrase.value = provider.phrase.getByIdFlow(card.idTranslate).first()
+            _firstPhrase.value = card.phrase
+            _secondPhrase.value = card.translate
             _reason.value = card.reason
         }
     }
@@ -74,7 +73,7 @@ class EditCardViewModel @Inject constructor(
         if (id == null) {
             _firstPhrase.value = null
         } else {
-            provider.phrase.getByIdFlow(id).first().let { _firstPhrase.value = it }
+            provider.phrase.getViewByID(id).let{ _firstPhrase.value = it }
         }
     }
 
@@ -83,7 +82,7 @@ class EditCardViewModel @Inject constructor(
             singleCard.value = false
             _secondPhrase.value = null
         } else {
-            provider.phrase.getByIdFlow(id).first().let { _secondPhrase.value = it }
+            provider.phrase.getViewByID(id).let { _secondPhrase.value = it }
         }
     }
 
@@ -91,9 +90,9 @@ class EditCardViewModel @Inject constructor(
         _reason.value = reason
     }
 
-    fun play(anim: AnimationDrawable, phrase: LocalPhrase) = viewModelScope.launch { phrase.toPronounce()?.let { play(anim, it) } }
+    fun play(anim: AnimationDrawable, phrase: LocalPhraseView) = viewModelScope.launch { phrase.pronounce?.let { play(anim, it) } }
 
-    private fun play(anim: AnimationDrawable, pronounce: LocalPronunciation) = player.play(MediaBytesSource(provider.pronounce.load(pronounce)), anim)
+    private fun play(anim: AnimationDrawable, pronounce: LocalPronunciationView) = player.play(MediaBytesSource(provider.pronounce.load(pronounce)), anim)
 
     fun stopPlaying() = player.stop()
 

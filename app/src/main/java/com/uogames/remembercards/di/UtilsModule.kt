@@ -4,9 +4,6 @@ import android.app.Application
 import android.content.Context
 import android.media.MediaPlayer
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-import com.uogames.remembercards.BuildConfig
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.ui.cardFragment.CardViewModel
 import com.uogames.remembercards.ui.choiceCardFragment.ChoiceCardViewModel
@@ -15,7 +12,9 @@ import com.uogames.remembercards.ui.cropFragment.CropViewModel
 import com.uogames.remembercards.ui.editCardFragment.EditCardViewModel
 import com.uogames.remembercards.ui.editModuleFragment.EditModuleViewModel
 import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseViewModel
-import com.uogames.remembercards.ui.gameYesOrNo.GameYesOrNotViewModel
+import com.uogames.remembercards.ui.games.gameYesOrNo.GameYesOrNotViewModel
+import com.uogames.remembercards.ui.games.watchCard.WatchCardFragment
+import com.uogames.remembercards.ui.games.watchCard.WatchCardViewModel
 import com.uogames.remembercards.ui.gamesFragment.GamesViewModel
 import com.uogames.remembercards.ui.libraryFragment.LibraryViewModel
 import com.uogames.remembercards.ui.mainNav.NavigationViewModel
@@ -66,7 +65,7 @@ class UtilsModule {
     fun provideChoicePhraseViewModel(
         provider: DataProvider,
         player: ObservableMediaPlayer
-    ) : ChoicePhraseViewModel = ChoicePhraseViewModel(provider, player)
+    ): ChoicePhraseViewModel = ChoicePhraseViewModel(provider, player)
 
     @Provides
     @Singleton
@@ -85,7 +84,10 @@ class UtilsModule {
 
     @Provides
     @Singleton
-    fun provideEditCardViewModel(provider: DataProvider, player: ObservableMediaPlayer): EditCardViewModel = EditCardViewModel(provider, player)
+    fun provideEditCardViewModel(
+        provider: DataProvider,
+        player: ObservableMediaPlayer
+    ): EditCardViewModel = EditCardViewModel(provider, player)
 
     @Provides
     @Singleton
@@ -96,7 +98,10 @@ class UtilsModule {
 
     @Provides
     @Singleton
-    fun provideChoiceCardViewModel(provider: DataProvider) : ChoiceCardViewModel = ChoiceCardViewModel(provider)
+    fun provideChoiceCardViewModel(
+        globalViewModel: GlobalViewModel,
+        player: ObservableMediaPlayer
+    ): ChoiceCardViewModel = ChoiceCardViewModel(globalViewModel, player)
 
     @Provides
     @Singleton
@@ -110,7 +115,10 @@ class UtilsModule {
 
     @Provides
     @Singleton
-    fun provideEditModuleViewModel(provider: DataProvider): EditModuleViewModel = EditModuleViewModel(provider)
+    fun provideEditModuleViewModel(
+        globalViewModel: GlobalViewModel,
+        player: ObservableMediaPlayer
+    ): EditModuleViewModel = EditModuleViewModel(globalViewModel, player)
 
     @Provides
     @Singleton
@@ -119,4 +127,11 @@ class UtilsModule {
     @Provides
     @Singleton
     fun provideReportViewModel(provider: DataProvider): ReportViewModel = ReportViewModel(provider)
+
+    @Provides
+    @Singleton
+    fun provideWatchCardViewModel(
+        globalViewModel: GlobalViewModel
+    ): WatchCardViewModel = WatchCardViewModel(globalViewModel)
+
 }

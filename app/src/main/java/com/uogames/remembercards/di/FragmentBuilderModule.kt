@@ -7,8 +7,9 @@ import com.uogames.remembercards.ui.cropFragment.CropFragment
 import com.uogames.remembercards.ui.editCardFragment.EditCardFragment
 import com.uogames.remembercards.ui.editModuleFragment.EditModuleFragment
 import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseFragment
-import com.uogames.remembercards.ui.gameYesOrNo.GameYesOrNotFragment
-import com.uogames.remembercards.ui.gameYesOrNo.ResultYesOrNotFragment
+import com.uogames.remembercards.ui.games.gameYesOrNo.GameYesOrNotFragment
+import com.uogames.remembercards.ui.games.gameYesOrNo.ResultYesOrNotFragment
+import com.uogames.remembercards.ui.games.watchCard.WatchCardFragment
 import com.uogames.remembercards.ui.gamesFragment.GamesFragment
 import com.uogames.remembercards.ui.libraryFragment.LibraryFragment
 import com.uogames.remembercards.ui.mainNav.MainNaviFragment
@@ -77,4 +78,7 @@ abstract class FragmentBuilderModule {
 
     @ContributesAndroidInjector
     abstract fun contributeReportFragment():ReportFragment
+
+    @ContributesAndroidInjector
+    abstract fun contributeWatchCardFragment(): WatchCardFragment
 }

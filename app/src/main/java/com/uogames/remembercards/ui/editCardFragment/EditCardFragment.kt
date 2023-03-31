@@ -24,6 +24,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.squareup.picasso.Picasso
 import com.uogames.dto.local.LocalPhrase
+import com.uogames.dto.local.LocalPhraseView
 import com.uogames.remembercards.GlobalViewModel
 import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
@@ -97,8 +98,7 @@ class EditCardFragment : DaggerFragment() {
 
         if (id > 0) {
             loadDataWithID(id)
-        }
-        else loadData(createFor, popBackTo)
+        } else loadData(createFor, popBackTo)
 
         bind.btnBack.setOnClickListener {
             findNavController().popBackStack()
@@ -120,14 +120,8 @@ class EditCardFragment : DaggerFragment() {
         bind.txtReasonPrev.editText?.addTextChangedListener(reasonTextWatcher)
         bind.btnCardActionPrev.isEnabled = false
 
-        clear()
-        bind.btnCardAction.setOnClickListener {
-            full = !full
-            bind.txtDefinitionFirst.visibility = if (full && bind.txtDefinitionFirst.text.isNotEmpty()) View.VISIBLE else View.GONE
-            bind.txtDefinitionSecond.visibility = if (full && bind.txtDefinitionSecond.text.isNotEmpty()) View.VISIBLE else View.GONE
-            val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
-            bind.imgBtnAction.setImageResource(img)
-        }
+        bind.cvCardView.reset()
+        bind.cvCardView.showButtons = true
 
         bind.btnPreview.setOnClickListener { model.preview.setOpposite() }
 
@@ -142,25 +136,25 @@ class EditCardFragment : DaggerFragment() {
         bind.cbSingleCard.setOnClickListener { model.singleCard.setOpposite() }
 
         observers = lifecycleScope.launchWhenStarted {
-            model.reason.observe(this) { bind.txtReason.text = it.ifNullOrEmpty { requireContext().getText(R.string.topic) } }
+            model.reason.observe(this) { bind.cvCardView.clue = it.ifNullOrEmpty { requireContext().getText(R.string.clue).toString() } }
             model.firstPhrase.observe(this) {
                 it?.let { phrase ->
-                    bind.txtPhraseFirst.text = phrase.phrase
-                    bind.imgSoundFirst.apply {
-                        phrase.idPronounce?.let {
-                            visibility = View.VISIBLE
-                            bind.mcvFirst.setOnClickListener { model.play(bind.imgSoundFirst.background.asAnimationDrawable(), phrase) }
-                        }.ifNull { bind.imgSoundFirst.visibility = View.GONE }
+                    bind.cvCardView.phraseFirst = phrase.phrase
+                    phrase.pronounce?.let {
+                        bind.cvCardView.showAudioFirst = true
+                        bind.cvCardView.setOnClickButtonCardFirst { v -> model.play(v.background.asAnimationDrawable(), phrase) }
+                    }.ifNull {
+                        bind.cvCardView.showAudioFirst = false
+                        bind.cvCardView.setOnClickButtonCardFirst(null)
                     }
-                    setButtonData(
-                        phrase,
-                        bind.mcvFirst,
-                        bind.txtPhraseFirst,
-                        bind.imgSoundFirst,
-                        bind.txtLangFirst,
-                        bind.imgCardFirst,
-                        bind.txtDefinitionFirst
-                    )
+                    bind.cvCardView.phraseFirst = phrase.phrase
+                    bind.cvCardView.languageTagFirst = phrase.lang.let { l -> Locale.forLanguageTag(l) }
+                    bind.cvCardView.definitionFirst = phrase.definition.orEmpty()
+                    phrase.image?.let { image ->
+                        Picasso.get().load(image.imgUri.toUri()).placeholder(R.drawable.noise).into(bind.cvCardView.getFirstImageView())
+                        bind.cvCardView.showImageFirst = true
+                    }.ifNull { bind.cvCardView.showImageFirst = false }
+
                     setPreviewData(
                         phrase,
                         bind.txtPhraseFirstPrev,
@@ -170,7 +164,11 @@ class EditCardFragment : DaggerFragment() {
                         bind.txtDefinitionFirstPrev
                     )
                 }.ifNull {
-                    setDefaultButtonData(bind.imgSoundFirst, bind.txtPhraseFirst, bind.txtLangFirst, bind.imgCardFirst, bind.txtDefinitionFirst)
+                    bind.cvCardView.showAudioFirst = false
+                    bind.cvCardView.phraseFirst = requireContext().getText(R.string.first_phrase).toString()
+                    bind.cvCardView.languageTagFirst = Locale.getDefault()
+                    bind.cvCardView.showImageFirst = false
+                    bind.cvCardView.definitionFirst = requireContext().getText(R.string.fist_suggestion).toString()
                     bind.txtPhraseFirstPrev.text = requireContext().getText(R.string.first_phrase)
                     bind.imgSoundFirstPrev.visibility = View.VISIBLE
                     bind.txtLangFirstPrev.text = Locale.getDefault().displayLanguage
@@ -182,15 +180,21 @@ class EditCardFragment : DaggerFragment() {
             }
             model.secondPhrase.observe(this) {
                 it?.let { phrase ->
-                    setButtonData(
-                        phrase,
-                        bind.mcvSecond,
-                        bind.txtPhraseSecond,
-                        bind.imgSoundSecond,
-                        bind.txtLangSecond,
-                        bind.imgCardSecond,
-                        bind.txtDefinitionSecond
-                    )
+                    bind.cvCardView.phraseSecond = phrase.phrase
+                    phrase.pronounce?.let {
+                        bind.cvCardView.showAudioSecond = true
+                        bind.cvCardView.setOnClickButtonCardSecond { v -> model.play(v.background.asAnimationDrawable(), phrase) }
+                    }.ifNull {
+                        bind.cvCardView.showAudioSecond = false
+                        bind.cvCardView.setOnClickButtonCardSecond(null)
+                    }
+                    bind.cvCardView.phraseSecond = phrase.phrase
+                    bind.cvCardView.languageTagSecond = phrase.lang.let { l -> Locale.forLanguageTag(l) }
+                    bind.cvCardView.definitionSecond = phrase.definition.orEmpty()
+                    phrase.image?.let { image ->
+                        Picasso.get().load(image.imgUri.toUri()).placeholder(R.drawable.noise).into(bind.cvCardView.getSecondImageView())
+                        bind.cvCardView.showImageSecond = true
+                    }.ifNull { bind.cvCardView.showImageSecond = false }
                     setPreviewData(
                         phrase,
                         bind.txtPhraseSecondPrev,
@@ -200,19 +204,23 @@ class EditCardFragment : DaggerFragment() {
                         bind.txtDefinitionSecondPrev
                     )
                 }.ifNull {
-                    setDefaultButtonData(bind.imgSoundSecond, bind.txtPhraseSecond, bind.txtLangSecond, bind.imgCardSecond, bind.txtDefinitionSecond)
-                    bind.txtPhraseSecondPrev.text = requireContext().getText(R.string.first_phrase)
+                    bind.cvCardView.showAudioSecond = false
+                    bind.cvCardView.phraseSecond = requireContext().getText(R.string.second_phrase).toString()
+                    bind.cvCardView.languageTagSecond = Locale.getDefault()
+                    bind.cvCardView.showImageSecond = false
+                    bind.cvCardView.definitionSecond = requireContext().getText(R.string.second_suggestion).toString()
+                    bind.txtPhraseSecondPrev.text = requireContext().getText(R.string.second_phrase)
                     bind.imgSoundSecondPrev.visibility = View.VISIBLE
                     bind.txtLangSecondPrev.text = Locale.getDefault().displayLanguage
                     bind.imgCardSecondPrev.setImageResource(R.drawable.noise)
                     bind.imgCardSecondPrev.visibility = View.VISIBLE
-                    bind.txtDefinitionSecondPrev.text = requireContext().getText(R.string.fist_suggestion)
+                    bind.txtDefinitionSecondPrev.text = requireContext().getText(R.string.second_suggestion)
                 }
                 bind.ivAddSecond.setImageResource(addIcons[if (it == null) 0 else 1])
             }
             model.preview.observe(this) {
                 bind.mcvPreview.visibility = if (it) View.GONE else View.VISIBLE
-                bind.mcvCard.visibility = if (it) View.VISIBLE else View.GONE
+                bind.cvCardView.visibility = if (it) View.VISIBLE else View.GONE
                 bind.imgPreview.setImageResource(previewIcons[if (it) 1 else 0])
             }
             model.singleCard.observe(this) { bind.cbSingleCard.isChecked = it }
@@ -221,23 +229,6 @@ class EditCardFragment : DaggerFragment() {
             }
         }
 
-    }
-
-    private fun clear() {
-        full = false
-        bind.txtDefinitionFirst.visibility = View.GONE
-        bind.txtDefinitionSecond.visibility = View.GONE
-        bind.imgCardFirst.visibility = View.GONE
-        bind.imgSoundFirst.visibility = View.GONE
-        bind.txtDefinitionFirst.text = ""
-        bind.txtLangFirst.text = ""
-        bind.txtPhraseFirst.text = ""
-        bind.imgCardSecond.visibility = View.GONE
-        bind.imgSoundSecond.visibility = View.GONE
-        bind.txtDefinitionSecond.text = ""
-        bind.txtLangSecond.text = ""
-        bind.txtPhraseSecond.text = ""
-        bind.imgBtnAction.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
     }
 
     private fun loadDataWithID(id: Int) {
@@ -285,9 +276,8 @@ class EditCardFragment : DaggerFragment() {
 
     private fun createReasonTextWatcher(): TextWatcher = ShortTextWatcher { model.setReason(it.toString()) }
 
-    private suspend fun setButtonData(
-        phrase: LocalPhrase,
-        container: MaterialCardView,
+    private fun setPreviewData(
+        phrase: LocalPhraseView,
         txtPhrase: TextView,
         imgSound: ImageView,
         lang: TextView,
@@ -295,59 +285,18 @@ class EditCardFragment : DaggerFragment() {
         definition: TextView
     ) {
         txtPhrase.text = phrase.phrase.ifNullOrEmpty { requireContext().getString(R.string.phrase_label) }
-        lang.text = showLang(phrase)
+        lang.text = phrase.lang.let { l -> Locale.forLanguageTag(l).displayLanguage }
         definition.text = phrase.definition.orEmpty()
 
-        phrase.idPronounce?.let {
+        phrase.pronounce?.let {
             imgSound.visibility = View.VISIBLE
-            container.setOnClickListener { model.play(imgSound.background.asAnimationDrawable(), phrase) }
         }.ifNull { imgSound.visibility = View.GONE }
 
-        phrase.toImage()?.let {
+        phrase.image?.let {
             Picasso.get().load(it.imgUri.toUri()).placeholder(R.drawable.noise).into(imageCard)
             imageCard.visibility = View.VISIBLE
         }.ifNull { imageCard.visibility = View.GONE }
     }
-
-    private suspend fun setPreviewData(
-        phrase: LocalPhrase,
-        txtPhrase: TextView,
-        imgSound: ImageView,
-        lang: TextView,
-        imageCard: ImageView,
-        definition: TextView
-    ) {
-        txtPhrase.text = phrase.phrase.ifNullOrEmpty { requireContext().getString(R.string.phrase_label) }
-        lang.text = showLang(phrase)
-        definition.text = phrase.definition.orEmpty()
-
-        phrase.idPronounce?.let {
-            imgSound.visibility = View.VISIBLE
-        }.ifNull { imgSound.visibility = View.GONE }
-
-        phrase.toImage()?.let {
-            Picasso.get().load(it.imgUri.toUri()).placeholder(R.drawable.noise).into(imageCard)
-            imageCard.visibility = View.VISIBLE
-        }.ifNull { imageCard.visibility = View.GONE }
-    }
-
-    private fun setDefaultButtonData(
-        imgSound: ImageView,
-        txtPhrase: TextView,
-        txtLang: TextView,
-        imageCard: ImageView,
-        definition: TextView
-    ) {
-        imgSound.visibility = View.GONE
-        txtPhrase.text = ""
-        txtLang.text = Locale.getDefault().displayLanguage
-        imageCard.visibility = View.GONE
-        definition.text = ""
-    }
-
-
-    private fun showLang(phrase: LocalPhrase) = Locale.forLanguageTag(phrase.lang).displayLanguage
-
 
     private fun openChoicePhraseFragment(bundle: Bundle) {
         navigate(R.id.choicePhraseDialog, bundle)

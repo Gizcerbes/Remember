@@ -28,7 +28,11 @@ class ModuleCardProvider(
 
     suspend fun getCountByModule(module: LocalModule) = mcr.getCountByModuleId(module.id)
 
+    suspend fun getCountByModuleId(idModule: Int) = mcr.getCountByModuleId(idModule)
+
     suspend fun getByPositionOfModule(idModule: Int, position: Int) = mcr.getByPositionOfModule(idModule, position)
+
+    suspend fun getView(idModule: Int, position: Int) = mcr.getViewByPositionOfModule(idModule, position)
 
     fun getByModuleFlow(module: LocalModule) = mcr.getByModule(module)
 

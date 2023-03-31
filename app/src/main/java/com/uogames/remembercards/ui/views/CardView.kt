@@ -17,8 +17,8 @@ class CardView(context: Context?, attrs: AttributeSet? = null) : LinearLayout(co
     var isOpened: Boolean = false
         set(value) {
             field = value
-            showDefinitionFirst = value && phraseFirst.isNotEmpty()
-            showDefinitionSecond = value && phraseSecond.isNotEmpty()
+            showDefinitionFirst = value && bind.txtDefinitionFirst.text.isNotEmpty()
+            showDefinitionSecond = value && bind.txtDefinitionSecond.text.isNotEmpty()
             bind.llBtns.visibility = if (value) VISIBLE else GONE
             bind.imgBtnAction.setImageResource(ocImages[if (value) 1 else 0])
         }
@@ -149,6 +149,12 @@ class CardView(context: Context?, attrs: AttributeSet? = null) : LinearLayout(co
             bind.btnCardAction.visibility = if (value) VISIBLE else GONE
         }
 
+    var showButtonRemove: Boolean = false
+        set(value) {
+            field = value
+            bind.btnRemove.visibility = if (value) VISIBLE else GONE
+        }
+
     init {
         addView(bind.root)
         val typedArray = context?.theme?.obtainStyledAttributes(
@@ -180,6 +186,7 @@ class CardView(context: Context?, attrs: AttributeSet? = null) : LinearLayout(co
             showButtonAdd = getBoolean(R.styleable.CardView_show_button_add, false)
             showButtons = getBoolean(R.styleable.CardView_show_buttons, false)
             isOpened = getBoolean(R.styleable.CardView_opened, false)
+            showButtonRemove = getBoolean(R.styleable.CardView_show_button_remove, false)
         }?.recycle()
 
         bind.btnCardAction.setOnClickListener { isOpened = !isOpened }
@@ -228,6 +235,16 @@ class CardView(context: Context?, attrs: AttributeSet? = null) : LinearLayout(co
         showButtonEdit = show && l != null
     }
 
+    fun setOnClickRemove(show: Boolean = true, l: OnClickListener?) {
+        bind.btnRemove.setOnClickListener(l)
+        showButtonRemove = show && l != null
+    }
+
+    fun setOnLongClickRemove(show: Boolean = true, l: OnLongClickListener?) {
+        bind.btnRemove.setOnLongClickListener(l)
+        showButtonRemove = show && l != null
+    }
+
     fun reset() {
         clue = ""
         languageTagFirst = Locale.getDefault()
@@ -242,6 +259,7 @@ class CardView(context: Context?, attrs: AttributeSet? = null) : LinearLayout(co
         definitionSecond = ""
         showDefinitionSecond = false
         showImageSecond = false
+        showButtonRemove = false
         setOnClickButtonAddListener(false, null)
         setOnClickButtonCardFirst(null)
         setOnClickButtonCardSecond(null)

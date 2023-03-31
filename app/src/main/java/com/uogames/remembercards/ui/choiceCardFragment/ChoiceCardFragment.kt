@@ -11,16 +11,19 @@ import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.navOptions
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import com.uogames.dto.global.GlobalCard
+import com.uogames.dto.local.LocalCard
 import com.uogames.remembercards.GlobalViewModel
+import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
-import com.uogames.remembercards.databinding.FragmentCardBinding
 import com.uogames.remembercards.databinding.FragmentChoiceCardBinding
 import com.uogames.remembercards.ui.choiceCountry.ChoiceCountryDialog
 import com.uogames.remembercards.ui.choiceLanguageDialog.ChoiceLanguageDialog
 import com.uogames.remembercards.ui.editCardFragment.EditCardFragment
+import com.uogames.remembercards.ui.reportFragment.ReportFragment
 import com.uogames.remembercards.utils.*
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.Job
@@ -41,15 +44,15 @@ class ChoiceCardFragment : DaggerFragment() {
     @Inject
     lateinit var model: ChoiceCardViewModel
 
-    @Inject
-    lateinit var player: ObservableMediaPlayer
-
     private var _bind: FragmentChoiceCardBinding? = null
     private val bind get() = _bind!!
 
     private var imm: InputMethodManager? = null
 
     private val textWatcher = createSearchTextWatcher()
+
+    private val reportCall = { card: GlobalCard -> navigateToReport(card) }
+    private val choiceCard = { card: LocalCard -> receiveCall(card.id) }
 
     private var observers: Job? = null
 
@@ -110,9 +113,12 @@ class ChoiceCardFragment : DaggerFragment() {
         }
 
         lifecycleScope.launch {
-            delay(300)
-            bind.recycler.adapter = ChoiceCardAdapter(model, player, receiveCall())
+            delay(250)
+            bind.recycler.adapter = model.adapter
         }
+
+        model.addChoiceListener(choiceCard)
+        model.addReportListener(reportCall)
 
         model.recyclerStat?.let { bind.recycler.layoutManager?.onRestoreInstanceState(it) }
 
@@ -147,7 +153,9 @@ class ChoiceCardFragment : DaggerFragment() {
 
     }
 
-    private fun receiveCall(): (Int) -> Unit = { id ->
+    private fun receiveCall(): (Int) -> Unit = { id -> receiveCall(id) }
+
+    private fun receiveCall(id: Int) {
         receivedTAG?.let {
             setFragmentResult(it, bundleOf("ID" to id))
         }.ifNull {
@@ -156,17 +164,15 @@ class ChoiceCardFragment : DaggerFragment() {
         findNavController().popBackStack()
     }
 
-    private fun createKeyObserver(): Job =
-        globalViewModel.isShowKey.observeWhenStarted(lifecycleScope) {
-            bind.tilSearch.visibility = if (it) View.VISIBLE else View.GONE
-            bind.btnAdd.visibility = if (it) View.GONE else View.VISIBLE
-            bind.btnBack.visibility = if (it) View.GONE else View.VISIBLE
-            if (it) {
-                bind.searchImage.setImageResource(R.drawable.ic_baseline_close_24)
-            } else {
-                bind.searchImage.setImageResource(R.drawable.ic_baseline_search_24)
-            }
-        }
+    private fun navigateToReport(card: GlobalCard) = navigate(
+        R.id.reportFragment,
+        bundleOf(
+            ReportFragment.TYPE to ReportFragment.types.CARD,
+            ReportFragment.CLAIMANT to Firebase.auth.currentUser?.uid,
+            ReportFragment.ACCUSED to card.globalOwner,
+            ReportFragment.ITEM_ID to card.globalId
+        )
+    )
 
     private fun navigateSelectedToEdit() = navigateToEdit(
         bundleOf(
@@ -176,19 +182,7 @@ class ChoiceCardFragment : DaggerFragment() {
     )
 
     private fun navigateToEdit(bundle: Bundle? = null) {
-        imm?.hideSoftInputFromWindow(view?.windowToken, 0)
-        requireActivity().findNavController(R.id.nav_host_fragment).navigate(
-            R.id.editCardFragment,
-            bundle,
-            navOptions {
-                anim {
-                    enter = R.anim.from_bottom
-                    exit = R.anim.hide
-                    popEnter = R.anim.show
-                    popExit = R.anim.to_bottom
-                }
-            }
-        )
+        navigate(R.id.editCardFragment, bundle)
     }
 
     private fun createSearchTextWatcher(): TextWatcher = ShortTextWatcher {
@@ -200,7 +194,9 @@ class ChoiceCardFragment : DaggerFragment() {
         observers?.cancel()
         bind.tilSearch.editText?.removeTextChangedListener(textWatcher)
         imm?.hideSoftInputFromWindow(view?.windowToken, 0)
-        (bind.recycler.adapter as? ChoiceCardAdapter)?.close()
+        model.recyclerStat = bind.recycler.layoutManager?.onSaveInstanceState()
+        model.removeChoiceListener(choiceCard)
+        model.removeReportListener(reportCall)
         bind.recycler.adapter = null
         imm = null
         _bind = null

@@ -43,6 +43,7 @@
         <attr name="definition_second" format="string" />
         <attr name="show_definition_second" format="boolean" />
         <attr name="show_image_second" format="boolean" />
+        <attr name="show_button_remove" format="boolean" />
         <attr name="show_button_report" />
         <attr name="show_progress_loading" />
         <attr name="show_button_stop" />

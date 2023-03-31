@@ -37,7 +37,7 @@ class ChoicePhraseViewModel @Inject constructor(
     }
 
     private class ShareAction(val job: Job, var callback: (String) -> Unit)
-    private class DownloadAction(val job: Job, var callback: (String) -> Unit)
+    private class DownloadAction(val job: Job, var callback: (String, LocalPhrase?) -> Unit)
 
     private val shareActions = HashMap<Int, ShareAction>()
     private val downloadActions = HashMap<UUID, DownloadAction>()
@@ -142,7 +142,7 @@ class ChoicePhraseViewModel @Inject constructor(
         return shareActions[phrase.id]?.job?.isActive.ifNull { false }
     }
 
-    suspend fun getByGlobalId(uuid: UUID) =  provider.phrase.getByGlobalId(uuid)
+    fun getGlobalAsync(position: Long) =  viewModelScope.async { getByPosition(position) }
 
     suspend fun getByPosition(position: Long): GlobalPhraseModel? {
         runCatching { return GlobalPhraseModel(provider.phrase.getGlobalView(
@@ -159,7 +159,7 @@ class ChoicePhraseViewModel @Inject constructor(
         return null
     }
 
-    fun setDownloadAction(id: UUID, loading: (String) -> Unit): Boolean {
+    fun setDownloadAction(id: UUID, loading: (String, LocalPhrase?) -> Unit): Boolean {
         downloadActions[id]?.callback = loading
         return downloadActions[id]?.job?.isActive.ifNull { false }
     }
@@ -167,22 +167,22 @@ class ChoicePhraseViewModel @Inject constructor(
     fun stopDownloading(id: UUID) {
         val action = downloadActions[id].ifNull { return }
         action.job.cancel()
-        action.callback("Cancel")
+        action.callback("Cancel", null)
         downloadActions.remove(id)
     }
 
-    fun save(phraseModel: GlobalPhraseModel, loading: (String) -> Unit) {
+    fun save(phraseModel: GlobalPhraseModel, loading: (String, LocalPhrase?) -> Unit) {
         val job = viewModelScope.launch {
             runCatching {
                 provider.phrase.save(phraseModel.phraseView)
-            }.onSuccess {
+            }.onSuccess {lp ->
                 launch(Dispatchers.Main) {
-                    downloadActions[phraseModel.phraseView.globalId]?.callback?.let { back -> back("Ok") }
+                    downloadActions[phraseModel.phraseView.globalId]?.callback?.let { back -> back("Ok", lp) }
                     downloadActions.remove(phraseModel.phraseView.globalId)
                 }
             }.onFailure {
                 launch(Dispatchers.Main) {
-                    downloadActions[phraseModel.phraseView.globalId]?.callback?.let { back -> back(it.message ?: "Error") }
+                    downloadActions[phraseModel.phraseView.globalId]?.callback?.let { back -> back(it.message ?: "Error", null) }
                     downloadActions.remove(phraseModel.phraseView.globalId)
                 }
             }
