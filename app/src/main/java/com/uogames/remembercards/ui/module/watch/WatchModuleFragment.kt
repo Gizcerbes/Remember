@@ -45,12 +45,18 @@ class WatchModuleFragment : DaggerFragment() {
     private var observer: Job? = null
 
     private val startAction: () -> Unit = {
-        bind.btnDownload.visibility = View.GONE
+        bind.btnDownload.isEnabled = false
+        bind.ivBtnDownload.isEnabled = false
+        bind.lpiIndicator.visibility = View.VISIBLE
     }
 
     private val endAction: (String) -> Unit = {
-        bind.btnDownload.visibility = View.VISIBLE
-        Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+        lifecycleScope.launchWhenStarted {
+            bind.btnDownload.isEnabled = true
+            bind.ivBtnDownload.isEnabled = true
+            bind.lpiIndicator.visibility = View.GONE
+            Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -67,6 +73,8 @@ class WatchModuleFragment : DaggerFragment() {
         model.globalID.value = arguments?.get(MODULE_ID) as? UUID
 
         model.apply { if (localID.value == null && globalID.value == null) findNavController().popBackStack() }
+
+        bind.lpiIndicator.visibility = View.GONE
 
         bind.btnBack.setOnClickListener { findNavController().popBackStack() }
 

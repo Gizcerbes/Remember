@@ -36,19 +36,12 @@ class WatchModuleViewModel @Inject constructor(
 
     val adapter = WatchModuleAdapter(this)
 
-    private val editCall = ArrayList<(Int) -> Unit>()
-
-    fun addEditCall(call: (Int) -> Unit) = editCall.add(call)
-
-    fun removeEditCall(call: (Int) -> Unit) = editCall.remove(call)
-
     fun reset() {
         type.value = false
         localID.value = null
         globalID.value = null
         _localModule.value = null
         _globalModule.value = null
-        editCall.clear()
     }
 
     fun update() = viewModelScope.launch {
@@ -76,8 +69,6 @@ class WatchModuleViewModel @Inject constructor(
         val globalID = globalID.value.ifNull { return@async null }
         model.getGlobalModuleCardModel(globalID, position)
     }
-
-    fun edit(id: Int) = editCall.forEach { it(id) }
 
     fun download(view: GlobalModuleView, loading: (String) -> Unit) = model.download(view, loading)
 

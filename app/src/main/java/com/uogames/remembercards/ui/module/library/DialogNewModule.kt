@@ -1,4 +1,4 @@
-package com.uogames.remembercards.ui.libraryFragment
+package com.uogames.remembercards.ui.module.library
 
 import android.os.Bundle
 import android.view.LayoutInflater

@@ -1,4 +1,4 @@
-package com.uogames.remembercards.ui.libraryFragment
+package com.uogames.remembercards.ui.module.library
 
 import com.uogames.dto.User
 import com.uogames.dto.global.GlobalModule

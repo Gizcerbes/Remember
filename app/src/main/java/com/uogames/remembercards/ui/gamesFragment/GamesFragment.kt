@@ -15,7 +15,7 @@ import com.uogames.remembercards.ui.choiceModuleDialog.ChoiceModuleDialog
 import com.uogames.remembercards.ui.games.gameYesOrNo.GameYesOrNotFragment
 import com.uogames.remembercards.ui.games.gameYesOrNo.GameYesOrNotViewModel
 import com.uogames.remembercards.ui.games.watchCard.WatchCardFragment
-import com.uogames.remembercards.ui.libraryFragment.LibraryViewModel
+import com.uogames.remembercards.ui.module.library.LibraryViewModel
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observeWhenStarted
 import dagger.android.support.DaggerFragment

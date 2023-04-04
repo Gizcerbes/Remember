@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import com.uogames.dto.local.LocalModule
 import com.uogames.remembercards.databinding.FragmentChoiceModuleBinding
-import com.uogames.remembercards.ui.libraryFragment.LibraryViewModel
+import com.uogames.remembercards.ui.module.library.LibraryViewModel
 import com.uogames.remembercards.utils.ObservedDialog
 import kotlinx.coroutines.delay
 

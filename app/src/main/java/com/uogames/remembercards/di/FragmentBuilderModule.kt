@@ -11,7 +11,7 @@ import com.uogames.remembercards.ui.games.gameYesOrNo.GameYesOrNotFragment
 import com.uogames.remembercards.ui.games.gameYesOrNo.ResultYesOrNotFragment
 import com.uogames.remembercards.ui.games.watchCard.WatchCardFragment
 import com.uogames.remembercards.ui.gamesFragment.GamesFragment
-import com.uogames.remembercards.ui.libraryFragment.LibraryFragment
+import com.uogames.remembercards.ui.module.library.LibraryFragment
 import com.uogames.remembercards.ui.mainNav.MainNaviFragment
 import com.uogames.remembercards.ui.module.watch.WatchModuleFragment
 import com.uogames.remembercards.ui.personFragment.PersonFragment

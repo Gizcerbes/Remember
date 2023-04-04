@@ -15,7 +15,7 @@ import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseViewModel
 import com.uogames.remembercards.ui.games.gameYesOrNo.GameYesOrNotViewModel
 import com.uogames.remembercards.ui.games.watchCard.WatchCardViewModel
 import com.uogames.remembercards.ui.gamesFragment.GamesViewModel
-import com.uogames.remembercards.ui.libraryFragment.LibraryViewModel
+import com.uogames.remembercards.ui.module.library.LibraryViewModel
 import com.uogames.remembercards.ui.mainNav.NavigationViewModel
 import com.uogames.remembercards.ui.module.watch.WatchModuleViewModel
 import com.uogames.remembercards.ui.phrasesFragment.PhraseViewModel
