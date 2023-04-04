@@ -83,7 +83,11 @@
 		android:label="WatchCardFragment"
 		tools:layout="@layout/fragment_game_warch_card"
 		/>
-
+	<fragment
+		android:id="@+id/watchModuleFragment"
+		android:name="com.uogames.remembercards.ui.module.watch.WatchModuleFragment"
+		tools:layout="@layout/fragment_watch_module"
+		android:label="WatchModuleFragment" />
 
 
 </navigation>

@@ -6,7 +6,7 @@ import com.uogames.dto.global.*
 import com.uogames.dto.local.LocalCard
 import com.uogames.dto.local.LocalCardView
 import com.uogames.flags.Countries
-import com.uogames.remembercards.GlobalViewModel
+import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observe

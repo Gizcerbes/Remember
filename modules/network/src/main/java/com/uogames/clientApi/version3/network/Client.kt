@@ -26,7 +26,7 @@ class Client(
     val okHttpClient = OkHttpClient.Builder().apply {
         connectTimeout(10, TimeUnit.SECONDS)
         followRedirects(false)
-        connectionPool(ConnectionPool(16, 5, TimeUnit.SECONDS))
+        connectionPool(ConnectionPool(16, 5, TimeUnit.MINUTES))
         if (ssl != null) {
             setSsl(ssl)
         }
@@ -49,10 +49,10 @@ class Client(
             gson()
         }
 
-		if (BuildConfig.DEBUG) install(Logging) {
-			logger = Logger.SIMPLE
-			level = LogLevel.ALL
-		}
+        if (BuildConfig.DEBUG) install(Logging) {
+            logger = Logger.SIMPLE
+            level = LogLevel.ALL
+        }
     }
 
     private fun getSsl(keystoreInput: ByteArray?, keystorePassword: CharArray?): SslSettings? {

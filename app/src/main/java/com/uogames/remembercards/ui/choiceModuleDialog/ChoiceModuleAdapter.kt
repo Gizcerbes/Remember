@@ -53,7 +53,7 @@ class ChoiceModuleAdapter(
             clear()
             observer = recyclerScope.launch {
                 val mm = model.get(adapterPosition).ifNull { return@launch }
-                val owner = mm.module.globalOwner
+                val owner = mm.owner.await().userName
 
                 bind.txtName.text = mm.module.name
                 val count = mm.count.await().toString()

@@ -9,9 +9,11 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.uogames.dto.global.GlobalImageView
 import com.uogames.dto.global.GlobalPhrase
+import com.uogames.dto.local.LocalPhraseView
 import com.uogames.map.PhraseMap.toGlobalPhrase
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardPhraseBinding
+import com.uogames.remembercards.ui.choicePhraseFragment.ChoicePhraseViewModel
 import com.uogames.remembercards.ui.dialogs.ShareAttentionDialog
 import com.uogames.remembercards.ui.views.PhraseView
 import com.uogames.remembercards.utils.*
@@ -72,23 +74,30 @@ class PhraseAdapter(
                 view.language = Locale.forLanguageTag(phraseView.phrase.lang)
                 view.setOnClickListenerButtonEdit { editCall?.let { it1 -> it1(phrase.id) } }
                 vm.setShareAction(phrase, endAction).ifTrue(startAction)
-                view.setOnClickButtonShare(
-                    auth.currentUser != null && (phrase.globalOwner != null && phrase.globalOwner == auth.currentUser?.uid)
-                ) {
-                    vm.shareNotice.value?.let {
-                        startAction()
-                        vm.share(phrase, endAction)
-                    }.ifNull {
-                        ShareAttentionDialog.show(itemView.context) {
-                            startAction()
-                            vm.share(phrase, endAction)
-                            it.ifTrue { vm.showShareNotice(false) }
-                        }
-                    }
-                }
+
+                setShareAction(phrase)
+
                 view.setOnClickButtonStop(false) { vm.stopSharing(phrase) }
             }
         }
+
+        private fun setShareAction(phrase: LocalPhraseView) {
+            if (auth.currentUser == null) return
+            if (phrase.globalOwner != null && phrase.globalOwner != auth.currentUser?.uid) return
+            view.setOnClickButtonShare {
+                vm.shareNotice.value?.let {
+                    startAction()
+                    vm.share(phrase, endAction)
+                }.ifNull {
+                    ShareAttentionDialog.show(itemView.context) {
+                        startAction()
+                        vm.share(phrase, endAction)
+                        it.ifTrue { vm.showShareNotice(false) }
+                    }
+                }
+            }
+        }
+
 
         override fun onDestroy() {
             super.onDestroy()

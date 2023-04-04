@@ -1,8 +1,7 @@
-package com.uogames.remembercards
+package com.uogames.remembercards.viewmodel
 
 import android.content.Context
 import android.graphics.Rect
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.ViewModel
@@ -10,6 +9,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.uogames.remembercards.BuildConfig
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observe
 import com.uogames.repository.DataProvider

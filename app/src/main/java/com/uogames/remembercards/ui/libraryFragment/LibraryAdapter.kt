@@ -4,15 +4,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.bundleOf
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.uogames.dto.global.GlobalModule
 import com.uogames.dto.local.LocalModule
 import com.uogames.map.ModuleMap.toGlobalModule
+import com.uogames.remembercards.MainActivity.Companion.findNavHostFragment
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardModuleBinding
 import com.uogames.remembercards.databinding.DialogShareAttentionBinding
+import com.uogames.remembercards.ui.module.watch.WatchModuleFragment
 import com.uogames.remembercards.utils.ClosableAdapter
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.ifTrue
@@ -100,6 +104,17 @@ class LibraryAdapter(
                     model.stopSharing(mm.module)
                 }
 
+                //test
+                bind.btnShow.setOnClickListener {
+                    (itemView.context as AppCompatActivity).findNavHostFragment().navigate(
+                        R.id.watchModuleFragment,
+                        bundleOf(
+                            WatchModuleFragment.MODULE_TYPE to WatchModuleFragment.ModuleType.LOCAL,
+                            WatchModuleFragment.MODULE_ID to mm.module.id
+                        )
+                    )
+                }
+
             }
             bind.btnAction.setOnClickListener {
                 full = !full
@@ -161,6 +176,18 @@ class LibraryAdapter(
                 bind.btnStop.setOnClickListener {
                     model.stopDownloading(mm.module.globalId)
                 }
+
+                //test
+                bind.btnShow.setOnClickListener {
+                    (itemView.context as AppCompatActivity).findNavHostFragment().navigate(
+                        R.id.watchModuleFragment,
+                        bundleOf(
+                            WatchModuleFragment.MODULE_TYPE to WatchModuleFragment.ModuleType.GLOBAL,
+                            WatchModuleFragment.MODULE_ID to mm.module.globalId
+                        )
+                    )
+                }
+
             }
             bind.btnAction.setOnClickListener {
                 full = !full
