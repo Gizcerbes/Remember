@@ -26,6 +26,10 @@ class ModuleProvider(
 
     suspend fun get(text: String?, position: Int) = mr.get(text, position)
 
+    suspend fun getView(text: String?, position: Int) = mr.getView(text, position)
+
+    suspend fun getViewById(id: Int) = mr.getViewById(id)
+
     fun getCount() = mr.getCount()
 
     fun getByIdFlow(id: Int) = mr.getByIdFlow(id)
@@ -79,6 +83,8 @@ class ModuleProvider(
         countrySecond = countrySecond,
         number = number
     )
+
+    suspend fun getGlobalView(id: UUID) = network.module.getView(id)
 
     suspend fun share(id: Int): LocalModule? {
         val module = getById(id)

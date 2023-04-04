@@ -4,11 +4,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.recyclerview.widget.RecyclerView
 import com.uogames.dto.local.LocalModule
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardModuleBinding
-import com.uogames.remembercards.ui.libraryFragment.LibraryViewModel
+import com.uogames.remembercards.ui.module.library.LibraryViewModel
 import com.uogames.remembercards.utils.ClosableAdapter
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.ifTrue
@@ -53,7 +52,7 @@ class ChoiceModuleAdapter(
             clear()
             observer = recyclerScope.launch {
                 val mm = model.get(adapterPosition).ifNull { return@launch }
-                val owner = mm.module.globalOwner
+                val owner = mm.owner.await().userName
 
                 bind.txtName.text = mm.module.name
                 val count = mm.count.await().toString()

@@ -1,14 +1,13 @@
-package com.uogames.remembercards.ui.libraryFragment
+package com.uogames.remembercards.ui.module.library
 
 import com.uogames.dto.User
 import com.uogames.dto.global.GlobalModule
 import com.uogames.dto.global.GlobalModuleView
 import com.uogames.dto.local.LocalModule
-import com.uogames.remembercards.GlobalViewModel
+import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.utils.UserGlobalName
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observe
-import com.uogames.repository.DataProvider
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,7 +18,6 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 class LibraryViewModel @Inject constructor(
-    //private val provider: DataProvider
     private val globalViewModel: GlobalViewModel
 ) {
 
@@ -231,4 +229,5 @@ class LibraryViewModel @Inject constructor(
     }
 
     fun showShareNotice(b: Boolean) = globalViewModel.showShareNotice(b)
+
 }

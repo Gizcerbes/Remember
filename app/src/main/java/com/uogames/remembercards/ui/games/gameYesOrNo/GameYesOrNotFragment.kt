@@ -17,7 +17,7 @@ import com.squareup.picasso.Picasso
 import com.uogames.dto.local.LocalImage
 import com.uogames.dto.local.LocalPhrase
 import com.uogames.dto.local.LocalPronunciation
-import com.uogames.remembercards.GlobalViewModel
+import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentYesOrNotGameBinding
 import com.uogames.remembercards.utils.*

@@ -2,8 +2,7 @@ package com.uogames.remembercards.ui.games.watchCard
 
 import android.content.Context
 import com.uogames.dto.local.LocalCardView
-import com.uogames.dto.local.LocalModuleCardView
-import com.uogames.remembercards.GlobalViewModel
+import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observe
 import kotlinx.coroutines.CoroutineScope
@@ -44,18 +43,28 @@ class WatchCardViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.Eagerly, 0)
 
     init {
-        moduleID.observe(viewModelScope) {
-            _card.value = moduleID.value?.let {
-                provider.moduleCard.getView(it, _position.value)?.card
-            }.ifNull {
-                provider.cards.getView(position = _position.value)
-            }
-        }
+//        moduleID.observe(viewModelScope) {
+//            _card.value = moduleID.value?.let {
+//                provider.moduleCard.getView(it, _position.value)?.card
+//            }.ifNull {
+//                provider.cards.getView(position = _position.value)
+//            }
+//        }
     }
 
     fun reset() {
         moduleID.value = null
         _position.value = 0
+        backSize.value = false
+        _card.value = null
+    }
+
+    fun update() = viewModelScope.launch {
+        _card.value = moduleID.value?.let {
+            provider.moduleCard.getView(it, _position.value)?.card
+        }.ifNull {
+            provider.cards.getView(position = _position.value)
+        }
     }
 
     fun next() = viewModelScope.launch {

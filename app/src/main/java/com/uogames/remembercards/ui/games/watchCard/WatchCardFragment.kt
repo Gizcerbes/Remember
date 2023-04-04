@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.uogames.remembercards.GlobalViewModel
+import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentGameWarchCardBinding
 import com.uogames.remembercards.utils.*
@@ -46,6 +46,8 @@ class WatchCardFragment : DaggerFragment() {
         globalViewModel.shouldReset.ifTrue { model.reset() }
 
         model.moduleID.value = arguments?.getInt(MODULE_ID)
+
+        model.update()
 
         bind.btnClose.setOnClickListener { findNavController().popBackStack() }
 

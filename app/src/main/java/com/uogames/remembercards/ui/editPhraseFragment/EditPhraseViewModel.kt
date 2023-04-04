@@ -11,7 +11,7 @@ import com.google.mlkit.nl.languageid.LanguageIdentificationOptions
 import com.uogames.dto.local.LocalImage
 import com.uogames.dto.local.LocalPhrase
 import com.uogames.flags.Countries
-import com.uogames.remembercards.GlobalViewModel
+import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.utils.*
 import com.uogames.repository.DataProvider
 import kotlinx.coroutines.*

@@ -1,15 +1,12 @@
 package com.uogames.remembercards.ui.editModuleFragment
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.uogames.dto.local.LocalCard
 import com.uogames.dto.local.LocalModule
 import com.uogames.dto.local.LocalModuleCard
-import com.uogames.remembercards.GlobalViewModel
+import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.remembercards.utils.ifNull
-import com.uogames.remembercards.utils.observe
-import com.uogames.repository.DataProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async

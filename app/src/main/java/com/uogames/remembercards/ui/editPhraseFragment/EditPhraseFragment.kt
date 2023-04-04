@@ -18,8 +18,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.squareup.picasso.Picasso
-import com.uogames.dto.local.LocalImage
-import com.uogames.remembercards.GlobalViewModel
+import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.MainActivity.Companion.findNavHostFragment
 import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R

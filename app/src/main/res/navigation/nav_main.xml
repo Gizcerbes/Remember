@@ -14,7 +14,7 @@
 
 	<fragment
 		android:id="@+id/library_fragment"
-		android:name="com.uogames.remembercards.ui.libraryFragment.LibraryFragment"
+		android:name="com.uogames.remembercards.ui.module.library.LibraryFragment"
 		android:label="BookFragment"
 		tools:layout="@layout/fragment_lbrary" />
 

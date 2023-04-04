@@ -31,6 +31,11 @@ class ModuleRepository(
         else dao.get(text, position)?.toDTO()
     }
 
+    suspend fun getView(text: String?, position: Int) : LocalModuleView? {
+        return if (text == null) dao.get(position)?.let { map.toDTO(it) }
+        else dao.get(text, position)?.let { map.toDTO(it) }
+    }
+
     fun getCount() = dao.getCount()
 
     fun getCountLike(like: String) = dao.getCountLike(like)

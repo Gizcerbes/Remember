@@ -1,4 +1,4 @@
-package com.uogames.remembercards.ui.libraryFragment
+package com.uogames.remembercards.ui.module.library
 
 import android.content.Context
 import android.os.Bundle
@@ -9,14 +9,11 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.core.os.bundleOf
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.navOptions
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.uogames.dto.global.GlobalModule
-import com.uogames.dto.global.GlobalPhrase
 import com.uogames.dto.local.LocalModule
-import com.uogames.remembercards.GlobalViewModel
-import com.uogames.remembercards.MainActivity.Companion.findNavHostFragment
+import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentLbraryBinding
