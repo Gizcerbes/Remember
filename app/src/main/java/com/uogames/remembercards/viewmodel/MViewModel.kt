@@ -57,6 +57,12 @@ class MViewModel @Inject constructor(
     private val shareActions = HashMap<Int, ShareAction>()
     private val downloadAction = HashMap<UUID, DownloadAction>()
 
+
+    fun createModule(name: String, call: (Int) -> Unit) = viewModelScope.launch {
+        val res = provider.module.add(LocalModule(name = name))
+        launch(Dispatchers.Main) { call(res.toInt()) }
+    }
+
     suspend fun getCountByModule(id: Int) = provider.moduleCard.getCountByModuleId(id)
 
     suspend fun getUserName(uid: String): UserGlobalName? {
@@ -89,12 +95,26 @@ class MViewModel @Inject constructor(
     }
 
     suspend fun getLocalSize(
-        text: String?
-    ): Int = provider.module.count(text)
+        text: String? = null,
+        fLang: String? = null,
+        sLang: String? = null,
+        fCountry: String? = null,
+        sCountry: String? = null
+    ): Int = provider.module.count(text, fLang, sLang, fCountry, sCountry)
 
     suspend fun getGlobalSize(
-        text: String?
-    ): Int = provider.module.countGlobal(text).toInt()
+        text: String? = null,
+        langFirst: String? = null,
+        langSecond: String? = null,
+        countryFirst: String? = null,
+        countrySecond: String? = null
+    ): Int = provider.module.countGlobal(
+        text = text,
+        langFirst = langFirst,
+        langSecond = langSecond,
+        countryFirst = countryFirst,
+        countrySecond = countrySecond
+    ).toInt()
 
     suspend fun getLocalModuleCardSize(
         id: Int
@@ -105,10 +125,18 @@ class MViewModel @Inject constructor(
     ): Int = provider.moduleCard.getGlobalCount(id).toInt()
 
     suspend fun getLocalModel(
-        text: String?,
-        position: Int
+        text: String? = null,
+        langFirst: String? = null,
+        langSecond: String? = null,
+        countryFirst: String? = null,
+        countrySecond: String? = null,
+        position: Int? = null
     ) = provider.module.getView(
         text = text,
+        fLang = langFirst,
+        sLang= langSecond,
+        fCountry = countryFirst,
+        sCountry = countrySecond,
         position = position
     )?.let { LocalModuleModel(it) }
 
@@ -117,11 +145,19 @@ class MViewModel @Inject constructor(
     ) = provider.module.getViewById(id)?.let { LocalModuleModel(it) }
 
     suspend fun getGlobalModel(
-        text: String?,
+        text: String? = null,
+        langFirst: String? = null,
+        langSecond: String? = null,
+        countryFirst: String? = null,
+        countrySecond: String? = null,
         position: Int
     ) = try {
         provider.module.getGlobalView(
             text = text.orEmpty(),
+            langFirst = langFirst,
+            langSecond = langSecond,
+            countryFirst = countryFirst,
+            countrySecond = countrySecond,
             number = position.toLong()
         ).let { GlobalModuleModel(it) }
     } catch (e: Exception) {
@@ -148,11 +184,12 @@ class MViewModel @Inject constructor(
         null
     }
 
-    fun share(module: LocalModule, loading: (String) -> Unit) {
+    fun share(module: LocalModuleView, loading: (String) -> Unit) {
         val job = viewModelScope.launch {
             runCatching {
                 provider.module.share(module.id)
-                val size = provider.moduleCard.getCountByModule(module)
+                //val size = provider.moduleCard.getCountByModule(module)
+                val size = getLocalModuleCardSize(module.id)
                 val shareBuffer = LinkedBlockingQueue<Job>(16)
                 for (i in 0 until size) {
                     val mc = provider.moduleCard.getByPositionOfModule(module.id, i).ifNull { return@launch }
@@ -185,12 +222,12 @@ class MViewModel @Inject constructor(
         shareActions[module.id] = ShareAction(job, loading)
     }
 
-    fun setShareAction(module: LocalModule, loading: (String) -> Unit): Boolean {
+    fun setShareAction(module: LocalModuleView, loading: (String) -> Unit): Boolean {
         shareActions[module.id]?.callback = loading
         return shareActions[module.id]?.job?.isActive.ifNull { false }
     }
 
-    fun stopSharing(module: LocalModule, message: String = "Cancel") {
+    fun stopSharing(module: LocalModuleView, message: String = "Cancel") {
         val action = shareActions[module.id].ifNull { return }
         action.job.cancel()
         viewModelScope.launch(Dispatchers.Main) { action.callback(message) }

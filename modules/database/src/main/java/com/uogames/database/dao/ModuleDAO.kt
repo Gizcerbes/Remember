@@ -1,6 +1,7 @@
 package com.uogames.database.dao
 
 import androidx.room.*
+import androidx.sqlite.db.SupportSQLiteQuery
 import com.uogames.database.entity.ModuleEntity
 import kotlinx.coroutines.flow.Flow
 import java.util.*
@@ -23,6 +24,12 @@ interface ModuleDAO {
 	@Query("SELECT COUNT(id) FROM modules WHERE name LIKE  '%' ||:text || '%' ")
 	suspend fun count(text: String): Int
 
+	@RawQuery
+	suspend fun count(query: SupportSQLiteQuery): Int
+
+	@RawQuery
+	suspend fun get(query: SupportSQLiteQuery): ModuleEntity?
+
 	@Query("SELECT DISTINCT COUNT(m.id) FROM modules AS m \n" +
 			"LEFT JOIN  module_card AS mc \n" +
 			"ON m.id = mc.id_module \n" +
@@ -36,7 +43,7 @@ interface ModuleDAO {
 			"AND pt1.lang = :fLang " +
 			"AND pt2.lang = :sLang " +
 			"AND pt1.country = :fCountry " +
-			"AND pt2.country = :sCountry")
+			"AND pt2.country = :sCountry ")
 	suspend fun countLong(
 		text: String,
 		fLang: String,
@@ -56,8 +63,6 @@ interface ModuleDAO {
 
 	@Query("SELECT * FROM modules WHERE global_id = :globalId")
 	suspend fun getByGlobalId(globalId: UUID): ModuleEntity?
-
-
 
 	@Query("SELECT COUNT(id) FROM modules")
 	fun getCount(): Flow<Int>

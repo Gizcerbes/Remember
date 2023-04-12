@@ -15,7 +15,7 @@
         app:show_button_add="true"
         app:show_button_download="true"
         app:show_button_edit="true"
-        app:show_button_report="true"
+        app:show_button_report="false"
         app:show_button_share="true"
         app:show_button_sound="true"
         app:show_button_stop="true"
@@ -32,8 +32,14 @@
         app:opened="true"
         app:phrase_first="fdfs"
         app:phrase_second="bvbvcbcbc"
-        app:show_buttons="true"
         app:show_button_stop="true"
+        app:show_buttons="true"
         app:show_progress_loading="true" />
+
+    <com.uogames.remembercards.ui.views.SearchView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:full="true"
+        app:language_tag_first=""/>
 
 </LinearLayout>

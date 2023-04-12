@@ -22,11 +22,24 @@ class ModuleProvider(
 
     suspend fun update(module: LocalModule) = mr.update(module)
 
-    suspend fun count(text: String?) = mr.count(text)
+    suspend fun count(
+        text: String? = null,
+        fLang: String? = null,
+        sLang: String? = null,
+        fCountry: String? = null,
+        sCountry: String? = null
+    ) = mr.count(text, fLang, sLang, fCountry, sCountry)
 
     suspend fun get(text: String?, position: Int) = mr.get(text, position)
 
-    suspend fun getView(text: String?, position: Int) = mr.getView(text, position)
+    suspend fun getView(
+        text: String? = null,
+        fLang: String? = null,
+        sLang: String? = null,
+        fCountry: String? = null,
+        sCountry: String? = null,
+        position: Int? = null
+    ) = mr.getView(text, fLang, sLang, fCountry, sCountry, position)
 
     suspend fun getViewById(id: Int) = mr.getViewById(id)
 

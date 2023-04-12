@@ -1,67 +1,51 @@
 package com.uogames.remembercards.ui.module.library
 
-import com.uogames.dto.User
-import com.uogames.dto.global.GlobalModule
 import com.uogames.dto.global.GlobalModuleView
-import com.uogames.dto.local.LocalModule
-import com.uogames.remembercards.viewmodel.GlobalViewModel
-import com.uogames.remembercards.utils.UserGlobalName
-import com.uogames.remembercards.utils.ifNull
+import com.uogames.dto.local.LocalModuleView
+import com.uogames.flags.Countries
 import com.uogames.remembercards.utils.observe
+import com.uogames.remembercards.viewmodel.MViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.util.*
-import java.util.concurrent.LinkedBlockingQueue
 import javax.inject.Inject
 import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 class LibraryViewModel @Inject constructor(
-    private val globalViewModel: GlobalViewModel
+    private val model: MViewModel
 ) {
 
-    private val provider = globalViewModel.provider
     private val viewModelScope = CoroutineScope(Dispatchers.IO)
 
-    inner class LocalModuleModel(val module: LocalModule) {
-        val count = viewModelScope.async { getCountByModule(module) }
-        val owner = viewModelScope.async { module.globalOwner?.let { getUserName(it) } ?: UserGlobalName(module.owner) }
-    }
-
-    inner class GlobalModuleModel(val module: GlobalModuleView) {
-        val count = viewModelScope.async { getModuleCardCount(module) }
-        val owner = viewModelScope.async { getGlobalUsername(module.user.globalOwner) ?: UserGlobalName("") }
-    }
-
-    private class ShareAction(val job: Job, var callback: (String) -> Unit)
-    private class DownloadAction(val job: Job, var callback: (String) -> Unit)
-
-    private val shareActions = HashMap<Int, ShareAction>()
-    private val downloadAction = HashMap<UUID, DownloadAction>()
-
-    val shareNotice get() = globalViewModel.shareNotice
+    val shareNotice get() = model.globalViewModel.shareNotice
 
     private val _size = MutableStateFlow(0)
     val size = _size.asStateFlow()
 
     val like = MutableStateFlow<String?>(null)
+    val languageFirst = MutableStateFlow<Locale?>(null)
+    val languageSecond = MutableStateFlow<Locale?>(null)
+    val countryFirst = MutableStateFlow<Countries?>(null)
+    val countrySecond = MutableStateFlow<Countries?>(null)
     val search = MutableStateFlow(false)
     val cloud = MutableStateFlow(false)
 
-    val adapter = LibraryAdapter(
-        model = this,
-        reportCall = { gm -> reportCall.forEach { it(gm) } },
-        selectCall = { module -> selectCall.forEach { it(module) } }
-    )
-    private val selectCall = ArrayList<(LocalModule) -> Unit>()
-    private val reportCall = ArrayList<(GlobalModule) -> Unit>()
+    val adapter = LibraryAdapter(this)
+    private val editCall = ArrayList<(Int) -> Unit>()
+    private val reportCall = ArrayList<(GlobalModuleView) -> Unit>()
+    private val watchLocalCall = ArrayList<(Int) -> Unit>()
+    private val watchGlobalCall = ArrayList<(UUID) -> Unit>()
 
     private var searchJob: Job? = null
 
     init {
         like.observe(viewModelScope) { updateSize() }
         search.observe(viewModelScope) { updateSize() }
+        languageFirst.observe(viewModelScope) { updateSize() }
+        languageSecond.observe(viewModelScope) { updateSize() }
+        countryFirst.observe(viewModelScope) { updateSize() }
+        countrySecond.observe(viewModelScope) { updateSize() }
         cloud.observe(viewModelScope) {
             _size.value = 0
             updateSize()
@@ -73,10 +57,15 @@ class LibraryViewModel @Inject constructor(
         searchJob = viewModelScope.launch {
             runCatching {
                 delay(100)
+                val text = like.value
+                val langFirst = languageFirst.value?.isO3Language
+                val langSecond = languageSecond.value?.isO3Language
+                val countryFirst = countryFirst.value?.toString()
+                val countrySecond = countrySecond.value?.toString()
                 _size.value = if (cloud.value) {
-                    provider.module.countGlobal(like.value).toInt()
+                    model.getGlobalSize(text, langFirst, langSecond, countryFirst, countrySecond)
                 } else {
-                    provider.module.count(like.value)
+                    model.getLocalSize(text, langFirst, langSecond, countryFirst, countrySecond)
                 }
             }
         }
@@ -86,148 +75,72 @@ class LibraryViewModel @Inject constructor(
         like.value = null
         search.value = false
         cloud.value = false
-        selectCall.clear()
+        editCall.clear()
         reportCall.clear()
+        watchGlobalCall.clear()
+        watchLocalCall.clear()
     }
 
     fun update() {
         updateSize()
     }
 
-    fun addSelectCall(call: (LocalModule) -> Unit) = selectCall.add(call)
+    fun addEditCall(call: (Int) -> Unit) = editCall.add(call)
 
-    fun removeSelectCall(call: (LocalModule) -> Unit) = selectCall.remove(call)
+    fun removeEditCall(call: (Int) -> Unit) = editCall.remove(call)
 
-    fun addReportCall(call: (GlobalModule) -> Unit) = reportCall.add(call)
+    fun edit(view: LocalModuleView) = editCall.forEach { it(view.id) }
 
-    fun removeReportCall(call: (GlobalModule) -> Unit) = reportCall.remove(call)
+    fun addReportCall(call: (GlobalModuleView) -> Unit) = reportCall.add(call)
 
-    fun createModule(name: String, call: (Int) -> Unit) = viewModelScope.launch {
-        val res = provider.module.add(LocalModule(name = name))
-        launch(Dispatchers.Main) { call(res.toInt()) }
-    }
+    fun removeReportCall(call: (GlobalModuleView) -> Unit) = reportCall.remove(call)
 
-    suspend fun get(position: Int) = provider.module.get(like.value, position)?.let { LocalModuleModel(it) }
+    fun report(view: GlobalModuleView) = reportCall.forEach { it(view) }
 
-    suspend fun getCountByModule(id: LocalModule) = provider.moduleCard.getCountByModule(id)
+    fun addWatchLocalCall(call: (Int) -> Unit) = watchLocalCall.add(call)
 
-    suspend fun getUserName(uid: String): UserGlobalName? {
-        val name = provider.user.getByUid(uid)
-        return if (name != null) {
-            UserGlobalName(name.name, uid)
-        } else {
-            getGlobalUsername(uid)
-        }
-    }
+    fun removeWatchLocalCall(call: (Int) -> Unit) = watchLocalCall.remove(call)
 
-    suspend fun getGlobalUsername(uid: String): UserGlobalName? {
-        return try {
-            val n = provider.user.getGlobalByUid(uid)
-            provider.user.insert(User(n.globalOwner, n.name))
-            UserGlobalName(n.name, uid)
-        } catch (e: Exception) {
-            null
-        }
-    }
+    fun watchLocal(view: LocalModuleView) = watchLocalCall.forEach { it(view.id) }
 
+    fun addWatchGlobalCall(call: (UUID) -> Unit) = watchGlobalCall.add(call)
 
-    fun share(module: LocalModule, loading: (String) -> Unit) {
-        val job = viewModelScope.launch {
-            runCatching {
-                provider.module.share(module.id)
-                val size = provider.moduleCard.getCountByModule(module)
-                val shareBuffer = LinkedBlockingQueue<Job>(16)
-                for (i in 0 until size) {
-                    val mc = provider.moduleCard.getByPositionOfModule(module.id, i).ifNull { return@launch }
-                    val job = launch {
-                        runCatching {
-                            provider.moduleCard.share(mc.id)
-                        }.onFailure {
-                            stopSharing(module, it.message ?: "Error")
-                        }
-                    }
-                    launch {
-                        job.join()
-                        shareBuffer.remove(job)
-                    }
-                    shareBuffer.put(job)
-                }
-                shareBuffer.forEach { it.join() }
-            }.onSuccess {
-                launch(Dispatchers.Main) {
-                    shareActions[module.id]?.callback?.let { back -> back("Ok") }
-                    shareActions.remove(module.id)
-                }
-            }.onFailure {
-                launch(Dispatchers.Main) {
-                    shareActions[module.id]?.callback?.let { back -> back(it.message ?: "Error") }
-                    shareActions.remove(module.id)
-                }
-            }
-        }
-        shareActions[module.id] = ShareAction(job, loading)
-    }
+    fun removeWatchGlobalCall(call: (UUID) -> Unit) = watchGlobalCall.remove(call)
 
-    fun setShareAction(module: LocalModule, loading: (String) -> Unit): Boolean {
-        shareActions[module.id]?.callback = loading
-        return shareActions[module.id]?.job?.isActive.ifNull { false }
-    }
+    fun watchGlobal(view: GlobalModuleView) = watchGlobalCall.forEach { it(view.globalId) }
 
-    fun stopSharing(module: LocalModule, message: String = "Cancel") {
-        val action = shareActions[module.id].ifNull { return }
-        action.job.cancel()
-        viewModelScope.launch(Dispatchers.Main) { action.callback(message) }
-        shareActions.remove(module.id)
-    }
+    fun createModule(name: String, call: (Int) -> Unit) = model.createModule(name, call)
 
-    suspend fun getByPosition(position: Int): GlobalModuleModel? {
-        runCatching {
-            return GlobalModuleModel(
-                provider.module.getGlobalView(
-                    text = like.value.orEmpty(),
-                    number = position.toLong()
-                )
-            )
-        }
-        return null
-    }
+    suspend fun getLocalModel(position: Int) = model.getLocalModel(
+        text = like.value,
+        langFirst = languageFirst.value?.isO3Language,
+        langSecond = languageSecond.value?.isO3Language,
+        countryFirst = countryFirst.value?.toString(),
+        countrySecond = countrySecond.value?.toString(),
+        position = position
+    )
 
-    suspend fun getModuleCardCount(module: GlobalModuleView): Long {
-        runCatching { return provider.moduleCard.getGlobalCount(module.globalId) }
-        return 0
-    }
+    fun share(module: LocalModuleView, loading: (String) -> Unit) = model.share(module, loading)
 
-    fun download(view: GlobalModuleView, loading: (String) -> Unit) {
-        val job = viewModelScope.launch {
-            runCatching {
-                provider.module.save(view)
-            }.onSuccess {
-                launch(Dispatchers.Main) {
-                    downloadAction[view.globalId]?.callback?.let { back -> back("Ok") }
-                    downloadAction.remove(view.globalId)
-                }
-            }.onFailure {
-                launch(Dispatchers.Main) {
-                    downloadAction[view.globalId]?.callback?.let { back -> back(it.message ?: "Error") }
-                    downloadAction.remove(view.globalId)
-                }
-            }
-        }
-        downloadAction[view.globalId] = DownloadAction(job, loading)
-    }
+    fun setShareAction(module: LocalModuleView, loading: (String) -> Unit) = model.setShareAction(module, loading)
 
-    fun setDownloadAction(id: UUID, loading: (String) -> Unit): Boolean {
-        downloadAction[id]?.callback = loading
-        return downloadAction[id]?.job?.isActive.ifNull { false }
-    }
+    fun stopSharing(module: LocalModuleView, message: String = "Cancel") = model.stopSharing(module, message)
 
-    fun stopDownloading(id: UUID) {
-        val action = downloadAction[id].ifNull { return }
-        action.job.cancel()
-        action.callback("Cancel")
-        downloadAction.remove(id)
-    }
+    suspend fun getGlobalModel(position: Int) = model.getGlobalModel(
+        text = like.value,
+        langFirst = languageFirst.value?.isO3Language,
+        langSecond = languageSecond.value?.isO3Language,
+        countryFirst = countryFirst.value?.toString(),
+        countrySecond = countrySecond.value?.toString(),
+        position = position
+    )
 
-    fun showShareNotice(b: Boolean) = globalViewModel.showShareNotice(b)
+    fun download(view: GlobalModuleView, loading: (String) -> Unit) = model.download(view, loading)
+
+    fun setDownloadAction(id: UUID, loading: (String) -> Unit) = model.setDownloadAction(id, loading)
+
+    fun stopDownloading(id: UUID) = model.stopDownloading(id)
+
+    fun showShareNotice(b: Boolean) = model.globalViewModel.showShareNotice(b)
 
 }

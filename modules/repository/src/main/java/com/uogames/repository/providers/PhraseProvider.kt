@@ -81,8 +81,7 @@ class PhraseProvider(
         val phrase = getById(id)
         return phrase?.let {
             val image = it.idImage?.let { image -> dataProvider.images.share(image) }
-            val pronounce =
-                it.idPronounce?.let { pronounce -> dataProvider.pronounce.share(pronounce) }
+            val pronounce = it.idPronounce?.let { pronounce -> dataProvider.pronounce.share(pronounce) }
             val globalPhrase = it.toGlobal(image, pronounce)
             val res = network.phrase.post(globalPhrase)
             val updatedPhrase = it.update(res)
@@ -124,7 +123,7 @@ class PhraseProvider(
                 )
             ).toInt()
             return pr.getById(localID) ?: throw Exception("Phrase wasn't saved")
-        } else if (l1.timeChange != view.timeChange){
+        } else if (l1.timeChange <= view.timeChange){
             val l2 = l1.update(
                 view = view,
                 idPronounce = view.pronounce?.let { dataProvider.pronounce.save(it) }?.id,

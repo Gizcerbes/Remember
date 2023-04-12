@@ -13,7 +13,7 @@ import com.uogames.dto.local.LocalModule
 import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentWatchModuleBinding
-import com.uogames.remembercards.ui.editModuleFragment.EditModuleFragment
+import com.uogames.remembercards.ui.module.editModuleFragment.EditModuleFragment
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.ifTrue
 import com.uogames.remembercards.utils.observe

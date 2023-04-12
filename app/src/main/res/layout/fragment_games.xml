@@ -68,7 +68,6 @@
 						android:id="@+id/txt_name"
 						android:layout_width="0dp"
 						android:layout_height="wrap_content"
-						android:textSize="@dimen/headline6"
 						android:textAppearance="?attr/textAppearanceHeadline6"
 						app:layout_constraintEnd_toStartOf="@id/btn_clear"
 						app:layout_constraintStart_toStartOf="parent"
@@ -80,7 +79,6 @@
 						android:layout_width="0dp"
 						android:layout_height="wrap_content"
 						android:layout_marginBottom="20dp"
-						android:textSize="@dimen/body1"
 						android:textAppearance="?attr/textAppearanceBody1"
 						app:layout_constraintBottom_toTopOf="@id/txt_owner"
 						app:layout_constraintStart_toStartOf="parent"
@@ -93,7 +91,6 @@
 						android:layout_width="0dp"
 						android:layout_height="wrap_content"
 						android:layout_gravity="start"
-						android:textSize="@dimen/body1"
 						android:textAppearance="?attr/textAppearanceBody1"
 						app:layout_constraintBottom_toBottomOf="parent"
 						app:layout_constraintEnd_toStartOf="@id/txt_likes"
@@ -218,6 +215,38 @@
 							android:layout_marginEnd="17dp"
 							android:gravity="center"
 							android:text="@string/yes_or_no"
+							android:textAppearance="?attr/textAppearanceHeadline5" />
+					</RelativeLayout>
+				</com.google.android.material.card.MaterialCardView>
+
+				<com.google.android.material.card.MaterialCardView
+					android:id="@+id/notification_worker"
+					style="@style/Theme.RememberCards.CardView.Button"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content">
+
+					<RelativeLayout
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content">
+
+						<ImageView
+							android:id="@+id/icn_notification"
+							android:layout_width="50dp"
+							android:layout_height="50dp"
+							android:layout_margin="17dp"
+							android:src="@drawable/ic_bell" />
+
+						<TextView
+							android:layout_width="match_parent"
+							android:layout_height="match_parent"
+							android:layout_alignTop="@id/icn_notification"
+							android:layout_alignBottom="@id/icn_notification"
+							android:layout_alignParentStart="true"
+							android:layout_alignParentEnd="true"
+							android:layout_marginStart="17dp"
+							android:layout_marginEnd="17dp"
+							android:gravity="center"
+							android:text="@string/notification"
 							android:textAppearance="?attr/textAppearanceHeadline5" />
 					</RelativeLayout>
 				</com.google.android.material.card.MaterialCardView>

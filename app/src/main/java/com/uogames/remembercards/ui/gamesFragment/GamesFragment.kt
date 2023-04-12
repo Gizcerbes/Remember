@@ -11,9 +11,10 @@ import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentGamesBinding
-import com.uogames.remembercards.ui.choiceModuleDialog.ChoiceModuleDialog
+import com.uogames.remembercards.ui.module.choiceModuleDialog.ChoiceModuleDialog
 import com.uogames.remembercards.ui.games.gameYesOrNo.GameYesOrNotFragment
 import com.uogames.remembercards.ui.games.gameYesOrNo.GameYesOrNotViewModel
+import com.uogames.remembercards.ui.games.notification.NotificationWorkerFragment
 import com.uogames.remembercards.ui.games.watchCard.WatchCardFragment
 import com.uogames.remembercards.ui.module.library.LibraryViewModel
 import com.uogames.remembercards.utils.ifNull
@@ -86,6 +87,17 @@ class GamesFragment : DaggerFragment() {
             }
         }
 
+        bind.notificationWorker.setOnClickListener {
+            gamesViewModel.selectedModule.value?.let {
+                navigate(
+                    R.id.notificationWorkerFragment,
+                    bundleOf(NotificationWorkerFragment.MODULE_ID to it.id)
+                )
+            }.ifNull {
+                navigate(R.id.notificationWorkerFragment)
+            }
+        }
+
         bind.mcvSelectModule.setOnClickListener {
             val dialog = ChoiceModuleDialog(libraryViewModel) {
                 gamesViewModel.selectedModule.value = it
@@ -124,6 +136,8 @@ class GamesFragment : DaggerFragment() {
 
         if (it > 0) bind.gameWatchCard.visibility = View.VISIBLE
         else bind.gameWatchCard.visibility = View.GONE
+
+        bind.notificationWorker.visibility = if (it > 0) View.VISIBLE else View.GONE
     }
 
     override fun onDestroyView() {

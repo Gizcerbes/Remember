@@ -55,8 +55,8 @@ object CardMap {
 		reason = view.reason,
 		idImage = idImage,
 		timeChange = view.timeChange,
-		like = like,
-		dislike = dislike,
+		like = view.like,
+		dislike = view.dislike,
 		globalId = view.globalId,
 		globalOwner = view.user.globalOwner
 	)

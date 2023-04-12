@@ -46,6 +46,16 @@
                 android:layout_toEndOf="@id/btn_sound"
                 tools:text="English" />
 
+            <TextView
+                android:id="@+id/txt_country"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="7dp"
+                android:textAppearance="?attr/textAppearanceBody2"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@id/txt_lang"
+                tools:text="English" />
+
 
             <LinearLayout
                 android:layout_alignParentEnd="true"
@@ -205,6 +215,8 @@
                     android:layout_toEndOf="@id/ll_b_left"
                     android:indeterminate="true"
                     app:trackCornerRadius="7dp"
+                    android:layout_marginStart="7dp"
+                    android:layout_marginEnd="7dp"
                     app:trackThickness="30dp" />
 
 

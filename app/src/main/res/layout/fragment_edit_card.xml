@@ -180,7 +180,7 @@
                             <com.google.android.material.textfield.TextInputLayout
                                 android:id="@+id/txt_reason_prev"
                                 app:boxBackgroundMode="outline"
-                                style="@style/MyDenseOutlined"
+                                style="@style/Theme.RememberCards.TextInputLayout.DenseOutlined"
                                 app:boxCollapsedPaddingTop="0dp"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
