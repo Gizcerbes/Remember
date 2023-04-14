@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.uogames.remembercards">
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE"/>
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 	<uses-permission android:name="android.permission.RECORD_AUDIO"/>
@@ -26,6 +28,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service android:name=".ui.games.notification.NotificationService"/>
+        <receiver android:name=".ui.games.notification.NotificationReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="NotificationReceiver_ACTION_NEW_NOTIFICATION"/>
+                <action android:name="NotificationReceiver_ACTION_FRONT_SIDE"/>
+                <action android:name="NotificationReceiver_ACTION_BACK_SIDE"/>
+                <action android:name="NotificationReceiver_CARD_ID"/>
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

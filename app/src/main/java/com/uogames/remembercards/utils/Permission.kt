@@ -15,7 +15,11 @@ enum class Permission constructor(private val permission: String) {
     RECORD_AUDIO(Manifest.permission.RECORD_AUDIO),
 
     @RequiresApi(Build.VERSION_CODES.Q)
-    ACCESS_MEDIA_LOCATION(Manifest.permission.ACCESS_MEDIA_LOCATION);
+    ACCESS_MEDIA_LOCATION(Manifest.permission.ACCESS_MEDIA_LOCATION),
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    POST_NOTIFICATIONS(Manifest.permission.POST_NOTIFICATIONS)
+    ;
 
     private var lastResult: Boolean = false
     private var listener: (Boolean) -> Unit = {}

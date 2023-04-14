@@ -29,7 +29,7 @@
 		tools:layout="@layout/fragment_result_mistakes" />
 	<fragment
 		android:id="@+id/addPhraseFragment"
-		android:name="com.uogames.remembercards.ui.editPhraseFragment.EditPhraseFragment"
+		android:name="com.uogames.remembercards.ui.phrase.editPhraseFragment.EditPhraseFragment"
 		android:label="AddPhraseFragment"
 		tools:layout="@layout/fragment_edit_phrase" />
 	<fragment
@@ -39,22 +39,22 @@
 		tools:layout="@layout/fragment_crop" />
 	<fragment
 		android:id="@+id/editCardFragment"
-		android:name="com.uogames.remembercards.ui.editCardFragment.EditCardFragment"
+		android:name="com.uogames.remembercards.ui.card.editCardFragment.EditCardFragment"
 		android:label="EditCardFragment"
 		tools:layout="@layout/fragment_edit_card" />
 	<fragment
 		android:id="@+id/choicePhraseDialog"
-		android:name="com.uogames.remembercards.ui.choicePhraseFragment.ChoicePhraseFragment"
+		android:name="com.uogames.remembercards.ui.phrase.choicePhraseFragment.ChoicePhraseFragment"
 		android:label="ChoicePhraseDialog"
 		tools:layout="@layout/fragment_choice_phrase" />
 	<fragment
 		android:id="@+id/editModuleFragment"
-		android:name="com.uogames.remembercards.ui.editModuleFragment.EditModuleFragment"
+		android:name="com.uogames.remembercards.ui.module.editModuleFragment.EditModuleFragment"
 		android:label="EditModuleFragment"
 		tools:layout="@layout/fragment_edit_module" />
 	<fragment
 		android:id="@+id/choiceCardFragment"
-		android:name="com.uogames.remembercards.ui.choiceCardFragment.ChoiceCardFragment"
+		android:name="com.uogames.remembercards.ui.card.choiceCardFragment.ChoiceCardFragment"
 		android:label="ChoiceCardFragment"
 		tools:layout="@layout/fragment_card" />
 	<fragment
@@ -88,6 +88,11 @@
 		android:name="com.uogames.remembercards.ui.module.watch.WatchModuleFragment"
 		tools:layout="@layout/fragment_watch_module"
 		android:label="WatchModuleFragment" />
+	<fragment
+		android:id="@+id/notificationWorkerFragment"
+		android:name="com.uogames.remembercards.ui.games.notification.NotificationWorkerFragment"
+		tools:layout="@layout/fragment_notification_worker"
+		android:label="NotificationWorkerFragment" />
 
 
 </navigation>

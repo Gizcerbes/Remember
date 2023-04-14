@@ -12,16 +12,21 @@ import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.uogames.dto.global.GlobalModule
+import com.uogames.dto.global.GlobalModuleView
 import com.uogames.dto.local.LocalModule
 import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentLbraryBinding
-import com.uogames.remembercards.ui.editModuleFragment.EditModuleFragment
+import com.uogames.remembercards.ui.dialogs.choiceCountry.ChoiceCountryDialog
+import com.uogames.remembercards.ui.dialogs.choiceLanguageDialog.ChoiceLanguageDialog
+import com.uogames.remembercards.ui.module.editModuleFragment.EditModuleFragment
+import com.uogames.remembercards.ui.module.watch.WatchModuleFragment
 import com.uogames.remembercards.ui.reportFragment.ReportFragment
 import com.uogames.remembercards.utils.*
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.*
+import java.util.*
 import javax.inject.Inject
 
 class LibraryFragment : DaggerFragment() {
@@ -39,8 +44,10 @@ class LibraryFragment : DaggerFragment() {
 
     private val textWatcher: TextWatcher = createTextWatcher()
 
-    private val reportCall = { gm: GlobalModule -> navigateToReport(gm) }
-    private val selectCall = { module: LocalModule -> navigateToEdit(module.id) }
+    private val reportCall = { gm: GlobalModuleView -> navigateToReport(gm) }
+    private val selectCall = { module: Int -> navigateToEdit(module) }
+    private val watchLocal = { id: Int -> navigateToWatchLocal(id) }
+    private val watchGlobal = { id: UUID -> navigateToWatchGlobal(id)}
 
     private val searchImages = listOf(R.drawable.ic_baseline_search_off_24, R.drawable.ic_baseline_search_24)
     private val cloudImages = listOf(R.drawable.ic_baseline_cloud_off_24, R.drawable.ic_baseline_cloud_24)
@@ -64,9 +71,8 @@ class LibraryFragment : DaggerFragment() {
 
         imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 
-        bind.tilSearch.editText?.addTextChangedListener(textWatcher)
-        bind.tilSearch.editText?.setText(model.like.value)
-        bind.tilSearch.editText?.setSelection(model.like.value?.length ?: 0)
+        bind.clSearchBar.setTextSearch(model.like.value)
+        bind.clSearchBar.addTextSearchWatcher(textWatcher)
 
         bind.btnAdd.setOnClickListener {
             DialogNewModule {
@@ -76,8 +82,35 @@ class LibraryFragment : DaggerFragment() {
         bind.btnNetwork.setOnClickListener { model.cloud.setOpposite() }
         bind.btnSearch.setOnClickListener { model.search.setOpposite() }
 
-        model.addSelectCall(selectCall)
+        bind.clSearchBar.setOnClickLanguageFirst {
+            model.languageFirst.toNull().ifTrue { return@setOnClickLanguageFirst }
+            ChoiceLanguageDialog(listOf(Locale.getDefault())) {
+                model.languageFirst.value = it
+            }.show(requireActivity().supportFragmentManager, ChoiceLanguageDialog.TAG)
+        }
+        bind.clSearchBar.setOnClickLanguageSecond {
+            model.languageSecond.toNull().ifTrue { return@setOnClickLanguageSecond }
+            ChoiceLanguageDialog(listOf(Locale.getDefault())) {
+                model.languageSecond.value = it
+            }.show(requireActivity().supportFragmentManager, ChoiceLanguageDialog.TAG)
+        }
+        bind.clSearchBar.setOnClickCountryFirst {
+            model.countryFirst.toNull().ifTrue { return@setOnClickCountryFirst }
+            ChoiceCountryDialog {
+                model.countryFirst.value = it
+            }.show(requireActivity().supportFragmentManager, ChoiceCountryDialog.TAG)
+        }
+        bind.clSearchBar.setOnClickCountrySecond {
+            model.countrySecond.toNull().ifTrue { return@setOnClickCountrySecond }
+            ChoiceCountryDialog {
+                model.countrySecond.value = it
+            }.show(requireActivity().supportFragmentManager, ChoiceCountryDialog.TAG)
+        }
+
+        model.addEditCall(selectCall)
         model.addReportCall(reportCall)
+        model.addWatchLocalCall(watchLocal)
+        model.addWatchGlobalCall(watchGlobal)
 
         lifecycleScope.launchWhenStarted {
             delay(250)
@@ -95,6 +128,22 @@ class LibraryFragment : DaggerFragment() {
             model.size.observe(this) {
                 bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
             }
+            model.languageFirst.observe(this) {
+                bind.clSearchBar.languageFirst = it.ifNull {
+                    Locale.forLanguageTag(requireContext().getText(R.string.label_all).toString())
+                }
+            }
+            model.languageSecond.observe(this) {
+                bind.clSearchBar.languageSecond = it.ifNull {
+                    Locale.forLanguageTag(requireContext().getText(R.string.label_all).toString())
+                }
+            }
+            model.countryFirst.observe(this) {
+                bind.clSearchBar.setFlagResourceFirst(it?.res)
+            }
+            model.countrySecond.observe(this) {
+                bind.clSearchBar.setFlagResourceSecond(it?.res)
+            }
         }
     }
 
@@ -107,23 +156,42 @@ class LibraryFragment : DaggerFragment() {
         bundleOf(EditModuleFragment.MODULE_ID to moduleID)
     )
 
-    private fun navigateToReport(gp: GlobalModule) = navigate(
+    private fun navigateToReport(gp: GlobalModuleView) = navigate(
         R.id.reportFragment,
         bundleOf(
             ReportFragment.TYPE to ReportFragment.types.MODULE,
             ReportFragment.CLAIMANT to Firebase.auth.currentUser?.uid,
-            ReportFragment.ACCUSED to gp.globalOwner,
+            ReportFragment.ACCUSED to gp.user.globalOwner,
             ReportFragment.ITEM_ID to gp.globalId
         )
     )
 
+    private fun navigateToWatchLocal(id: Int) = navigate(
+        R.id.watchModuleFragment,
+        bundleOf(
+            WatchModuleFragment.MODULE_TYPE to WatchModuleFragment.ModuleType.LOCAL,
+            WatchModuleFragment.MODULE_ID to id
+        )
+    )
+
+    private fun navigateToWatchGlobal(id: UUID) = navigate(
+        R.id.watchModuleFragment,
+        bundleOf(
+            WatchModuleFragment.MODULE_TYPE to WatchModuleFragment.ModuleType.GLOBAL,
+            WatchModuleFragment.MODULE_ID to id
+        )
+    )
+
+
     override fun onDestroyView() {
         super.onDestroyView()
         observers?.cancel()
-        bind.tilSearch.editText?.removeTextChangedListener(textWatcher)
+        bind.clSearchBar.removeTextSearchWatcher(textWatcher)
         imm?.hideSoftInputFromWindow(view?.windowToken, 0)
-        model.removeSelectCall(selectCall)
+        model.removeEditCall(selectCall)
         model.removeReportCall(reportCall)
+        model.removeWatchGlobalCall(watchGlobal)
+        model.removeWatchLocalCall(watchLocal)
         bind.recycler.adapter = null
         imm = null
         _bind = null

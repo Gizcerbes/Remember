@@ -99,6 +99,12 @@ class PhraseView(context: Context?, attrs: AttributeSet? = null) : LinearLayout(
             bind.btnAction.visibility = if (value) VISIBLE else GONE
         }
 
+    var country: String = ""
+        set(value) {
+            field = value
+            bind.txtCountry.text = field
+        }
+
     init {
         addView(bind.root)
         val typedArray = context?.theme?.obtainStyledAttributes(
@@ -134,32 +140,32 @@ class PhraseView(context: Context?, attrs: AttributeSet? = null) : LinearLayout(
         showButtonSound = show && l != null
     }
 
-    fun setOnClickButtonReport(show: Boolean = true,l: OnClickListener?) {
+    fun setOnClickButtonReport(show: Boolean = true, l: OnClickListener?) {
         bind.btnReport.setOnClickListener(l)
         showButtonReport = show && l != null
     }
 
-    fun setOnClickButtonStop(show: Boolean = true,l: OnClickListener?) {
+    fun setOnClickButtonStop(show: Boolean = true, l: OnClickListener?) {
         bind.btnStop.setOnClickListener(l)
         showButtonStop = show && l != null
     }
 
-    fun setOnClickButtonDownload(show: Boolean = true,l: OnClickListener?) {
+    fun setOnClickButtonDownload(show: Boolean = true, l: OnClickListener?) {
         bind.btnDownload.setOnClickListener(l)
         showButtonDownload = show && l != null
     }
 
-    fun setOnClickButtonShare(show: Boolean = true,l: OnClickListener?) {
+    fun setOnClickButtonShare(show: Boolean = true, l: OnClickListener?) {
         bind.btnShare.setOnClickListener(l)
         showButtonShare = show && l != null
     }
 
-    fun setOnClickListenerButtonEdit(show: Boolean = true,l: OnClickListener?) {
+    fun setOnClickListenerButtonEdit(show: Boolean = true, l: OnClickListener?) {
         bind.btnEdit.setOnClickListener(l)
         showButtonEdit = show && l != null
     }
 
-    fun setOnClickButtonAdd(show: Boolean = true,l: OnClickListener?) {
+    fun setOnClickButtonAdd(show: Boolean = true, l: OnClickListener?) {
         bind.btnAdd.setOnClickListener(l)
         showButtonAdd = show && l != null
     }
@@ -172,14 +178,14 @@ class PhraseView(context: Context?, attrs: AttributeSet? = null) : LinearLayout(
         phrase = ""
         definition = ""
         showImage = false
-        setOnClickButtonSound(false,null)
-        setOnClickButtonReport(false,null)
+        setOnClickButtonSound(false, null)
+        setOnClickButtonReport(false, null)
         showProgressLoading = false
-        setOnClickButtonStop(false,null)
-        setOnClickButtonDownload(false,null)
-        setOnClickButtonShare(false,null)
-        setOnClickListenerButtonEdit(false,null)
-        setOnClickButtonAdd(false,null)
+        setOnClickButtonStop(false, null)
+        setOnClickButtonDownload(false, null)
+        setOnClickButtonShare(false, null)
+        setOnClickListenerButtonEdit(false, null)
+        setOnClickButtonAdd(false, null)
     }
 
 }

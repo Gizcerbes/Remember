@@ -30,6 +30,8 @@ class GlobalViewModel @Inject constructor(
         const val SHARE_NOTICE = "SHARE_NOTICE"
         const val SCREEN_MODE = "SCREEN_MODE"
 
+        const val MODULE_ID_FOR_NOTIFICATION = "MODULE_ID_FOR_NOTIFICATION"
+
         const val GAME_YES_OR_NO_COUNT = "GAME_YES_OR_NO_COUNT"
     }
 
@@ -76,13 +78,15 @@ class GlobalViewModel @Inject constructor(
             "0" -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
             "1" -> AppCompatDelegate.MODE_NIGHT_NO
             "2" -> AppCompatDelegate.MODE_NIGHT_YES
-            else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            else -> AppCompatDelegate.MODE_NIGHT_YES
         }
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, AppCompatDelegate.MODE_NIGHT_YES)
 
     val countPhrases = provider.phrase.countFlow().stateIn(viewModelScope, SharingStarted.Eagerly, 0)
 
-    val gameYesOrNotCount = provider.setting.getFlow(GAME_YES_OR_NO_COUNT).stateIn(viewModelScope, SharingStarted.Eagerly, 0)
+    val gameYesOrNotCount = provider.setting.getFlow(GAME_YES_OR_NO_COUNT).stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    val notificationModuleId = provider.setting.getFlow(MODULE_ID_FOR_NOTIFICATION).stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
 
     private var job: Job? = null
@@ -153,6 +157,13 @@ class GlobalViewModel @Inject constructor(
     fun getGameYesOrNotGameCount() = provider.setting.getFlow(GAME_YES_OR_NO_COUNT)
     suspend fun getAcceptRules() = provider.setting.get(PRIVACY_AND_POLICY)
     fun acceptRules() = viewModelScope.launch { provider.setting.save(PRIVACY_AND_POLICY, true.toString()) }
+
+    suspend fun saveNotificationModuleID(moduleID: Int?) {
+        if (moduleID != null)
+            provider.setting.save(MODULE_ID_FOR_NOTIFICATION, moduleID.toString())
+        else
+            provider.setting.remove(MODULE_ID_FOR_NOTIFICATION)
+    }
 
     fun showShareNotice(b: Boolean) {
         viewModelScope.launch {

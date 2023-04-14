@@ -10,6 +10,8 @@
     <attr name="show_button_edit" format="boolean" />
     <attr name="show_button_add" format="boolean" />
     <attr name="show_buttons" format="boolean" />
+    <attr name="language_tag_first" format="string" />
+    <attr name="language_tag_second" format="string" />
 
     <declare-styleable name="PhraseView">
         <attr name="opened" />
@@ -31,13 +33,13 @@
     <declare-styleable name="CardView">
         <attr name="opened" />
         <attr name="clue" format="string" />
-        <attr name="language_tag_first" format="string" />
+        <attr name="language_tag_first"/>
         <attr name="show_audio_first" format="boolean" />
         <attr name="phrase_first" format="string" />
         <attr name="definition_first" format="string" />
         <attr name="show_definition_first" format="boolean" />
         <attr name="show_image_first" format="boolean" />
-        <attr name="language_tag_second" format="string" />
+        <attr name="language_tag_second"/>
         <attr name="show_audio_second" format="boolean" />
         <attr name="phrase_second" format="string" />
         <attr name="definition_second" format="string" />
@@ -52,6 +54,14 @@
         <attr name="show_button_edit" />
         <attr name="show_button_add" />
         <attr name="show_buttons" />
+    </declare-styleable>
+
+    <declare-styleable name="SearchView">
+        <attr name="language_tag_first"/>
+        <attr name="language_tag_second"/>
+        <attr name="country_src_first" format="reference|color"/>
+        <attr name="country_src_second" format="reference|color"/>
+        <attr name="full" format="boolean"/>
     </declare-styleable>
 
 </resources>

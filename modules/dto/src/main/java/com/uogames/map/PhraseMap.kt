@@ -10,7 +10,7 @@ import com.uogames.dto.local.LocalPronunciation
 
 object PhraseMap {
 
-    fun LocalPhrase.toGlobal(image: LocalImage?, pronunciation: LocalPronunciation?) = com.uogames.dto.global.GlobalPhrase(
+    fun LocalPhrase.toGlobal(image: LocalImage?, pronunciation: LocalPronunciation?) = GlobalPhrase(
         globalId = globalId ?: DefaultUUID.value,
         globalOwner = globalOwner ?: "",
         phrase = phrase,
@@ -20,7 +20,8 @@ object PhraseMap {
         idImage = image?.globalId,
         timeChange = timeChange,
         like = 0,
-        dislike = 0
+        dislike = 0,
+        country = country
     )
 
     fun LocalPhrase.update(phrase: GlobalPhrase) = LocalPhrase(
@@ -34,7 +35,8 @@ object PhraseMap {
         like = phrase.like,
         dislike = phrase.dislike,
         globalId = phrase.globalId,
-        globalOwner = phrase.globalOwner
+        globalOwner = phrase.globalOwner,
+        country = phrase.country
     )
 
     fun LocalPhrase.update(phrase: GlobalPhrase?, idPronounce: Int?, idImage: Int?) = LocalPhrase(
@@ -48,7 +50,8 @@ object PhraseMap {
         like = phrase?.like ?: this.like,
         dislike = phrase?.dislike ?: this.dislike,
         globalId = phrase?.globalId ?: this.globalId,
-        globalOwner = phrase?.globalOwner ?: this.globalOwner
+        globalOwner = phrase?.globalOwner ?: this.globalOwner,
+        country = phrase?.country ?: this.country
     )
 
     fun LocalPhrase.update(view: GlobalPhraseView, idPronounce: Int?, idImage: Int?) = LocalPhrase(

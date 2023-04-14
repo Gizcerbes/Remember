@@ -6,16 +6,12 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.uogames.dto.global.GlobalModule
-import com.uogames.dto.local.LocalModule
-import com.uogames.map.ModuleMap.toGlobalModule
 import com.uogames.remembercards.MainActivity.Companion.findNavHostFragment
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardModuleBinding
-import com.uogames.remembercards.databinding.DialogShareAttentionBinding
+import com.uogames.remembercards.ui.dialogs.ShareAttentionDialog
 import com.uogames.remembercards.ui.module.watch.WatchModuleFragment
 import com.uogames.remembercards.utils.ClosableAdapter
 import com.uogames.remembercards.utils.ifNull
@@ -24,9 +20,7 @@ import com.uogames.remembercards.utils.observe
 import kotlinx.coroutines.*
 
 class LibraryAdapter(
-    private val model: LibraryViewModel,
-    private val reportCall: ((GlobalModule) -> Unit)? = null,
-    private val selectCall: (LocalModule) -> Unit
+    private val model: LibraryViewModel
 ) : ClosableAdapter() {
 
     private val recyclerScope = CoroutineScope(Dispatchers.Main)
@@ -62,7 +56,7 @@ class LibraryAdapter(
         override fun show() {
             clear()
             observer = recyclerScope.launch {
-                val mm = model.get(adapterPosition).ifNull { return@launch }
+                val mm = model.getLocalModel(adapterPosition).ifNull { return@launch }
                 val owner = mm.module.globalOwner
                 val user = auth.currentUser
                 val uid = user?.uid
@@ -74,7 +68,7 @@ class LibraryAdapter(
 
                 bind.txtOwner.text = mm.owner.await().userName
 
-                bind.btnEdit.setOnClickListener { selectCall(mm.module) }
+                bind.btnEdit.setOnClickListener { model.edit(mm.module) }
 
                 model.setShareAction(mm.module, endAction).ifTrue(startAction)
 
@@ -88,15 +82,11 @@ class LibraryAdapter(
                         startAction()
                         model.share(mm.module, endAction)
                     }.ifNull {
-                        val viewBin = DialogShareAttentionBinding.inflate(LayoutInflater.from(itemView.context))
-                        MaterialAlertDialogBuilder(itemView.context)
-                            .setView(viewBin.root)
-                            .setPositiveButton("Apply") { _, _ ->
-                                startAction()
-                                model.share(mm.module, endAction)
-                                if (viewBin.cbDnshow.isChecked) model.showShareNotice(false)
-                            }.setNegativeButton("Cancel") { _, _ ->
-                            }.show()
+                        ShareAttentionDialog.show(itemView.context) {
+                            startAction()
+                            model.share(mm.module, endAction)
+                            if (it) model.showShareNotice(false)
+                        }
                     }
                 }
 
@@ -104,16 +94,7 @@ class LibraryAdapter(
                     model.stopSharing(mm.module)
                 }
 
-                //test
-                bind.btnShow.setOnClickListener {
-                    (itemView.context as AppCompatActivity).findNavHostFragment().navigate(
-                        R.id.watchModuleFragment,
-                        bundleOf(
-                            WatchModuleFragment.MODULE_TYPE to WatchModuleFragment.ModuleType.LOCAL,
-                            WatchModuleFragment.MODULE_ID to mm.module.id
-                        )
-                    )
-                }
+                bind.btnShow.setOnClickListener { model.watchLocal(mm.module) }
 
             }
             bind.btnAction.setOnClickListener {
@@ -156,7 +137,7 @@ class LibraryAdapter(
         override fun show() {
             clear()
             observer = recyclerScope.launch {
-                val mm = model.getByPosition(adapterPosition).ifNull { return@launch }
+                val mm = model.getGlobalModel(adapterPosition).ifNull { return@launch }
 
                 bind.txtName.text = mm.module.name
                 val count = mm.count.await().toString()
@@ -164,7 +145,7 @@ class LibraryAdapter(
 
                 bind.txtOwner.text = mm.owner.await().userName
 
-                bind.btnReport.setOnClickListener { reportCall?.let { it(mm.module.toGlobalModule()) } }
+                bind.btnReport.setOnClickListener { model.report(mm.module) }
 
                 model.setDownloadAction(mm.module.globalId, endAction).ifTrue(startAction)
 
@@ -179,13 +160,14 @@ class LibraryAdapter(
 
                 //test
                 bind.btnShow.setOnClickListener {
-                    (itemView.context as AppCompatActivity).findNavHostFragment().navigate(
-                        R.id.watchModuleFragment,
-                        bundleOf(
-                            WatchModuleFragment.MODULE_TYPE to WatchModuleFragment.ModuleType.GLOBAL,
-                            WatchModuleFragment.MODULE_ID to mm.module.globalId
-                        )
-                    )
+                    model.watchGlobal(mm.module)
+//                    (itemView.context as AppCompatActivity).findNavHostFragment().navigate(
+//                        R.id.watchModuleFragment,
+//                        bundleOf(
+//                            WatchModuleFragment.MODULE_TYPE to WatchModuleFragment.ModuleType.GLOBAL,
+//                            WatchModuleFragment.MODULE_ID to mm.module.globalId
+//                        )
+//                    )
                 }
 
             }

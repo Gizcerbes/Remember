@@ -3,22 +3,26 @@ package com.uogames.remembercards.di
 import android.app.Application
 import android.content.Context
 import android.media.MediaPlayer
+import androidx.work.Configuration
+import androidx.work.WorkManager
+import androidx.work.WorkerFactory
 import com.google.firebase.auth.FirebaseAuth
 import com.uogames.remembercards.viewmodel.GlobalViewModel
-import com.uogames.remembercards.ui.cardFragment.CardViewModel
-import com.uogames.remembercards.ui.choiceCardFragment.ChoiceCardViewModel
-import com.uogames.remembercards.ui.choicePhraseFragment.ChoicePhraseViewModel
+import com.uogames.remembercards.ui.card.cardFragment.CardViewModel
+import com.uogames.remembercards.ui.card.choiceCardFragment.ChoiceCardViewModel
+import com.uogames.remembercards.ui.phrase.choicePhraseFragment.ChoicePhraseViewModel
 import com.uogames.remembercards.ui.cropFragment.CropViewModel
-import com.uogames.remembercards.ui.editCardFragment.EditCardViewModel
-import com.uogames.remembercards.ui.editModuleFragment.EditModuleViewModel
-import com.uogames.remembercards.ui.editPhraseFragment.EditPhraseViewModel
+import com.uogames.remembercards.ui.card.editCardFragment.EditCardViewModel
+import com.uogames.remembercards.ui.module.editModuleFragment.EditModuleViewModel
+import com.uogames.remembercards.ui.phrase.editPhraseFragment.EditPhraseViewModel
 import com.uogames.remembercards.ui.games.gameYesOrNo.GameYesOrNotViewModel
+import com.uogames.remembercards.ui.games.notification.NotificationViewModel
 import com.uogames.remembercards.ui.games.watchCard.WatchCardViewModel
 import com.uogames.remembercards.ui.gamesFragment.GamesViewModel
 import com.uogames.remembercards.ui.module.library.LibraryViewModel
 import com.uogames.remembercards.ui.mainNav.NavigationViewModel
 import com.uogames.remembercards.ui.module.watch.WatchModuleViewModel
-import com.uogames.remembercards.ui.phrasesFragment.PhraseViewModel
+import com.uogames.remembercards.ui.phrase.phrasesFragment.PhraseViewModel
 import com.uogames.remembercards.ui.registerFragment.RegisterViewModel
 import com.uogames.remembercards.ui.reportFragment.ReportViewModel
 import com.uogames.remembercards.utils.ObservableMediaPlayer
@@ -111,8 +115,8 @@ class UtilsModule {
     @Provides
     @Singleton
     fun provideLibraryViewModel(
-        globalViewModel: GlobalViewModel
-    ): LibraryViewModel = LibraryViewModel(globalViewModel)
+        model: MViewModel
+    ): LibraryViewModel = LibraryViewModel(model)
 
     @Provides
     @Singleton
@@ -148,6 +152,21 @@ class UtilsModule {
     fun provideWatchModuleViewModel(
         model: MViewModel
     ) = WatchModuleViewModel(model)
+
+    @Provides
+    @Singleton
+    fun provideNotificationViewModel(
+        globalViewModel: GlobalViewModel
+    ) = NotificationViewModel(globalViewModel)
+
+    @Provides
+    @Singleton
+    fun provideWorkManager(
+        context: Context
+    ) : WorkManager {
+        return  WorkManager.getInstance(context)
+    }
+
 
 
 }

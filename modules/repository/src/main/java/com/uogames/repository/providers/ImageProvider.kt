@@ -7,7 +7,9 @@ import com.uogames.clientApi.version3.network.NetworkProvider
 import com.uogames.database.repository.ImageRepository
 import com.uogames.dto.global.GlobalImageView
 import com.uogames.dto.local.LocalImage
+import com.uogames.dto.local.LocalImageView
 import com.uogames.dto.local.LocalPhrase
+import com.uogames.dto.local.LocalPronunciation
 import com.uogames.map.ImageMap.update
 import com.uogames.repository.DataProvider
 import com.uogames.repository.fileRepository.FileRepository
@@ -50,6 +52,8 @@ class ImageProvider(
     suspend fun getByGlobalId(id: UUID) = database.getByGlobalId(id)
     suspend fun getGlobalById(id: UUID) = network.image.get(id)
     suspend fun getGlobalView(id: UUID) = network.image.getView(id)
+
+    fun load(image: LocalImageView): ByteArray? = fileRepository.readFile(image.imgUri.toUri())
 
     suspend fun clear() {
         database.freeImages().forEach {

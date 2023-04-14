@@ -60,6 +60,8 @@ class CardsProvider(
 
     suspend fun getRandom() = repository.getRandom()
 
+    suspend fun getRandomView() = repository.getRandomView()
+
     suspend fun getRandomWithout(id: Int) = repository.getRandomWithOut(id)
 
     suspend fun getByGlobalId(globalId: UUID) = repository.getByGlobalId(globalId)
@@ -159,7 +161,7 @@ class CardsProvider(
                 )
             ).toInt()
             return repository.getById(localID) ?: throw Exception("Card wasn't saved")
-        } else if (l1.timeChange != view.timeChange){
+        } else if (l1.timeChange <= view.timeChange){
             val l2 = l1.update(
                 view = view,
                 idPhrase = view.phrase.let { dataProvider.phrase.save(it) }.id,

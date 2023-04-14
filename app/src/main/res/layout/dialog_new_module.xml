@@ -38,7 +38,7 @@
 				android:layout_height="wrap_content"
 				android:textColor="?attr/colorPrimary"
 				android:text="@string/close"
-				android:textAppearance="?textAppearanceButton" />
+				android:textAppearance="?attr/textAppearanceButton" />
 
 		</com.google.android.material.card.MaterialCardView>
 
@@ -52,7 +52,7 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/accept"
-				android:textAppearance="?textAppearanceButton"
+				android:textAppearance="?attr/textAppearanceButton"
 				android:textColor="?attr/colorPrimary" />
 
 		</com.google.android.material.card.MaterialCardView>

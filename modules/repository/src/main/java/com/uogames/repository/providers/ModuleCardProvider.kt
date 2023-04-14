@@ -38,6 +38,8 @@ class ModuleCardProvider(
 
     suspend fun getRandom(idModule: Int) = mcr.getRandomModule(idModule)
 
+    suspend fun getRandomModuleView(idModule: Int) = mcr.getRandomModuleView(idModule)
+
     suspend fun getRandomWithout(idModule: Int, idCard: Int) = mcr.getRandomModuleWithout(idModule, idCard)
 
     suspend fun removeByModule(idModule: Int) = mcr.removeByModuleId(idModule)
