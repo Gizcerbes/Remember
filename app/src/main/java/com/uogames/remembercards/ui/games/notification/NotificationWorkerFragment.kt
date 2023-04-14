@@ -1,11 +1,14 @@
 package com.uogames.remembercards.ui.games.notification
 
+import android.app.PendingIntent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.NonNull
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.work.*
@@ -68,28 +71,6 @@ class NotificationWorkerFragment : DaggerFragment() {
             findNavController().popBackStack()
         }
 
-        workManager.getWorkInfosForUniqueWorkLiveData(NotificationWorker.WORKER_UNIQUE_NAME).observe(requireActivity()) {
-            try {
-                if (it.isEmpty()) {
-                    bind.tvStatus.text = requireContext().getText(R.string.status_stopped)
-                    bind.btnStop.visibility = View.GONE
-                } else {
-                    val last = it.last()
-                    val type = when (last.state) {
-                        WorkInfo.State.RUNNING, WorkInfo.State.ENQUEUED -> true
-                        else -> false
-                    }
-                    bind.tvStatus.text = requireContext().getText(if (type) R.string.status_working else R.string.status_stopped)
-
-                    bind.btnStart.visibility = if (type) View.GONE else View.VISIBLE
-                    bind.btnStop.visibility = if (type) View.VISIBLE else View.GONE
-
-                }
-            }catch (e: Throwable){
-
-            }
-        }
-
         observers = lifecycleScope.launchWhenStarted {
 
             model.notificationModuleID.observe(this) {
@@ -101,7 +82,7 @@ class NotificationWorkerFragment : DaggerFragment() {
                     }
                 }
             }
-            model.moduleID.observe(this) {id ->
+            model.moduleID.observe(this) { id ->
                 runCatching {
                     if (id != null) {
                         val module = model.getModuleByIdAsync(id).await()
@@ -117,6 +98,39 @@ class NotificationWorkerFragment : DaggerFragment() {
         model.saveSelectedModule()
         val work = PeriodicWorkRequestBuilder<NotificationWorker>(15, TimeUnit.MINUTES).build()
         workManager.enqueueUniquePeriodicWork(NotificationWorker.WORKER_UNIQUE_NAME, ExistingPeriodicWorkPolicy.REPLACE, work)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        workManager.getWorkInfosForUniqueWorkLiveData(NotificationWorker.WORKER_UNIQUE_NAME).observe(requireActivity()) {
+            if (!isAdded) return@observe
+            try {
+                if (it.isEmpty()) {
+                    bind.tvStatus.text = requireContext().getText(R.string.status_stopped)
+                    bind.btnStop.visibility = View.GONE
+                } else {
+                    val last = it.last()
+                    val type = when (last.state) {
+                        WorkInfo.State.RUNNING, WorkInfo.State.ENQUEUED -> true
+                        else -> false
+                    }
+                    bind.tvStatus.text = requireActivity().getText(if (type) R.string.status_working else R.string.status_stopped)
+
+                    bind.btnStart.visibility = if (type) View.GONE else View.VISIBLE
+                    bind.btnStop.visibility = if (type) View.VISIBLE else View.GONE
+
+                }
+            } catch (e: Throwable) {
+                bind.tvStatus.text = requireActivity().getText(R.string.status_stopped)
+                bind.btnStop.visibility = View.GONE
+            }
+        }
+
+    }
+
+    override fun onStop() {
+        super.onStop()
+        workManager.getWorkInfosForUniqueWorkLiveData(NotificationWorker.WORKER_UNIQUE_NAME).removeObservers(requireActivity())
     }
 
     override fun onDestroyView() {

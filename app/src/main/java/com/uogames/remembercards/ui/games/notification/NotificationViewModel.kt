@@ -27,6 +27,8 @@ class NotificationViewModel @Inject constructor(
         else globalViewModel.provider.cards.getRandomView()
     }
 
+    suspend fun getCardById(cardID: Int) = provider.cards.getViewByID(cardID)
+
     suspend fun getData(localImageView: LocalImageView) = globalViewModel.provider.images.load(localImageView)
 
     fun saveSelectedModule() = viewModelScope.launch { globalViewModel.saveNotificationModuleID(moduleID.value) }

@@ -1,7 +1,9 @@
 package com.uogames.remembercards.ui.games.notification
 
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.core.app.NotificationCompat
@@ -10,6 +12,7 @@ import androidx.work.WorkerParameters
 import com.uogames.remembercards.App
 import com.uogames.remembercards.R
 import com.uogames.remembercards.viewmodel.GlobalViewModel
+import kotlinx.coroutines.runBlocking
 
 
 class NotificationWorker(
@@ -22,22 +25,14 @@ class NotificationWorker(
     }
 
     override suspend fun doWork(): Result {
-        val model = NotificationViewModel(GlobalViewModel(applicationContext))
-        val card = model.getRandomCard() ?: return Result.failure()
-        val imageData = card.phrase.image?.let { model.getData(it) }
-        val notification = NotificationCompat.Builder(applicationContext, App.NOTIFICATION_CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher)
-            .setContentTitle(card.phrase.phrase)
-            .setSubText(card.reason)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(card.phrase.definition))
-            .apply { if (imageData != null) setLargeIcon(BitmapFactory.decodeByteArray(imageData, 0, imageData.size)) }
-            .build()
-
-        val manager = applicationContext.getSystemService(NotificationManager::class.java)
-        manager.notify(0, notification)
+        applicationContext.sendBroadcast(
+            Intent(
+                applicationContext,
+                NotificationReceiver::class.java
+            ).apply { action = NotificationReceiver.ACTION_NEW_NOTIFICATION }
+        )
 
         return Result.success()
     }
-
 
 }
