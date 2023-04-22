@@ -246,6 +246,7 @@ class CardView(context: Context?, attrs: AttributeSet? = null) : LinearLayout(co
     }
 
     fun reset() {
+        isOpened = false
         clue = ""
         languageTagFirst = Locale.getDefault()
         showAudioFirst = false

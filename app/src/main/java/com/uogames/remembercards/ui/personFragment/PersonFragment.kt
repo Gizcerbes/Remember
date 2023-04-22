@@ -49,10 +49,10 @@ class PersonFragment : DaggerFragment() {
         auth.currentUser?.let {
             bind.txtStatus.text = requireContext().getText(R.string.connected)
             bind.txtStatus.setTextColor(requireContext().getColor(R.color.btn_positive))
-            bind.txtGlobalName.text = UserGlobalName(globalViewModel.userName.value, it.uid).userName
+            bind.txtGlobalName.text = UserGlobalName(globalViewModel.userName.value.orEmpty(), it.uid).userName
         }.ifNull {
             bind.txtStatus.text = requireContext().getText(R.string.disconnected)
-            bind.txtStatus.setTextColor(requireContext().getColor(R.color.btn_negative))
+            bind.txtStatus.setTextColor(requireContext().getColor(R.color.red))
         }
         observer = createObservers()
 

@@ -5,6 +5,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.net.toUri
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.squareup.picasso.Picasso
 import com.uogames.dto.global.GlobalCard
 import com.uogames.dto.local.LocalCard
@@ -21,12 +23,12 @@ import java.util.*
 
 class ChoiceCardAdapter(
     private val model: ChoiceCardViewModel,
-    private val player: ObservableMediaPlayer,
     private val reportCall: ((GlobalCard) -> Unit)? = null,
     private val cardAction: (LocalCard) -> Unit
 ) : ClosableAdapter() {
 
     private val recyclerScope = CoroutineScope(Dispatchers.Main)
+    private val auth = Firebase.auth
     private var size = 0
 
     init {
@@ -41,7 +43,7 @@ class ChoiceCardAdapter(
         override fun show() {
             view.reset()
             observer = recyclerScope.launch {
-                val cardView = model.getViewAsync(adapterPosition).await().ifNull { return@launch }
+                val cardView = model.getLocalModelViewAsync(adapterPosition).await().ifNull { return@launch }
                 view.clue = cardView.card.reason
                 cardView.card.phrase.let { phrase ->
                     view.languageTagFirst = Locale.forLanguageTag(phrase.lang)
@@ -53,7 +55,7 @@ class ChoiceCardAdapter(
                     phrase.pronounce?.let { pronounce ->
                         view.showAudioFirst = true
                         view.setOnClickButtonCardFirst {
-                            player.play(itemView.context, pronounce.audioUri.toUri(), it.background.asAnimationDrawable())
+                            launch { cardView.playPhrase(it.background.asAnimationDrawable()) }
                         }
                     }.ifNull { view.showAudioFirst = false }
                     view.definitionFirst = phrase.definition.orEmpty()
@@ -68,7 +70,7 @@ class ChoiceCardAdapter(
                     translate.pronounce?.let { pronounce ->
                         view.showAudioSecond = true
                         view.setOnClickButtonCardSecond {
-                            player.play(itemView.context, pronounce.audioUri.toUri(), it.background.asAnimationDrawable())
+                            launch { cardView.playTranslate(it.background.asAnimationDrawable()) }
                         }
                     }.ifNull { view.showAudioSecond = false }
                     view.definitionSecond = translate.definition.orEmpty()
@@ -100,7 +102,7 @@ class ChoiceCardAdapter(
         override fun show() {
             view.reset()
             observer = recyclerScope.launch {
-                val cardView = model.getGlobalViewAsync(adapterPosition.toLong()).await().ifNull { return@launch }
+                val cardView = model.getGlobalModelViewAsync(adapterPosition.toLong()).await().ifNull { return@launch }
                 view.clue = cardView.card.reason
                 cardView.card.phrase.let { phrase ->
                     view.languageTagFirst = phrase.lang.let { Locale.forLanguageTag(it) }
@@ -108,11 +110,7 @@ class ChoiceCardAdapter(
                     phrase.pronounce?.let {
                         view.showAudioFirst = true
                         view.setOnClickButtonCardFirst { v ->
-                            launch {
-                                cardView.phrasePronounceData.await()?.let {
-                                    player.play(MediaBytesSource(it), v.background.asAnimationDrawable())
-                                }
-                            }
+                            launch { cardView.playPhrase(v.background.asAnimationDrawable()) }
                         }
                     }.ifNull { view.showAudioFirst = false }
                     phrase.image?.let {
@@ -127,11 +125,7 @@ class ChoiceCardAdapter(
                     translate.pronounce?.let {
                         view.showAudioSecond = true
                         view.setOnClickButtonCardSecond { v ->
-                            launch {
-                                cardView.translatePronounceData.await()?.let {
-                                    player.play(MediaBytesSource(it), v.background.asAnimationDrawable())
-                                }
-                            }
+                            launch { cardView.playTranslate(v.background.asAnimationDrawable()) }
                         }
                     }.ifNull { view.showAudioSecond = false }
                     translate.image?.let {
@@ -141,16 +135,18 @@ class ChoiceCardAdapter(
                     view.definitionSecond = translate.definition.orEmpty()
                 }
 
-                view.setOnClickButtonReport { reportCall?.let { it(cardView.card.toGlobalCard()) } }
+                view.setOnClickButtonReport(auth.currentUser != null) { reportCall?.let { it(cardView.card.toGlobalCard()) } }
 
                 model.setDownloadAction(cardView.card.globalId, endAction).ifTrue(startAction)
 
                 view.setOnClickButtonDownload {
                     startAction()
-                    model.save(cardView, endAction)
+                    model.save(cardView.card, endAction)
                 }
 
-                view.setOnClickButtonStop { model.stopDownloading(cardView.card.globalId) }
+                view.showButtons = true
+
+                view.setOnClickButtonStop(false) { model.stopDownloading(cardView.card.globalId) }
 
             }
         }
@@ -167,7 +163,6 @@ class ChoiceCardAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ClosableHolder {
-        val bind = CardCardBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return when (viewType) {
             0 -> LocalCardHolder(CardView(parent.context))
             1 -> GlobalCardHolder(CardView(parent.context))

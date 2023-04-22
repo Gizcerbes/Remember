@@ -36,7 +36,7 @@ interface PhraseDAO {
 	@Query("SELECT * FROM phrase_table WHERE id = :id")
 	fun getByIdFlow(id: Int): Flow<PhraseEntity?>
 
-	@Query("SELECT phrase_table.*, length(phrase_table.phrase) AS len FROM phrase_table WHERE id = :id ORDER BY len, phrase ASC ")
+	@Query("SELECT phrase_table.*, length(phrase_table.phrase) AS len FROM phrase_table WHERE id = :id ORDER BY time_change DESC")
 	fun getTest(id: Int): Flow<PhraseEntity?>
 
 

@@ -38,8 +38,9 @@ class ModuleProvider(
         sLang: String? = null,
         fCountry: String? = null,
         sCountry: String? = null,
+        newest: Boolean = false,
         position: Int? = null
-    ) = mr.getView(text, fLang, sLang, fCountry, sCountry, position)
+    ) = mr.getView(text, fLang, sLang, fCountry, sCountry, newest, position)
 
     suspend fun getViewById(id: Int) = mr.getViewById(id)
 

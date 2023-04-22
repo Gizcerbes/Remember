@@ -6,10 +6,12 @@ import com.uogames.dto.global.*
 import com.uogames.dto.local.LocalCard
 import com.uogames.dto.local.LocalCardView
 import com.uogames.flags.Countries
+import com.uogames.remembercards.ui.card.cardFragment.CardViewModel
 import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observe
+import com.uogames.remembercards.viewmodel.CViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,21 +20,13 @@ import javax.inject.Inject
 import kotlin.collections.HashMap
 
 class ChoiceCardViewModel @Inject constructor(
-    private val globalViewModel: GlobalViewModel,
-    player: ObservableMediaPlayer
+    private val model: CViewModel
 ) {
 
-    private val provider = globalViewModel.provider
+    enum class SearchingState { SEARCHING, SEARCHED, FAIL }
+
+    private val provider = model.globalViewModel.provider
     private val viewModelScope = CoroutineScope(Dispatchers.IO)
-    inner class LocalCardModel(val card: LocalCardView)
-
-    inner class GlobalCardModel(val card: GlobalCardView) {
-        val phrasePronounceData by lazy { viewModelScope.async { card.phrase.pronounce?.globalId?.let { getPronounceData(it) } } }
-        val translatePronounceData by lazy { viewModelScope.async { card.translate.pronounce?.globalId?.let { getPronounceData(it) } } }
-    }
-
-    private class DownloadAction(val job: Job, var callback: (String, LocalCard?) -> Unit)
-    private val downloadAction = HashMap<UUID, DownloadAction>()
 
     private val _size = MutableStateFlow(0)
     val size = _size.asStateFlow()
@@ -45,11 +39,14 @@ class ChoiceCardViewModel @Inject constructor(
 
     val cloud = MutableStateFlow(false)
     val search = MutableStateFlow(false)
+    val newest = MutableStateFlow(false)
+
+    private val _isSearching = MutableStateFlow(SearchingState.SEARCHED)
+    val isSearching = _isSearching.asStateFlow()
 
     var recyclerStat: Parcelable? = null
     val adapter = ChoiceCardAdapter(
         model = this,
-        player = player,
         reportCall = { gc -> reportCallList.forEach { it(gc) } },
         cardAction = { card -> editCalList.forEach { it(card) } }
     )
@@ -69,23 +66,34 @@ class ChoiceCardViewModel @Inject constructor(
             _size.value = 0
             updateSize()
         }
+        newest.observe(viewModelScope) {
+            _size.value = 0
+            updateSize()
+        }
     }
 
     private fun updateSize() {
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
-            delay(100)
-            val text = like.value
-            val langFirst = languageFirst.value?.isO3Language
-            val langSecond = languageSecond.value?.isO3Language
-            val countryFirst = countryFirst.value?.toString()
-            val countrySecond = countrySecond.value?.toString()
             runCatching {
+                _isSearching.value = SearchingState.SEARCHING
+                delay(100)
+                val text = like.value
+                val langFirst = languageFirst.value?.isO3Language
+                val langSecond = languageSecond.value?.isO3Language
+                val countryFirst = countryFirst.value?.toString()
+                val countrySecond = countrySecond.value?.toString()
                 _size.value = if (cloud.value) {
                     val res = provider.cards.countGlobal(text, langFirst, langSecond, countryFirst, countrySecond)
                     res.toInt()
                 } else {
                     provider.cards.count(text, langFirst, langSecond, countryFirst, countrySecond)
+                }
+                _isSearching.value = SearchingState.SEARCHED
+            }.onFailure {
+                when (it) {
+                    is CancellationException -> {}
+                    else -> _isSearching.value = SearchingState.FAIL
                 }
             }
         }
@@ -113,74 +121,40 @@ class ChoiceCardViewModel @Inject constructor(
 
     fun removeChoiceListener(call: (LocalCard) -> Unit) = editCalList.remove(call)
 
-    fun getViewAsync(position: Int) = viewModelScope.async { getView(position) }
+    fun getLocalModelViewAsync(position: Int) = viewModelScope.async { getLocalModelView(position) }
 
-    suspend fun getView(position: Int) = provider.cards.getView(
+    suspend fun getLocalModelView(position: Int) = model.getLocalModelView(
         like = like.value,
         langFirst = languageFirst.value?.isO3Language,
         langSecond = languageSecond.value?.isO3Language,
         countryFirst = countryFirst.value?.toString(),
         countrySecond = countrySecond.value?.toString(),
+        newest = newest.value,
         position = position
-    )?.let { LocalCardModel(it) }
+    )
 
-    suspend fun getByGlobalId(uuid: UUID) = viewModelScope.async { provider.cards.getByGlobalId(uuid) }.await()
+    fun getGlobalModelViewAsync(position: Long) = viewModelScope.async { getGlobalModelView(position) }
 
-    fun getGlobalViewAsync(position: Long) = viewModelScope.async { getByPosition(position) }
-
-    suspend fun getByPosition(position: Long): GlobalCardModel? {
+    suspend fun getGlobalModelView(position: Long): CViewModel.GlobalCardModel? {
         runCatching {
-            return GlobalCardModel(
-                provider.cards.getGlobalView(
-                    text = like.value,
-                    langFirst = languageFirst.value?.isO3Language,
-                    langSecond = languageSecond.value?.isO3Language,
-                    countryFirst = countryFirst.value?.toString(),
-                    countrySecond = countrySecond.value?.toString(),
-                    number = position
-                )
+            return model.getGlobalModelView(
+                text = like.value,
+                langFirst = languageFirst.value?.isO3Language,
+                langSecond = languageSecond.value?.isO3Language,
+                countryFirst = countryFirst.value?.toString(),
+                countrySecond = countrySecond.value?.toString(),
+                number = position
             )
         }
         return null
     }
 
-    private suspend fun getPronounceData(id: UUID): ByteArray? {
-        runCatching { return provider.pronounce.downloadData(id) }
-        return null
-    }
+    fun setDownloadAction(id: UUID, loading: (String, LocalCard?) -> Unit) = model.setDownloadAction(id, loading)
 
-    fun setDownloadAction(id: UUID, loading: (String, LocalCard?) -> Unit): Boolean {
-        downloadAction[id]?.callback = loading
-        return downloadAction[id]?.job?.isActive.ifNull { false }
-    }
+    fun stopDownloading(id: UUID) = model.stopDownloading(id)
 
-    fun stopDownloading(id: UUID) {
-        val action = downloadAction[id].ifNull { return }
-        action.job.cancel()
-        action.callback("Cancel", null)
-        downloadAction.remove(id)
-    }
+    fun save(cardModel: GlobalCardView, loading: (String, LocalCard?) -> Unit) = model.save(cardModel, loading)
 
-    fun save(cardModel: GlobalCardModel, loading: (String, LocalCard?) -> Unit) {
-        val job = viewModelScope.launch {
-            runCatching {
-                provider.cards.save(cardModel.card)
-            }.onSuccess { lc ->
-                launch(Dispatchers.Main) {
-                    downloadAction[cardModel.card.globalId]?.callback?.let { back -> back("Ok", lc) }
-                    downloadAction.remove(cardModel.card.globalId)
-                }
-            }.onFailure {
-                launch(Dispatchers.Main) {
-                    downloadAction[cardModel.card.globalId]?.callback?.let { back -> back(it.message ?: "Error", null) }
-                    downloadAction.remove(cardModel.card.globalId)
-                }
-            }
-        }
-        downloadAction[cardModel.card.globalId] = DownloadAction(job, loading)
-    }
-
-
-    fun getPicasso(context: Context) = provider.images.getPicasso(context)
+    fun getPicasso(context: Context) = model.getPicasso(context)
 
 }

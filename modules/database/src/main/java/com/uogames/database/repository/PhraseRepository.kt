@@ -15,7 +15,7 @@ import kotlin.collections.ArrayList
 
 class PhraseRepository(
     private val dao: PhraseDAO,
-	private val map: ViewMap<PhraseEntity, LocalPhraseView>
+    private val map: ViewMap<PhraseEntity, LocalPhraseView>
 ) {
 
     suspend fun add(phrase: LocalPhrase) = dao.insert(phrase.toEntity())
@@ -30,6 +30,7 @@ class PhraseRepository(
         like: String? = null,
         lang: String? = null,
         country: String? = null,
+        newest: Boolean = false,
         position: Int? = null
     ): PhraseEntity? {
         val builder = StringBuilder()
@@ -51,7 +52,8 @@ class PhraseRepository(
             builder.append("country = ? ")
             params.add(country)
         }
-        builder.append("ORDER BY len, phrase ASC ")
+        if (newest) builder.append("ORDER BY time_change DESC ")
+        else builder.append("ORDER BY len, phrase ASC ")
         position?.let { builder.append("LIMIT $position, 1") }
         return dao.get(SimpleSQLiteQuery(builder.toString(), params.toArray()))
     }
@@ -60,15 +62,17 @@ class PhraseRepository(
         like: String? = null,
         lang: String? = null,
         country: String? = null,
+        newest: Boolean = false,
         position: Int? = null
-    ) = getEntity(like, lang, country, position)?.toDTO()
+    ) = getEntity(like, lang, country, newest, position)?.toDTO()
 
     suspend fun getView(
         like: String? = null,
         lang: String? = null,
         country: String? = null,
+        newest: Boolean = false,
         position: Int? = null
-    ) = getEntity(like, lang, country, position)?.let { map.toDTO(it) }
+    ) = getEntity(like, lang, country, newest, position)?.let { map.toDTO(it) }
 
     suspend fun count(
         like: String? = null,

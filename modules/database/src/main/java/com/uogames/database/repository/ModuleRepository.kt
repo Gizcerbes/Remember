@@ -79,6 +79,7 @@ class ModuleRepository(
         sLang: String? = null,
         fCountry: String? = null,
         sCountry: String? = null,
+        newest: Boolean = false,
         position: Int? = null
     ): ModuleEntity? {
         val builder = StringBuilder()
@@ -117,7 +118,8 @@ class ModuleRepository(
             builder.append("pt2.country = ? ")
             params.add(it)
         }
-        builder.append("ORDER BY length(m.name), m.name ")
+        if (newest) builder.append("ORDER BY m.time_change DESC ")
+        else builder.append("ORDER BY length(m.name), m.name ")
         position?.let { builder.append("LIMIT $position, 1") }
         return dao.get(SimpleSQLiteQuery(builder.toString(), params.toArray()))
     }
@@ -128,8 +130,9 @@ class ModuleRepository(
         sLang: String? = null,
         fCountry: String? = null,
         sCountry: String? = null,
+        newest: Boolean = false,
         position: Int? = null
-    ) = getEntity(text, fLang, sLang, fCountry, sCountry, position)?.toDTO()
+    ) = getEntity(text, fLang, sLang, fCountry, sCountry, newest, position)?.toDTO()
 
     suspend fun getView(
         text: String? = null,
@@ -137,8 +140,9 @@ class ModuleRepository(
         sLang: String? = null,
         fCountry: String? = null,
         sCountry: String? = null,
+        newest: Boolean = false,
         position: Int? = null
-    ) = getEntity(text, fLang, sLang, fCountry, sCountry, position)?.let { map.toDTO(it) }
+    ) = getEntity(text, fLang, sLang, fCountry, sCountry, newest, position)?.let { map.toDTO(it) }
 
     suspend fun get(text: String?, position: Int): LocalModule? {
         return if (text == null) dao.get(position)?.toDTO()

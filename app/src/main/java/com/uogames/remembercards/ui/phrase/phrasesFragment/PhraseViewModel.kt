@@ -2,47 +2,33 @@ package com.uogames.remembercards.ui.phrase.phrasesFragment
 
 import android.content.Context
 import android.os.Parcelable
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.uogames.dto.global.GlobalPhrase
 import com.uogames.dto.global.GlobalPhraseView
+import com.uogames.dto.local.LocalPhrase
 import com.uogames.dto.local.LocalPhraseView
 import com.uogames.flags.Countries
-import com.uogames.remembercards.viewmodel.GlobalViewModel
-import com.uogames.remembercards.utils.ObservableMediaPlayer
-import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observe
 import com.uogames.remembercards.utils.toNull
+import com.uogames.remembercards.viewmodel.PViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 class PhraseViewModel @Inject constructor(
-    private val globalViewModel: GlobalViewModel,
-    player: ObservableMediaPlayer
+    private val model: PViewModel
 ) : ViewModel() {
 
-    private val provider = globalViewModel.provider
+    enum class SearchingState { SEARCHING, SEARCHED, FAIL }
+
+    private val provider = model.globalViewModel.provider
     private val viewModelScope = CoroutineScope(Dispatchers.IO)
 
-    inner class LocalBookModel(val phrase: LocalPhraseView)
-
-    inner class GlobalPhraseModel(val phraseView: GlobalPhraseView) {
-        val image = phraseView.image
-        val pronounceData by lazy { viewModelScope.async { phraseView.pronounce?.let { getPronounceData(it.globalId) } } }
-        val lang: String = Locale.forLanguageTag(phraseView.lang).displayLanguage
-    }
-
-    private class ShareAction(val job: Job, var callback: (String) -> Unit)
-    private class DownloadAction(val job: Job, var callback: (String) -> Unit)
-
-    private val shareActions = HashMap<Int, ShareAction>()
-    private val downloadActions = HashMap<UUID, DownloadAction>()
-
-    val shareNotice get() = globalViewModel.shareNotice
+    val shareNotice get() = model.globalViewModel.shareNotice
 
     val like = MutableStateFlow<String?>(null)
     val country = MutableStateFlow<Countries?>(null)
@@ -52,13 +38,16 @@ class PhraseViewModel @Inject constructor(
 
     val cloud = MutableStateFlow(false)
     val search = MutableStateFlow(false)
+    val newest = MutableStateFlow(false)
+
+    private val _isSearching = MutableStateFlow(SearchingState.SEARCHED)
+    val isSearching = _isSearching.asStateFlow()
 
     var recyclerStat: Parcelable? = null
     private var searchJob: Job? = null
 
     val adapter = PhraseAdapter(
         vm = this,
-        player = player,
         reportCall = { gp -> reportCallList.forEach { it(gp) } },
         editCall = { id -> editCalList.forEach { it(id) } }
     )
@@ -69,6 +58,10 @@ class PhraseViewModel @Inject constructor(
         like.observe(viewModelScope) { updateSize() }
         country.observe(viewModelScope) { updateSize() }
         language.observe(viewModelScope) { updateSize() }
+        newest.observe(viewModelScope) {
+            _size.value = 0
+            updateSize()
+        }
         cloud.observe(viewModelScope) {
             _size.value = 0
             updateSize()
@@ -78,14 +71,22 @@ class PhraseViewModel @Inject constructor(
     private fun updateSize() {
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
-            val text = like.value
-            val language = language.value?.isO3Language
-            val country = country.value?.toString()
             runCatching {
+                _isSearching.value = SearchingState.SEARCHING
+                delay(100)
+                val text = like.value
+                val language = language.value?.isO3Language
+                val country = country.value?.toString()
                 _size.value = if (cloud.value) {
                     provider.phrase.countGlobal(text, language, country).toInt()
                 } else {
                     provider.phrase.count(text, language, country)
+                }
+                _isSearching.value = SearchingState.SEARCHED
+            }.onFailure {
+                when (it) {
+                    is CancellationException -> {}
+                    else -> _isSearching.value = SearchingState.FAIL
                 }
             }
         }
@@ -113,96 +114,35 @@ class PhraseViewModel @Inject constructor(
 
     fun removeEditCall(call: (Int) -> Unit) = editCalList.remove(call)
 
-    suspend fun getLocalBookModel(position: Int): LocalBookModel? {
-        val text = like.value
-        val language = language.value?.isO3Language
-        val country = country.value?.toString()
-        return provider.phrase.getView(text, language, country, position)?.let { LocalBookModel(it) }
-    }
+    suspend fun getLocalModel(position: Int) = model.getLocalModel(
+        like = like.value,
+        lang = language.value?.isO3Language,
+        country = country.value?.toString(),
+        newest = newest.value,
+        position = position
+    )
 
-    fun share(phrase: LocalPhraseView, loading: (String) -> Unit) {
-        val job = viewModelScope.launch {
-            runCatching {
-                provider.phrase.share(phrase.id)
-            }.onSuccess {
-                launch(Dispatchers.Main) {
-                    shareActions[phrase.id]?.callback?.let { back -> back("Ok") }
-                    shareActions.remove(phrase.id)
-                }
-            }.onFailure {
-                launch(Dispatchers.Main) {
-                    shareActions[phrase.id]?.callback?.let { back -> back(it.message ?: "Error") }
-                    shareActions.remove(phrase.id)
-                }
-            }
-        }
-        shareActions[phrase.id] = ShareAction(job, loading)
-    }
+    suspend fun getGlobalModel(position: Int) = model.getGlobalModel(
+        like = like.value,
+        lang = language.value?.isO3Language,
+        country = country.value?.toString(),
+        position = position
+    )
 
-    fun setShareAction(phrase: LocalPhraseView, loading: (String) -> Unit): Boolean {
-        shareActions[phrase.id]?.callback = loading
-        return shareActions[phrase.id]?.job?.isActive.ifNull { false }
-    }
+    fun share(phrase: LocalPhraseView, loading: (String) -> Unit) = model.share(phrase, loading)
 
-    fun stopSharing(phrase: LocalPhraseView) {
-        val action = shareActions[phrase.id].ifNull { return }
-        action.job.cancel()
-        action.callback("Cancel")
-        shareActions.remove(phrase.id)
-    }
+    fun setShareAction(phrase: LocalPhraseView, loading: (String) -> Unit) = model.setShareAction(phrase, loading)
 
-    suspend fun getByPosition(position: Long): GlobalPhraseModel? {
-        runCatching {
-            return GlobalPhraseModel(
-                provider.phrase.getGlobalView(
-                    text = like.value,
-                    lang = language.value?.isO3Language,
-                    country = country.value?.toString(),
-                    number = position
-                )
-            )
-        }
-        return null
-    }
+    fun stopSharing(phrase: LocalPhraseView) = model.stopSharing(phrase)
 
-    private suspend fun getPronounceData(id: UUID): ByteArray? {
-        runCatching { return provider.pronounce.downloadData(id) }
-        return null
-    }
+    fun setDownloadAction(id: UUID, loading: (String, LocalPhrase?) -> Unit) = model.setDownloadAction(id, loading)
 
-    fun setDownloadAction(id: UUID, loading: (String) -> Unit): Boolean {
-        downloadActions[id]?.callback = loading
-        return downloadActions[id]?.job?.isActive.ifNull { false }
-    }
+    fun stopDownloading(id: UUID) = model.stopDownloading(id)
 
-    fun stopDownloading(id: UUID) {
-        val action = downloadActions[id].ifNull { return }
-        action.job.cancel()
-        action.callback("Cancel")
-        downloadActions.remove(id)
-    }
+    fun save(phraseView: GlobalPhraseView, loading: (String, LocalPhrase?) -> Unit) = model.save(phraseView, loading)
 
-    fun save(phraseModel: GlobalPhraseModel, loading: (String) -> Unit) {
-        val job = viewModelScope.launch {
-            runCatching {
-                provider.phrase.save(phraseModel.phraseView)
-            }.onSuccess {
-                launch(Dispatchers.Main) {
-                    downloadActions[phraseModel.phraseView.globalId]?.callback?.let { back -> back("Ok") }
-                    downloadActions.remove(phraseModel.phraseView.globalId)
-                }
-            }.onFailure {
-                launch(Dispatchers.Main) {
-                    downloadActions[phraseModel.phraseView.globalId]?.callback?.let { back -> back(it.message ?: "Error") }
-                    downloadActions.remove(phraseModel.phraseView.globalId)
-                }
-            }
-        }
-        downloadActions[phraseModel.phraseView.globalId] = DownloadAction(job, loading)
-    }
-
-    fun showShareNotice(b: Boolean) = globalViewModel.showShareNotice(b)
-    fun getPicasso(context: Context) = globalViewModel.getPicasso(context)
+    fun showShareNotice(b: Boolean) = model.showShareNotice(b)
+    fun getPicasso(context: Context) = model.getPicasso(context)
 
 
 }

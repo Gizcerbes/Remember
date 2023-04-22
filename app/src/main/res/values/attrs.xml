@@ -61,6 +61,8 @@
         <attr name="language_tag_second"/>
         <attr name="country_src_first" format="reference|color"/>
         <attr name="country_src_second" format="reference|color"/>
+        <attr name="select_languages" format="boolean"/>
+        <attr name="select_countries" format="boolean"/>
         <attr name="full" format="boolean"/>
     </declare-styleable>
 

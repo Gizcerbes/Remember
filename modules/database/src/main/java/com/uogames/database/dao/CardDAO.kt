@@ -84,7 +84,7 @@ interface CardDAO {
 				"ON pt2.id = nct.id_translate " +
 				"WHERE pt1.phrase LIKE '%' || :like || '%' " +
 				"OR pt2.phrase LIKE '%' || :like || '%' " +
-				"ORDER BY length(ph1), ph1, length(ph2), ph2 " +
+				"ORDER BY nct.time_change DESC " +
 				"LIMIT :number, 1"
 	)
 	suspend fun test(like: String, number: Int): CardEntity?

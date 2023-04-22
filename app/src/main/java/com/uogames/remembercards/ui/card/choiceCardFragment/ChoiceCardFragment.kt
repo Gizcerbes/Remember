@@ -1,6 +1,7 @@
 package com.uogames.remembercards.ui.card.choiceCardFragment
 
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -12,6 +13,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.color.MaterialColors
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.uogames.dto.global.GlobalCard
@@ -19,7 +21,7 @@ import com.uogames.dto.local.LocalCard
 import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
-import com.uogames.remembercards.databinding.FragmentChoiceCardBinding
+import com.uogames.remembercards.databinding.FragmentCardChoiceBinding
 import com.uogames.remembercards.ui.dialogs.choiceCountry.ChoiceCountryDialog
 import com.uogames.remembercards.ui.dialogs.choiceLanguageDialog.ChoiceLanguageDialog
 import com.uogames.remembercards.ui.card.editCardFragment.EditCardFragment
@@ -44,7 +46,7 @@ class ChoiceCardFragment : DaggerFragment() {
     @Inject
     lateinit var model: ChoiceCardViewModel
 
-    private var _bind: FragmentChoiceCardBinding? = null
+    private var _bind: FragmentCardChoiceBinding? = null
     private val bind get() = _bind!!
 
     private var imm: InputMethodManager? = null
@@ -66,7 +68,7 @@ class ChoiceCardFragment : DaggerFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        if (_bind == null) _bind = FragmentChoiceCardBinding.inflate(inflater, container, false)
+        if (_bind == null) _bind = FragmentCardChoiceBinding.inflate(inflater, container, false)
         return bind.root
     }
 
@@ -110,6 +112,7 @@ class ChoiceCardFragment : DaggerFragment() {
                 model.countrySecond.value = it
             }.show(requireActivity().supportFragmentManager, ChoiceCountryDialog.TAG)
         }
+        bind.clSearchBar.setOnSelectedNewestListener{ model.newest.value = it }
 
         lifecycleScope.launch {
             delay(250)
@@ -128,6 +131,7 @@ class ChoiceCardFragment : DaggerFragment() {
             }
             model.cloud.observe(this) {
                 bind.imgNetwork.setImageResource(cloudImages[if (it) 0 else 1])
+                bind.clSearchBar.showNewest = !it
             }
             model.size.observe(this) {
                 bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
@@ -147,6 +151,22 @@ class ChoiceCardFragment : DaggerFragment() {
             }
             model.countrySecond.observe(this) {
                 bind.clSearchBar.setFlagResourceSecond(it?.res)
+            }
+            model.isSearching.observe(this) {
+                when(it){
+                    ChoiceCardViewModel.SearchingState.SEARCHING -> {
+                        bind.lpiLoadIndicator.setIndicatorColor(MaterialColors.getColor(requireContext(), R.attr.colorPrimary, Color.BLACK))
+                        bind.lpiLoadIndicator.isIndeterminate = true
+                        bind.lpiLoadIndicator.visibility = View.VISIBLE
+                    }
+                    ChoiceCardViewModel.SearchingState.SEARCHED -> bind.lpiLoadIndicator.visibility = View.GONE
+                    else -> {
+                        bind.lpiLoadIndicator.setIndicatorColor(requireContext().getColor(R.color.red))
+                        bind.lpiLoadIndicator.isIndeterminate = false
+                        bind.lpiLoadIndicator.progress = 100
+                        bind.lpiLoadIndicator.visibility = View.VISIBLE
+                    }
+                }
             }
         }
 

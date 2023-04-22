@@ -46,7 +46,7 @@
 		android:id="@+id/choicePhraseDialog"
 		android:name="com.uogames.remembercards.ui.phrase.choicePhraseFragment.ChoicePhraseFragment"
 		android:label="ChoicePhraseDialog"
-		tools:layout="@layout/fragment_choice_phrase" />
+		tools:layout="@layout/fragment_phrase_choice" />
 	<fragment
 		android:id="@+id/editModuleFragment"
 		android:name="com.uogames.remembercards.ui.module.editModuleFragment.EditModuleFragment"

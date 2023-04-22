@@ -3,6 +3,8 @@ package com.uogames.remembercards.ui.phrase.choicePhraseFragment
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.net.toUri
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.uogames.dto.global.GlobalPhrase
 import com.uogames.dto.local.LocalPhrase
 import com.uogames.map.PhraseMap.toGlobalPhrase
@@ -15,12 +17,12 @@ import java.util.*
 
 class ChoicePhraseAdapter(
     private val vm: ChoicePhraseViewModel,
-    private val player: ObservableMediaPlayer,
     private val reportCall: ((GlobalPhrase) -> Unit)? = null,
     private val choiceCall: (LocalPhrase) -> Unit
 ) : ClosableAdapter() {
 
     private val recyclerScope = CoroutineScope(Dispatchers.Main)
+    private val auth = Firebase.auth
     private var size = 0
 
     init {
@@ -51,7 +53,7 @@ class ChoicePhraseAdapter(
             view.reset()
             view.showButtonAction = false
             observer = recyclerScope.safeLaunch {
-                val phraseView = vm.getLocalBookModel(adapterPosition).ifNull { return@safeLaunch }
+                val phraseView = vm.getLocalModel(adapterPosition).ifNull { return@safeLaunch }
                 val phrase = phraseView.phrase
                 view.phrase = phrase.phrase
                 view.definition = phrase.definition.orEmpty()
@@ -61,11 +63,10 @@ class ChoicePhraseAdapter(
                 }.ifNull { view.showImage = false }
                 phrase.pronounce?.audioUri?.let { uri ->
                     view.setOnClickButtonSound {
-                        player.play(itemView.context, uri.toUri(), it.background.asAnimationDrawable())
+                        launch { phraseView.play(it.background.asAnimationDrawable()) }
                     }
                 }.ifNull { view.setOnClickButtonSound(false,null) }
                 view.language = Locale.forLanguageTag(phraseView.phrase.lang)
-                vm.setShareAction(phrase, endAction).ifTrue(startAction)
                 view.setOnClickButtonAdd { choiceCall(phrase.toLocalPhrase()) }
             }
         }
@@ -95,30 +96,26 @@ class ChoicePhraseAdapter(
         override fun show() {
             view.reset()
             observer = recyclerScope.launch {
-                val phraseView = vm.getGlobalAsync(adapterPosition.toLong()).await().ifNull { return@launch }
+                val phraseView = vm.getGlobalModel(adapterPosition).ifNull { return@launch }
                 val phrase = phraseView.phraseView
                 view.phrase = phrase.phrase
                 view.definition = phrase.definition.orEmpty()
-                phraseView.image?.imageUri?.let { uri ->
+                phraseView.phraseView.image?.imageUri?.let { uri ->
                     vm.getPicasso(itemView.context).load(uri).placeholder(R.drawable.noise).into(view.getImageView())
                     view.showImage = true
                 }.ifNull { view.showImage = false }
                 phrase.pronounce?.let {
                     view.setOnClickButtonSound { v ->
-                        recyclerScope.launch {
-                            phraseView.pronounceData.await()?.let {
-                                player.play(MediaBytesSource(it), v.background.asAnimationDrawable())
-                            }
-                        }
+                        launch { phraseView.play(v.background.asAnimationDrawable()) }
                     }
                 }.ifNull { view.setOnClickButtonSound(false,null) }
                 view.language = Locale.forLanguageTag(phrase.lang)
 
-                view.setOnClickButtonReport { reportCall?.let { it(phrase.toGlobalPhrase()) } }
+                view.setOnClickButtonReport(auth.currentUser != null) { reportCall?.let { it(phrase.toGlobalPhrase()) } }
 
                 view.setOnClickButtonDownload {
                     startAction()
-                    vm.save(phraseView, endAction)
+                    vm.save(phraseView.phraseView, endAction)
                 }
 
                 view.setOnClickButtonStop(false) { vm.stopDownloading(phrase.globalId) }

@@ -36,8 +36,9 @@ class CardsProvider(
         langSecond: String? = null,
         countryFirst: String? = null,
         countrySecond: String? = null,
+        newest: Boolean = false,
         position: Int? = null
-    ) = repository.get(like, langFirst, langSecond, countryFirst, countrySecond, position)
+    ) = repository.get(like, langFirst, langSecond, countryFirst, countrySecond,newest, position)
 
     suspend fun getView(
         like: String? = null,
@@ -45,8 +46,9 @@ class CardsProvider(
         langSecond: String? = null,
         countryFirst: String? = null,
         countrySecond: String? = null,
+        newest: Boolean = false,
         position: Int? = null
-    ) = repository.getView(like, langFirst, langSecond, countryFirst, countrySecond, position)
+    ) = repository.getView(like, langFirst, langSecond, countryFirst, countrySecond,newest, position)
 
     suspend fun getViewByID(id: Int) = repository.getViewById(id)
 

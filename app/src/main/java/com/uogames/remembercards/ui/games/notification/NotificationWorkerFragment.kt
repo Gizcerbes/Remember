@@ -14,6 +14,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.work.*
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentNotificationWorkerBinding
+import com.uogames.remembercards.ui.module.choiceModuleDialog.ChoiceModuleDialog
+import com.uogames.remembercards.ui.module.library.LibraryViewModel
 import com.uogames.remembercards.utils.Permission
 import com.uogames.remembercards.utils.ifTrue
 import com.uogames.remembercards.utils.observe
@@ -23,6 +25,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -37,6 +40,9 @@ class NotificationWorkerFragment : DaggerFragment() {
 
     @Inject
     lateinit var model: NotificationViewModel
+
+    @Inject
+    lateinit var libraryViewModel: LibraryViewModel
 
     private var _bind: FragmentNotificationWorkerBinding? = null
     private val bind get() = _bind!!
@@ -62,6 +68,12 @@ class NotificationWorkerFragment : DaggerFragment() {
             } else {
                 startWork()
             }
+        }
+
+        bind.btnPrepareModule.setOnClickListener {
+            val dialog = ChoiceModuleDialog(libraryViewModel) {
+                model.moduleID.value = it.id            }
+            dialog.show(requireActivity().supportFragmentManager, ChoiceModuleDialog.TAG)
         }
 
         bind.btnStop.setOnClickListener {

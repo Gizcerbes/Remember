@@ -3,6 +3,7 @@ package com.uogames.remembercards.ui.module.library
 import com.uogames.dto.global.GlobalModuleView
 import com.uogames.dto.local.LocalModuleView
 import com.uogames.flags.Countries
+import com.uogames.remembercards.ui.phrase.phrasesFragment.PhraseViewModel
 import com.uogames.remembercards.utils.observe
 import com.uogames.remembercards.viewmodel.MViewModel
 import kotlinx.coroutines.*
@@ -15,6 +16,8 @@ import kotlin.collections.ArrayList
 class LibraryViewModel @Inject constructor(
     private val model: MViewModel
 ) {
+
+    enum class SearchingState { SEARCHING, SEARCHED, FAIL }
 
     private val viewModelScope = CoroutineScope(Dispatchers.IO)
 
@@ -30,6 +33,10 @@ class LibraryViewModel @Inject constructor(
     val countrySecond = MutableStateFlow<Countries?>(null)
     val search = MutableStateFlow(false)
     val cloud = MutableStateFlow(false)
+    val newrst = MutableStateFlow(false)
+
+    private val _isSearching = MutableStateFlow(SearchingState.SEARCHED)
+    val isSearching = _isSearching.asStateFlow()
 
     val adapter = LibraryAdapter(this)
     private val editCall = ArrayList<(Int) -> Unit>()
@@ -50,12 +57,17 @@ class LibraryViewModel @Inject constructor(
             _size.value = 0
             updateSize()
         }
+        newrst.observe(viewModelScope) {
+            _size.value = 0
+            updateSize()
+        }
     }
 
     private fun updateSize() {
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
             runCatching {
+                _isSearching.value = SearchingState.SEARCHING
                 delay(100)
                 val text = like.value
                 val langFirst = languageFirst.value?.isO3Language
@@ -66,6 +78,12 @@ class LibraryViewModel @Inject constructor(
                     model.getGlobalSize(text, langFirst, langSecond, countryFirst, countrySecond)
                 } else {
                     model.getLocalSize(text, langFirst, langSecond, countryFirst, countrySecond)
+                }
+                _isSearching.value = SearchingState.SEARCHED
+            }.onFailure {
+                when (it) {
+                    is CancellationException -> {}
+                    else -> _isSearching.value = SearchingState.FAIL
                 }
             }
         }
@@ -117,6 +135,7 @@ class LibraryViewModel @Inject constructor(
         langSecond = languageSecond.value?.isO3Language,
         countryFirst = countryFirst.value?.toString(),
         countrySecond = countrySecond.value?.toString(),
+        newest = newrst.value,
         position = position
     )
 

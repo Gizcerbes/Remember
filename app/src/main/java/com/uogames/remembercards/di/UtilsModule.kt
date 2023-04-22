@@ -26,7 +26,9 @@ import com.uogames.remembercards.ui.phrase.phrasesFragment.PhraseViewModel
 import com.uogames.remembercards.ui.registerFragment.RegisterViewModel
 import com.uogames.remembercards.ui.reportFragment.ReportViewModel
 import com.uogames.remembercards.utils.ObservableMediaPlayer
+import com.uogames.remembercards.viewmodel.CViewModel
 import com.uogames.remembercards.viewmodel.MViewModel
+import com.uogames.remembercards.viewmodel.PViewModel
 import com.uogames.repository.DataProvider
 import dagger.Module
 import dagger.Provides
@@ -60,17 +62,36 @@ class UtilsModule {
 
     @Provides
     @Singleton
-    fun providePhraseViewModel(
+    fun providePViewModel(
+        model: GlobalViewModel,
+        player: ObservableMediaPlayer
+    ):PViewModel = PViewModel(model, player)
+
+    @Provides
+    @Singleton
+    fun provideCViewModel(
         globalViewModel: GlobalViewModel,
         player: ObservableMediaPlayer
-    ): PhraseViewModel = PhraseViewModel(globalViewModel, player)
+    ) = CViewModel(globalViewModel, player)
+
+    @Provides
+    @Singleton
+    fun provideMViewModel(
+        globalViewModel: GlobalViewModel,
+        player: ObservableMediaPlayer
+    ) = MViewModel(globalViewModel, player)
+
+    @Provides
+    @Singleton
+    fun providePhraseViewModel(
+        model: PViewModel
+    ): PhraseViewModel = PhraseViewModel(model)
 
     @Provides
     @Singleton
     fun provideChoicePhraseViewModel(
-        provider: DataProvider,
-        player: ObservableMediaPlayer
-    ): ChoicePhraseViewModel = ChoicePhraseViewModel(provider, player)
+        model: PViewModel
+    ): ChoicePhraseViewModel = ChoicePhraseViewModel(model)
 
     @Provides
     @Singleton
@@ -97,16 +118,14 @@ class UtilsModule {
     @Provides
     @Singleton
     fun provideCardViewModel(
-        globalViewModel: GlobalViewModel,
-        player: ObservableMediaPlayer
-    ): CardViewModel = CardViewModel(globalViewModel, player)
+        model: CViewModel
+    ): CardViewModel = CardViewModel(model)
 
     @Provides
     @Singleton
     fun provideChoiceCardViewModel(
-        globalViewModel: GlobalViewModel,
-        player: ObservableMediaPlayer
-    ): ChoiceCardViewModel = ChoiceCardViewModel(globalViewModel, player)
+        model: CViewModel
+    ): ChoiceCardViewModel = ChoiceCardViewModel(model)
 
     @Provides
     @Singleton
@@ -140,12 +159,7 @@ class UtilsModule {
     ): WatchCardViewModel = WatchCardViewModel(globalViewModel)
 
 
-    @Provides
-    @Singleton
-    fun provideMViewModel(
-        globalViewModel: GlobalViewModel,
-        player: ObservableMediaPlayer
-    ) = MViewModel(globalViewModel, player)
+
 
     @Provides
     @Singleton
@@ -163,10 +177,9 @@ class UtilsModule {
     @Singleton
     fun provideWorkManager(
         context: Context
-    ) : WorkManager {
-        return  WorkManager.getInstance(context)
+    ): WorkManager {
+        return WorkManager.getInstance(context)
     }
-
 
 
 }
