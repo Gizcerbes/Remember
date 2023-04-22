@@ -20,6 +20,7 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--keep class com.uogames.network.response.** { *; }
+#-keep class com.uogames.network.response.** { *; }
 -keep class com.uogames.clientApi.version3.network.response.** { *; }
 #-keep class com.google.gson.annotations.SerializedName.** { *; }
+#-dontwarn com.uogames.clientApi.version3.network.response.**

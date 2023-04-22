@@ -110,7 +110,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:text="@string/here_is_empty" />
+        android:text="@string/List_empty" />
 
 
 </RelativeLayout>

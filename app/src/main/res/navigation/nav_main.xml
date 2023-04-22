@@ -16,7 +16,7 @@
 		android:id="@+id/library_fragment"
 		android:name="com.uogames.remembercards.ui.module.library.LibraryFragment"
 		android:label="BookFragment"
-		tools:layout="@layout/fragment_lbrary" />
+		tools:layout="@layout/fragment_module" />
 
 	<fragment
 		android:id="@+id/person_fragment"
@@ -34,7 +34,7 @@
 		android:id="@+id/phrase_fragment"
 		android:name="com.uogames.remembercards.ui.phrase.phrasesFragment.PhraseFragment"
 		android:label="PhraseFragment"
-		tools:layout="@layout/fragment_book"
+		tools:layout="@layout/fragment_phrase"
 		/>
 
 

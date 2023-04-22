@@ -14,12 +14,12 @@ import com.uogames.remembercards.R
 import com.uogames.remembercards.ui.dialogs.ShareAttentionDialog
 import com.uogames.remembercards.ui.views.CardView
 import com.uogames.remembercards.utils.*
+import com.uogames.remembercards.viewmodel.CViewModel
 import kotlinx.coroutines.*
 import java.util.*
 
 class CardAdapter(
     private val model: CardViewModel,
-    private val player: ObservableMediaPlayer,
     private val reportCall: ((GlobalCard) -> Unit)? = null,
     private val cardAction: (LocalCard) -> Unit
 ) : ClosableAdapter() {
@@ -55,7 +55,7 @@ class CardAdapter(
         override fun show() {
             view.reset()
             observer = recyclerScope.launch {
-                val cardView = model.getViewAsync(adapterPosition).await().ifNull { return@launch }
+                val cardView = model.getLocalModelViewAsync(adapterPosition).await().ifNull { return@launch }
                 view.clue = cardView.card.reason
                 view.setOnClickEdit { cardAction(cardView.card.toLocalCard()) }
                 cardView.card.phrase.let { phrase ->
@@ -65,10 +65,10 @@ class CardAdapter(
                         Picasso.get().load(image.imgUri.toUri()).placeholder(R.drawable.noise).into(view.getFirstImageView())
                         view.showImageFirst = true
                     }.ifNull { view.showImageFirst = false }
-                    phrase.pronounce?.let { pronounce ->
+                    phrase.pronounce?.let {
                         view.showAudioFirst = true
                         view.setOnClickButtonCardFirst {
-                            player.play(itemView.context, pronounce.audioUri.toUri(), it.background.asAnimationDrawable())
+                            launch { cardView.playPhrase(it.background.asAnimationDrawable()) }
                         }
                     }.ifNull { view.showAudioFirst = false }
                     view.definitionFirst = phrase.definition.orEmpty()
@@ -80,10 +80,10 @@ class CardAdapter(
                         view.showImageSecond = true
                         Picasso.get().load(image.imgUri.toUri()).placeholder(R.drawable.noise).into(view.getSecondImageView())
                     }.ifNull { view.showImageSecond = false }
-                    translate.pronounce?.let { pronounce ->
+                    translate.pronounce?.let {
                         view.showAudioSecond = true
                         view.setOnClickButtonCardSecond {
-                            player.play(itemView.context, pronounce.audioUri.toUri(), it.background.asAnimationDrawable())
+                            launch { cardView.playTranslate(it.background.asAnimationDrawable()) }
                         }
                     }.ifNull { view.showAudioSecond = false }
                     view.definitionSecond = translate.definition.orEmpty()
@@ -102,7 +102,7 @@ class CardAdapter(
 
         }
 
-        private fun addShareAction(cardView: CardViewModel.LocalCardModel) {
+        private fun addShareAction(cardView: CViewModel.LocalCardModel) {
             if (auth.currentUser == null) return
             if (cardView.card.globalOwner != null && cardView.card.globalOwner != auth.currentUser?.uid) return
             view.setOnClickButtonShare {
@@ -134,17 +134,17 @@ class CardAdapter(
             view.showButtonDownload = false
         }
 
-        private val endAction: (String) -> Unit = {
+        private val endAction: (String, LocalCard?) -> Unit = { m, _ ->
             view.showProgressLoading = false
             view.showButtonStop = false
             view.showButtonDownload = true
-            Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
+            Toast.makeText(itemView.context, m, Toast.LENGTH_SHORT).show()
         }
 
         override fun show() {
             view.reset()
             observer = recyclerScope.launch {
-                val cardView = model.getGlobalViewAsync(adapterPosition.toLong()).await().ifNull { return@launch }
+                val cardView = model.getGlobalModelViewAsync(adapterPosition.toLong()).await().ifNull { return@launch }
                 view.clue = cardView.card.reason
                 cardView.card.phrase.let { phrase ->
                     view.languageTagFirst = phrase.lang.let { Locale.forLanguageTag(it) }
@@ -153,9 +153,7 @@ class CardAdapter(
                         view.showAudioFirst = true
                         view.setOnClickButtonCardFirst { v ->
                             launch {
-                                cardView.phrasePronounceData.await()?.let {
-                                    player.play(MediaBytesSource(it), v.background.asAnimationDrawable())
-                                }
+                                cardView.playPhrase(v.background.asAnimationDrawable())
                             }
                         }
                     }.ifNull { view.showAudioFirst = false }
@@ -172,9 +170,7 @@ class CardAdapter(
                         view.showAudioSecond = true
                         view.setOnClickButtonCardSecond { v ->
                             launch {
-                                cardView.translatePronounceData.await()?.let {
-                                    player.play(MediaBytesSource(it), v.background.asAnimationDrawable())
-                                }
+                                cardView.playTranslate(v.background.asAnimationDrawable())
                             }
                         }
                     }.ifNull { view.showAudioSecond = false }
@@ -185,13 +181,13 @@ class CardAdapter(
                     view.definitionSecond = translate.definition.orEmpty()
                 }
 
-                view.setOnClickButtonReport { reportCall?.let { it(cardView.card.toGlobalCard()) } }
+                view.setOnClickButtonReport(auth.currentUser != null) { reportCall?.let { it(cardView.card.toGlobalCard()) } }
 
                 model.setDownloadAction(cardView.card.globalId, endAction).ifTrue(startAction)
 
                 view.setOnClickButtonDownload {
                     startAction()
-                    model.save(cardView, endAction)
+                    model.save(cardView.card, endAction)
                 }
 
                 view.setOnClickButtonStop(false) {  model.stopDownloading(cardView.card.globalId) }

@@ -23,8 +23,14 @@ class NotificationViewModel @Inject constructor(
 
     suspend fun getRandomCard(): LocalCardView? {
         val moduleId = globalViewModel.provider.setting.get(GlobalViewModel.MODULE_ID_FOR_NOTIFICATION)?.toInt()
-        return if (moduleId != null) provider.moduleCard.getRandomModuleView(moduleId)?.card
-        else globalViewModel.provider.cards.getRandomView()
+        return if (moduleId != null) {
+            val count = provider.moduleCard.getCountByModuleId(moduleId)
+            provider.moduleCard.getView(moduleId, (count * Math.random()).toInt())?.card
+        }
+        else {
+            val count = provider.cards.count()
+            provider.cards.getView(position = (count * Math.random()).toInt())
+        }
     }
 
     suspend fun getCardById(cardID: Int) = provider.cards.getViewByID(cardID)

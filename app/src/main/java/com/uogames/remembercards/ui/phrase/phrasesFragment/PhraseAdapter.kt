@@ -1,19 +1,14 @@
 package com.uogames.remembercards.ui.phrase.phrasesFragment
 
-import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.net.toUri
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.uogames.dto.global.GlobalImageView
 import com.uogames.dto.global.GlobalPhrase
+import com.uogames.dto.local.LocalPhrase
 import com.uogames.dto.local.LocalPhraseView
 import com.uogames.map.PhraseMap.toGlobalPhrase
 import com.uogames.remembercards.R
-import com.uogames.remembercards.databinding.CardPhraseBinding
-import com.uogames.remembercards.ui.phrase.choicePhraseFragment.ChoicePhraseViewModel
 import com.uogames.remembercards.ui.dialogs.ShareAttentionDialog
 import com.uogames.remembercards.ui.views.PhraseView
 import com.uogames.remembercards.utils.*
@@ -22,7 +17,6 @@ import java.util.*
 
 class PhraseAdapter(
     private val vm: PhraseViewModel,
-    private val player: ObservableMediaPlayer,
     private val reportCall: ((GlobalPhrase) -> Unit)? = null,
     private val editCall: ((Int) -> Unit)? = null
 ) : ClosableAdapter() {
@@ -58,18 +52,17 @@ class PhraseAdapter(
         override fun show() {
             view.reset()
             observer = recyclerScope.safeLaunch {
-                val phraseView = vm.getLocalBookModel(adapterPosition).ifNull { return@safeLaunch }
+                val phraseView = vm.getLocalModel(adapterPosition).ifNull { return@safeLaunch }
                 val phrase = phraseView.phrase
                 view.phrase = phrase.phrase
-                //view.country = phrase.country
                 view.definition = phrase.definition.orEmpty()
                 phrase.image?.imgUri?.let { uri ->
                     vm.getPicasso(itemView.context).load(uri).placeholder(R.drawable.noise).into(view.getImageView())
                     view.showImage = true
                 }.ifNull { view.showImage = false }
-                phrase.pronounce?.audioUri?.let { uri ->
-                    view.setOnClickButtonSound {
-                        player.play(itemView.context, uri.toUri(), it.background.asAnimationDrawable())
+                phrase.pronounce?.audioUri?.let { _ ->
+                    view.setOnClickButtonSound { v ->
+                        launch { phraseView.play(v.background.asAnimationDrawable()) }
                     }
                 }.ifNull { view.setOnClickButtonSound(false, null) }
                 view.language = Locale.forLanguageTag(phraseView.phrase.lang)
@@ -99,7 +92,6 @@ class PhraseAdapter(
             }
         }
 
-
         override fun onDestroy() {
             super.onDestroy()
             view.reset()
@@ -115,42 +107,38 @@ class PhraseAdapter(
             view.showButtonDownload = false
         }
 
-        private val endAction: (String) -> Unit = {
+        private val endAction: (String, LocalPhrase?) -> Unit = { m, _ ->
             view.showProgressLoading = false
             view.showButtonStop = false
             view.showButtonDownload = true
-            Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
+            Toast.makeText(itemView.context, m, Toast.LENGTH_SHORT).show()
         }
 
         override fun show() {
             view.reset()
             observer = recyclerScope.launch {
-                val phraseView = vm.getByPosition(adapterPosition.toLong()).ifNull { return@launch }
+                val phraseView = vm.getGlobalModel(adapterPosition).ifNull { return@launch }
                 val phrase = phraseView.phraseView
                 view.phrase = phrase.phrase
                 view.definition = phrase.definition.orEmpty()
 
-                phraseView.image?.imageUri?.let { uri ->
+                phrase.image?.imageUri?.let { uri ->
                     vm.getPicasso(itemView.context).load(uri).placeholder(R.drawable.noise).into(view.getImageView())
                     view.showImage = true
                 }.ifNull { view.showImage = false }
                 phrase.pronounce?.let {
                     view.setOnClickButtonSound { v ->
-                        recyclerScope.launch {
-                            phraseView.pronounceData.await()?.let {
-                                player.play(MediaBytesSource(it), v.background.asAnimationDrawable())
-                            }
-                        }
+                        launch { phraseView.play(v.background.asAnimationDrawable()) }
                     }
                 }.ifNull { view.setOnClickButtonSound(false, null) }
                 view.language = Locale.forLanguageTag(phrase.lang)
                 vm.setDownloadAction(phrase.globalId, endAction).ifTrue(startAction)
 
-                view.setOnClickButtonReport { reportCall?.let { it(phrase.toGlobalPhrase()) } }
+                view.setOnClickButtonReport(auth.currentUser != null) { reportCall?.let { it(phrase.toGlobalPhrase()) } }
 
                 view.setOnClickButtonDownload {
                     startAction()
-                    vm.save(phraseView, endAction)
+                    vm.save(phrase, endAction)
                 }
                 view.setOnClickButtonStop(false) { vm.stopDownloading(phrase.globalId) }
             }
@@ -168,7 +156,6 @@ class PhraseAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ClosableHolder {
-        val bind = CardPhraseBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return when (viewType) {
             0 -> LocalPhraseHolder(PhraseView(parent.context))
             else -> GlobalPhraseHolder(PhraseView(parent.context))

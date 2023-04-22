@@ -1,6 +1,7 @@
 package com.uogames.remembercards.ui.phrase.phrasesFragment
 
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -9,13 +10,14 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.core.os.bundleOf
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.color.MaterialColors
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.uogames.dto.global.GlobalPhrase
 import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
-import com.uogames.remembercards.databinding.FragmentBookBinding
+import com.uogames.remembercards.databinding.FragmentPhraseBinding
 import com.uogames.remembercards.ui.dialogs.choiceCountry.ChoiceCountryDialog
 import com.uogames.remembercards.ui.dialogs.choiceLanguageDialog.ChoiceLanguageDialog
 import com.uogames.remembercards.ui.phrase.editPhraseFragment.EditPhraseFragment
@@ -36,7 +38,7 @@ class PhraseFragment : DaggerFragment() {
     @Inject
     lateinit var globalViewModel: GlobalViewModel
 
-    private var _bind: FragmentBookBinding? = null
+    private var _bind: FragmentPhraseBinding? = null
     private val bind get() = _bind!!
 
     private var observers: Job? = null
@@ -55,7 +57,7 @@ class PhraseFragment : DaggerFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _bind = FragmentBookBinding.inflate(inflater, container, false)
+        _bind = FragmentPhraseBinding.inflate(inflater, container, false)
         return _bind?.root
     }
 
@@ -85,6 +87,8 @@ class PhraseFragment : DaggerFragment() {
             }.show(requireActivity().supportFragmentManager, ChoiceCountryDialog.TAG)
         }
 
+        bind.clSearchBar.setOnSelectedNewestListener{ model.newest.value = it }
+
         model.addEditCall(editCall)
         model.addReportCall(reportCall)
 
@@ -102,6 +106,7 @@ class PhraseFragment : DaggerFragment() {
             }
             model.cloud.observe(this) {
                 bind.imgNetwork.setImageResource(cloudImages[if (it) 0 else 1])
+                bind.clSearchBar.showNewest = !it
             }
             model.size.observe(this) {
                 bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
@@ -111,6 +116,22 @@ class PhraseFragment : DaggerFragment() {
             }
             model.country.observe(this) {
                 bind.clSearchBar.setFlagResourceFirst(it?.res)
+            }
+            model.isSearching.observe(this){
+                when(it){
+                    PhraseViewModel.SearchingState.SEARCHING -> {
+                        bind.lpiLoadIndicator.setIndicatorColor(MaterialColors.getColor(requireContext(), R.attr.colorPrimary, Color.BLACK))
+                        bind.lpiLoadIndicator.isIndeterminate = true
+                        bind.lpiLoadIndicator.visibility = View.VISIBLE
+                    }
+                    PhraseViewModel.SearchingState.SEARCHED -> bind.lpiLoadIndicator.visibility = View.GONE
+                    else -> {
+                        bind.lpiLoadIndicator.setIndicatorColor(requireContext().getColor(R.color.red))
+                        bind.lpiLoadIndicator.isIndeterminate = false
+                        bind.lpiLoadIndicator.progress = 100
+                        bind.lpiLoadIndicator.visibility = View.VISIBLE
+                    }
+                }
             }
         }
 

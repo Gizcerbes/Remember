@@ -6,11 +6,11 @@
 	android:layout_height="match_parent"
 	android:animateLayoutChanges="true">
 
-	<RelativeLayout
+	<androidx.constraintlayout.widget.ConstraintLayout
 		android:id="@+id/top_bar"
-		style="@style/Theme.RememberCards.AppBar"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		style="@style/Theme.RememberCards.AppBar"
 		android:layout_alignParentTop="true"
 		app:layout_constraintBaseline_toTopOf="parent">
 
@@ -18,17 +18,20 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginStart="13dp"
-			android:text="@string/choice_phrase"
+			android:text="@string/your_library"
 			android:textAppearance="?attr/textAppearanceHeadline6"
-			android:layout_centerVertical="true"/>
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent" />
+
 
 		<LinearLayout
-			android:id="@+id/ll_buttons"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:orientation="horizontal"
-			android:layout_centerVertical="true"
-			android:layout_alignParentEnd="true">
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toTopOf="parent">
 
 			<com.google.android.material.card.MaterialCardView
 				android:id="@+id/btn_add"
@@ -73,20 +76,6 @@
 
 			</com.google.android.material.card.MaterialCardView>
 
-			<com.google.android.material.card.MaterialCardView
-				android:id="@+id/btn_back"
-				style="@style/Theme.RememberCards.CardView.Button.Negative"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginStart="0dp"
-				android:visibility="visible">
-
-				<ImageView
-					android:layout_width="@dimen/card_button"
-					android:layout_height="@dimen/card_button"
-					android:src="@drawable/ic_baseline_close_24" />
-			</com.google.android.material.card.MaterialCardView>
-
 		</LinearLayout>
 
 
@@ -94,26 +83,34 @@
 			android:id="@+id/bottom_divider"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_below="@id/ll_buttons"
 			app:layout_constraintBottom_toBottomOf="parent" />
-
-	</RelativeLayout>
+	</androidx.constraintlayout.widget.ConstraintLayout>
 
 	<com.uogames.remembercards.ui.views.SearchView
-		android:id="@+id/cl_search_bar"
-		android:layout_width="match_parent"
 		android:layout_below="@id/top_bar"
+		android:id="@+id/cl_search_bar"
+		app:full="true"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"/>
+
+	<com.google.android.material.progressindicator.LinearProgressIndicator
+		android:id="@+id/lpi_load_indicator"
+		android:indeterminate="true"
+		android:visibility="visible"
+		android:progress="50"
+		android:layout_below="@id/cl_search_bar"
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content"/>
 
 	<androidx.recyclerview.widget.RecyclerView
 		android:id="@+id/recycler"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:layout_below="@id/cl_search_bar"
 		android:layout_alignParentBottom="true"
+		android:layout_below="@id/cl_search_bar"
 		android:orientation="vertical"
 		app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-		tools:listitem="@layout/card_card" />
+		tools:listitem="@layout/card_module" />
 
 
 	<TextView
@@ -121,7 +118,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_centerInParent="true"
-		android:text="@string/here_is_empty" />
+		android:text="@string/List_empty" />
 
 
 </RelativeLayout>

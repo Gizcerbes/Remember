@@ -40,7 +40,7 @@ class GlobalViewModel @Inject constructor(
     private val data = {
         val uid = auth.uid
         if (uid != null) mapOf(
-            "Identifier" to (userName.value),
+            "Identifier" to (userName.value.orEmpty()),
             "User UID" to (uid),
             "UTM" to System.currentTimeMillis().toString()
         )
@@ -59,7 +59,7 @@ class GlobalViewModel @Inject constructor(
     private val _isShowKey = MutableStateFlow(false)
     val isShowKey = _isShowKey.asStateFlow()
 
-    private val _userName = MutableStateFlow("")
+    private val _userName = MutableStateFlow<String?>(null)
     val userName = _userName.asStateFlow()
 
     private var lastDestination: NavDestination? = null
@@ -69,6 +69,9 @@ class GlobalViewModel @Inject constructor(
 
     private var _shouldReset: Boolean = false
     val shouldReset get() = _shouldReset
+
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading = _isLoading.asStateFlow()
 
     val nativeCountry = provider.setting.getFlow(USER_NATIVE_COUNTRY).stateIn(viewModelScope, SharingStarted.Eagerly, null)
     val privacyAndPolicy = provider.setting.getFlow(PRIVACY_AND_POLICY).stateIn(viewModelScope, SharingStarted.Eagerly, null)
@@ -92,7 +95,11 @@ class GlobalViewModel @Inject constructor(
     private var job: Job? = null
 
     init {
-        getUserName().observe(viewModelScope) { _userName.value = it.orEmpty() }
+        getUserName().observe(viewModelScope) {
+            _userName.value = it
+            delay(100)
+            _isLoading.value = false
+        }
         auth.currentUser?.reload()
     }
 

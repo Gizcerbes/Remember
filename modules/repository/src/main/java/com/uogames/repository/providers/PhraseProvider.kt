@@ -20,11 +20,11 @@ class PhraseProvider(
 
     suspend fun update(phrase: LocalPhrase) = pr.update(phrase)
 
-    suspend fun get(like: String?, lang: String?, country: String?, position: Int?) =
-        pr.get(like, lang, country, position)
+    suspend fun get(like: String?, lang: String?, country: String?, newest: Boolean, position: Int?) =
+        pr.get(like, lang, country, newest, position)
 
-    suspend fun getView(like: String?, lang: String?, country: String?, position: Int?) =
-        pr.getView(like, lang, country, position)
+    suspend fun getView(like: String?, lang: String?, country: String?, newest: Boolean, position: Int?) =
+        pr.getView(like, lang, country, newest, position)
 
     suspend fun getViewByID(id: Int) = pr.getViewById(id)
 
@@ -123,7 +123,7 @@ class PhraseProvider(
                 )
             ).toInt()
             return pr.getById(localID) ?: throw Exception("Phrase wasn't saved")
-        } else if (l1.timeChange <= view.timeChange){
+        } else if (l1.timeChange <= view.timeChange) {
             val l2 = l1.update(
                 view = view,
                 idPronounce = view.pronounce?.let { dataProvider.pronounce.save(it) }?.id,

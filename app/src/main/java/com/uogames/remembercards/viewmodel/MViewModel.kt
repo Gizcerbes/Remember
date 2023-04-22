@@ -130,6 +130,7 @@ class MViewModel @Inject constructor(
         langSecond: String? = null,
         countryFirst: String? = null,
         countrySecond: String? = null,
+        newest: Boolean = false,
         position: Int? = null
     ) = provider.module.getView(
         text = text,
@@ -137,6 +138,7 @@ class MViewModel @Inject constructor(
         sLang= langSecond,
         fCountry = countryFirst,
         sCountry = countrySecond,
+        newest = newest,
         position = position
     )?.let { LocalModuleModel(it) }
 

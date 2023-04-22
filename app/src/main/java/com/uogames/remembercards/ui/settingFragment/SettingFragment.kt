@@ -136,11 +136,11 @@ class SettingFragment : DaggerFragment() {
     private fun setUser(user: FirebaseUser?) {
         user?.let {
             bind.txtLogIn.setTextColor(bind.labelLogIn.currentTextColor)
-            bind.txtLogIn.text = UserGlobalName(globalViewModel.userName.value, it.uid).userName
+            bind.txtLogIn.text = UserGlobalName(globalViewModel.userName.value.orEmpty(), it.uid).userName
             bind.labelLogIn.text = requireContext().getText(R.string.log_out)
         }.ifNull {
             bind.txtLogIn.text = requireContext().getText(R.string.disconnected)
-            bind.txtLogIn.setTextColor(requireContext().getColor(R.color.btn_negative))
+            bind.txtLogIn.setTextColor(requireContext().getColor(R.color.red))
             bind.labelLogIn.text = requireContext().getText(R.string.log_in)
         }
     }

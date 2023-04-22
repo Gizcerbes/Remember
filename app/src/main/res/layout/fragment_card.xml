@@ -91,6 +91,15 @@
 		android:layout_below="@id/top_bar"
 		android:layout_height="wrap_content"/>
 
+	<com.google.android.material.progressindicator.LinearProgressIndicator
+		android:id="@+id/lpi_load_indicator"
+		android:indeterminate="true"
+		android:visibility="visible"
+		android:progress="50"
+		android:layout_below="@id/cl_search_bar"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"/>
+
 	<androidx.recyclerview.widget.RecyclerView
 		android:id="@+id/recycler"
 		android:layout_width="match_parent"
@@ -107,7 +116,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_centerInParent="true"
-		android:text="@string/here_is_empty" />
+		android:text="@string/List_empty" />
 
 
 </RelativeLayout>

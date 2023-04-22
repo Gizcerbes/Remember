@@ -22,3 +22,4 @@
 #-keep class com.google.gson.** { *; }
 #-keep class com.uogames.network.response.** { *; }
 #-keep class io.ktor.serialization.gson.** { *; }
+#-keep class com.uogames.clientApi.version3.network.response.** { *; }

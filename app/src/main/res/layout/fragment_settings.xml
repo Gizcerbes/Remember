@@ -335,7 +335,7 @@
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:layout_marginStart="7dp"
-						android:text="@string/label_privacy_and_policy"
+						android:text="@string/label_privacy_policy"
 						android:textAppearance="@style/Theme.RememberCards.Body2"
 						app:layout_constraintBottom_toBottomOf="parent"
 						app:layout_constraintStart_toStartOf="parent"

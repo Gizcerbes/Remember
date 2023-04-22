@@ -76,6 +76,7 @@ class CardRepository(
         langSecond: String? = null,
         countryFirst: String? = null,
         countrySecond: String? = null,
+        newest: Boolean = false,
         position: Int? = null
     ): CardEntity? {
         val builder = StringBuilder()
@@ -115,7 +116,8 @@ class CardRepository(
             builder.append("pt1.country =  ? ")
             params.add(countrySecond)
         }
-        builder.append("ORDER BY length(ph1), ph1, length(ph2), ph2 ")
+        if (newest) builder.append("ORDER BY nct.time_change DESC ")
+        else builder.append("ORDER BY length(ph1), ph1, length(ph2), ph2 ")
         //builder.append("ORDER BY length(ph1), ph1 ")
         position?.let { builder.append("LIMIT $position, 1") }
         return cardDAO.get(SimpleSQLiteQuery(builder.toString(), params.toArray()))
@@ -127,8 +129,9 @@ class CardRepository(
         langSecond: String? = null,
         countryFirst: String? = null,
         countrySecond: String? = null,
+        newest: Boolean = false,
         position: Int? = null
-    ) = getEntity(like, langFirst, langSecond, countryFirst, countrySecond, position)?.toDTO()
+    ) = getEntity(like, langFirst, langSecond, countryFirst, countrySecond, newest, position)?.toDTO()
 
     suspend fun getView(
         like: String? = null,
@@ -136,8 +139,9 @@ class CardRepository(
         langSecond: String? = null,
         countryFirst: String? = null,
         countrySecond: String? = null,
+        newest: Boolean = false,
         position: Int? = null
-    ) = getEntity(like, langFirst, langSecond, countryFirst, countrySecond, position)?.let { map.toDTO(it) }
+    ) = getEntity(like, langFirst, langSecond, countryFirst, countrySecond, newest, position)?.let { map.toDTO(it) }
     fun getCountFlow() = cardDAO.getCountFlow()
 
     suspend fun getById(id: Int) = cardDAO.getById(id)?.toDTO()

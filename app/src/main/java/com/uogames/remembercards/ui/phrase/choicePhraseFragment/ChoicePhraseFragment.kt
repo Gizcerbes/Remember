@@ -1,6 +1,7 @@
 package com.uogames.remembercards.ui.phrase.choicePhraseFragment
 
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -12,6 +13,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.color.MaterialColors
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.uogames.dto.global.GlobalPhrase
@@ -19,10 +21,11 @@ import com.uogames.dto.local.LocalPhrase
 import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
-import com.uogames.remembercards.databinding.FragmentChoicePhraseBinding
+import com.uogames.remembercards.databinding.FragmentPhraseChoiceBinding
 import com.uogames.remembercards.ui.dialogs.choiceCountry.ChoiceCountryDialog
 import com.uogames.remembercards.ui.dialogs.choiceLanguageDialog.ChoiceLanguageDialog
 import com.uogames.remembercards.ui.phrase.editPhraseFragment.EditPhraseFragment
+import com.uogames.remembercards.ui.phrase.phrasesFragment.PhraseViewModel
 import com.uogames.remembercards.ui.reportFragment.ReportFragment
 import com.uogames.remembercards.utils.*
 import dagger.android.support.DaggerFragment
@@ -47,7 +50,7 @@ class ChoicePhraseFragment() : DaggerFragment() {
     @Inject
     lateinit var player: ObservableMediaPlayer
 
-    private var _bind: FragmentChoicePhraseBinding? = null
+    private var _bind: FragmentPhraseChoiceBinding? = null
     private val bind get() = _bind!!
 
     private var observers: Job? = null
@@ -69,7 +72,7 @@ class ChoicePhraseFragment() : DaggerFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        if (_bind == null) _bind = FragmentChoicePhraseBinding.inflate(inflater, container, false)
+        if (_bind == null) _bind = FragmentPhraseChoiceBinding.inflate(inflater, container, false)
         return bind.root
     }
 
@@ -101,6 +104,7 @@ class ChoicePhraseFragment() : DaggerFragment() {
                 vm.country.value = it
             }.show(requireActivity().supportFragmentManager, ChoiceCountryDialog.TAG)
         }
+        bind.clSearchBar.setOnSelectedNewestListener{ vm.newest.value = it }
 
         vm.addChoiceCall(choiceCall)
         vm.addReportCall(reportCall)
@@ -119,6 +123,7 @@ class ChoicePhraseFragment() : DaggerFragment() {
             }
             vm.cloud.observe(this) {
                 bind.imgNetwork.setImageResource(cloudImages[if (it) 0 else 1])
+                bind.clSearchBar.showNewest = !it
             }
             vm.size.observe(this) {
                 bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
@@ -128,6 +133,22 @@ class ChoicePhraseFragment() : DaggerFragment() {
             }
             vm.country.observe(this) {
                 bind.clSearchBar.setFlagResourceFirst(it?.res)
+            }
+            vm.isSearching.observe(this){
+                when(it){
+                    ChoicePhraseViewModel.SearchingState.SEARCHING -> {
+                        bind.lpiLoadIndicator.setIndicatorColor(MaterialColors.getColor(requireContext(), R.attr.colorPrimary, Color.BLACK))
+                        bind.lpiLoadIndicator.isIndeterminate = true
+                        bind.lpiLoadIndicator.visibility = View.VISIBLE
+                    }
+                    ChoicePhraseViewModel.SearchingState.SEARCHED -> bind.lpiLoadIndicator.visibility = View.INVISIBLE
+                    else -> {
+                        bind.lpiLoadIndicator.setIndicatorColor(requireContext().getColor(R.color.red))
+                        bind.lpiLoadIndicator.isIndeterminate = false
+                        bind.lpiLoadIndicator.progress = 100
+                        bind.lpiLoadIndicator.visibility = View.VISIBLE
+                    }
+                }
             }
         }
     }

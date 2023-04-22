@@ -6,6 +6,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.uogames.dto.local.LocalPhraseView
 import com.uogames.remembercards.App
@@ -41,8 +43,9 @@ class NotificationReceiver : BroadcastReceiver() {
 
     private suspend fun newNotification(context: Context, model: NotificationViewModel): NotificationCompat.Builder? {
         val card = model.getRandomCard() ?: return null
-        return createNotificationBuilder(context, model, card.phrase, null, ACTION_FRONT_SIDE)
+        return createNotificationBuilder(context, model, card.phrase, card.id, ACTION_BACK_SIDE)
             .apply { setSubText(card.reason) }
+
     }
 
     private suspend fun frontSideNotification(context: Context, model: NotificationViewModel, cardId: Int): NotificationCompat.Builder? {
@@ -65,8 +68,9 @@ class NotificationReceiver : BroadcastReceiver() {
         cardAction: String = ACTION_NEW_NOTIFICATION
     ): NotificationCompat.Builder {
         val imageData = phrase.image?.let { model.getData(it) }
+        val flag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_MUTABLE else PendingIntent.FLAG_UPDATE_CURRENT
         val notification = NotificationCompat.Builder(context, App.NOTIFICATION_CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher)
+            .setSmallIcon(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) R.drawable.ic_logo_trans else R.drawable.ic_launcher_round)
             .setContentTitle(phrase.phrase)
             .setOnlyAlertOnce(true)
             .apply { if (imageData != null) setLargeIcon(BitmapFactory.decodeByteArray(imageData, 0, imageData.size)) }
@@ -81,11 +85,12 @@ class NotificationReceiver : BroadcastReceiver() {
                     action = cardAction
                     putExtra(CARD_ID, cardId)
                 },
-                PendingIntent.FLAG_CANCEL_CURRENT
+                flag
             )
         )
 
         return notification
     }
+
 
 }

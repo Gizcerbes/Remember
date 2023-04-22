@@ -1,6 +1,7 @@
 package com.uogames.remembercards.ui.card.cardFragment
 
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -9,6 +10,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.core.os.bundleOf
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.color.MaterialColors
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.uogames.dto.global.GlobalCard
@@ -102,6 +104,7 @@ class CardFragment : DaggerFragment() {
                 model.countrySecond.value = it
             }.show(requireActivity().supportFragmentManager, ChoiceCountryDialog.TAG)
         }
+        bind.clSearchBar.setOnSelectedNewestListener { model.newest.value = it}
 
         model.addReportListener(reportCall)
         model.addEditCall(editCall)
@@ -120,6 +123,7 @@ class CardFragment : DaggerFragment() {
             }
             model.cloud.observe(this) {
                 bind.imgNetwork.setImageResource(cloudImages[if (it) 0 else 1])
+                bind.clSearchBar.showNewest = !it
             }
             model.size.observe(this) {
                 bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
@@ -139,6 +143,22 @@ class CardFragment : DaggerFragment() {
             }
             model.countrySecond.observe(this) {
                 bind.clSearchBar.setFlagResourceSecond(it?.res)
+            }
+            model.isSearching.observe(this) {
+                when(it){
+                    CardViewModel.SearchingState.SEARCHING -> {
+                        bind.lpiLoadIndicator.setIndicatorColor(MaterialColors.getColor(requireContext(), R.attr.colorPrimary, Color.BLACK))
+                        bind.lpiLoadIndicator.isIndeterminate = true
+                        bind.lpiLoadIndicator.visibility = View.VISIBLE
+                    }
+                    CardViewModel.SearchingState.SEARCHED -> bind.lpiLoadIndicator.visibility = View.GONE
+                    else -> {
+                        bind.lpiLoadIndicator.setIndicatorColor(requireContext().getColor(R.color.red))
+                        bind.lpiLoadIndicator.isIndeterminate = false
+                        bind.lpiLoadIndicator.progress = 100
+                        bind.lpiLoadIndicator.visibility = View.VISIBLE
+                    }
+                }
             }
         }
 

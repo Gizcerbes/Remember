@@ -37,6 +37,35 @@ class SearchView(context: Context?, attrs: AttributeSet? = null) : LinearLayout(
             bind.ivArrayCountry.visibility = vis
         }
 
+    var selectedLang = false
+        set(value) {
+            field = value
+            bind.clLanguages.visibility = if (value) VISIBLE else GONE
+            bind.chipLanguage.isChecked = field
+            bind.chipLanguage.isCheckedIconVisible = field
+        }
+
+    var selectedCountry = false
+        set(value) {
+            field = value
+            bind.clCountries.visibility = if (value) VISIBLE else GONE
+            bind.chipCountry.isChecked = field
+            bind.chipCountry.isCheckedIconVisible = field
+        }
+
+    var selectedNewest = false
+        set(value) {
+            field = value
+            bind.chipNewest.isChecked = field
+            bind.chipNewest.isCheckedIconVisible = field
+        }
+
+    var showNewest = false
+        set(value) {
+            field = value
+            bind.chipNewest.visibility = if (value) VISIBLE else GONE
+        }
+
     init {
         addView(bind.root)
         val typedArray = context?.theme?.obtainStyledAttributes(
@@ -50,7 +79,15 @@ class SearchView(context: Context?, attrs: AttributeSet? = null) : LinearLayout(
             setFlagResourceFirst(getResourceId(R.styleable.SearchView_country_src_first, 0).let { if (it == 0) null else it })
             setFlagResourceSecond(getResourceId(R.styleable.SearchView_country_src_second, 0).let { if (it == 0) null else it })
             full = getBoolean(R.styleable.SearchView_full, false)
-        }
+            selectedLang = getBoolean(R.styleable.SearchView_select_languages, false)
+            selectedCountry = getBoolean(R.styleable.SearchView_select_countries, false)
+            selectedNewest = false
+            showNewest = false
+        }?.recycle()
+
+        setOnSelectedLangListener()
+        setOnSelectedCountryListener()
+        setOnSelectedNewestListener()
 
     }
 
@@ -75,4 +112,25 @@ class SearchView(context: Context?, attrs: AttributeSet? = null) : LinearLayout(
     fun setOnClickCountryFirst(l: OnClickListener?) = bind.btnCountryFirst.setOnClickListener(l)
 
     fun setOnClickCountrySecond(l: OnClickListener?) = bind.btnCountrySecond.setOnClickListener(l)
+
+    fun setOnSelectedLangListener(l: ((Boolean) -> Unit)? = null){
+        bind.chipLanguage.setOnClickListener {
+            selectedLang = !selectedLang
+            l?.let { it(selectedLang) }
+        }
+    }
+
+    fun setOnSelectedCountryListener(l: ((Boolean) -> Unit)? = null) {
+        bind.chipCountry.setOnClickListener {
+            selectedCountry = !selectedCountry
+            l?.let { it(selectedCountry) }
+        }
+    }
+
+    fun setOnSelectedNewestListener(l: ((Boolean) -> Unit)? = null){
+        bind.chipNewest.setOnClickListener {
+            selectedNewest = !selectedNewest
+            l?.let { it(selectedNewest) }
+        }
+    }
 }

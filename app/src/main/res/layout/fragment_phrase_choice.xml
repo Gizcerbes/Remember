@@ -8,27 +8,27 @@
 
 	<RelativeLayout
 		android:id="@+id/top_bar"
+		style="@style/Theme.RememberCards.AppBar"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_alignParentTop="true"
-		style="@style/Theme.RememberCards.AppBar"
 		app:layout_constraintBaseline_toTopOf="parent">
 
 		<TextView
-			android:id="@+id/txt_top_name"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginStart="13dp"
-			android:text="@string/choice_card"
+			android:text="@string/choose_phrase"
 			android:textAppearance="?attr/textAppearanceHeadline6"
-			android:layout_centerVertical="true" />
+			android:layout_centerVertical="true"/>
 
 		<LinearLayout
 			android:id="@+id/ll_buttons"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_alignParentEnd="true"
-			android:layout_centerVertical="true">
+			android:orientation="horizontal"
+			android:layout_centerVertical="true"
+			android:layout_alignParentEnd="true">
 
 			<com.google.android.material.card.MaterialCardView
 				android:id="@+id/btn_add"
@@ -73,7 +73,6 @@
 
 			</com.google.android.material.card.MaterialCardView>
 
-
 			<com.google.android.material.card.MaterialCardView
 				android:id="@+id/btn_back"
 				style="@style/Theme.RememberCards.CardView.Button.Negative"
@@ -87,7 +86,9 @@
 					android:layout_height="@dimen/card_button"
 					android:src="@drawable/ic_baseline_close_24" />
 			</com.google.android.material.card.MaterialCardView>
+
 		</LinearLayout>
+
 
 		<com.google.android.material.divider.MaterialDivider
 			android:id="@+id/bottom_divider"
@@ -95,12 +96,21 @@
 			android:layout_height="wrap_content"
 			android:layout_below="@id/ll_buttons"
 			app:layout_constraintBottom_toBottomOf="parent" />
+
 	</RelativeLayout>
 
 	<com.uogames.remembercards.ui.views.SearchView
-		android:layout_below="@id/top_bar"
-		app:full="true"
 		android:id="@+id/cl_search_bar"
+		android:layout_width="match_parent"
+		android:layout_below="@id/top_bar"
+		android:layout_height="wrap_content"/>
+
+	<com.google.android.material.progressindicator.LinearProgressIndicator
+		android:id="@+id/lpi_load_indicator"
+		android:indeterminate="true"
+		android:visibility="visible"
+		android:progress="50"
+		android:layout_below="@id/cl_search_bar"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"/>
 
@@ -108,8 +118,8 @@
 		android:id="@+id/recycler"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:layout_alignParentBottom="true"
 		android:layout_below="@id/cl_search_bar"
+		android:layout_alignParentBottom="true"
 		android:orientation="vertical"
 		app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
 		tools:listitem="@layout/card_card" />
@@ -120,7 +130,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_centerInParent="true"
-		android:text="@string/here_is_empty" />
+		android:text="@string/List_empty" />
 
 
 </RelativeLayout>

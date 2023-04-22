@@ -1,6 +1,7 @@
 package com.uogames.remembercards.ui.module.library
 
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -9,19 +10,19 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.core.os.bundleOf
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.color.MaterialColors
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.uogames.dto.global.GlobalModule
 import com.uogames.dto.global.GlobalModuleView
-import com.uogames.dto.local.LocalModule
 import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
-import com.uogames.remembercards.databinding.FragmentLbraryBinding
+import com.uogames.remembercards.databinding.FragmentModuleBinding
 import com.uogames.remembercards.ui.dialogs.choiceCountry.ChoiceCountryDialog
 import com.uogames.remembercards.ui.dialogs.choiceLanguageDialog.ChoiceLanguageDialog
 import com.uogames.remembercards.ui.module.editModuleFragment.EditModuleFragment
 import com.uogames.remembercards.ui.module.watch.WatchModuleFragment
+import com.uogames.remembercards.ui.phrase.phrasesFragment.PhraseViewModel
 import com.uogames.remembercards.ui.reportFragment.ReportFragment
 import com.uogames.remembercards.utils.*
 import dagger.android.support.DaggerFragment
@@ -37,7 +38,7 @@ class LibraryFragment : DaggerFragment() {
     @Inject
     lateinit var globalViewModel: GlobalViewModel
 
-    private var _bind: FragmentLbraryBinding? = null
+    private var _bind: FragmentModuleBinding? = null
     private val bind get() = _bind!!
 
     private var observers: Job? = null
@@ -47,7 +48,7 @@ class LibraryFragment : DaggerFragment() {
     private val reportCall = { gm: GlobalModuleView -> navigateToReport(gm) }
     private val selectCall = { module: Int -> navigateToEdit(module) }
     private val watchLocal = { id: Int -> navigateToWatchLocal(id) }
-    private val watchGlobal = { id: UUID -> navigateToWatchGlobal(id)}
+    private val watchGlobal = { id: UUID -> navigateToWatchGlobal(id) }
 
     private val searchImages = listOf(R.drawable.ic_baseline_search_off_24, R.drawable.ic_baseline_search_24)
     private val cloudImages = listOf(R.drawable.ic_baseline_cloud_off_24, R.drawable.ic_baseline_cloud_24)
@@ -59,7 +60,7 @@ class LibraryFragment : DaggerFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _bind = FragmentLbraryBinding.inflate(inflater, container, false)
+        _bind = FragmentModuleBinding.inflate(inflater, container, false)
         return bind.root
     }
 
@@ -106,6 +107,7 @@ class LibraryFragment : DaggerFragment() {
                 model.countrySecond.value = it
             }.show(requireActivity().supportFragmentManager, ChoiceCountryDialog.TAG)
         }
+        bind.clSearchBar.setOnSelectedNewestListener{ model.newrst.value = it }
 
         model.addEditCall(selectCall)
         model.addReportCall(reportCall)
@@ -124,6 +126,7 @@ class LibraryFragment : DaggerFragment() {
             }
             model.cloud.observe(this) {
                 bind.imgNetwork.setImageResource(cloudImages[if (it) 0 else 1])
+                bind.clSearchBar.showNewest = !it
             }
             model.size.observe(this) {
                 bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
@@ -143,6 +146,22 @@ class LibraryFragment : DaggerFragment() {
             }
             model.countrySecond.observe(this) {
                 bind.clSearchBar.setFlagResourceSecond(it?.res)
+            }
+            model.isSearching.observe(this) {
+                when(it){
+                    LibraryViewModel.SearchingState.SEARCHING -> {
+                        bind.lpiLoadIndicator.setIndicatorColor(MaterialColors.getColor(requireContext(), R.attr.colorPrimary, Color.BLACK))
+                        bind.lpiLoadIndicator.isIndeterminate = true
+                        bind.lpiLoadIndicator.visibility = View.VISIBLE
+                    }
+                    LibraryViewModel.SearchingState.SEARCHED -> bind.lpiLoadIndicator.visibility = View.GONE
+                    else -> {
+                        bind.lpiLoadIndicator.setIndicatorColor(requireContext().getColor(R.color.red))
+                        bind.lpiLoadIndicator.isIndeterminate = false
+                        bind.lpiLoadIndicator.progress = 100
+                        bind.lpiLoadIndicator.visibility = View.VISIBLE
+                    }
+                }
             }
         }
     }
