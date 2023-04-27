@@ -19,9 +19,10 @@ class CardsProvider(
 
     suspend fun delete(card: LocalCard) = repository.delete(card)
 
+    suspend fun deleteFree() = repository.deleteFree()
+
     suspend fun update(card: LocalCard) = repository.update(card)
 
-    //suspend fun getCard(like: String = "", number: Int) = repository.getCard(like, number)
     suspend fun count(
         like: String? = null,
         langFirst: String? = null,
@@ -62,11 +63,9 @@ class CardsProvider(
 
     suspend fun getRandom() = repository.getRandom()
 
-    suspend fun getRandomView() = repository.getRandomView()
-
     suspend fun getRandomWithout(id: Int) = repository.getRandomWithOut(id)
 
-    suspend fun getByGlobalId(globalId: UUID) = repository.getByGlobalId(globalId)
+    fun countFree() = repository.countFree()
 
     suspend fun countGlobal(
         text: String? = null,
@@ -80,22 +79,6 @@ class CardsProvider(
         langSecond = langSecond,
         countryFirst = countryFirst,
         countrySecond = countrySecond
-    )
-
-    suspend fun getGlobal(
-        text: String? = null,
-        langFirst: String? = null,
-        langSecond: String? = null,
-        countryFirst: String? = null,
-        countrySecond: String? = null,
-        number: Long
-    ) = network.card.get(
-        text = text,
-        langFirst = langFirst,
-        langSecond = langSecond,
-        countryFirst = countryFirst,
-        countrySecond = countrySecond,
-        number = number
     )
 
     suspend fun getGlobalView(

@@ -3,7 +3,6 @@ package com.uogames.remembercards.ui.module.library
 import com.uogames.dto.global.GlobalModuleView
 import com.uogames.dto.local.LocalModuleView
 import com.uogames.flags.Countries
-import com.uogames.remembercards.ui.phrase.phrasesFragment.PhraseViewModel
 import com.uogames.remembercards.utils.observe
 import com.uogames.remembercards.viewmodel.MViewModel
 import kotlinx.coroutines.*
@@ -33,7 +32,7 @@ class LibraryViewModel @Inject constructor(
     val countrySecond = MutableStateFlow<Countries?>(null)
     val search = MutableStateFlow(false)
     val cloud = MutableStateFlow(false)
-    val newrst = MutableStateFlow(false)
+    val newest = MutableStateFlow(false)
 
     private val _isSearching = MutableStateFlow(SearchingState.SEARCHED)
     val isSearching = _isSearching.asStateFlow()
@@ -57,7 +56,7 @@ class LibraryViewModel @Inject constructor(
             _size.value = 0
             updateSize()
         }
-        newrst.observe(viewModelScope) {
+        newest.observe(viewModelScope) {
             _size.value = 0
             updateSize()
         }
@@ -93,6 +92,7 @@ class LibraryViewModel @Inject constructor(
         like.value = null
         search.value = false
         cloud.value = false
+        newest.value = false
         editCall.clear()
         reportCall.clear()
         watchGlobalCall.clear()
@@ -135,7 +135,7 @@ class LibraryViewModel @Inject constructor(
         langSecond = languageSecond.value?.isO3Language,
         countryFirst = countryFirst.value?.toString(),
         countrySecond = countrySecond.value?.toString(),
-        newest = newrst.value,
+        newest = newest.value,
         position = position
     )
 

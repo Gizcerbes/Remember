@@ -1,253 +1,291 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-	<androidx.constraintlayout.widget.ConstraintLayout
-		android:id="@+id/top_bar"
-		style="@style/Theme.RememberCards.AppBar"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		app:layout_constraintBaseline_toTopOf="parent">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/top_bar"
+        style="@style/Theme.RememberCards.AppBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBaseline_toTopOf="parent">
 
-		<TextView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginStart="13dp"
-			android:text="@string/person"
-			android:textAppearance="?attr/textAppearanceHeadline6"
-			app:layout_constraintBottom_toBottomOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="13dp"
+            android:text="@string/person"
+            android:textAppearance="?attr/textAppearanceHeadline6"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-		<com.google.android.material.divider.MaterialDivider
-			android:id="@+id/bottom_divider"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			app:layout_constraintBottom_toBottomOf="parent" />
+        <com.google.android.material.divider.MaterialDivider
+            android:id="@+id/bottom_divider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
-		<LinearLayout
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:orientation="horizontal"
-			app:layout_constraintBottom_toBottomOf="parent"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintTop_toTopOf="parent">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-			<com.google.android.material.card.MaterialCardView
-				android:id="@+id/btn_setting"
-				style="@style/Theme.RememberCards.CardView.Button"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:visibility="visible">
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btn_setting"
+                style="@style/Theme.RememberCards.CardView.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="visible">
 
-				<ImageView
-					android:layout_width="@dimen/card_button"
-					android:layout_height="@dimen/card_button"
-					android:src="@drawable/ic_baseline_settings_24" />
-			</com.google.android.material.card.MaterialCardView>
+                <ImageView
+                    android:layout_width="@dimen/card_button"
+                    android:layout_height="@dimen/card_button"
+                    android:src="@drawable/ic_baseline_settings_24" />
+            </com.google.android.material.card.MaterialCardView>
 
-		</LinearLayout>
-
-
-	</androidx.constraintlayout.widget.ConstraintLayout>
-
-	<ScrollView
-		android:layout_width="match_parent"
-		android:layout_height="0dp"
-		app:layout_constraintBottom_toBottomOf="parent"
-		app:layout_constraintTop_toBottomOf="@id/top_bar">
-
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_margin="13dp"
-			android:orientation="vertical">
-
-			<androidx.constraintlayout.widget.ConstraintLayout
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content">
-
-				<TextView
-					android:id="@+id/txt_status"
-					android:text="@string/disconnected"
-					android:textAppearance="?attr/textAppearanceBody1"
-					android:textColor="@color/red"
-					app:layout_constraintStart_toStartOf="parent"
-					app:layout_constraintBottom_toBottomOf="parent"
-					app:layout_constraintTop_toBottomOf="@id/txt_global_name"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"/>
-
-				<TextView
-					android:id="@+id/txt_person_name"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:textAppearance="?attr/textAppearanceHeadline6"
-					app:layout_constraintStart_toStartOf="parent"
-					app:layout_constraintTop_toTopOf="parent"
-					tools:text="Andrei Naumets" />
-
-				<com.google.android.material.card.MaterialCardView
-					android:id="@+id/mcv_flag"
-					android:layout_width="70dp"
-					android:layout_height="wrap_content"
-					android:layout_marginStart="7dp"
-					app:cardCornerRadius="7dp"
-					app:strokeColor="?attr/colorControlNormal"
-					app:strokeWidth="1dp"
-					app:layout_constraintEnd_toEndOf="parent"
-					app:layout_constraintTop_toTopOf="parent">
-
-					<ImageView
-						android:id="@+id/img_flag"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:adjustViewBounds="true"
-						tools:src="@drawable/ic_flag_gb" />
-
-				</com.google.android.material.card.MaterialCardView>
-
-				<TextView
-					android:id="@+id/txt_global_name"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:textAppearance="?attr/textAppearanceBody2"
-					android:textColor="?attr/colorControlNormal"
-					app:layout_constraintStart_toStartOf="parent"
-					app:layout_constraintTop_toBottomOf="@id/txt_person_name"
-					tools:text="Gizcerbes#12345" />
-
-			</androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
 
 
-			<com.google.android.material.divider.MaterialDivider
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="7dp"
-				android:layout_marginBottom="7dp" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/top_bar">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="13dp"
+            android:orientation="vertical">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/txt_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/disconnected"
+                    android:textAppearance="?attr/textAppearanceBody1"
+                    android:textColor="@color/red"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/txt_global_name" />
+
+                <TextView
+                    android:id="@+id/txt_person_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?attr/textAppearanceHeadline6"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Andrei Naumets" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/mcv_flag"
+                    android:layout_width="70dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="7dp"
+                    app:cardCornerRadius="7dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:strokeColor="?attr/colorControlNormal"
+                    app:strokeWidth="1dp">
+
+                    <ImageView
+                        android:id="@+id/img_flag"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        tools:src="@drawable/ic_flag_gb" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:id="@+id/txt_global_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?attr/textAppearanceBody2"
+                    android:textColor="?attr/colorControlNormal"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/txt_person_name"
+                    tools:text="Gizcerbes#12345" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-			<androidx.constraintlayout.widget.ConstraintLayout
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content">
-
-				<TextView
-					android:id="@+id/label_data_statistic"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:text="@string/data_statistic"
-					android:textAppearance="?attr/textAppearanceHeadline6"
-					app:layout_constraintStart_toStartOf="parent"
-					app:layout_constraintTop_toTopOf="parent" />
-
-				<TextView
-					android:id="@+id/label_phrases"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:text="@string/phrase_label"
-					android:textAppearance="?attr/textAppearanceBody2"
-					app:layout_constraintStart_toStartOf="parent"
-					app:layout_constraintTop_toBottomOf="@id/label_data_statistic" />
-
-				<TextView
-					android:id="@+id/txt_phrases_count"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_marginStart="7dp"
-					android:textAppearance="?attr/textAppearanceBody2"
-					app:layout_constraintStart_toEndOf="@id/label_phrases"
-					app:layout_constraintTop_toTopOf="@id/label_phrases"
-					tools:text="0" />
-
-				<TextView
-					android:id="@+id/label_cards"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:text="@string/cards_label"
-					android:textAppearance="?attr/textAppearanceBody2"
-					app:layout_constraintStart_toStartOf="parent"
-					app:layout_constraintTop_toBottomOf="@id/label_phrases" />
-
-				<TextView
-					android:id="@+id/txt_cards_count"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_marginStart="7dp"
-					android:textAppearance="?attr/textAppearanceBody2"
-					app:layout_constraintStart_toEndOf="@id/label_cards"
-					app:layout_constraintTop_toTopOf="@id/label_cards"
-					tools:text="0" />
-
-				<TextView
-					android:id="@+id/label_module"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:text="@string/modules_label"
-					android:textAppearance="?attr/textAppearanceBody2"
-					app:layout_constraintStart_toStartOf="parent"
-					app:layout_constraintTop_toBottomOf="@id/label_cards" />
-
-				<TextView
-					android:id="@+id/txt_modules_count"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_marginStart="7dp"
-					android:textAppearance="?attr/textAppearanceBody2"
-					app:layout_constraintStart_toEndOf="@id/label_module"
-					app:layout_constraintTop_toTopOf="@id/label_module"
-					tools:text="0" />
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="7dp"
+                android:layout_marginBottom="7dp" />
 
 
-			</androidx.constraintlayout.widget.ConstraintLayout>
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-			<com.google.android.material.divider.MaterialDivider
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="7dp"
-				android:layout_marginBottom="7dp" />
+                <TextView
+                    android:id="@+id/label_data_statistic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/data_statistic"
+                    android:textAppearance="?attr/textAppearanceHeadline6"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-			<androidx.constraintlayout.widget.ConstraintLayout
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/label_phrases"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/phrase_label"
+                    android:textAppearance="?attr/textAppearanceBody2"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/label_data_statistic" />
 
-				<TextView
-					android:id="@+id/label_game_statistic"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:text="@string/game_statistic"
-					android:textAppearance="?attr/textAppearanceHeadline6"
-					app:layout_constraintStart_toStartOf="parent"
-					app:layout_constraintTop_toTopOf="parent" />
+                <TextView
+                    android:id="@+id/txt_phrases_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="7dp"
+                    android:textAppearance="?attr/textAppearanceBody2"
+                    app:layout_constraintStart_toEndOf="@id/label_phrases"
+                    app:layout_constraintTop_toTopOf="@id/label_phrases"
+                    tools:text="0" />
 
-				<TextView
-					android:id="@+id/label_yes_or_not"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:text="@string/yes_or_no_game_count"
-					android:textAppearance="?attr/textAppearanceBody2"
-					app:layout_constraintStart_toStartOf="parent"
-					app:layout_constraintTop_toBottomOf="@id/label_game_statistic" />
+                <TextView
+                    android:id="@+id/label_cards"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/cards_label"
+                    android:textAppearance="?attr/textAppearanceBody2"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/label_phrases" />
 
-				<TextView
-					android:id="@+id/txt_yes_or_no_count"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_marginStart="7dp"
-					android:textAppearance="?attr/textAppearanceBody2"
-					app:layout_constraintStart_toEndOf="@id/label_yes_or_not"
-					app:layout_constraintTop_toTopOf="@id/label_yes_or_not"
-					tools:text="0" />
+                <TextView
+                    android:id="@+id/txt_cards_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="7dp"
+                    android:textAppearance="?attr/textAppearanceBody2"
+                    app:layout_constraintStart_toEndOf="@id/label_cards"
+                    app:layout_constraintTop_toTopOf="@id/label_cards"
+                    tools:text="0" />
+
+                <TextView
+                    android:id="@+id/label_module"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/modules_label"
+                    android:textAppearance="?attr/textAppearanceBody2"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/label_cards" />
+
+                <TextView
+                    android:id="@+id/txt_modules_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="7dp"
+                    android:textAppearance="?attr/textAppearanceBody2"
+                    app:layout_constraintStart_toEndOf="@id/label_module"
+                    app:layout_constraintTop_toTopOf="@id/label_module"
+                    tools:text="0" />
+
+                <TextView
+                    android:id="@+id/label_free_cards"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_free_cards"
+                    android:textAppearance="?attr/textAppearanceBody2"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/label_module" />
+
+                <TextView
+                    android:id="@+id/txt_free_cards"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="7dp"
+                    android:textAppearance="?attr/textAppearanceBody2"
+                    app:layout_constraintStart_toEndOf="@id/label_free_cards"
+                    app:layout_constraintTop_toTopOf="@id/label_free_cards"
+                    tools:text="0" />
+
+                <TextView
+                    android:id="@+id/label_free_phrases"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_free_phrases"
+                    android:textAppearance="?attr/textAppearanceBody2"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/label_free_cards" />
+
+                <TextView
+                    android:id="@+id/txt_free_phrases"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="7dp"
+                    android:textAppearance="?attr/textAppearanceBody2"
+                    app:layout_constraintStart_toEndOf="@id/label_free_phrases"
+                    app:layout_constraintTop_toTopOf="@id/label_free_phrases"
+                    tools:text="0" />
 
 
-			</androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="7dp"
+                android:layout_marginBottom="7dp" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/label_game_statistic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/game_statistic"
+                    android:textAppearance="?attr/textAppearanceHeadline6"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/label_yes_or_not"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/yes_or_no_game_count"
+                    android:textAppearance="?attr/textAppearanceBody2"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/label_game_statistic" />
+
+                <TextView
+                    android:id="@+id/txt_yes_or_no_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="7dp"
+                    android:textAppearance="?attr/textAppearanceBody2"
+                    app:layout_constraintStart_toEndOf="@id/label_yes_or_not"
+                    app:layout_constraintTop_toTopOf="@id/label_yes_or_not"
+                    tools:text="0" />
 
 
-		</LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-	</ScrollView>
+
+        </LinearLayout>
+
+    </ScrollView>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

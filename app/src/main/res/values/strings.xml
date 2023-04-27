@@ -119,6 +119,7 @@
     <string name="press_to_save">Press to save</string>
     <string name="press_to_delete">Press to delete</string>
     <string name="press_to_remove">Press to remove</string>
+    <string name="press_to_clear">Press to clear</string>
     <string name="label_screen_theme">Theme:</string>
     <string name="screen_theme_system">SYSTEM THEME</string>
     <string name="screen_theme_day">LIGHT THEM</string>
@@ -142,4 +143,8 @@
     <string name="country">country</string>
     <string name="language">language</string>
     <string name="favorite">favorite</string>
+    <string name="label_free_cards">Free Cards:</string>
+    <string name="label_free_phrases">Free Phrases:</string>
+    <string name="label_clear_free_phrases">Clear free phrases:</string>
+    <string name="label_clear_free_cards">Clear free cards:</string>
 </resources>

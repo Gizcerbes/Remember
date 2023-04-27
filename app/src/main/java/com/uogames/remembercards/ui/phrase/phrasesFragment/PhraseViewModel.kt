@@ -98,6 +98,7 @@ class PhraseViewModel @Inject constructor(
         language.toNull()
         cloud.value = false
         search.value = false
+        newest.value = false
         reportCallList.clear()
         editCalList.clear()
     }

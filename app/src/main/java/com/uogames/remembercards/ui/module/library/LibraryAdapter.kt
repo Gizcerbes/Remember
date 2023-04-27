@@ -4,15 +4,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.os.bundleOf
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.uogames.remembercards.MainActivity.Companion.findNavHostFragment
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardModuleBinding
 import com.uogames.remembercards.ui.dialogs.ShareAttentionDialog
-import com.uogames.remembercards.ui.module.watch.WatchModuleFragment
 import com.uogames.remembercards.utils.ClosableAdapter
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.ifTrue
@@ -130,7 +126,7 @@ class LibraryAdapter(
         private val endAction: (String) -> Unit = {
             bind.progressLoading.visibility = View.GONE
             bind.btnStop.visibility = View.GONE
-            bind.btnDownload.visibility = View.GONE
+            bind.btnDownload.visibility = View.VISIBLE
             Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
         }
 
@@ -158,17 +154,7 @@ class LibraryAdapter(
                     model.stopDownloading(mm.module.globalId)
                 }
 
-                //test
-                bind.btnShow.setOnClickListener {
-                    model.watchGlobal(mm.module)
-//                    (itemView.context as AppCompatActivity).findNavHostFragment().navigate(
-//                        R.id.watchModuleFragment,
-//                        bundleOf(
-//                            WatchModuleFragment.MODULE_TYPE to WatchModuleFragment.ModuleType.GLOBAL,
-//                            WatchModuleFragment.MODULE_ID to mm.module.globalId
-//                        )
-//                    )
-                }
+                bind.btnShow.setOnClickListener { model.watchGlobal(mm.module) }
 
             }
             bind.btnAction.setOnClickListener {

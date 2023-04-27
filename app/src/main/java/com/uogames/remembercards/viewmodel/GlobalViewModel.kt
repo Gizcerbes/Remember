@@ -29,9 +29,7 @@ class GlobalViewModel @Inject constructor(
         const val PRIVACY_AND_POLICY = "PRIVACY_AND_POLICY_v1"
         const val SHARE_NOTICE = "SHARE_NOTICE"
         const val SCREEN_MODE = "SCREEN_MODE"
-
         const val MODULE_ID_FOR_NOTIFICATION = "MODULE_ID_FOR_NOTIFICATION"
-
         const val GAME_YES_OR_NO_COUNT = "GAME_YES_OR_NO_COUNT"
     }
 
@@ -87,9 +85,17 @@ class GlobalViewModel @Inject constructor(
 
     val countPhrases = provider.phrase.countFlow().stateIn(viewModelScope, SharingStarted.Eagerly, 0)
 
+    val countCards = provider.cards.getCountFlow().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
+
+    val countModules = provider.module.getCount().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
+
     val gameYesOrNotCount = provider.setting.getFlow(GAME_YES_OR_NO_COUNT).stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     val notificationModuleId = provider.setting.getFlow(MODULE_ID_FOR_NOTIFICATION).stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    val cardCountFree = provider.cards.countFree().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
+
+    val phraseCountFree = provider.phrase.countFree().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
 
 
     private var job: Job? = null
@@ -97,7 +103,7 @@ class GlobalViewModel @Inject constructor(
     init {
         getUserName().observe(viewModelScope) {
             _userName.value = it
-            delay(100)
+            delay(500)
             _isLoading.value = false
         }
         auth.currentUser?.reload()
@@ -150,19 +156,13 @@ class GlobalViewModel @Inject constructor(
 
     fun getUserNativeCountry() = provider.setting.getFlow(USER_NATIVE_COUNTRY)
 
-    fun getCountPhrases() = provider.phrase.countFlow()
-
-    fun getCountCards() = provider.cards.getCountFlow()
-
-    fun getCountModules() = provider.module.getCount()
-
     fun addGameYesOrNoGameCount() = viewModelScope.launch {
         val count = provider.setting.getFlow(GAME_YES_OR_NO_COUNT).first()?.toInt().ifNull { 0 }
         provider.setting.save(GAME_YES_OR_NO_COUNT, (count + 1).toString())
     }
 
-    fun getGameYesOrNotGameCount() = provider.setting.getFlow(GAME_YES_OR_NO_COUNT)
     suspend fun getAcceptRules() = provider.setting.get(PRIVACY_AND_POLICY)
+
     fun acceptRules() = viewModelScope.launch { provider.setting.save(PRIVACY_AND_POLICY, true.toString()) }
 
     suspend fun saveNotificationModuleID(moduleID: Int?) {
@@ -182,4 +182,12 @@ class GlobalViewModel @Inject constructor(
     fun clean() = viewModelScope.launch { provider.clean() }
 
     fun getPicasso(context: Context) = provider.images.getPicasso(context)
+
+    fun deleteFreePhrases() = viewModelScope.launch {
+        provider.phrase.deleteFree()
+        provider.clean()
+    }
+
+    fun deleteFreeCards() = viewModelScope.launch { provider.cards.deleteFree() }
+
 }

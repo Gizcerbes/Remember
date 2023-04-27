@@ -107,6 +107,7 @@ class ChoiceCardViewModel @Inject constructor(
         countrySecond.value = null
         cloud.value = false
         search.value = false
+        newest.value = false
     }
 
     fun update(){

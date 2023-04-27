@@ -108,4 +108,8 @@ class PhraseRepository(
 
     fun getByIdFlow(id: Int) = dao.getByIdFlow(id).map { it?.toDTO() }
 
+    fun countFree() = dao.countFree()
+
+    suspend fun deleteFree() = dao.deleteFree()
+
 }
