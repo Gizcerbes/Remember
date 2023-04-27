@@ -107,4 +107,13 @@ interface CardDAO {
 	@Query("SELECT DISTINCT(reason) FROM cards_table WHERE reason LIKE '%' || :text || '%' ORDER BY LENGTH(reason), reason LIMIT 5")
 	suspend fun getClues(text:String): List<String>
 
+	@Query("SELECT COUNT(DISTINCT ct.id) FROM cards_table AS ct " +
+			"LEFT JOIN module_card AS mc " +
+			"ON ct.id = mc.id_card " +
+			"WHERE mc.id IS NULL")
+	fun countFree(): Flow<Int>
+
+	@Query("DELETE FROM cards_table " +
+			"WHERE NOT EXISTS (SELECT mct.id FROM module_card AS mct WHERE cards_table.id = mct.id_card)")
+	suspend fun deleteFree()
 }

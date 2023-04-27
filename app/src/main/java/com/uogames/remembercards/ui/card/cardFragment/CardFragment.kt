@@ -67,7 +67,6 @@ class CardFragment : DaggerFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        globalViewModel.shouldReset.ifTrue { model.reset() }
 
         model.update()
 
@@ -104,6 +103,7 @@ class CardFragment : DaggerFragment() {
                 model.countrySecond.value = it
             }.show(requireActivity().supportFragmentManager, ChoiceCountryDialog.TAG)
         }
+        bind.clSearchBar.selectedNewest = model.newest.value
         bind.clSearchBar.setOnSelectedNewestListener { model.newest.value = it}
 
         model.addReportListener(reportCall)

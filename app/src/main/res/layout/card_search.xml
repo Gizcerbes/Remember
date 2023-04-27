@@ -67,7 +67,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.2" />
+                app:layout_constraintGuide_begin="77dp"
+                app:layout_constraintGuide_percent="0.21"/>
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/line2"
@@ -93,7 +94,7 @@
                 app:layout_constraintEnd_toEndOf="@id/line1"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintWidth_percent="0.2" />
+                app:layout_constraintWidth_percent="0.21" />
 
             <RelativeLayout
                 android:layout_width="0dp"
@@ -168,7 +169,7 @@
                         android:maxLines="2"
                         android:minWidth="50dp"
                         android:textAppearance="?attr/textAppearanceBody2"
-                        tools:text="fdsf" />
+                        tools:text="fdsfd ds d ds ds dsd ds ds " />
 
                 </com.google.android.material.card.MaterialCardView>
 
@@ -188,7 +189,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.2" />
+                app:layout_constraintGuide_percent="0.21" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/line5"
@@ -214,7 +215,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintWidth_percent="0.2" />
+                app:layout_constraintWidth_percent="0.21" />
 
             <RelativeLayout
                 android:layout_width="0dp"

@@ -30,14 +30,15 @@ class PhraseProvider(
 
     fun countFlow() = pr.countFlow()
 
-    suspend fun count(like: String?, lang: String?, country: String?) =
-        pr.count(like, lang, country)
+    suspend fun count(like: String?, lang: String?, country: String?) = pr.count(like, lang, country)
 
     suspend fun getById(id: Int) = pr.getById(id)
 
     fun getByIdFlow(id: Int) = pr.getByIdFlow(id)
 
-    suspend fun getByGlobalId(globalId: UUID) = pr.getByGlobalId(globalId)
+    fun countFree() = pr.countFree()
+
+    suspend fun deleteFree() = pr.deleteFree()
 
     suspend fun countGlobal(
         text: String? = null,
@@ -47,18 +48,6 @@ class PhraseProvider(
         text = text,
         lang = lang,
         country = country
-    )
-
-    suspend fun getGlobal(
-        text: String? = null,
-        lang: String? = null,
-        country: String? = null,
-        number: Long
-    ) = network.phrase.get(
-        text = text,
-        lang = lang,
-        country = country,
-        number = number
     )
 
     suspend fun getGlobalView(
@@ -72,10 +61,6 @@ class PhraseProvider(
         country = country,
         number = number
     )
-
-    suspend fun getGlobalById(globalId: UUID) = network.phrase.get(globalId)
-
-    suspend fun getGlobalViewByID(id: UUID) = network.phrase.getView(id)
 
     suspend fun share(id: Int): LocalPhrase? {
         val phrase = getById(id)

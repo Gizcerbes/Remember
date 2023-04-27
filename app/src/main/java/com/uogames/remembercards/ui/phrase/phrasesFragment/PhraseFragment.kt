@@ -57,12 +57,11 @@ class PhraseFragment : DaggerFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _bind = FragmentPhraseBinding.inflate(inflater, container, false)
+        if (_bind == null) _bind = FragmentPhraseBinding.inflate(inflater, container, false)
         return _bind?.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        globalViewModel.shouldReset.ifTrue { model.reset() }
 
         model.update()
 
@@ -87,6 +86,7 @@ class PhraseFragment : DaggerFragment() {
             }.show(requireActivity().supportFragmentManager, ChoiceCountryDialog.TAG)
         }
 
+        bind.clSearchBar.selectedNewest = model.newest.value
         bind.clSearchBar.setOnSelectedNewestListener{ model.newest.value = it }
 
         model.addEditCall(editCall)

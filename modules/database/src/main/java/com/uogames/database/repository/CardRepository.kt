@@ -160,5 +160,7 @@ class CardRepository(
 
     suspend fun getClues(text: String) = cardDAO.getClues(text)
 
+    fun countFree() = cardDAO.countFree()
 
+    suspend fun deleteFree() = cardDAO.deleteFree()
 }

@@ -54,8 +54,6 @@ class GamesFragment : DaggerFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val nav = requireActivity().findNavController(R.id.nav_host_fragment)
-
         bind.gameYesOrNot.visibility = View.GONE
 
         selectedModuleObserver = createSelectedModuleObserver()
@@ -113,10 +111,7 @@ class GamesFragment : DaggerFragment() {
     private fun createSelectedModuleObserver() = gamesViewModel.selectedModule.observeWhenStarted(lifecycleScope) { module ->
         module?.let {
             bind.txtName.text = module.name
-            //bind.txtLikes.visibility = View.VISIBLE
-            //bind.imgThumb.visibility = View.VISIBLE
             bind.btnClear.visibility = View.VISIBLE
-            //bind.txtLikes.text = "${(module.like / (module.like + module.dislike).toDouble() * 100).toInt()}%"
         }.ifNull {
             bind.txtName.text = requireContext().getText(R.string.all_cards)
             bind.txtLikes.visibility = View.GONE

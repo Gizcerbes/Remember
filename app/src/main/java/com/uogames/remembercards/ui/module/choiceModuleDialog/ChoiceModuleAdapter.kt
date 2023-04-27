@@ -34,21 +34,6 @@ class ChoiceModuleAdapter(
 
         private var full = false
 
-        private val startAction: () -> Unit = {
-            bind.progressLoading.visibility = View.VISIBLE
-            bind.btnStop.visibility = View.VISIBLE
-            bind.btnShare.visibility = View.GONE
-            bind.btnEdit.visibility = View.GONE
-        }
-
-        private val endAction: (String) -> Unit = {
-            bind.progressLoading.visibility = View.GONE
-            bind.btnStop.visibility = View.GONE
-            bind.btnShare.visibility = View.VISIBLE
-            bind.btnEdit.visibility = View.VISIBLE
-            Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
-        }
-
         override fun show() {
             clear()
             observer = recyclerScope.launch {
@@ -61,28 +46,9 @@ class ChoiceModuleAdapter(
 
                 bind.txtOwner.text = owner
 
-                bind.btnAction.setOnClickListener { selectModule(mm.module) }
-
-                model.setShareAction(mm.module, endAction).ifTrue(startAction)
-
-                bind.btnShare.setOnClickListener {
-                    startAction()
-                    model.share(mm.module, endAction)
-                }
-
-                bind.btnStop.setOnClickListener {
-                    model.stopSharing(mm.module)
-                }
+                bind.root.setOnClickListener { selectModule(mm.module) }
 
             }
-//            bind.btnAction.setOnClickListener {
-//                full = !full
-//                bind.llBar.visibility = if (full) View.VISIBLE else View.GONE
-//                val img = if (full) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24
-//                bind.imgAction.setImageResource(img)
-//                if (!full) notifyItemChanged(adapterPosition)
-//            }
-
         }
 
         private fun clear() {
@@ -93,7 +59,8 @@ class ChoiceModuleAdapter(
             bind.btnStop.visibility = View.GONE
             bind.btnReport.visibility = View.GONE
             bind.btnShare.visibility = View.GONE
-            bind.imgAction.setImageResource(R.drawable.ic_baseline_add_24)
+            //bind.imgAction.setImageResource(R.drawable.ic_baseline_add_24)
+            bind.imgAction.visibility = View.GONE
         }
     }
 

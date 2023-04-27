@@ -1,7 +1,6 @@
 package com.uogames.database.dao
 
 import androidx.room.*
-import androidx.room.OnConflictStrategy.REPLACE
 import com.uogames.database.entity.ModuleCardEntity
 import kotlinx.coroutines.flow.Flow
 import java.util.*
@@ -9,7 +8,7 @@ import java.util.*
 @Dao
 interface ModuleCardDAO {
 
-	@Insert(onConflict = REPLACE)
+	@Insert(onConflict = OnConflictStrategy.REPLACE)
 	suspend fun insert(mcEntity: ModuleCardEntity): Long
 
 	@Update

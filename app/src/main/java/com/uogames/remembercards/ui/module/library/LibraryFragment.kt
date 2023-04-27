@@ -22,7 +22,6 @@ import com.uogames.remembercards.ui.dialogs.choiceCountry.ChoiceCountryDialog
 import com.uogames.remembercards.ui.dialogs.choiceLanguageDialog.ChoiceLanguageDialog
 import com.uogames.remembercards.ui.module.editModuleFragment.EditModuleFragment
 import com.uogames.remembercards.ui.module.watch.WatchModuleFragment
-import com.uogames.remembercards.ui.phrase.phrasesFragment.PhraseViewModel
 import com.uogames.remembercards.ui.reportFragment.ReportFragment
 import com.uogames.remembercards.utils.*
 import dagger.android.support.DaggerFragment
@@ -66,8 +65,6 @@ class LibraryFragment : DaggerFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        globalViewModel.shouldReset.ifTrue { model.reset() }
-
         model.update()
 
         imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -107,7 +104,8 @@ class LibraryFragment : DaggerFragment() {
                 model.countrySecond.value = it
             }.show(requireActivity().supportFragmentManager, ChoiceCountryDialog.TAG)
         }
-        bind.clSearchBar.setOnSelectedNewestListener{ model.newrst.value = it }
+        bind.clSearchBar.selectedNewest = model.newest.value
+        bind.clSearchBar.setOnSelectedNewestListener{ model.newest.value = it }
 
         model.addEditCall(selectCall)
         model.addReportCall(reportCall)

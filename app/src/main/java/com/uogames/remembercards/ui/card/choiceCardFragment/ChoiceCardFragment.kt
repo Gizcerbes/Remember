@@ -112,6 +112,7 @@ class ChoiceCardFragment : DaggerFragment() {
                 model.countrySecond.value = it
             }.show(requireActivity().supportFragmentManager, ChoiceCountryDialog.TAG)
         }
+        bind.clSearchBar.selectedNewest = model.newest.value
         bind.clSearchBar.setOnSelectedNewestListener{ model.newest.value = it }
 
         lifecycleScope.launch {

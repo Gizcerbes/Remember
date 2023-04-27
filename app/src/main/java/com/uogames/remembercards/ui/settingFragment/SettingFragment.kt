@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.firebase.ui.auth.AuthUI
@@ -40,6 +41,7 @@ class SettingFragment : DaggerFragment() {
 
     private var observeJob: Job? = null
     private val auth = Firebase.auth
+
     private val signInLauncher = registerForActivityResult(
         FirebaseAuthUIActivityResultContract()
     ) {
@@ -86,17 +88,30 @@ class SettingFragment : DaggerFragment() {
         bind.btnPolicy.setOnClickListener { navigate(R.id.privacyPolicy) }
 
         bind.btnScreenMode.setOnClickListener {
-			val items = arrayOf(
-				requireContext().getText(R.string.screen_theme_system),
-				requireContext().getText(R.string.screen_theme_day),
-				requireContext().getText(R.string.screen_theme_dark)
-			)
-			MaterialAlertDialogBuilder(requireContext())
-				.setTitle("Themes")
-				.setItems(items) { d, v ->
-					globalViewModel.setScreenMode(v)
-				}.show()
+            val items = arrayOf(
+                requireContext().getText(R.string.screen_theme_system),
+                requireContext().getText(R.string.screen_theme_day),
+                requireContext().getText(R.string.screen_theme_dark)
+            )
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Themes")
+                .setItems(items) { d, v ->
+                    globalViewModel.setScreenMode(v)
+                }.show()
         }
+
+        bind.btnClearPhrases.setOnClickListener { Toast.makeText(requireContext(), requireContext().getText(R.string.press_to_clear), Toast.LENGTH_SHORT).show() }
+        bind.btnClearPhrases.setOnLongClickListener {
+            globalViewModel.deleteFreePhrases()
+            true
+        }
+
+        bind.btnClearCards.setOnClickListener {  Toast.makeText(requireContext(), requireContext().getText(R.string.press_to_clear), Toast.LENGTH_SHORT).show() }
+        bind.btnClearCards.setOnLongClickListener {
+            globalViewModel.deleteFreeCards()
+            true
+        }
+
     }
 
     @SuppressLint("ResourceType")
@@ -131,6 +146,10 @@ class SettingFragment : DaggerFragment() {
                 else -> requireContext().getText(R.string.screen_theme_system)
             }
         }
+        globalViewModel.phraseCountFree.observe(this) { bind.txtClearPhrases.text = it.toString() }
+
+        globalViewModel.cardCountFree.observe(this) { bind.txtClearCards.text = it.toString() }
+
     }
 
     private fun setUser(user: FirebaseUser?) {

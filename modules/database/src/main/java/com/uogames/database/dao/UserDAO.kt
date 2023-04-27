@@ -3,7 +3,7 @@ package com.uogames.database.dao
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
-import androidx.room.OnConflictStrategy.REPLACE
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.uogames.database.entity.UserEntity
 import kotlinx.coroutines.flow.Flow
@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface UserDAO {
 
-	@Insert(onConflict = REPLACE)
+	@Insert(onConflict = OnConflictStrategy.REPLACE)
 	suspend fun insert(userEntity: UserEntity): Long
 
 	@Delete

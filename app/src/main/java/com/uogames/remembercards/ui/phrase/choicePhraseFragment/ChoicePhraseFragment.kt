@@ -104,6 +104,7 @@ class ChoicePhraseFragment() : DaggerFragment() {
                 vm.country.value = it
             }.show(requireActivity().supportFragmentManager, ChoiceCountryDialog.TAG)
         }
+        bind.clSearchBar.selectedNewest = vm.newest.value
         bind.clSearchBar.setOnSelectedNewestListener{ vm.newest.value = it }
 
         vm.addChoiceCall(choiceCall)

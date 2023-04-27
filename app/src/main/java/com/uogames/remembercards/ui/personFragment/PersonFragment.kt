@@ -29,11 +29,6 @@ class PersonFragment : DaggerFragment() {
 
     private var observer: Job? = null
 
-    private val signInLauncher = registerForActivityResult(
-        FirebaseAuthUIActivityResultContract()
-    ) { _ ->
-    }
-
     private lateinit var auth: FirebaseAuth
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -63,29 +58,22 @@ class PersonFragment : DaggerFragment() {
     }
 
     private fun createObservers(): Job = lifecycleScope.launchWhenStarted {
-        globalViewModel.getUserName().observe(this){
-            bind.txtPersonName.text = it.orEmpty()
-        }
 
-        globalViewModel.getUserNativeCountry().observeNotNull(this){
-            bind.imgFlag.setImageResource(Countries.valueOf(it).res)
-        }
+        globalViewModel.userName.observe(this) { bind.txtPersonName.text = it.orEmpty() }
 
-        globalViewModel.getCountPhrases().observeNotNull(this) {
-            bind.txtPhrasesCount.text = it.toString()
-        }
+        globalViewModel.nativeCountry.observeNotNull(this) { bind.imgFlag.setImageResource(Countries.valueOf(it).res) }
 
-       globalViewModel.getCountCards().observeNotNull(this) {
-            bind.txtCardsCount.text = it.toString()
-        }
+        globalViewModel.countPhrases.observe(this) { bind.txtPhrasesCount.text = it.toString() }
 
-        globalViewModel.getCountModules().observeNotNull(this) {
-            bind.txtModulesCount.text = it.toString()
-        }
+        globalViewModel.countCards.observe(this) { bind.txtCardsCount.text = it.toString() }
 
-        globalViewModel.getGameYesOrNotGameCount().observe(this) {
-            bind.txtYesOrNoCount.text = it.ifNullOrEmpty { "0" }
-        }
+        globalViewModel.countModules.observe(this) { bind.txtModulesCount.text = it.toString() }
+
+        globalViewModel.gameYesOrNotCount.observe(this) { bind.txtYesOrNoCount.text = it.ifNullOrEmpty { "0" } }
+
+        globalViewModel.cardCountFree.observe(this) { bind.txtFreeCards.text = it.toString() }
+
+        globalViewModel.phraseCountFree.observe(this) { bind.txtFreePhrases.text = it.toString() }
     }
 
     override fun onDestroyView() {

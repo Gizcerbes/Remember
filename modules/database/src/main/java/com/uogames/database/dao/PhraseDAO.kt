@@ -39,5 +39,16 @@ interface PhraseDAO {
 	@Query("SELECT phrase_table.*, length(phrase_table.phrase) AS len FROM phrase_table WHERE id = :id ORDER BY time_change DESC")
 	fun getTest(id: Int): Flow<PhraseEntity?>
 
+	@Query("SELECT COUNT(DISTINCT pt.id) FROM phrase_table AS pt " +
+			"LEFT JOIN cards_table AS ct1 " +
+            "ON pt.id = ct1.id_phrase " +
+            "LEFT JOIN cards_table AS ct2 " +
+            "ON pt.id = ct2.id_translate " +
+            "WHERE ct1.id IS NULL AND ct2.id IS NULL")
+	fun countFree(): Flow<Int>
 
+
+	@Query("DELETE FROM phrase_table " +
+			"WHERE NOT EXISTS (SELECT ct.id FROM cards_table AS ct WHERE phrase_table.id = ct.id_phrase  OR phrase_table.id = ct.id_translate) ")
+	suspend fun deleteFree()
 }
