@@ -1,9 +1,13 @@
 package com.uogames.remembercards.ui.games.gameYesOrNo
 
+import android.graphics.drawable.AnimationDrawable
 import androidx.lifecycle.ViewModel
 import com.uogames.dto.local.LocalCard
+import com.uogames.dto.local.LocalCardView
+import com.uogames.remembercards.utils.MediaBytesSource
+import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.remembercards.utils.ifNull
-import com.uogames.repository.DataProvider
+import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.repository.DataProvider.Companion.toCard
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,16 +16,28 @@ import javax.inject.Inject
 import kotlin.collections.ArrayList
 
 class GameYesOrNotViewModel @Inject constructor(
-    private val provider: DataProvider
+    val globalViewModel: GlobalViewModel,
+    private val player: ObservableMediaPlayer
 ) : ViewModel() {
+
+    private val provider = globalViewModel.provider
+    private val viewModelScope = CoroutineScope(Dispatchers.IO)
 
     companion object {
         const val MAX_TIME = 60000
     }
 
+    inner class LocalCardModel(val card: LocalCardView) {
+        private val pData by lazy { viewModelScope.async { card.phrase.pronounce?.let { provider.pronounce.load(it) } } }
+        private val tData by lazy { viewModelScope.async { card.translate.pronounce?.let { provider.pronounce.load(it) } } }
+
+        suspend fun playPhrase(anim: AnimationDrawable) = player.play(MediaBytesSource(pData.await()), anim)
+        suspend fun playTranslate(anim: AnimationDrawable) = player.play(MediaBytesSource(tData.await()), anim)
+    }
+
     data class AnswersCard(val firs: LocalCard, val second: LocalCard, var truth: Boolean)
 
-    private val viewModelScope = CoroutineScope(Dispatchers.IO)
+    data class AnswerCards2(val first: LocalCardModel, val second: LocalCardModel)
 
     val module: MutableStateFlow<Int?> = MutableStateFlow(null)
 
@@ -35,9 +51,16 @@ class GameYesOrNotViewModel @Inject constructor(
     val isStarted = _isStarted.asStateFlow()
 
     private val _answersList = ArrayList<AnswersCard>()
+    private val _answerMap = HashMap<Int, Pair<LocalCardModel, ArrayList<LocalCardModel>>>()
+
 
     private val _allAnswers = MutableStateFlow(0)
     val allAnswers = _allAnswers.asStateFlow()
+
+    private val _answerCard = MutableStateFlow<AnswerCards2?>(null)
+    val answerCard = _answerCard.asStateFlow()
+
+    private val _isTrueAnswer = MutableStateFlow<Boolean?>(null)
 
     private var job: Job? = null
 
@@ -48,7 +71,7 @@ class GameYesOrNotViewModel @Inject constructor(
         _answersList.clear()
     }
 
-    fun getAnswer(position: Int) = _answersList[position]
+    fun getAnswers() = _answerMap.toList().sortedByDescending { p -> p.second.second.size }.map { it.second }
 
     fun start(endCall: () -> Unit) {
         job?.cancel()
@@ -70,26 +93,41 @@ class GameYesOrNotViewModel @Inject constructor(
         _isStarted.value = false
     }
 
-    fun getRandomAnswerCard(call: (AnswersCard) -> Unit) = viewModelScope.launch {
-        val firstModuleCard = module.value?.let {
-            provider.moduleCard.getRandom(it)?.toCard()
+    fun newAnswer() = viewModelScope.launch {
+        val f = module.value?.let {
+            provider.moduleCard.getRandomModuleView(it)?.card
         }.ifNull {
-            provider.cards.getRandom()
+            provider.cards.getRandomView()
+        }?.let {
+            LocalCardModel(it)
         }.ifNull { return@launch }
 
-        val secondModuleCard = module.value?.let {
-            provider.moduleCard.getRandomWithout(it, firstModuleCard.id)?.toCard()
-        }.ifNull {
-            provider.cards.getRandomWithout(firstModuleCard.id)
-        }.ifNull { return@launch }
+        val s = if (Math.random() > 0.5)
+            module.value?.let {
+                provider.moduleCard.getRandomModuleView(it)?.card
+            }.ifNull {
+                provider.cards.getRandomView()
+            }?.let {
+                LocalCardModel(it)
+            }.ifNull { return@launch }
+        else f
 
-        val answerCard = AnswersCard(firstModuleCard, secondModuleCard, false)
-        launch(Dispatchers.Main) { call(answerCard) }
+        _answerCard.value = AnswerCards2(f, s)
     }
 
-    fun addAnswer(answer: AnswersCard) {
-        _answersList.add(answer)
-        if (answer.truth) _trueAnswers.value++
+    fun check(card:AnswerCards2,b: Boolean): Boolean? {
+        val r = (card.first == card.second) == b
+
+        val list = _answerMap[card.first.card.id]?.second.ifNull {
+            val l = ArrayList<LocalCardModel>()
+            _answerMap[card.first.card.id] = card.first to l
+            return@ifNull l
+        }
+        if (!r) list.add(card.second)
+        if (r) _trueAnswers.value++
         _allAnswers.value++
+        _isTrueAnswer.value = r
+        newAnswer()
+        return r
     }
 }
