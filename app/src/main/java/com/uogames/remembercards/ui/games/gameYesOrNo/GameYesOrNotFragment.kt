@@ -87,6 +87,8 @@ class GameYesOrNotFragment : DaggerFragment() {
 
         bind.cvInfo.reset()
 
+        bind.cvInfo.showButtons = true
+
         observers = lifecycleScope.launchWhenStarted {
             gameModel.allAnswers.observe(this) {
                 val thrAns = gameModel.trueAnswers.value

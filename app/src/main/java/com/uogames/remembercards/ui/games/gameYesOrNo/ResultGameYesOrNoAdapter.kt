@@ -65,7 +65,7 @@ class ResultGameYesOrNoAdapter(
                 bind.mcvSecond.setOnClickListener { recyclerScope.launch { cardModel.playTranslate(bind.imgSoundSecond.background.asAnimationDrawable()) } }
             }.ifNull { bind.mcvSecond.setOnClickListener(null) }
             bind.txtPhraseSecond.text = cardModel.card.translate.phrase
-            bind.txtDefinitionFirst.text = cardModel.card.translate.definition
+            bind.txtDefinitionSecond.text = cardModel.card.translate.definition
             cardModel.card.translate.image?.let {
                 bind.imgCardSecond.visibility = View.GONE
                 Picasso.get().load(it.imgUri.toUri()).placeholder(R.drawable.noise).into(bind.imgCardSecond)
