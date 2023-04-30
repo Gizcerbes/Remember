@@ -102,7 +102,10 @@ class UtilsModule {
 
     @Provides
     @Singleton
-    fun provideGameYesOrNotViewModel(provider: DataProvider): GameYesOrNotViewModel = GameYesOrNotViewModel(provider)
+    fun provideGameYesOrNotViewModel(
+        globalViewModel: GlobalViewModel,
+        player: ObservableMediaPlayer
+    ): GameYesOrNotViewModel = GameYesOrNotViewModel(globalViewModel, player)
 
     @Provides
     @Singleton

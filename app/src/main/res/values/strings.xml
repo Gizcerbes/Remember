@@ -147,4 +147,5 @@
     <string name="label_free_phrases">Free Phrases:</string>
     <string name="label_clear_free_phrases">Clear free phrases:</string>
     <string name="label_clear_free_cards">Clear free cards:</string>
+    <string name="label_wrong_answers">Wrong answers:</string>
 </resources>
