@@ -2,9 +2,10 @@ package com.uogames.repository.providers
 
 import com.uogames.clientApi.version3.network.NetworkProvider
 import com.uogames.database.repository.ModuleRepository
-import com.uogames.dto.global.GlobalModule
 import com.uogames.dto.global.GlobalModuleView
 import com.uogames.dto.local.LocalModule
+import com.uogames.dto.local.LocalModuleView
+import com.uogames.dto.local.LocalShare
 import com.uogames.map.ModuleMap.toGlobal
 import com.uogames.map.ModuleMap.update
 import com.uogames.repository.DataProvider
@@ -107,6 +108,19 @@ class ModuleProvider(
             val updatedModule = it.update(res)
             update(updatedModule)
             return@let updatedModule
+        }
+    }
+
+    suspend fun addToShare(mv: LocalModuleView) {
+        if (!mv.changed) return
+        val exists = dataProvider.share.exists(idModule = mv.id)
+        if (exists) return
+        else {
+            dataProvider.share.save(LocalShare(idModule = mv.id))
+            val size = dataProvider.moduleCard.getCountByModuleId(mv.id)
+            for (i in 0 until size) dataProvider.moduleCard.let { mcp ->
+                mcp.getView(mv.id, i)?.let { mcp.addToShare(it) }
+            }
         }
     }
 

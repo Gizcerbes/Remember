@@ -48,11 +48,19 @@ class EditModuleViewModel @Inject constructor(
 
     fun addModuleCard(moduleID: Int, card: LocalCard, call: (Boolean) -> Unit) = viewModelScope.launch {
         val res = provider.moduleCard.insert(LocalModuleCard(idModule = moduleID, idCard = card.id))
+        provider.module.getById(moduleID)?.let {
+            it.changed = true
+            provider.module.update(it)
+        }
         call(res > 0)
     }
 
     fun removeModuleCard(moduleCard: LocalModuleCard, call: (Boolean) -> Unit) = viewModelScope.launch {
         val res = provider.moduleCard.delete(moduleCard)
+        provider.module.getById(moduleCard.idModule)?.let {
+            it.changed = true
+            provider.module.update(it)
+        }
         call(res)
     }
 }

@@ -6,6 +6,7 @@ import com.uogames.dto.local.LocalCard
 import com.uogames.dto.local.LocalModule
 import com.uogames.dto.local.LocalModuleCard
 import com.uogames.dto.local.LocalModuleCardView
+import java.util.UUID
 
 object ModuleCardMap {
 
@@ -14,6 +15,13 @@ object ModuleCardMap {
         globalOwner = globalOwner ?: "",
         idModule = module?.globalId ?: DefaultUUID.value,
         idCard = card?.globalId ?: DefaultUUID.value
+    )
+
+    fun LocalModuleCard.toGlobal(moduleID: UUID, cardID: UUID) = GlobalModuleCard(
+        globalId = globalId ?: DefaultUUID.value,
+        globalOwner = globalOwner ?: "",
+        idModule = moduleID,
+        idCard = cardID
     )
 
     fun LocalModuleCard.update(moduleCard: GlobalModuleCard) = LocalModuleCard(

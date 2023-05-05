@@ -21,7 +21,8 @@ object PhraseMap : Map<PhraseEntity, LocalPhrase> {
         like = like,
         dislike = dislike,
         globalId = globalId,
-        globalOwner = globalOwner
+        globalOwner = globalOwner,
+        changed = changed
     )
 
 
@@ -37,7 +38,8 @@ object PhraseMap : Map<PhraseEntity, LocalPhrase> {
         like = like,
         dislike = dislike,
         globalId = globalId,
-        globalOwner = globalOwner
+        globalOwner = globalOwner,
+        changed = changed
     )
 
 
@@ -47,6 +49,7 @@ class PhraseViewMap(
     private val pronounceBuilder: suspend (id: Int) -> LocalPronunciationView?,
     private val imageBuilder: suspend (id: Int) -> LocalImageView?
 ) : ViewMap<PhraseEntity, LocalPhraseView> {
+
     override suspend fun toDTO(entity: PhraseEntity) = LocalPhraseView(
         id = entity.id,
         phrase = entity.phrase,
@@ -59,7 +62,8 @@ class PhraseViewMap(
         like = entity.like,
         dislike = entity.dislike,
         globalId = entity.globalId,
-        globalOwner = entity.globalOwner
+        globalOwner = entity.globalOwner,
+        changed = entity.changed
     )
 
     override suspend fun toEntity(dto: LocalPhraseView) = PhraseEntity(
@@ -74,7 +78,8 @@ class PhraseViewMap(
         like = dto.like,
         dislike = dto.dislike,
         globalId = dto.globalId,
-        globalOwner = dto.globalOwner
+        globalOwner = dto.globalOwner,
+        changed = dto.changed
     )
 
 }

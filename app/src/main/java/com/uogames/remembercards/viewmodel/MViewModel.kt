@@ -13,7 +13,6 @@ import com.uogames.remembercards.utils.UserGlobalName
 import com.uogames.remembercards.utils.ifNull
 import kotlinx.coroutines.*
 import java.util.*
-import java.util.concurrent.LinkedBlockingQueue
 import javax.inject.Inject
 import kotlin.collections.HashMap
 
@@ -189,26 +188,7 @@ class MViewModel @Inject constructor(
     fun share(module: LocalModuleView, loading: (String) -> Unit) {
         val job = viewModelScope.launch {
             runCatching {
-                provider.module.share(module.id)
-                //val size = provider.moduleCard.getCountByModule(module)
-                val size = getLocalModuleCardSize(module.id)
-                val shareBuffer = LinkedBlockingQueue<Job>(16)
-                for (i in 0 until size) {
-                    val mc = provider.moduleCard.getByPositionOfModule(module.id, i).ifNull { return@launch }
-                    val job = launch {
-                        runCatching {
-                            provider.moduleCard.share(mc.id)
-                        }.onFailure {
-                            stopSharing(module, it.message ?: "Error")
-                        }
-                    }
-                    launch {
-                        job.join()
-                        shareBuffer.remove(job)
-                    }
-                    shareBuffer.put(job)
-                }
-                shareBuffer.forEach { it.join() }
+                provider.module.addToShare(module)
             }.onSuccess {
                 launch(Dispatchers.Main) {
                     shareActions[module.id]?.callback?.let { back -> back("Ok") }
@@ -235,6 +215,8 @@ class MViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.Main) { action.callback(message) }
         shareActions.remove(module.id)
     }
+
+    fun getShareAction(module: LocalModuleView) = provider.share.existsFlow(idModule = module.id)
 
     fun download(view: GlobalModuleView, loading: (String) -> Unit) {
         val job = viewModelScope.launch {

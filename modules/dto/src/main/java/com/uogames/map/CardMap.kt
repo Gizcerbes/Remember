@@ -7,6 +7,7 @@ import com.uogames.dto.local.LocalCard
 import com.uogames.dto.local.LocalCardView
 import com.uogames.dto.local.LocalImage
 import com.uogames.dto.local.LocalPhrase
+import java.util.UUID
 
 object CardMap {
 
@@ -16,6 +17,18 @@ object CardMap {
 		idPhrase = phrase?.globalId ?: DefaultUUID.value,
 		idTranslate = translate?.globalId ?: DefaultUUID.value,
 		idImage = image?.globalId ?: DefaultUUID.value,
+		reason = reason,
+		timeChange = timeChange,
+		like = 0,
+		dislike = 0
+	)
+
+	fun LocalCard.toGlobal(phraseID: UUID, translateID: UUID, imageID: UUID?) = GlobalCard(
+		globalId = globalId ?: DefaultUUID.value,
+		globalOwner = globalOwner ?: "",
+		idPhrase = phraseID,
+		idTranslate = translateID,
+		idImage = imageID,
 		reason = reason,
 		timeChange = timeChange,
 		like = 0,
@@ -83,7 +96,8 @@ object CardMap {
 		like = like,
 		dislike = dislike,
 		globalId = globalId,
-		globalOwner = globalOwner
+		globalOwner = globalOwner,
+		changed = changed
 	)
 
 }

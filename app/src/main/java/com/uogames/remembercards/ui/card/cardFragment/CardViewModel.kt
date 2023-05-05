@@ -15,7 +15,9 @@ import com.uogames.remembercards.utils.toNull
 import com.uogames.remembercards.viewmodel.CViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
@@ -159,6 +161,8 @@ class CardViewModel @Inject constructor(
     fun setShareAction(card: LocalCardView, loading: (String) -> Unit) = model.setShareAction(card, loading)
 
     fun stopSharing(card: LocalCardView) = model.stopSharing(card)
+
+    fun getShareAction(card: LocalCardView) = model.getShareAction(card).stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 
 
     fun setDownloadAction(id: UUID, loading: (String, LocalCard?) -> Unit) = model.setDownloadAction(id, loading)

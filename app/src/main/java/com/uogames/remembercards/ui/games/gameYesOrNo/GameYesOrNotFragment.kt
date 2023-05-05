@@ -87,8 +87,6 @@ class GameYesOrNotFragment : DaggerFragment() {
 
         bind.cvInfo.reset()
 
-        bind.cvInfo.showButtons = true
-
         observers = lifecycleScope.launchWhenStarted {
             gameModel.allAnswers.observe(this) {
                 val thrAns = gameModel.trueAnswers.value
@@ -151,7 +149,7 @@ class GameYesOrNotFragment : DaggerFragment() {
             }.ifNull { view.showAudioSecond = false }
             view.definitionSecond = translate.definition.orEmpty()
         }
-        view.showButtons = false
+        view.showButtons = true
     }
 
     private fun reaction(boolean: Boolean) {

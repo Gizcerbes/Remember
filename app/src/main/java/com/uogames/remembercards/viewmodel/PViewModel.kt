@@ -39,7 +39,8 @@ class PViewModel(
     fun share(phrase: LocalPhraseView, loading: (String) -> Unit) {
         val job = viewModelScope.launch {
             runCatching {
-                provider.phrase.share(phrase.id)
+                //provider.phrase.share(phrase.id)
+                provider.phrase.addToShare(phrase)
             }.onSuccess {
                 launch(Dispatchers.Main) {
                     shareActions[phrase.id]?.callback?.let { back -> back("Ok") }
@@ -66,6 +67,8 @@ class PViewModel(
         action.callback("Cancel")
         shareActions.remove(phrase.id)
     }
+
+    fun getShareAction(phrase: LocalPhraseView) = provider.share.existsFlow(idPhrase = phrase.id)
 
     fun setDownloadAction(id: UUID, loading: (String, LocalPhrase?) -> Unit): Boolean {
         downloadActions[id]?.callback = loading

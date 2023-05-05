@@ -35,18 +35,18 @@ class PhraseAdapter(
     inner class LocalPhraseHolder(val view: PhraseView) : ClosableHolder(view) {
 
         private val startAction: () -> Unit = {
-            view.showProgressLoading = true
-            view.showButtonStop = true
-            view.showButtonShare = false
-            view.showButtonEdit = false
+//            view.showProgressLoading = true
+//            view.showButtonStop = true
+//            view.showButtonShare = false
+//            view.showButtonEdit = false
         }
 
         private val endAction: (String) -> Unit = {
-            view.showProgressLoading = false
-            view.showButtonStop = false
-            view.showButtonShare = true
-            view.showButtonEdit = true
-            Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
+//            view.showProgressLoading = false
+//            view.showButtonStop = false
+//            view.showButtonShare = true
+//            view.showButtonEdit = true
+//            Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
         }
 
         override fun show() {
@@ -71,7 +71,13 @@ class PhraseAdapter(
 
                 setShareAction(phrase)
 
-                view.setOnClickButtonStop(false) { vm.stopSharing(phrase) }
+                vm.getShareAction(phrase).observe(this){
+                    view.showProgressLoading = it
+                    view.showButtonShare = !it
+                    view.showButtonEdit = !it
+                }
+
+                //view.setOnClickButtonStop(false) { vm.stopSharing(phrase) }
             }
         }
 

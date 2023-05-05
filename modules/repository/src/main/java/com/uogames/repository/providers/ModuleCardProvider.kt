@@ -5,7 +5,10 @@ import com.uogames.database.repository.ModuleCardRepository
 import com.uogames.dto.global.GlobalModuleCardView
 import com.uogames.dto.local.LocalModule
 import com.uogames.dto.local.LocalModuleCard
+import com.uogames.dto.local.LocalModuleCardView
+import com.uogames.dto.local.LocalShare
 import com.uogames.map.ModuleCardMap.toGlobal
+import com.uogames.map.ModuleCardMap.toLocalModuleCard
 import com.uogames.map.ModuleCardMap.update
 import com.uogames.repository.DataProvider
 import java.util.*
@@ -33,6 +36,8 @@ class ModuleCardProvider(
     suspend fun getByPositionOfModule(idModule: Int, position: Int) = mcr.getByPositionOfModule(idModule, position)
 
     suspend fun getView(idModule: Int, position: Int) = mcr.getViewByPositionOfModule(idModule, position)
+
+    suspend fun getViewByID(id: Int) = mcr.getViewById(id)
 
     fun getByModuleFlow(module: LocalModule) = mcr.getByModule(module)
 
@@ -65,6 +70,25 @@ class ModuleCardProvider(
             update(updatedModuleCard)
             return@let updatedModuleCard
         }
+    }
+
+    suspend fun addToShare(mcv: LocalModuleCardView) {
+        dataProvider.cards.addToShare(mcv.card)
+        //if (mcv.globalId == null) dataProvider.share.save(LocalShare(idModuleCard = mcv.id))
+        dataProvider.share.save(LocalShare(idModuleCard = mcv.id, idModule = mcv.module.id))
+    }
+
+    suspend fun shareV2(id: Int): LocalModuleCard? {
+        val moduleCard = getViewByID(id)
+        moduleCard?.let {
+            val gmID = it.module.globalId ?: dataProvider.module.share(it.module.id)?.globalId ?: throw Exception("Module wasn't saved")
+            val cID = it.card.globalId ?: dataProvider.cards.shareV2(it.module.id)?.globalId ?: throw  Exception("Card wasn't saved")
+            val res = network.moduleCard.post(it.toLocalModuleCard().toGlobal(gmID,cID))
+            val updatedModuleCard = it.toLocalModuleCard().update(res)
+            update(updatedModuleCard)
+            return updatedModuleCard
+        }
+        return null
     }
 
     suspend fun download(module: LocalModule, position: Long): LocalModuleCard? {

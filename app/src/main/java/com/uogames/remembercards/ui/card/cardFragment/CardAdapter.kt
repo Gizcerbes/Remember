@@ -38,18 +38,18 @@ class CardAdapter(
     inner class LocalCardHolder(val view: CardView) : ClosableHolder(view) {
 
         private val startAction: () -> Unit = {
-            view.showProgressLoading = true
-            view.showButtonStop = true
-            view.showButtonShare = false
-            view.showButtonEdit = false
+//            view.showProgressLoading = true
+//            view.showButtonStop = true
+//            view.showButtonShare = false
+//            view.showButtonEdit = false
         }
 
         private val endAction: (String) -> Unit = {
-            view.showProgressLoading = false
-            view.showButtonStop = false
-            view.showButtonShare = true
-            view.showButtonEdit = true
-            Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
+//            view.showProgressLoading = false
+//            view.showButtonStop = false
+//            view.showButtonShare = true
+//            view.showButtonEdit = true
+//            Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
         }
 
         override fun show() {
@@ -93,8 +93,14 @@ class CardAdapter(
 
                 addShareAction(cardView)
 
-                view.setOnClickButtonStop(false) {
-                    model.stopSharing(cardView.card)
+//                view.setOnClickButtonStop(false) {
+//                    model.stopSharing(cardView.card)
+//                }
+
+                model.getShareAction(cardView.card).observe(this) {
+                    view.showProgressLoading = it
+                    view.showButtonShare = !it
+                    view.showButtonEdit = !it
                 }
 
                 view.showButtons = true
@@ -190,7 +196,7 @@ class CardAdapter(
                     model.save(cardView.card, endAction)
                 }
 
-                view.setOnClickButtonStop(false) {  model.stopDownloading(cardView.card.globalId) }
+                view.setOnClickButtonStop(false) { model.stopDownloading(cardView.card.globalId) }
 
                 view.showButtons = true
 

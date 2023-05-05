@@ -9,7 +9,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
@@ -73,6 +76,8 @@ class WatchModuleViewModel @Inject constructor(
     fun download(view: GlobalModuleView, loading: (String) -> Unit) = model.download(view, loading)
 
     fun setDownloadAction(view: GlobalModuleView, loading: (String) -> Unit) = model.setDownloadAction(view.globalId, loading)
+
+    fun getShareAction(module: LocalModuleView) = model.getShareAction(module).stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 
     fun stopDownloading(view: GlobalModuleView) = model.stopDownloading(view.globalId)
 

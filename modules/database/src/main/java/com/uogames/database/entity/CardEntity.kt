@@ -41,7 +41,9 @@ data class CardEntity(
 	@ColumnInfo(name = "global_id")
 	val globalId: UUID?,
 	@ColumnInfo(name = "global_owner")
-	val globalOwner: String?
+	val globalOwner: String?,
+	@ColumnInfo(name = "changed", defaultValue = "false")
+	val changed: Boolean = false
 ){
 	companion object{
 		private const val v1 = "CREATE TABLE `cards_table` (" +

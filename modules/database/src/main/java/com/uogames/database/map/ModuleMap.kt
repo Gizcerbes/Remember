@@ -14,7 +14,8 @@ object ModuleMap : Map<ModuleEntity, LocalModule> {
 		like = like,
 		dislike = dislike,
 		globalId = globalId,
-		globalOwner = globalOwner
+		globalOwner = globalOwner,
+		changed = changed
 	)
 
 
@@ -26,7 +27,8 @@ object ModuleMap : Map<ModuleEntity, LocalModule> {
 		like = like,
 		dislike = dislike,
 		globalId = globalId,
-		globalOwner = globalOwner
+		globalOwner = globalOwner,
+		changed = changed
 	)
 
 }
@@ -40,7 +42,8 @@ class ModuleViewMap() : ViewMap<ModuleEntity, LocalModuleView> {
 		like = entity.like,
 		dislike = entity.dislike,
 		globalId = entity.globalId,
-		globalOwner = entity.globalOwner
+		globalOwner = entity.globalOwner,
+		changed = entity.changed
 	)
 
 	override suspend fun toEntity(dto: LocalModuleView) = ModuleEntity(
@@ -51,6 +54,7 @@ class ModuleViewMap() : ViewMap<ModuleEntity, LocalModuleView> {
 		like = dto.like,
 		dislike = dto.dislike,
 		globalId = dto.globalId,
-		globalOwner = dto.globalOwner
+		globalOwner = dto.globalOwner,
+		changed = dto.changed
 	)
 }

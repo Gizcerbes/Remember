@@ -1,6 +1,7 @@
 package com.uogames.database
 
 import android.content.Context
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -8,18 +9,22 @@ import com.uogames.database.dao.*
 import com.uogames.database.entity.*
 
 @Database(
-	entities = [
-		PronunciationEntity::class,
-		PhraseEntity::class,
-		ImageEntity::class,
-		CardEntity::class,
-		SettingEntity::class,
-		ModuleEntity::class,
-		ModuleCardEntity::class,
-		ErrorCardEntity::class,
-		UserEntity::class
-	],
-	version = 3
+    entities = [
+        PronunciationEntity::class,
+        PhraseEntity::class,
+        ImageEntity::class,
+        CardEntity::class,
+        SettingEntity::class,
+        ModuleEntity::class,
+        ModuleCardEntity::class,
+        ErrorCardEntity::class,
+        UserEntity::class,
+        ShareEntity::class
+    ],
+    autoMigrations = [
+        AutoMigration(from = 4, to = 5)
+    ],
+    version = 5
 )
 abstract class MyDatabase : RoomDatabase() {
 
@@ -41,6 +46,8 @@ abstract class MyDatabase : RoomDatabase() {
 
     abstract fun userDAO(): UserDAO
 
+    abstract fun shareDAO(): ShareDAO
+
 
     companion object {
         private var INSTANCE: MyDatabase? = null
@@ -51,7 +58,8 @@ abstract class MyDatabase : RoomDatabase() {
                     .databaseBuilder(context, MyDatabase::class.java, "cardBase")
                     .addMigrations(
                         UserEntity.migration_1_2(),
-                        PhraseEntity.migration_2_3()
+                        PhraseEntity.migration_2_3(),
+                        ShareEntity.migration_3_4()
                     )
                     .build()
             }

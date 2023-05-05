@@ -35,18 +35,18 @@ class LibraryAdapter(
         private var full = false
 
         private val startAction: () -> Unit = {
-            bind.progressLoading.visibility = View.VISIBLE
-            bind.btnStop.visibility = View.VISIBLE
-            bind.btnShare.visibility = View.GONE
-            bind.btnEdit.visibility = View.GONE
+//            bind.progressLoading.visibility = View.VISIBLE
+//            bind.btnStop.visibility = View.VISIBLE
+//            bind.btnShare.visibility = View.GONE
+//            bind.btnEdit.visibility = View.GONE
         }
 
         private val endAction: (String) -> Unit = {
-            bind.progressLoading.visibility = View.GONE
-            bind.btnStop.visibility = View.GONE
-            bind.btnShare.visibility = View.VISIBLE
-            bind.btnEdit.visibility = View.VISIBLE
-            Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
+//            bind.progressLoading.visibility = View.GONE
+//            bind.btnStop.visibility = View.GONE
+//            bind.btnShare.visibility = View.VISIBLE
+//            bind.btnEdit.visibility = View.VISIBLE
+//            Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
         }
 
         override fun show() {
@@ -86,8 +86,14 @@ class LibraryAdapter(
                     }
                 }
 
-                bind.btnStop.setOnClickListener {
-                    model.stopSharing(mm.module)
+//                bind.btnStop.setOnClickListener {
+//                    model.stopSharing(mm.module)
+//                }
+
+                model.getShareAction(mm.module).observe(this){
+                    bind.progressLoading.visibility = if (it) View.VISIBLE else View.GONE
+                    bind.btnShare.visibility = if (it) View.GONE else View.VISIBLE
+                    bind.btnEdit.visibility = if (it) View.GONE else View.VISIBLE
                 }
 
                 bind.btnShow.setOnClickListener { model.watchLocal(mm.module) }

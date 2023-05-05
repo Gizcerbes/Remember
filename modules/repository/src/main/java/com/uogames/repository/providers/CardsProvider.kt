@@ -4,7 +4,10 @@ import com.uogames.clientApi.version3.network.NetworkProvider
 import com.uogames.database.repository.CardRepository
 import com.uogames.dto.global.GlobalCardView
 import com.uogames.dto.local.LocalCard
+import com.uogames.dto.local.LocalCardView
+import com.uogames.dto.local.LocalShare
 import com.uogames.map.CardMap.toGlobal
+import com.uogames.map.CardMap.toLocalCard
 import com.uogames.map.CardMap.update
 import com.uogames.repository.DataProvider
 import java.util.*
@@ -110,6 +113,29 @@ class CardsProvider(
             update(updatedCard)
             return@let updatedCard
         }
+    }
+
+    suspend fun addToShare(cv: LocalCardView){
+        dataProvider.phrase.addToShare(cv.phrase)
+        dataProvider.phrase.addToShare(cv.translate)
+        cv.image?.let { dataProvider.images.shareV2(it) }
+        if (!cv.changed) return
+        val exists = dataProvider.share.exists(idCard = cv.id)
+        if (!exists) dataProvider.share.save(LocalShare(idCard = cv.id))
+    }
+
+    suspend fun shareV2(id: Int): LocalCard? {
+        val card = getViewByID(id)
+        card?.let {
+            val p = card.phrase.globalId ?: dataProvider.phrase.shareV2(card.phrase.id)?.globalId ?: throw Exception("Phrase wasn't saved")
+            val t = card.translate.globalId ?: dataProvider.phrase.shareV2(card.translate.id)?.globalId ?: throw  Exception("Phrase wasn't saved")
+            val i = card.image?.globalId ?: card.image?.let { it1 -> dataProvider.images.share(it1.id)?.globalId ?: throw  Exception("Image wasn't saved") }
+            val res = network.card.post(card.toLocalCard().toGlobal(p,t,i))
+            val updatedCard = it.toLocalCard().update(res)
+            update(updatedCard)
+            return updatedCard
+        }
+        return null
     }
 
     suspend fun download(globalId: UUID): LocalCard? {
