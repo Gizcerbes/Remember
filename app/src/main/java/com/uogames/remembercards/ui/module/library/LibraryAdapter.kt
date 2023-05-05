@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.uogames.dto.local.LocalModuleView
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardModuleBinding
 import com.uogames.remembercards.ui.dialogs.ShareAttentionDialog
@@ -14,6 +15,7 @@ import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.ifTrue
 import com.uogames.remembercards.utils.observe
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.first
 
 class LibraryAdapter(
     private val model: LibraryViewModel
@@ -53,10 +55,8 @@ class LibraryAdapter(
             clear()
             observer = recyclerScope.launch {
                 val mm = model.getLocalModel(adapterPosition).ifNull { return@launch }
-                val owner = mm.module.globalOwner
                 val user = auth.currentUser
-                val uid = user?.uid
-                if (user == null || (owner != null && owner != uid)) bind.btnShare.visibility = View.GONE
+                if (isAvailableToShare(mm.module, mm.module.changed)) bind.btnShare.visibility = View.GONE
 
                 bind.txtName.text = mm.module.name
                 val count = mm.count.await().toString()
@@ -90,10 +90,15 @@ class LibraryAdapter(
 //                    model.stopSharing(mm.module)
 //                }
 
-                model.getShareAction(mm.module).observe(this){
+                model.getShareAction(mm.module).observe(this) {
                     bind.progressLoading.visibility = if (it) View.VISIBLE else View.GONE
-                    bind.btnShare.visibility = if (it) View.GONE else View.VISIBLE
+                    bind.btnShare.visibility =
+                        if (it && !isAvailableToShare(mm.module, model.isChanged(mm.module).first() == true)) View.GONE else View.VISIBLE
                     bind.btnEdit.visibility = if (it) View.GONE else View.VISIBLE
+                }
+
+                model.isChanged(mm.module).observe(this) {
+                    bind.btnShare.visibility = if (isAvailableToShare(mm.module, it == true)) View.VISIBLE else View.GONE
                 }
 
                 bind.btnShow.setOnClickListener { model.watchLocal(mm.module) }
@@ -106,6 +111,13 @@ class LibraryAdapter(
                 bind.imgAction.setImageResource(img)
             }
 
+        }
+
+        private fun isAvailableToShare(module: LocalModuleView, changed: Boolean): Boolean {
+            if (!changed) return false
+            if (auth.currentUser == null) return false
+            if (module.globalOwner != null && module.globalOwner != auth.currentUser?.uid) return false
+            return true
         }
 
         private fun clear() {

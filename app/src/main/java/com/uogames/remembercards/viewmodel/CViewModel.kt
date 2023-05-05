@@ -112,6 +112,8 @@ class CViewModel(
         shareActions.remove(card.id)
     }
 
+    fun isChanged(card: LocalCardView) = provider.cards.isChanged(card.id)
+
     fun getShareAction(card: LocalCardView) = provider.share.existsFlow(idCard = card.id)
 
     fun setDownloadAction(id: UUID, loading: (String, LocalCard?) -> Unit): Boolean {

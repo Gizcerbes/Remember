@@ -172,4 +172,6 @@ class ModuleRepository(
 
     fun getByIdFlow(id: Int) = dao.getByIdFlow(id).map { it?.toDTO() }
 
+    fun isChanged(id: Int) = dao.isChanged(id)
+
 }

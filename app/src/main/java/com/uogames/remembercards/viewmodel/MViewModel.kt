@@ -216,6 +216,8 @@ class MViewModel @Inject constructor(
         shareActions.remove(module.id)
     }
 
+    fun isChanged(module: LocalModuleView) = provider.module.isChanged(module.id)
+
     fun getShareAction(module: LocalModuleView) = provider.share.existsFlow(idModule = module.id)
 
     fun download(view: GlobalModuleView, loading: (String) -> Unit) {

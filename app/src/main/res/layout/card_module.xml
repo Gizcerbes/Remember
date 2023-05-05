@@ -138,7 +138,9 @@
                         android:layout_height="50dp"
                         android:layout_gravity="center"
                         android:layout_marginStart="7dp"
+                        android:layout_marginTop="5dp"
                         android:layout_marginEnd="7dp"
+                        android:layout_marginBottom="5dp"
                         android:indeterminate="true"
                         app:trackCornerRadius="7dp"
                         app:trackThickness="30dp" />

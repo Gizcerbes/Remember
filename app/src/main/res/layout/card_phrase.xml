@@ -217,6 +217,8 @@
                     app:trackCornerRadius="7dp"
                     android:layout_marginStart="7dp"
                     android:layout_marginEnd="7dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"
                     app:trackThickness="30dp" />
 
 

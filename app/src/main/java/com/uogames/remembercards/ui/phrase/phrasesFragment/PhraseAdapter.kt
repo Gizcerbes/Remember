@@ -13,6 +13,7 @@ import com.uogames.remembercards.ui.dialogs.ShareAttentionDialog
 import com.uogames.remembercards.ui.views.PhraseView
 import com.uogames.remembercards.utils.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.first
 import java.util.*
 
 class PhraseAdapter(
@@ -67,23 +68,31 @@ class PhraseAdapter(
                 }.ifNull { view.setOnClickButtonSound(false, null) }
                 view.language = Locale.forLanguageTag(phraseView.phrase.lang)
                 view.setOnClickListenerButtonEdit { editCall?.let { it1 -> it1(phrase.id) } }
-                vm.setShareAction(phrase, endAction).ifTrue(startAction)
+                //vm.setShareAction(phrase, endAction).ifTrue(startAction)
 
                 setShareAction(phrase)
 
-                vm.getShareAction(phrase).observe(this){
+                vm.getShareAction(phrase).observe(this) {
                     view.showProgressLoading = it
-                    view.showButtonShare = !it
+                    view.showButtonShare = !it && isAvailableToShare(phrase, vm.isChanged(phrase).first() == true)
                     view.showButtonEdit = !it
                 }
+
+                vm.isChanged(phrase).observe(this) { view.showButtonShare = isAvailableToShare(phrase, it == true) }
 
                 //view.setOnClickButtonStop(false) { vm.stopSharing(phrase) }
             }
         }
 
+        private fun isAvailableToShare(phrase: LocalPhraseView, changed: Boolean): Boolean {
+            if (!changed) return false
+            if (auth.currentUser == null) return false
+            if (phrase.globalOwner != null && phrase.globalOwner != auth.currentUser?.uid) return false
+            return true
+        }
+
         private fun setShareAction(phrase: LocalPhraseView) {
-            if (auth.currentUser == null) return
-            if (phrase.globalOwner != null && phrase.globalOwner != auth.currentUser?.uid) return
+            if (!isAvailableToShare(phrase, phrase.changed)) return
             view.setOnClickButtonShare {
                 vm.shareNotice.value?.let {
                     startAction()

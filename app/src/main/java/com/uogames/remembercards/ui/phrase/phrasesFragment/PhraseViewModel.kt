@@ -134,9 +134,7 @@ class PhraseViewModel @Inject constructor(
 
     fun share(phrase: LocalPhraseView, loading: (String) -> Unit) = model.share(phrase, loading)
 
-    fun setShareAction(phrase: LocalPhraseView, loading: (String) -> Unit) = model.setShareAction(phrase, loading)
-
-    fun stopSharing(phrase: LocalPhraseView) = model.stopSharing(phrase)
+    fun isChanged(phrase: LocalPhraseView) = model.isChanged(phrase).stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
 
     fun getShareAction(phrase: LocalPhraseView) = model.getShareAction(phrase).stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 

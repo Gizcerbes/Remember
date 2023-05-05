@@ -82,4 +82,7 @@ interface ModuleDAO {
 	@Query("SELECT * FROM modules WHERE id = :id")
 	fun getByIdFlow(id: Int): Flow<ModuleEntity?>
 
+	@Query("SELECT changed FROM modules WHERE id = :id")
+	fun isChanged(id: Int): Flow<Boolean?>
+
 }

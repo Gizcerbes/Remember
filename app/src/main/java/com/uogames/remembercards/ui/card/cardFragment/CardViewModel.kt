@@ -158,9 +158,7 @@ class CardViewModel @Inject constructor(
 
     fun share(card: LocalCardView, result: (String) -> Unit) = model.share(card, result)
 
-    fun setShareAction(card: LocalCardView, loading: (String) -> Unit) = model.setShareAction(card, loading)
-
-    fun stopSharing(card: LocalCardView) = model.stopSharing(card)
+    fun isChanged(card: LocalCardView) = model.isChanged(card).stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
 
     fun getShareAction(card: LocalCardView) = model.getShareAction(card).stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 

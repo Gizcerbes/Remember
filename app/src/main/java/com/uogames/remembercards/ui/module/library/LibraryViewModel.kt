@@ -145,7 +145,7 @@ class LibraryViewModel @Inject constructor(
 
     fun setShareAction(module: LocalModuleView, loading: (String) -> Unit) = model.setShareAction(module, loading)
 
-    fun stopSharing(module: LocalModuleView, message: String = "Cancel") = model.stopSharing(module, message)
+    fun isChanged(module: LocalModuleView) = model.isChanged(module).stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
 
     fun getShareAction(module: LocalModuleView) = model.getShareAction(module).stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 

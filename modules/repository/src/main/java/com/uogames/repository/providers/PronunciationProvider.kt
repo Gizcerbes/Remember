@@ -77,7 +77,7 @@ class PronunciationProvider(
         return res ?: pronounce
     }
 
-    suspend fun shareV2(pv: LocalPronunciationView) {
+    suspend fun adToShare(pv: LocalPronunciationView) {
         if (pv.globalId != null) return
         else {
             val r = dataProvider.share.exists(idPronounce = pv.id)

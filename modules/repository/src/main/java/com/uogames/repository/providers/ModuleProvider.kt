@@ -101,6 +101,8 @@ class ModuleProvider(
 
     suspend fun getGlobalView(id: UUID) = network.module.getView(id)
 
+    fun isChanged(id: Int) = mr.isChanged(id)
+
     suspend fun share(id: Int): LocalModule? {
         val module = getById(id)
         return module?.let {
@@ -112,7 +114,7 @@ class ModuleProvider(
     }
 
     suspend fun addToShare(mv: LocalModuleView) {
-        if (!mv.changed) return
+        if (getById(mv.id)?.changed != true) return
         val exists = dataProvider.share.exists(idModule = mv.id)
         if (exists) return
         else {

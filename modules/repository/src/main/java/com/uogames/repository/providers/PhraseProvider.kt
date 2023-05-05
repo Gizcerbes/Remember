@@ -65,6 +65,8 @@ class PhraseProvider(
         number = number
     )
 
+    fun isChanged(id: Int) = pr.isChanged(id)
+
     suspend fun share(id: Int): LocalPhrase? {
         val phrase = getById(id)
         return phrase?.let {
@@ -79,9 +81,9 @@ class PhraseProvider(
     }
 
     suspend fun addToShare(pv: LocalPhraseView) {
-        pv.image?.let { dataProvider.images.shareV2(it) }
-        pv.pronounce?.let { dataProvider.pronounce.shareV2(it) }
-        if (!pv.changed) return
+        pv.image?.let { dataProvider.images.addToShare(it) }
+        pv.pronounce?.let { dataProvider.pronounce.adToShare(it) }
+        if(getById(pv.id)?.changed != true) return
         val exists = dataProvider.share.exists(idPhrase = pv.id)
         if (!exists) dataProvider.share.save(LocalShare(idPhrase = pv.id))
     }

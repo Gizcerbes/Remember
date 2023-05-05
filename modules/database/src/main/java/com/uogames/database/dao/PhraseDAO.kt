@@ -47,8 +47,10 @@ interface PhraseDAO {
             "WHERE ct1.id IS NULL AND ct2.id IS NULL")
 	fun countFree(): Flow<Int>
 
-
 	@Query("DELETE FROM phrase_table " +
 			"WHERE NOT EXISTS (SELECT ct.id FROM cards_table AS ct WHERE phrase_table.id = ct.id_phrase  OR phrase_table.id = ct.id_translate) ")
 	suspend fun deleteFree()
+
+	@Query("SELECT changed FROM phrase_table WHERE id = :id")
+	fun isChanged(id: Int) : Flow<Boolean?>
 }

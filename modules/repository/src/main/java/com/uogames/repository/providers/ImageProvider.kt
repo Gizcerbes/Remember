@@ -1,7 +1,6 @@
 package com.uogames.repository.providers
 
 import android.content.Context
-import android.util.Log
 import androidx.core.net.toUri
 import com.uogames.clientApi.version3.network.NetworkProvider
 import com.uogames.database.repository.ImageRepository
@@ -9,7 +8,6 @@ import com.uogames.dto.global.GlobalImageView
 import com.uogames.dto.local.LocalImage
 import com.uogames.dto.local.LocalImageView
 import com.uogames.dto.local.LocalPhrase
-import com.uogames.dto.local.LocalPronunciation
 import com.uogames.dto.local.LocalShare
 import com.uogames.map.ImageMap.update
 import com.uogames.repository.DataProvider
@@ -77,7 +75,7 @@ class ImageProvider(
         return res ?: image
     }
 
-    suspend fun shareV2(iv: LocalImageView) {
+    suspend fun addToShare(iv: LocalImageView) {
         if (iv.globalId != null) return
         else {
             val r = dataProvider.share.exists(idImage = iv.id)

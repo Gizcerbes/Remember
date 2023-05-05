@@ -68,6 +68,8 @@ class PViewModel(
         shareActions.remove(phrase.id)
     }
 
+    fun isChanged(phrase: LocalPhraseView) = provider.phrase.isChanged(phrase.id)
+
     fun getShareAction(phrase: LocalPhraseView) = provider.share.existsFlow(idPhrase = phrase.id)
 
     fun setDownloadAction(id: UUID, loading: (String, LocalPhrase?) -> Unit): Boolean {

@@ -102,6 +102,8 @@ class CardsProvider(
         number = number
     )
 
+    fun isChanged(id: Int) = repository.isChanged(id)
+
     suspend fun share(id: Int): LocalCard? {
         val card = getById(id)
         return card?.let {
@@ -118,8 +120,8 @@ class CardsProvider(
     suspend fun addToShare(cv: LocalCardView){
         dataProvider.phrase.addToShare(cv.phrase)
         dataProvider.phrase.addToShare(cv.translate)
-        cv.image?.let { dataProvider.images.shareV2(it) }
-        if (!cv.changed) return
+        cv.image?.let { dataProvider.images.addToShare(it) }
+        if (getById(cv.id)?.changed != true) return
         val exists = dataProvider.share.exists(idCard = cv.id)
         if (!exists) dataProvider.share.save(LocalShare(idCard = cv.id))
     }

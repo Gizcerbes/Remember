@@ -116,4 +116,7 @@ interface CardDAO {
 	@Query("DELETE FROM cards_table " +
 			"WHERE NOT EXISTS (SELECT mct.id FROM module_card AS mct WHERE cards_table.id = mct.id_card)")
 	suspend fun deleteFree()
+
+	@Query("SELECT changed FROM cards_table WHERE id = :id")
+	fun isChanged(id: Int): Flow<Boolean?>
 }

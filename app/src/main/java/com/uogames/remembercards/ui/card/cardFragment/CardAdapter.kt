@@ -1,5 +1,6 @@
 package com.uogames.remembercards.ui.card.cardFragment
 
+import android.util.Log
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.net.toUri
@@ -16,6 +17,7 @@ import com.uogames.remembercards.ui.views.CardView
 import com.uogames.remembercards.utils.*
 import com.uogames.remembercards.viewmodel.CViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.first
 import java.util.*
 
 class CardAdapter(
@@ -89,7 +91,7 @@ class CardAdapter(
                     view.definitionSecond = translate.definition.orEmpty()
                 }
 
-                model.setShareAction(cardView.card, endAction).ifTrue(startAction)
+                //model.setShareAction(cardView.card, endAction).ifTrue(startAction)
 
                 addShareAction(cardView)
 
@@ -99,8 +101,12 @@ class CardAdapter(
 
                 model.getShareAction(cardView.card).observe(this) {
                     view.showProgressLoading = it
-                    view.showButtonShare = !it
+                    view.showButtonShare = !it && isAvailableToShare(cardView, model.isChanged(cardView.card).first() == true)
                     view.showButtonEdit = !it
+                }
+
+                model.isChanged(cardView.card).observe(this) {
+                    view.showButtonShare = isAvailableToShare(cardView, it == true)
                 }
 
                 view.showButtons = true
@@ -108,9 +114,15 @@ class CardAdapter(
 
         }
 
+        private fun isAvailableToShare(cardView: CViewModel.LocalCardModel, changed: Boolean): Boolean {
+            if (!changed) return false
+            if (auth.currentUser == null) return false
+            if (cardView.card.globalOwner != null && cardView.card.globalOwner != auth.currentUser?.uid) return false
+            return true
+        }
+
         private fun addShareAction(cardView: CViewModel.LocalCardModel) {
-            if (auth.currentUser == null) return
-            if (cardView.card.globalOwner != null && cardView.card.globalOwner != auth.currentUser?.uid) return
+            if (!isAvailableToShare(cardView, changed = cardView.card.changed)) return
             view.setOnClickButtonShare {
                 model.shareNotice.value?.let {
                     startAction()
