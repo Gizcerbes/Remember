@@ -98,7 +98,7 @@ class GlobalViewModel @Inject constructor(
 
     val phraseCountFree = provider.phrase.countFree().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
 
-    val shareCount = provider.share.countFlow().stateIn(viewModelScope, SharingStarted.Eagerly, 0)
+    val shareCount = provider.share.countFlow().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
 
 
     private var job: Job? = null
@@ -197,7 +197,8 @@ class GlobalViewModel @Inject constructor(
 
     private fun sharing() = viewModelScope.launch {
         while (true) {
-            while (shareCount.value > 0) {
+            while (provider.share.count() > 0) {
+
                 runCatching {
                     val f = provider.share.getFirst()
                     f?.idImage?.let { provider.images.share(it) }
