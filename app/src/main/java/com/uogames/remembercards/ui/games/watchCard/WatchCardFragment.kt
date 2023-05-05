@@ -1,9 +1,15 @@
 package com.uogames.remembercards.ui.games.watchCard
 
+import android.animation.AnimatorInflater
+import android.animation.AnimatorSet
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.AnimationSet
+import android.view.animation.AnimationUtils
+import androidx.core.animation.doOnEnd
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -51,11 +57,11 @@ class WatchCardFragment : DaggerFragment() {
 
         bind.btnClose.setOnClickListener { findNavController().popBackStack() }
 
-        bind.btnRevert.setOnClickListener { model.backSize.setOpposite() }
+        bind.btnRevert.setOnClickListener { revert() }
 
-        bind.btnPrevious.setOnClickListener { model.previous() }
+        bind.btnPrevious.setOnClickListener { previousSlide() }
 
-        bind.btnNext.setOnClickListener { model.next() }
+        bind.btnNext.setOnClickListener { nextSlide() }
 
         observer = lifecycleScope.launchWhenStarted {
             model.card.observe(this) { card ->
@@ -80,9 +86,59 @@ class WatchCardFragment : DaggerFragment() {
             model.position.observe(this) {
                 bind.tvCount.text = "$it/${model.count.value}"
             }
-            model.count.observe(this){
+            model.count.observe(this) {
                 bind.tvCount.text = "${model.position.value}/$it"
             }
+        }
+
+    }
+
+    private fun nextSlide() {
+        if (model.position.value == model.count.value) return
+        val listener = object : AnimationListener() {
+            override fun onAnimationEnd(p0: Animation?) {
+                model.next()
+                bind.phraseView.startAnimation(AnimationUtils.loadAnimation(requireContext(), R.anim.from_left))
+            }
+        }
+        val anim = AnimationUtils.loadAnimation(requireContext(), R.anim.to_left)
+        anim.setAnimationListener(listener)
+
+        bind.phraseView.startAnimation(anim)
+    }
+
+    private fun previousSlide() {
+        if (model.position.value == 1) return
+        val listener = object : AnimationListener() {
+            override fun onAnimationEnd(p0: Animation?) {
+                model.previous()
+                bind.phraseView.startAnimation(AnimationUtils.loadAnimation(requireContext(), R.anim.from_right))
+            }
+        }
+        val anim = AnimationUtils.loadAnimation(requireContext(), R.anim.to_right)
+        anim.setAnimationListener(listener)
+
+        bind.phraseView.startAnimation(anim)
+    }
+
+    private fun revert(){
+
+        val scale = requireContext().resources.displayMetrics.density
+        val cameraDist = 8000 * scale
+
+        bind.phraseView.cameraDistance = cameraDist
+
+        bind.ivRevert.startAnimation(AnimationUtils.loadAnimation(requireContext(), R.anim.rorate))
+        val anim = AnimatorInflater.loadAnimator(requireContext(), R.animator.flip_out) as AnimatorSet
+        anim.setTarget(bind.phraseView)
+        anim.start()
+
+        val anim2 = AnimatorInflater.loadAnimator(requireContext(), R.animator.flip_in) as AnimatorSet
+        anim2.setTarget(bind.phraseView)
+
+        anim.doOnEnd {
+            anim2.start()
+            model.backSize.setOpposite()
         }
 
     }
