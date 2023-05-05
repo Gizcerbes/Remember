@@ -80,6 +80,8 @@ class DataProvider private constructor(
 
     val user by lazy { UserProvider(this, database.userRepository, networkProvider) }
 
+    val share by lazy { ShareProvider(database.shareRepository) }
+
     suspend fun clean() {
         images.clear()
         pronounce.clear()

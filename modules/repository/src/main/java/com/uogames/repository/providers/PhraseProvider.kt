@@ -4,7 +4,10 @@ import com.uogames.clientApi.version3.network.NetworkProvider
 import com.uogames.database.repository.PhraseRepository
 import com.uogames.dto.global.GlobalPhraseView
 import com.uogames.dto.local.LocalPhrase
+import com.uogames.dto.local.LocalPhraseView
+import com.uogames.dto.local.LocalShare
 import com.uogames.map.PhraseMap.toGlobal
+import com.uogames.map.PhraseMap.toLocalPhrase
 import com.uogames.map.PhraseMap.update
 import com.uogames.repository.DataProvider
 import java.util.*
@@ -62,6 +65,8 @@ class PhraseProvider(
         number = number
     )
 
+    fun isChanged(id: Int) = pr.isChanged(id)
+
     suspend fun share(id: Int): LocalPhrase? {
         val phrase = getById(id)
         return phrase?.let {
@@ -73,6 +78,29 @@ class PhraseProvider(
             update(updatedPhrase)
             return@let updatedPhrase
         }
+    }
+
+    suspend fun addToShare(pv: LocalPhraseView) {
+        pv.image?.let { dataProvider.images.addToShare(it) }
+        pv.pronounce?.let { dataProvider.pronounce.adToShare(it) }
+        if(getById(pv.id)?.changed != true) return
+        val exists = dataProvider.share.exists(idPhrase = pv.id)
+        if (!exists) dataProvider.share.save(LocalShare(idPhrase = pv.id))
+    }
+
+    suspend fun shareV2(id: Int): LocalPhrase? {
+        val phrase = getViewByID(id)
+        phrase?.let {
+            val im = phrase.image?.let { img -> img.globalId ?: dataProvider.images.share(img.id)?.globalId ?: throw Exception("Image wasn't saved") }
+            val pr = phrase.pronounce?.let { pro ->
+                pro.globalId ?: dataProvider.pronounce.share(pro.id)?.globalId ?: throw Exception("Pronunciation wasn't sawed")
+            }
+            val res = network.phrase.post(phrase.toLocalPhrase().toGlobal(im,pr))
+            val updatedPhrase = it.toLocalPhrase().update(res)
+            update(updatedPhrase)
+            return updatedPhrase
+        }
+        return null
     }
 
     suspend fun download(id: UUID): LocalPhrase? {

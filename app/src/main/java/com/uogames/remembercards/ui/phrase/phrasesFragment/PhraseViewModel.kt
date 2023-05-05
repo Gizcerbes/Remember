@@ -14,7 +14,9 @@ import com.uogames.remembercards.utils.toNull
 import com.uogames.remembercards.viewmodel.PViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
@@ -132,9 +134,9 @@ class PhraseViewModel @Inject constructor(
 
     fun share(phrase: LocalPhraseView, loading: (String) -> Unit) = model.share(phrase, loading)
 
-    fun setShareAction(phrase: LocalPhraseView, loading: (String) -> Unit) = model.setShareAction(phrase, loading)
+    fun isChanged(phrase: LocalPhraseView) = model.isChanged(phrase).stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
 
-    fun stopSharing(phrase: LocalPhraseView) = model.stopSharing(phrase)
+    fun getShareAction(phrase: LocalPhraseView) = model.getShareAction(phrase).stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 
     fun setDownloadAction(id: UUID, loading: (String, LocalPhrase?) -> Unit) = model.setDownloadAction(id, loading)
 

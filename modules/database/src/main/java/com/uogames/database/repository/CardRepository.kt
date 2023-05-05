@@ -163,4 +163,6 @@ class CardRepository(
     fun countFree() = cardDAO.countFree()
 
     suspend fun deleteFree() = cardDAO.deleteFree()
+
+    fun isChanged(id: Int) = cardDAO.isChanged(id)
 }

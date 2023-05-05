@@ -14,7 +14,8 @@ data class LocalPhrase(
 	val like: Long = 0,
 	val dislike: Long = 0,
 	val globalId: UUID? = null,
-	val globalOwner: String? = null
+	val globalOwner: String? = null,
+	val changed: Boolean = false
 )
 
 data class LocalPhraseView(
@@ -29,5 +30,6 @@ data class LocalPhraseView(
 	val like: Long = 0,
 	val dislike: Long = 0,
 	val globalId: UUID? = null,
-	val globalOwner: String? = null
+	val globalOwner: String? = null,
+	val changed: Boolean = false
 )

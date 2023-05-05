@@ -1,5 +1,6 @@
 package com.uogames.remembercards.ui.card.cardFragment
 
+import android.util.Log
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.net.toUri
@@ -16,6 +17,7 @@ import com.uogames.remembercards.ui.views.CardView
 import com.uogames.remembercards.utils.*
 import com.uogames.remembercards.viewmodel.CViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.first
 import java.util.*
 
 class CardAdapter(
@@ -38,18 +40,18 @@ class CardAdapter(
     inner class LocalCardHolder(val view: CardView) : ClosableHolder(view) {
 
         private val startAction: () -> Unit = {
-            view.showProgressLoading = true
-            view.showButtonStop = true
-            view.showButtonShare = false
-            view.showButtonEdit = false
+//            view.showProgressLoading = true
+//            view.showButtonStop = true
+//            view.showButtonShare = false
+//            view.showButtonEdit = false
         }
 
         private val endAction: (String) -> Unit = {
-            view.showProgressLoading = false
-            view.showButtonStop = false
-            view.showButtonShare = true
-            view.showButtonEdit = true
-            Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
+//            view.showProgressLoading = false
+//            view.showButtonStop = false
+//            view.showButtonShare = true
+//            view.showButtonEdit = true
+//            Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
         }
 
         override fun show() {
@@ -89,12 +91,22 @@ class CardAdapter(
                     view.definitionSecond = translate.definition.orEmpty()
                 }
 
-                model.setShareAction(cardView.card, endAction).ifTrue(startAction)
+                //model.setShareAction(cardView.card, endAction).ifTrue(startAction)
 
                 addShareAction(cardView)
 
-                view.setOnClickButtonStop(false) {
-                    model.stopSharing(cardView.card)
+//                view.setOnClickButtonStop(false) {
+//                    model.stopSharing(cardView.card)
+//                }
+
+                model.getShareAction(cardView.card).observe(this) {
+                    view.showProgressLoading = it
+                    view.showButtonShare = !it && isAvailableToShare(cardView, model.isChanged(cardView.card).first() == true)
+                    view.showButtonEdit = !it
+                }
+
+                model.isChanged(cardView.card).observe(this) {
+                    view.showButtonShare = isAvailableToShare(cardView, it == true)
                 }
 
                 view.showButtons = true
@@ -102,9 +114,15 @@ class CardAdapter(
 
         }
 
+        private fun isAvailableToShare(cardView: CViewModel.LocalCardModel, changed: Boolean): Boolean {
+            if (!changed) return false
+            if (auth.currentUser == null) return false
+            if (cardView.card.globalOwner != null && cardView.card.globalOwner != auth.currentUser?.uid) return false
+            return true
+        }
+
         private fun addShareAction(cardView: CViewModel.LocalCardModel) {
-            if (auth.currentUser == null) return
-            if (cardView.card.globalOwner != null && cardView.card.globalOwner != auth.currentUser?.uid) return
+            if (!isAvailableToShare(cardView, changed = cardView.card.changed)) return
             view.setOnClickButtonShare {
                 model.shareNotice.value?.let {
                     startAction()
@@ -190,7 +208,7 @@ class CardAdapter(
                     model.save(cardView.card, endAction)
                 }
 
-                view.setOnClickButtonStop(false) {  model.stopDownloading(cardView.card.globalId) }
+                view.setOnClickButtonStop(false) { model.stopDownloading(cardView.card.globalId) }
 
                 view.showButtons = true
 

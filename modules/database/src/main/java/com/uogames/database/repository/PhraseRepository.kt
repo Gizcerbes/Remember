@@ -112,4 +112,6 @@ class PhraseRepository(
 
     suspend fun deleteFree() = dao.deleteFree()
 
+    fun isChanged(id: Int) = dao.isChanged(id)
+
 }

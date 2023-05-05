@@ -10,7 +10,8 @@ data class LocalModule(
 	val like: Long = 0,
 	val dislike: Long = 0,
 	val globalId: UUID? = null,
-	val globalOwner: String? = null
+	val globalOwner: String? = null,
+	var changed: Boolean = false
 )
 
 data class LocalModuleView(
@@ -21,5 +22,6 @@ data class LocalModuleView(
 	val like: Long = 0,
 	val dislike: Long = 0,
 	val globalId: UUID? = null,
-	val globalOwner: String? = null
+	val globalOwner: String? = null,
+	val changed: Boolean = false
 )

@@ -2,6 +2,7 @@ package com.uogames.remembercards.viewmodel
 
 import android.content.Context
 import android.graphics.Rect
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.ViewModel
@@ -97,8 +98,12 @@ class GlobalViewModel @Inject constructor(
 
     val phraseCountFree = provider.phrase.countFree().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
 
+    val shareCount = provider.share.countFlow().stateIn(viewModelScope, SharingStarted.Eagerly, 0)
+
 
     private var job: Job? = null
+
+    private val shareJob: Job = sharing()
 
     init {
         getUserName().observe(viewModelScope) {
@@ -189,5 +194,23 @@ class GlobalViewModel @Inject constructor(
     }
 
     fun deleteFreeCards() = viewModelScope.launch { provider.cards.deleteFree() }
+
+    private fun sharing() = viewModelScope.launch {
+        while (true) {
+            while (shareCount.value > 0) {
+                runCatching {
+                    val f = provider.share.getFirst()
+                    f?.idImage?.let { provider.images.share(it) }
+                    f?.idPronounce?.let { provider.pronounce.share(it) }
+                    f?.idPhrase?.let { provider.phrase.shareV2(it) }
+                    f?.idCard?.let { provider.cards.shareV2(it) }
+                    if (f?.idModuleCard == null) f?.idModule?.let { provider.module.share(it) }
+                    else f.idModuleCard?.let { provider.moduleCard.share(it) }
+                    f?.let { provider.share.remove(it) }
+                }
+            }
+            delay(1000)
+        }
+    }
 
 }

@@ -12,7 +12,8 @@ data class LocalCard(
 	val like: Long = 0,
 	val dislike: Long = 0,
 	val globalId: UUID? = null,
-	val globalOwner: String? = null
+	val globalOwner: String? = null,
+    val changed: Boolean = false
 )
 
 data class LocalCardView(
@@ -25,5 +26,6 @@ data class LocalCardView(
     val like: Long = 0,
     val dislike: Long = 0,
     val globalId: UUID? = null,
-    val globalOwner: String? = null
+    val globalOwner: String? = null,
+    val changed: Boolean
 )

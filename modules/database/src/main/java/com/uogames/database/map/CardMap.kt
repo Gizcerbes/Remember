@@ -17,7 +17,8 @@ object CardMap : Map<CardEntity, LocalCard> {
 		like = like,
 		dislike = dislike,
 		globalId = globalId,
-		globalOwner = globalOwner
+		globalOwner = globalOwner,
+		changed = changed
 	)
 
 
@@ -31,7 +32,8 @@ object CardMap : Map<CardEntity, LocalCard> {
 		like = like,
 		dislike = dislike,
 		globalId = globalId,
-		globalOwner = globalOwner
+		globalOwner = globalOwner,
+		changed = changed
 	)
 
 }
@@ -50,7 +52,8 @@ class CardViewMap(
 		like = entity.like,
 		dislike = entity.dislike,
 		globalId = entity.globalId,
-		globalOwner = entity.globalOwner
+		globalOwner = entity.globalOwner,
+		changed = entity.changed
 	)
 	override suspend fun toEntity(dto: LocalCardView) = CardEntity(
 		id = dto.id,
@@ -62,6 +65,7 @@ class CardViewMap(
 		like = dto.like,
 		dislike = dto.dislike,
 		globalId = dto.globalId,
-		globalOwner = dto.globalOwner
+		globalOwner = dto.globalOwner,
+		changed = dto.changed
 	)
 }

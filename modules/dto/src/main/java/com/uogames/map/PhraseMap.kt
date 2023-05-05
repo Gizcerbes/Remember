@@ -7,6 +7,7 @@ import com.uogames.dto.local.LocalImage
 import com.uogames.dto.local.LocalPhrase
 import com.uogames.dto.local.LocalPhraseView
 import com.uogames.dto.local.LocalPronunciation
+import java.util.UUID
 
 object PhraseMap {
 
@@ -18,6 +19,20 @@ object PhraseMap {
         lang = lang,
         idPronounce = pronunciation?.globalId,
         idImage = image?.globalId,
+        timeChange = timeChange,
+        like = 0,
+        dislike = 0,
+        country = country
+    )
+
+    fun LocalPhrase.toGlobal(imageID: UUID?, pronunciationID: UUID?) = GlobalPhrase(
+        globalId = globalId ?: DefaultUUID.value,
+        globalOwner = globalOwner ?: "",
+        phrase = phrase,
+        definition = definition,
+        lang = lang,
+        idPronounce = pronunciationID,
+        idImage = imageID,
         timeChange = timeChange,
         like = 0,
         dislike = 0,
@@ -95,7 +110,8 @@ object PhraseMap {
         like = like,
         dislike = dislike,
         globalId = globalId,
-        globalOwner = globalOwner
+        globalOwner = globalOwner,
+        changed = changed
     )
 
 }

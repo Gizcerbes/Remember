@@ -49,5 +49,7 @@ class DatabaseRepository private constructor(private val database: MyDatabase) {
 
     val userRepository by lazy { UserRepository(database.userDAO()) }
 
+    val shareRepository by lazy { ShareRepository(database.shareDAO()) }
+
 
 }

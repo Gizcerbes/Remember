@@ -126,7 +126,8 @@ class EditCardViewModel @Inject constructor(
             idImage = null,
             reason = reason,
             globalOwner = loadedCard?.globalOwner,
-            globalId = loadedCard?.globalId
+            globalId = loadedCard?.globalId,
+            changed = true
         )
     }
 

@@ -7,7 +7,9 @@ import com.uogames.remembercards.utils.observe
 import com.uogames.remembercards.viewmodel.MViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
@@ -143,7 +145,9 @@ class LibraryViewModel @Inject constructor(
 
     fun setShareAction(module: LocalModuleView, loading: (String) -> Unit) = model.setShareAction(module, loading)
 
-    fun stopSharing(module: LocalModuleView, message: String = "Cancel") = model.stopSharing(module, message)
+    fun isChanged(module: LocalModuleView) = model.isChanged(module).stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
+
+    fun getShareAction(module: LocalModuleView) = model.getShareAction(module).stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 
     suspend fun getGlobalModel(position: Int) = model.getGlobalModel(
         text = like.value,

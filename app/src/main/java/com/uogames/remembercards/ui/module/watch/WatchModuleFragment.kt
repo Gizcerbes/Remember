@@ -44,6 +44,8 @@ class WatchModuleFragment : DaggerFragment() {
 
     private var observer: Job? = null
 
+    private var shareObserver: Job? = null
+
     private val startAction: () -> Unit = {
         bind.btnDownload.isEnabled = false
         bind.ivBtnDownload.isEnabled = false
@@ -55,7 +57,7 @@ class WatchModuleFragment : DaggerFragment() {
             bind.btnDownload.isEnabled = true
             bind.ivBtnDownload.isEnabled = true
             bind.lpiIndicator.visibility = View.GONE
-            Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+            //Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -89,14 +91,21 @@ class WatchModuleFragment : DaggerFragment() {
             model.size.observe(this) {
                 bind.txtBookEmpty.visibility = if (it == 0) View.VISIBLE else View.GONE
             }
-            model.localModule.observe(this) { model ->
-                model?.let { bind.txtTopName.text = it.module.name }
-                bind.btnEdit.visibility = if (model == null) View.GONE else View.VISIBLE
-                bind.btnEdit.setOnClickListener { model?.module?.id?.let { editCall(it) } }
+            model.localModule.observe(this) { m ->
+                m?.let { bind.txtTopName.text = it.module.name }
+                bind.btnEdit.visibility = if (m == null) View.GONE else View.VISIBLE
+                bind.btnEdit.setOnClickListener { m?.module?.id?.let { editCall(it) } }
+                shareObserver?.cancel()
+                if (m == null) return@observe
+                shareObserver = model.getShareAction(m.module).observe(this) {
+                    bind.btnEdit.isEnabled = !it
+                    bind.ivBtnEdit.isEnabled = !it
+                    bind.lpiIndicator.visibility = if (it) View.VISIBLE else View.GONE
+                }
             }
             model.globalModule.observe(this) { m ->
                 bind.btnDownload.visibility = if (m == null) View.GONE else View.VISIBLE
-                if (m != null){
+                if (m != null) {
                     bind.txtTopName.text = m.module.name
                     model.setDownloadAction(m.module, endAction).ifTrue(startAction)
                     bind.btnDownload.setOnClickListener {
@@ -117,6 +126,8 @@ class WatchModuleFragment : DaggerFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         bind.recycler.adapter = null
+        observer?.cancel()
+        shareObserver?.cancel()
     }
 
 

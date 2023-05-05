@@ -1,7 +1,6 @@
 package com.uogames.repository.providers
 
 import android.content.Context
-import android.util.Log
 import androidx.core.net.toUri
 import com.uogames.clientApi.version3.network.NetworkProvider
 import com.uogames.database.repository.ImageRepository
@@ -9,7 +8,7 @@ import com.uogames.dto.global.GlobalImageView
 import com.uogames.dto.local.LocalImage
 import com.uogames.dto.local.LocalImageView
 import com.uogames.dto.local.LocalPhrase
-import com.uogames.dto.local.LocalPronunciation
+import com.uogames.dto.local.LocalShare
 import com.uogames.map.ImageMap.update
 import com.uogames.repository.DataProvider
 import com.uogames.repository.fileRepository.FileRepository
@@ -76,6 +75,14 @@ class ImageProvider(
         return res ?: image
     }
 
+    suspend fun addToShare(iv: LocalImageView) {
+        if (iv.globalId != null) return
+        else {
+            val r = dataProvider.share.exists(idImage = iv.id)
+            if (!r) dataProvider.share.save(LocalShare(idImage = iv.id))
+        }
+    }
+
     suspend fun download(id: UUID): LocalImage? {
         val local = database.getByGlobalId(id)
         if (local == null) {
@@ -89,7 +96,7 @@ class ImageProvider(
 
     suspend fun save(view: GlobalImageView): LocalImage {
         val l1 = database.getByGlobalId(view.globalId)
-        return if (l1 == null){
+        return if (l1 == null) {
             val localID = add(network.image.load(view.globalId))
             val l = database.getById(localID)?.update(view) ?: throw Exception("Image wasn't saved")
             database.update(l)

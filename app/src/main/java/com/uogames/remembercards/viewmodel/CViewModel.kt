@@ -83,7 +83,8 @@ class CViewModel(
     fun share(card: LocalCardView, result: (String) -> Unit) {
         val job = viewModelScope.launch {
             runCatching {
-                provider.cards.share(card.id)
+                //provider.cards.share(card.id)
+                provider.cards.addToShare(card)
             }.onSuccess {
                 launch(Dispatchers.Main) {
                     shareActions[card.id]?.callback?.let { back -> back("Ok") }
@@ -110,6 +111,10 @@ class CViewModel(
         action.callback("Cancel")
         shareActions.remove(card.id)
     }
+
+    fun isChanged(card: LocalCardView) = provider.cards.isChanged(card.id)
+
+    fun getShareAction(card: LocalCardView) = provider.share.existsFlow(idCard = card.id)
 
     fun setDownloadAction(id: UUID, loading: (String, LocalCard?) -> Unit): Boolean {
         downloadAction[id]?.callback = loading

@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.uogames.dto.local.LocalModuleView
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.CardModuleBinding
 import com.uogames.remembercards.ui.dialogs.ShareAttentionDialog
@@ -14,6 +15,7 @@ import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.ifTrue
 import com.uogames.remembercards.utils.observe
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.first
 
 class LibraryAdapter(
     private val model: LibraryViewModel
@@ -35,28 +37,26 @@ class LibraryAdapter(
         private var full = false
 
         private val startAction: () -> Unit = {
-            bind.progressLoading.visibility = View.VISIBLE
-            bind.btnStop.visibility = View.VISIBLE
-            bind.btnShare.visibility = View.GONE
-            bind.btnEdit.visibility = View.GONE
+//            bind.progressLoading.visibility = View.VISIBLE
+//            bind.btnStop.visibility = View.VISIBLE
+//            bind.btnShare.visibility = View.GONE
+//            bind.btnEdit.visibility = View.GONE
         }
 
         private val endAction: (String) -> Unit = {
-            bind.progressLoading.visibility = View.GONE
-            bind.btnStop.visibility = View.GONE
-            bind.btnShare.visibility = View.VISIBLE
-            bind.btnEdit.visibility = View.VISIBLE
-            Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
+//            bind.progressLoading.visibility = View.GONE
+//            bind.btnStop.visibility = View.GONE
+//            bind.btnShare.visibility = View.VISIBLE
+//            bind.btnEdit.visibility = View.VISIBLE
+//            Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
         }
 
         override fun show() {
             clear()
             observer = recyclerScope.launch {
                 val mm = model.getLocalModel(adapterPosition).ifNull { return@launch }
-                val owner = mm.module.globalOwner
                 val user = auth.currentUser
-                val uid = user?.uid
-                if (user == null || (owner != null && owner != uid)) bind.btnShare.visibility = View.GONE
+                if (isAvailableToShare(mm.module, mm.module.changed)) bind.btnShare.visibility = View.GONE
 
                 bind.txtName.text = mm.module.name
                 val count = mm.count.await().toString()
@@ -86,8 +86,19 @@ class LibraryAdapter(
                     }
                 }
 
-                bind.btnStop.setOnClickListener {
-                    model.stopSharing(mm.module)
+//                bind.btnStop.setOnClickListener {
+//                    model.stopSharing(mm.module)
+//                }
+
+                model.getShareAction(mm.module).observe(this) {
+                    bind.progressLoading.visibility = if (it) View.VISIBLE else View.GONE
+                    bind.btnShare.visibility =
+                        if (it && !isAvailableToShare(mm.module, model.isChanged(mm.module).first() == true)) View.GONE else View.VISIBLE
+                    bind.btnEdit.visibility = if (it) View.GONE else View.VISIBLE
+                }
+
+                model.isChanged(mm.module).observe(this) {
+                    bind.btnShare.visibility = if (isAvailableToShare(mm.module, it == true)) View.VISIBLE else View.GONE
                 }
 
                 bind.btnShow.setOnClickListener { model.watchLocal(mm.module) }
@@ -100,6 +111,13 @@ class LibraryAdapter(
                 bind.imgAction.setImageResource(img)
             }
 
+        }
+
+        private fun isAvailableToShare(module: LocalModuleView, changed: Boolean): Boolean {
+            if (!changed) return false
+            if (auth.currentUser == null) return false
+            if (module.globalOwner != null && module.globalOwner != auth.currentUser?.uid) return false
+            return true
         }
 
         private fun clear() {

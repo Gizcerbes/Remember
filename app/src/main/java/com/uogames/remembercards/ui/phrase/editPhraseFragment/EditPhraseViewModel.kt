@@ -50,7 +50,8 @@ class EditPhraseViewModel @Inject constructor(
             idImage = idImage.value,
             timeChange = Date().time,
             globalId = globalId,
-            globalOwner = globalOwner
+            globalOwner = globalOwner,
+            changed = true
         )
 
         fun set(obj: LocalPhrase) {
