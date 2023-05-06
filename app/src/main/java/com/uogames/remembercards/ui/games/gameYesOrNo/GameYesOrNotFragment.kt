@@ -15,6 +15,7 @@ import com.squareup.picasso.Picasso
 import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentYesOrNotGameBinding
+import com.uogames.remembercards.ui.animation.Animations
 import com.uogames.remembercards.utils.*
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.Dispatchers
@@ -79,9 +80,9 @@ class GameYesOrNotFragment : DaggerFragment() {
 
         bind.btnPause.setOnClickListener { play(!gameModel.isStarted.value) }
 
-        bind.btnYes.setOnClickListener { gameModel.answerCard.value?.let { it1 -> gameModel.check(it1,true)?.let { reaction(it) } } }
+        bind.btnYes.setOnClickListener { gameModel.answerCard.value?.let { it1 -> gameModel.check(it1, true)?.let { reaction(it) } } }
 
-        bind.btnNo.setOnClickListener { gameModel.answerCard.value?.let { it1 -> gameModel.check(it1,false)?.let { reaction(it) } } }
+        bind.btnNo.setOnClickListener { gameModel.answerCard.value?.let { it1 -> gameModel.check(it1, false)?.let { reaction(it) } } }
 
         play(true)
 
@@ -159,11 +160,14 @@ class GameYesOrNotFragment : DaggerFragment() {
             requireActivity().getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         }
         if (boolean) {
+            Animations.accept(bind.cvInfo) { Animations.toLeftAndFromRight(bind.cvInfo) { gameModel.newAnswer() } }
             bind.reaction.setImageResource(R.drawable.ic_good_vibes)
         } else {
+            Animations.shake(bind.cvInfo) { Animations.toRightAndFromLeft(bind.cvInfo) { gameModel.newAnswer() } }
             bind.reaction.setImageResource(R.drawable.ic_crash)
             vibrator.vibrate(VibrationEffect.createWaveform(longArrayOf(0, 100, 200), -1))
         }
+
         setReactionImage(boolean)
     }
 

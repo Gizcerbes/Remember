@@ -4,8 +4,13 @@
     <objectAnimator
         android:duration="100"
         android:propertyName="rotationX"
-        android:repeatMode="reverse"
         android:valueFrom="-90"
         android:valueTo="0" />
+
+    <objectAnimator
+        android:duration="100"
+        android:propertyName="scaleX"
+        android:valueFrom="0.8"
+        android:valueTo="1" />
 
 </set>

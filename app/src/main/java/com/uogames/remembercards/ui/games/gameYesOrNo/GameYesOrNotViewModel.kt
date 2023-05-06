@@ -127,7 +127,7 @@ class GameYesOrNotViewModel @Inject constructor(
         if (r) _trueAnswers.value++
         _allAnswers.value++
         _isTrueAnswer.value = r
-        newAnswer()
+        //newAnswer()
         return r
     }
 }
