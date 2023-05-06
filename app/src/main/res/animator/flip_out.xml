@@ -3,6 +3,12 @@
 
     <objectAnimator
         android:duration="100"
+        android:propertyName="scaleX"
+        android:valueFrom="1"
+        android:valueTo="0.8" />
+
+    <objectAnimator
+        android:duration="100"
         android:propertyName="rotationX"
         android:valueFrom="0"
         android:valueTo="90" />

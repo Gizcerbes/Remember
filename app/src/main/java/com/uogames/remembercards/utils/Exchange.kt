@@ -1,5 +1,7 @@
 package com.uogames.remembercards.utils
 
+import android.animation.Animator
+import android.animation.AnimatorSet
 import android.graphics.drawable.AnimationDrawable
 import android.graphics.drawable.Drawable
 import androidx.lifecycle.LifecycleCoroutineScope
@@ -75,6 +77,8 @@ inline fun Boolean.ifFalse(body: () -> Unit): Boolean {
 }
 
 fun <C : Drawable> C.asAnimationDrawable(): AnimationDrawable = this as AnimationDrawable
+
+fun <C: Animator> C.asAnimatorSet(): AnimatorSet = this as AnimatorSet
 
 fun CoroutineScope.safeLaunch(
     context: CoroutineContext = EmptyCoroutineContext,

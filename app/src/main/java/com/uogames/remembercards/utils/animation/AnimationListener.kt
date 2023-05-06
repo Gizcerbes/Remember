@@ -1,4 +1,4 @@
-package com.uogames.remembercards.utils
+package com.uogames.remembercards.utils.animation
 
 import android.view.animation.Animation
 
