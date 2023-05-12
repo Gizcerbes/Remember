@@ -5,6 +5,7 @@ import com.uogames.dto.local.LocalCard
 import com.uogames.dto.local.LocalCardView
 import com.uogames.dto.local.LocalImageView
 import com.uogames.dto.local.LocalPhraseView
+import java.util.UUID
 
 object CardMap : Map<CardEntity, LocalCard> {
 	override fun CardEntity.toDTO() = LocalCard(
@@ -16,7 +17,7 @@ object CardMap : Map<CardEntity, LocalCard> {
 		timeChange = timeChange,
 		like = like,
 		dislike = dislike,
-		globalId = globalId,
+		globalId = globalId ?: UUID.randomUUID(),
 		globalOwner = globalOwner,
 		changed = changed
 	)
@@ -51,7 +52,7 @@ class CardViewMap(
 		timeChange = entity.timeChange,
 		like = entity.like,
 		dislike = entity.dislike,
-		globalId = entity.globalId,
+		globalId = entity.globalId ?: UUID.randomUUID(),
 		globalOwner = entity.globalOwner,
 		changed = entity.changed
 	)

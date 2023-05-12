@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.util.UUID
 import javax.inject.Inject
 
 class EditCardViewModel @Inject constructor(
@@ -126,7 +127,7 @@ class EditCardViewModel @Inject constructor(
             idImage = null,
             reason = reason,
             globalOwner = loadedCard?.globalOwner,
-            globalId = loadedCard?.globalId,
+            globalId = loadedCard?.globalId ?: UUID.randomUUID(),
             changed = true
         )
     }

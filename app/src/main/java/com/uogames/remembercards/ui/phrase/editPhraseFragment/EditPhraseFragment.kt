@@ -183,7 +183,7 @@ class EditPhraseFragment : DaggerFragment() {
 
         bind.btnRecord.setOnClickListener {
             Permission.RECORD_AUDIO.requestPermission(requireActivity()) {
-                model.showRecord.value = true
+                if (it) model.showRecord.value = true
             }
         }
 
@@ -256,7 +256,7 @@ class EditPhraseFragment : DaggerFragment() {
                 bind.pvPhraseView.language = it
             }
             model.isFileWriting.observe(this) {
-                val size = model.tempAudioSource.size.ifNull { 0L }
+                //val size = model.tempAudioSource.size.ifNull { 0L }
                 //bind.btnSound.visibility = if (it || size <= 0L) View.GONE else View.VISIBLE
                 bind.ivRecordBtn.setImageResource(micIcons[if (it) 1 else 0])
                 bind.tvPressToRecord.text = requireContext().getText(if (it) R.string.click_to_stop else R.string.press_to_record)

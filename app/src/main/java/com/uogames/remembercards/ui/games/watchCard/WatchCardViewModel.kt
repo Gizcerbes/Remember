@@ -7,6 +7,7 @@ import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observe
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,6 +28,7 @@ class WatchCardViewModel @Inject constructor(
     private val _card = MutableStateFlow<LocalCardView?>(null)
     val card = _card.asStateFlow()
 
+    @ExperimentalCoroutinesApi
     val phrase = backSize.flatMapLatest {
         _card.map {
             if (backSize.value) it?.translate
@@ -34,6 +36,7 @@ class WatchCardViewModel @Inject constructor(
         }
     }
 
+    @ExperimentalCoroutinesApi
     val count = moduleID.flatMapLatest {
         it?.let {
             provider.moduleCard.getCountByModuleIdFlow(it)

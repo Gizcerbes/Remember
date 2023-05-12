@@ -72,13 +72,17 @@ class PhraseAdapter(
 
                 setShareAction(phrase)
 
-                vm.getShareAction(phrase).observe(this) {
-                    view.showProgressLoading = it
-                    view.showButtonShare = !it && isAvailableToShare(phrase, vm.isChanged(phrase).first() == true)
-                    view.showButtonEdit = !it
+                vm.getShareAction(phrase).observeLaunching(this) {
+                    runCatching {
+                        view.showProgressLoading = it
+                        view.showButtonShare = !it && isAvailableToShare(phrase, vm.isChanged(phrase).value == true)
+                        view.showButtonEdit = !it
+                    }
                 }
 
-                vm.isChanged(phrase).observe(this) { view.showButtonShare = isAvailableToShare(phrase, it == true) }
+                vm.isChanged(phrase).observe(this) {
+                    runCatching { view.showButtonShare = isAvailableToShare(phrase, it == true) }
+                }
 
                 //view.setOnClickButtonStop(false) { vm.stopSharing(phrase) }
             }
@@ -96,7 +100,9 @@ class PhraseAdapter(
             view.setOnClickButtonShare {
                 vm.shareNotice.value?.let {
                     startAction()
-                    vm.share(phrase, endAction)
+                    recyclerScope.launch {
+                        vm.share(phrase, endAction)
+                    }
                 }.ifNull {
                     ShareAttentionDialog.show(itemView.context) {
                         startAction()

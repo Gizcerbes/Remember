@@ -5,8 +5,11 @@ import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.uogames.database.dao.*
 import com.uogames.database.entity.*
+import java.util.UUID
 
 @Database(
     entities = [
@@ -59,7 +62,7 @@ abstract class MyDatabase : RoomDatabase() {
                     .addMigrations(
                         UserEntity.migration_1_2(),
                         PhraseEntity.migration_2_3(),
-                        ShareEntity.migration_3_4()
+                        ShareEntity.migration_3_4(),
                     )
                     .build()
             }

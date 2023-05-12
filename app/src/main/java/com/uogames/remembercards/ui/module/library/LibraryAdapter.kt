@@ -55,7 +55,7 @@ class LibraryAdapter(
             clear()
             observer = recyclerScope.launch {
                 val mm = model.getLocalModel(adapterPosition).ifNull { return@launch }
-                val user = auth.currentUser
+                //val user = auth.currentUser
                 if (isAvailableToShare(mm.module, mm.module.changed)) bind.btnShare.visibility = View.GONE
 
                 bind.txtName.text = mm.module.name
@@ -86,19 +86,19 @@ class LibraryAdapter(
                     }
                 }
 
-//                bind.btnStop.setOnClickListener {
-//                    model.stopSharing(mm.module)
-//                }
-
                 model.getShareAction(mm.module).observe(this) {
-                    bind.progressLoading.visibility = if (it) View.VISIBLE else View.GONE
-                    bind.btnShare.visibility =
-                        if (it && !isAvailableToShare(mm.module, model.isChanged(mm.module).first() == true)) View.GONE else View.VISIBLE
-                    bind.btnEdit.visibility = if (it) View.GONE else View.VISIBLE
+                    runCatching {
+                        bind.progressLoading.visibility = if (it) View.VISIBLE else View.GONE
+                        bind.btnShare.visibility =
+                            if (it && !isAvailableToShare(mm.module, model.isChanged(mm.module).value == true)) View.GONE else View.VISIBLE
+                        bind.btnEdit.visibility = if (it) View.GONE else View.VISIBLE
+                    }
                 }
 
                 model.isChanged(mm.module).observe(this) {
-                    bind.btnShare.visibility = if (isAvailableToShare(mm.module, it == true)) View.VISIBLE else View.GONE
+                    runCatching {
+                        bind.btnShare.visibility = if (isAvailableToShare(mm.module, it == true)) View.VISIBLE else View.GONE
+                    }
                 }
 
                 bind.btnShow.setOnClickListener { model.watchLocal(mm.module) }

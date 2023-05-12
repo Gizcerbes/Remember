@@ -42,7 +42,7 @@ class CardsProvider(
         countrySecond: String? = null,
         newest: Boolean = false,
         position: Int? = null
-    ) = repository.get(like, langFirst, langSecond, countryFirst, countrySecond,newest, position)
+    ) = repository.get(like, langFirst, langSecond, countryFirst, countrySecond, newest, position)
 
     suspend fun getView(
         like: String? = null,
@@ -52,7 +52,7 @@ class CardsProvider(
         countrySecond: String? = null,
         newest: Boolean = false,
         position: Int? = null
-    ) = repository.getView(like, langFirst, langSecond, countryFirst, countrySecond,newest, position)
+    ) = repository.getView(like, langFirst, langSecond, countryFirst, countrySecond, newest, position)
 
     suspend fun getViewByID(id: Int) = repository.getViewById(id)
 
@@ -117,7 +117,7 @@ class CardsProvider(
         }
     }
 
-    suspend fun addToShare(cv: LocalCardView){
+    suspend fun addToShare(cv: LocalCardView) {
         dataProvider.phrase.addToShare(cv.phrase)
         dataProvider.phrase.addToShare(cv.translate)
         cv.image?.let { dataProvider.images.addToShare(it) }
@@ -129,11 +129,14 @@ class CardsProvider(
     suspend fun shareV2(id: Int): LocalCard? {
         val card = getViewByID(id)
         card?.let {
-            val p = card.phrase.globalId ?: dataProvider.phrase.shareV2(card.phrase.id)?.globalId ?: throw Exception("Phrase wasn't saved")
-            val t = card.translate.globalId ?: dataProvider.phrase.shareV2(card.translate.id)?.globalId ?: throw  Exception("Phrase wasn't saved")
-            val i = card.image?.globalId ?: card.image?.let { it1 -> dataProvider.images.share(it1.id)?.globalId ?: throw  Exception("Image wasn't saved") }
-            val res = network.card.post(card.toLocalCard().toGlobal(p,t,i))
-            val updatedCard = it.toLocalCard().update(res)
+            val p = card.phrase.globalId.apply { if (card.phrase.changed) dataProvider.phrase.shareV2(card.phrase.id) }
+            val t = card.translate.globalId.apply { if (card.translate.changed) dataProvider.phrase.shareV2(card.translate.id) }
+            val i = card.image?.globalId.apply { card.image?.id?.let { it1 -> dataProvider.images.shareV2(it1) } }
+            val res = network.card.post(card.toLocalCard().toGlobal(p, t, i))
+            val phrase = res.idPhrase.let { ph -> dataProvider.phrase.getByGlobalId(ph) ?: dataProvider.phrase.download(ph) }?.id ?: throw Exception("First phrase wasn't saved")
+            val translate = res.idTranslate.let { tr -> dataProvider.phrase.getByGlobalId(tr) ?: dataProvider.phrase.download(tr) }?.id ?: throw Exception("Second phrase wasn't saved")
+            val image = res.idImage?.let { im -> dataProvider.images.getByGlobalId(im) ?: dataProvider.images.download(im) }?.id
+            val updatedCard = it.toLocalCard().update(res, phrase, translate, image)
             update(updatedCard)
             return updatedCard
         }
@@ -176,7 +179,7 @@ class CardsProvider(
                 )
             ).toInt()
             return repository.getById(localID) ?: throw Exception("Card wasn't saved")
-        } else if (l1.timeChange <= view.timeChange){
+        } else if (l1.timeChange <= view.timeChange) {
             val l2 = l1.update(
                 view = view,
                 idPhrase = view.phrase.let { dataProvider.phrase.save(it) }.id,

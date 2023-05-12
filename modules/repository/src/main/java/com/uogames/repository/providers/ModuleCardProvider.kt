@@ -81,8 +81,8 @@ class ModuleCardProvider(
     suspend fun shareV2(id: Int): LocalModuleCard? {
         val moduleCard = getViewByID(id)
         moduleCard?.let {
-            val gmID = it.module.globalId ?: dataProvider.module.share(it.module.id)?.globalId ?: throw Exception("Module wasn't saved")
-            val cID = it.card.globalId ?: dataProvider.cards.shareV2(it.module.id)?.globalId ?: throw  Exception("Card wasn't saved")
+            val gmID = it.module.globalId.apply { if (moduleCard.module.changed) dataProvider.module.share(moduleCard.module.id) }
+            val cID = it.card.globalId.apply { if (moduleCard.card.changed) dataProvider.cards.shareV2(moduleCard.card.id) }
             val res = network.moduleCard.post(it.toLocalModuleCard().toGlobal(gmID,cID))
             val updatedModuleCard = it.toLocalModuleCard().update(res)
             update(updatedModuleCard)

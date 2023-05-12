@@ -95,7 +95,7 @@ class SettingFragment : DaggerFragment() {
             )
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Themes")
-                .setItems(items) { d, v ->
+                .setItems(items) { _, v ->
                     globalViewModel.setScreenMode(v)
                 }.show()
         }

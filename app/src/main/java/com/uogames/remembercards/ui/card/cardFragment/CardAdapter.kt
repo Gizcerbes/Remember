@@ -100,13 +100,15 @@ class CardAdapter(
 //                }
 
                 model.getShareAction(cardView.card).observe(this) {
-                    view.showProgressLoading = it
-                    view.showButtonShare = !it && isAvailableToShare(cardView, model.isChanged(cardView.card).first() == true)
-                    view.showButtonEdit = !it
+                    runCatching{
+                        view.showProgressLoading = it
+                        view.showButtonShare = !it && isAvailableToShare(cardView, model.isChanged(cardView.card).value == true)
+                        view.showButtonEdit = !it
+                    }
                 }
 
                 model.isChanged(cardView.card).observe(this) {
-                    view.showButtonShare = isAvailableToShare(cardView, it == true)
+                    runCatching { view.showButtonShare = isAvailableToShare(cardView, it == true) }
                 }
 
                 view.showButtons = true

@@ -26,7 +26,7 @@ object PhraseMap {
     )
 
     fun LocalPhrase.toGlobal(imageID: UUID?, pronunciationID: UUID?) = GlobalPhrase(
-        globalId = globalId ?: DefaultUUID.value,
+        globalId = globalId,
         globalOwner = globalOwner ?: "",
         phrase = phrase,
         definition = definition,

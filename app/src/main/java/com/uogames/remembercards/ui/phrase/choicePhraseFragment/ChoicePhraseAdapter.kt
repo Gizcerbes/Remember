@@ -61,7 +61,7 @@ class ChoicePhraseAdapter(
                     vm.getPicasso(itemView.context).load(uri).placeholder(R.drawable.noise).into(view.getImageView())
                     view.showImage = true
                 }.ifNull { view.showImage = false }
-                phrase.pronounce?.audioUri?.let { uri ->
+                phrase.pronounce?.audioUri?.let { _ ->
                     view.setOnClickButtonSound {
                         launch { phraseView.play(it.background.asAnimationDrawable()) }
                     }

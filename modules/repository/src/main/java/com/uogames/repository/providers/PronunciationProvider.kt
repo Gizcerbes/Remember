@@ -2,6 +2,7 @@ package com.uogames.repository.providers
 
 import androidx.core.net.toUri
 import com.uogames.clientApi.version3.network.NetworkProvider
+import com.uogames.clientApi.version3.network.response.PronunciationResponse
 import com.uogames.database.repository.PronunciationRepository
 import com.uogames.dto.global.GlobalPronunciationView
 import com.uogames.dto.local.LocalPhrase
@@ -77,12 +78,26 @@ class PronunciationProvider(
         return res ?: pronounce
     }
 
-    suspend fun adToShare(pv: LocalPronunciationView) {
-        if (pv.globalId != null) return
-        else {
-            val r = dataProvider.share.exists(idPronounce = pv.id)
-            if (!r) dataProvider.share.save(LocalShare(idPronounce = pv.id))
+    suspend fun shareV2(id: Int): LocalPronunciation? {
+        val pron = getById(id)
+        pron?.globalId?.let {
+            if (network.pronounce.exists(it)) return pron
         }
+        val res = pron?.let {
+            fileRepository.readFile(pron.audioUri.toUri())?.let {
+                network.pronounce.uploadV2(
+                    byteArray = it,
+                    PronunciationResponse(pron.globalId, audioUri = "")
+                )
+            }
+        }?.let { LocalPronunciation(pron.id, pron.audioUri, it.globalId, it.globalOwner) }
+        res?.let { database.update(it) }
+        return res ?: pron
+    }
+
+    suspend fun adToShare(pv: LocalPronunciationView) {
+        val r = dataProvider.share.exists(idPronounce = pv.id)
+        if (!r) dataProvider.share.save(LocalShare(idPronounce = pv.id))
     }
 
     suspend fun download(id: UUID): LocalPronunciation? {

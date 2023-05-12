@@ -64,4 +64,7 @@ interface ShareDAO {
         idModuleCard: Int = -1
     ): Flow<Boolean>
 
+    @Query("DELETE FROM share_table")
+    suspend fun clean()
+
 }

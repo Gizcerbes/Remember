@@ -37,4 +37,7 @@ class ShareProvider(
         idModuleCard: Int = -1
     ) = rep.existsFlow(id, idImage, idPronounce, idPhrase, idCard, idModule, idModuleCard)
 
+
+    suspend fun clean() = rep.clean()
+
 }

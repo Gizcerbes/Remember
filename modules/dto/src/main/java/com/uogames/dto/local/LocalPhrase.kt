@@ -13,7 +13,7 @@ data class LocalPhrase(
 	val timeChange: Long = Date().time,
 	val like: Long = 0,
 	val dislike: Long = 0,
-	val globalId: UUID? = null,
+	val globalId: UUID = UUID.randomUUID(),
 	val globalOwner: String? = null,
 	val changed: Boolean = false
 )
@@ -29,7 +29,7 @@ data class LocalPhraseView(
 	val timeChange: Long = Date().time,
 	val like: Long = 0,
 	val dislike: Long = 0,
-	val globalId: UUID? = null,
+	val globalId: UUID = UUID.randomUUID(),
 	val globalOwner: String? = null,
 	val changed: Boolean = false
 )

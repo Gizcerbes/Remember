@@ -109,7 +109,7 @@ class NotificationWorkerFragment : DaggerFragment() {
     private fun startWork() {
         model.saveSelectedModule()
         val work = PeriodicWorkRequestBuilder<NotificationWorker>(15, TimeUnit.MINUTES).build()
-        workManager.enqueueUniquePeriodicWork(NotificationWorker.WORKER_UNIQUE_NAME, ExistingPeriodicWorkPolicy.REPLACE, work)
+        workManager.enqueueUniquePeriodicWork(NotificationWorker.WORKER_UNIQUE_NAME, ExistingPeriodicWorkPolicy.UPDATE, work)
     }
 
     override fun onStart() {

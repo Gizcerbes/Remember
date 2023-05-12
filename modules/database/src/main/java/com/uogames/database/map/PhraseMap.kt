@@ -20,7 +20,7 @@ object PhraseMap : Map<PhraseEntity, LocalPhrase> {
         timeChange = timeChange,
         like = like,
         dislike = dislike,
-        globalId = globalId,
+        globalId = globalId ?: UUID.randomUUID(),
         globalOwner = globalOwner,
         changed = changed
     )
@@ -61,7 +61,7 @@ class PhraseViewMap(
         timeChange = entity.timeChange,
         like = entity.like,
         dislike = entity.dislike,
-        globalId = entity.globalId,
+        globalId = entity.globalId ?: UUID.randomUUID(),
         globalOwner = entity.globalOwner,
         changed = entity.changed
     )

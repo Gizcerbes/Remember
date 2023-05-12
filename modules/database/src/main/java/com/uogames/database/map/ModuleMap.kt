@@ -3,6 +3,7 @@ package com.uogames.database.map
 import com.uogames.database.entity.ModuleEntity
 import com.uogames.dto.local.LocalModule
 import com.uogames.dto.local.LocalModuleView
+import java.util.UUID
 
 object ModuleMap : Map<ModuleEntity, LocalModule> {
 
@@ -13,7 +14,7 @@ object ModuleMap : Map<ModuleEntity, LocalModule> {
 		timeChange = timeChange,
 		like = like,
 		dislike = dislike,
-		globalId = globalId,
+		globalId = globalId ?: UUID.randomUUID(),
 		globalOwner = globalOwner,
 		changed = changed
 	)
@@ -41,7 +42,7 @@ class ModuleViewMap() : ViewMap<ModuleEntity, LocalModuleView> {
 		timeChange = entity.timeChange,
 		like = entity.like,
 		dislike = entity.dislike,
-		globalId = entity.globalId,
+		globalId = entity.globalId ?: UUID.randomUUID(),
 		globalOwner = entity.globalOwner,
 		changed = entity.changed
 	)

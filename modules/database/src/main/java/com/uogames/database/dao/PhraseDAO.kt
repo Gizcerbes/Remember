@@ -53,4 +53,5 @@ interface PhraseDAO {
 
 	@Query("SELECT changed FROM phrase_table WHERE id = :id")
 	fun isChanged(id: Int) : Flow<Boolean?>
+
 }

@@ -4,6 +4,7 @@ import com.uogames.network.BuildConfig
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.*
+import io.ktor.client.plugins.compression.ContentEncoding
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
@@ -48,6 +49,9 @@ class Client(
         install(ContentNegotiation) {
             gson()
         }
+//        install(ContentEncoding){
+//            gzip(0.9f)
+//        }
 
         if (BuildConfig.DEBUG) install(Logging) {
             logger = Logger.SIMPLE

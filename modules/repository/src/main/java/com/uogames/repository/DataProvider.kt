@@ -31,35 +31,6 @@ class DataProvider private constructor(
             )
         }
 
-        suspend fun LocalModuleCard.toModule() = dp.get()?.module?.getById(idModule)
-
-        fun LocalModuleCard.toModuleFlow() = dp.get()?.module?.getByIdFlow(idModule)
-
-        suspend fun LocalModuleCard.toCard() = dp.get()?.cards?.getById(idCard)
-
-        fun LocalModuleCard.toCardFlow() = dp.get()?.cards?.getByIdFlow(idCard)
-
-        suspend fun LocalCard.toPhrase() = dp.get()?.phrase?.getById(idPhrase)
-
-        fun LocalCard.toPhraseFlow() = dp.get()?.phrase?.getByIdFlow(idPhrase)
-
-        suspend fun LocalCard.toTranslate() = dp.get()?.phrase?.getById(idTranslate)
-
-        fun LocalCard.toTranslateFlow() = dp.get()?.phrase?.getByIdFlow(idTranslate)
-
-        suspend fun LocalCard.toImage() = dp.get()?.images?.getById(id)
-
-        fun LocalCard.toImageFlow() = idImage?.let { dp.get()?.images?.getByIdFlow(it) }
-
-        suspend fun LocalPhrase.toImage() = idImage?.let { dp.get()?.images?.getById(it) }
-
-        fun LocalPhrase.toImageFlow() = idImage?.let { dp.get()?.images?.getByIdFlow(it) }
-
-        suspend fun LocalPhrase.toPronounce() =
-            idPronounce?.let { dp.get()?.pronounce?.getById(it) }
-
-        fun LocalPhrase.toPronounceFlow() =
-            idPronounce?.let { dp.get()?.pronounce?.getByIdFlow(it) }
     }
 
     val cards by lazy { CardsProvider(this, database.cardRepository, networkProvider) }

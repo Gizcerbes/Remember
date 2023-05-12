@@ -55,6 +55,13 @@ fun <T> Flow<T>.observe(
     collect { listener(it) }
 }
 
+fun <T> Flow<T>.observeLaunching(
+    scope: CoroutineScope,
+    listener: suspend CoroutineScope.(T) -> Unit
+): Job = scope.launch {
+    collect { data -> scope.launch { listener(data) } }
+}
+
 inline fun <C> C?.ifNull(defaultValue: () -> C): C =
     this ?: defaultValue()
 
