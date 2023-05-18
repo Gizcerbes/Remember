@@ -1,7 +1,6 @@
 package com.uogames.remembercards.ui.gamesFragment
 
 import androidx.lifecycle.ViewModel
-import com.uogames.dto.local.LocalModule
 import com.uogames.dto.local.LocalModuleView
 import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.utils.UserGlobalName
@@ -15,11 +14,11 @@ class GamesViewModel constructor(val provider: DataProvider) : ViewModel() {
 
     private val viewModelScope = CoroutineScope(Dispatchers.IO)
 
-    val selectedModule: MutableStateFlow<LocalModuleView?> = MutableStateFlow(null)
+    val selectedModuleId: MutableStateFlow<LocalModuleView?> = MutableStateFlow(null)
 
     val cardOwner: MutableStateFlow<String> = MutableStateFlow("")
 
-    val countItems = selectedModule.flatMapLatest {
+    val countItems = selectedModuleId.flatMapLatest {
         it?.let {
             cardOwner.value = it.globalOwner?.let { owner ->
                 provider.user.getByUid(owner)?.let { user -> UserGlobalName(user.name, user.globalOwner).userName }

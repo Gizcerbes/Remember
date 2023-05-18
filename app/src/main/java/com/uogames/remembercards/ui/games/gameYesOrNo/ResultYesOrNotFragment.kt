@@ -52,6 +52,7 @@ class ResultYesOrNotFragment : DaggerFragment() {
                 bundleOf(GameYesOrNotFragment.MODULE_ID to model.module.value),
                 NavOptions.Builder().setPopUpTo(R.id.mainNaviFragment, false).build()
             )
+            model.reset()
         }
 
         globalViewModel.addGameYesOrNoGameCount()

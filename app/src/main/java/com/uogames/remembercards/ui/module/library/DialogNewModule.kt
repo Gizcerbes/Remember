@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.DialogNewModuleBinding
 import com.uogames.remembercards.utils.ObservedDialog
 
@@ -25,8 +26,13 @@ class DialogNewModule(call: (String) -> Unit) : ObservedDialog<String>(call) {
         super.onViewCreated(view, savedInstanceState)
 
         bind.btnAccept.setOnClickListener {
-            setData(bind.tilText.editText?.text.toString())
-            dismiss()
+            val txt = bind.tilText.editText?.text?.toString().orEmpty()
+            if (txt.isEmpty()){
+                bind.tilText.error = context?.getString(R.string.module_name_error_empty)
+            } else {
+                setData(txt)
+                dismiss()
+            }
         }
         bind.btnClose.setOnClickListener {
             dismiss()

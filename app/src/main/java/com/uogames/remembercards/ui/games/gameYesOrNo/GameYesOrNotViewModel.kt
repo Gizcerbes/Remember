@@ -2,13 +2,11 @@ package com.uogames.remembercards.ui.games.gameYesOrNo
 
 import android.graphics.drawable.AnimationDrawable
 import androidx.lifecycle.ViewModel
-import com.uogames.dto.local.LocalCard
 import com.uogames.dto.local.LocalCardView
 import com.uogames.remembercards.utils.MediaBytesSource
 import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.viewmodel.GlobalViewModel
-import com.uogames.repository.DataProvider.Companion.toCard
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,9 +33,7 @@ class GameYesOrNotViewModel @Inject constructor(
         suspend fun playTranslate(anim: AnimationDrawable) = player.play(MediaBytesSource(tData.await()), anim)
     }
 
-    data class AnswersCard(val firs: LocalCard, val second: LocalCard, var truth: Boolean)
-
-    data class AnswerCards2(val first: LocalCardModel, val second: LocalCardModel)
+    data class AnswerCard(val first: LocalCardModel, val second: LocalCardModel)
 
     val module: MutableStateFlow<Int?> = MutableStateFlow(null)
 
@@ -50,14 +46,13 @@ class GameYesOrNotViewModel @Inject constructor(
     private val _isStarted = MutableStateFlow(false)
     val isStarted = _isStarted.asStateFlow()
 
-    private val _answersList = ArrayList<AnswersCard>()
     private val _answerMap = HashMap<Int, Pair<LocalCardModel, ArrayList<LocalCardModel>>>()
 
 
     private val _allAnswers = MutableStateFlow(0)
     val allAnswers = _allAnswers.asStateFlow()
 
-    private val _answerCard = MutableStateFlow<AnswerCards2?>(null)
+    private val _answerCard = MutableStateFlow<AnswerCard?>(null)
     val answerCard = _answerCard.asStateFlow()
 
     private val _isTrueAnswer = MutableStateFlow<Boolean?>(null)
@@ -68,7 +63,7 @@ class GameYesOrNotViewModel @Inject constructor(
         _timer.value = MAX_TIME
         _allAnswers.value = 0
         _trueAnswers.value = 0
-        _answersList.clear()
+        _answerMap.clear()
     }
 
     fun getAnswers() = _answerMap.toList().sortedByDescending { p -> p.second.second.size }.map { it.second }
@@ -112,11 +107,11 @@ class GameYesOrNotViewModel @Inject constructor(
             }.ifNull { return@launch }
         else f
 
-        _answerCard.value = AnswerCards2(f, s)
+        _answerCard.value = AnswerCard(f, s)
     }
 
-    fun check(card:AnswerCards2,b: Boolean): Boolean? {
-        val r = (card.first == card.second) == b
+    fun check(card:AnswerCard, b: Boolean): Boolean? {
+        val r = (card.first.card.id == card.second.card.id) == b
 
         val list = _answerMap[card.first.card.id]?.second.ifNull {
             val l = ArrayList<LocalCardModel>()

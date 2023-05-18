@@ -15,12 +15,12 @@ android {
         }
     }
     compileSdk 33
-    ndkVersion '0.1.25'
+    ndkVersion '0.1.26'
     defaultConfig {
         applicationId "com.uogames.remembercards"
         minSdk 26
         targetSdk 33
-        versionCode 15
+        versionCode 16
         versionName ndkVersion
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -106,5 +106,4 @@ dependencies {
 
     implementation 'androidx.core:core-splashscreen:1.0.1'
     implementation 'com.google.android.play:integrity:1.1.0'
-
 }

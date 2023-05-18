@@ -33,13 +33,13 @@
     <declare-styleable name="CardView">
         <attr name="opened" />
         <attr name="clue" format="string" />
-        <attr name="language_tag_first"/>
+        <attr name="language_tag_first" />
         <attr name="show_audio_first" format="boolean" />
         <attr name="phrase_first" format="string" />
         <attr name="definition_first" format="string" />
         <attr name="show_definition_first" format="boolean" />
         <attr name="show_image_first" format="boolean" />
-        <attr name="language_tag_second"/>
+        <attr name="language_tag_second" />
         <attr name="show_audio_second" format="boolean" />
         <attr name="phrase_second" format="string" />
         <attr name="definition_second" format="string" />
@@ -57,13 +57,28 @@
     </declare-styleable>
 
     <declare-styleable name="SearchView">
-        <attr name="language_tag_first"/>
-        <attr name="language_tag_second"/>
-        <attr name="country_src_first" format="reference|color"/>
-        <attr name="country_src_second" format="reference|color"/>
-        <attr name="select_languages" format="boolean"/>
-        <attr name="select_countries" format="boolean"/>
-        <attr name="full" format="boolean"/>
+        <attr name="language_tag_first" />
+        <attr name="language_tag_second" />
+        <attr name="country_src_first" format="reference|color" />
+        <attr name="country_src_second" format="reference|color" />
+        <attr name="select_languages" format="boolean" />
+        <attr name="select_countries" format="boolean" />
+        <attr name="full" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="CardModuleView">
+        <attr name="name" format="string" />
+        <attr name="opened" />
+        <attr name="count" format="integer" />
+        <attr name="owner" format="string" />
+        <attr name="show_button_report"/>
+        <attr name="show_progress_loading"/>
+        <attr name="show_button_stop"/>
+        <attr name="show_button_download"/>
+        <attr name="show_button_share"/>
+        <attr name="show_button_edit"/>
+        <attr name="show_button_show" format="boolean"/>
+        <attr name="show_buttons"/>
     </declare-styleable>
 
 </resources>

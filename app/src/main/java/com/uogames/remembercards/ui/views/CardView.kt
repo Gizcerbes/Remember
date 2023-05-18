@@ -163,7 +163,6 @@ class CardView(context: Context?, attrs: AttributeSet? = null) : LinearLayout(co
         )
 
         typedArray?.apply {
-            //isOpened = getBoolean(R.styleable.CardView_opened, false)
             clue = getString(R.styleable.CardView_clue).orEmpty()
             languageTagFirst = getString(R.styleable.CardView_language_tag_first).orEmpty().let { Locale.forLanguageTag(it) }
             showAudioFirst = getBoolean(R.styleable.CardView_show_audio_first, false)

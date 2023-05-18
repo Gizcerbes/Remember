@@ -35,21 +35,6 @@ class PhraseAdapter(
 
     inner class LocalPhraseHolder(val view: PhraseView) : ClosableHolder(view) {
 
-        private val startAction: () -> Unit = {
-//            view.showProgressLoading = true
-//            view.showButtonStop = true
-//            view.showButtonShare = false
-//            view.showButtonEdit = false
-        }
-
-        private val endAction: (String) -> Unit = {
-//            view.showProgressLoading = false
-//            view.showButtonStop = false
-//            view.showButtonShare = true
-//            view.showButtonEdit = true
-//            Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
-        }
-
         override fun show() {
             view.reset()
             observer = recyclerScope.safeLaunch {
@@ -61,14 +46,13 @@ class PhraseAdapter(
                     vm.getPicasso(itemView.context).load(uri).placeholder(R.drawable.noise).into(view.getImageView())
                     view.showImage = true
                 }.ifNull { view.showImage = false }
-                phrase.pronounce?.audioUri?.let { _ ->
+                phrase.pronounce?.audioUri?.let {
                     view.setOnClickButtonSound { v ->
                         launch { phraseView.play(v.background.asAnimationDrawable()) }
                     }
                 }.ifNull { view.setOnClickButtonSound(false, null) }
                 view.language = Locale.forLanguageTag(phraseView.phrase.lang)
                 view.setOnClickListenerButtonEdit { editCall?.let { it1 -> it1(phrase.id) } }
-                //vm.setShareAction(phrase, endAction).ifTrue(startAction)
 
                 setShareAction(phrase)
 
@@ -80,11 +64,10 @@ class PhraseAdapter(
                     }
                 }
 
-                vm.isChanged(phrase).observe(this) {
+                vm.isChanged(phrase).observeLaunching(this) {
                     runCatching { view.showButtonShare = isAvailableToShare(phrase, it == true) }
                 }
 
-                //view.setOnClickButtonStop(false) { vm.stopSharing(phrase) }
             }
         }
 
@@ -99,14 +82,12 @@ class PhraseAdapter(
             if (!isAvailableToShare(phrase, phrase.changed)) return
             view.setOnClickButtonShare {
                 vm.shareNotice.value?.let {
-                    startAction()
                     recyclerScope.launch {
-                        vm.share(phrase, endAction)
+                        vm.share(phrase){}
                     }
                 }.ifNull {
                     ShareAttentionDialog.show(itemView.context) {
-                        startAction()
-                        vm.share(phrase, endAction)
+                        vm.share(phrase){}
                         it.ifTrue { vm.showShareNotice(false) }
                     }
                 }

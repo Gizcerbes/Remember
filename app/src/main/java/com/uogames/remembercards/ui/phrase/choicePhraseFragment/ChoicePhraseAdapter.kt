@@ -2,7 +2,6 @@ package com.uogames.remembercards.ui.phrase.choicePhraseFragment
 
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.net.toUri
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.uogames.dto.global.GlobalPhrase

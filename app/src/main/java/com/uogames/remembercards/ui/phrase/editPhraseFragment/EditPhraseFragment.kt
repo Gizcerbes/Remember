@@ -194,7 +194,14 @@ class EditPhraseFragment : DaggerFragment() {
 
         bind.mcvImgEdit.setOnClickListener {
             if (model.imgPhrase.value == null) {
-                bottomSheet?.state = BottomSheetBehavior.STATE_HALF_EXPANDED
+                if (model.adapter.itemCount == 0) {
+                    chooser.getBitmap {
+                        cropViewModel.putData(it)
+                        navigate(R.id.cropFragment)
+                    }
+                } else {
+                    bottomSheet?.state = BottomSheetBehavior.STATE_HALF_EXPANDED
+                }
             } else {
                 model.setBitmapImage(null)
             }
@@ -294,6 +301,7 @@ class EditPhraseFragment : DaggerFragment() {
                     0 -> bind.txtStatusRecording.text = requireContext().getText(R.string.status_ready)
                     1 -> bind.txtStatusRecording.text =
                         requireContext().getText(R.string.status_record_sp).toString().replace("||TIME||", model.timeWriting.value.toString())
+
                     2 -> bind.txtStatusRecording.text = requireContext().getText(R.string.status_recorded)
                 }
             }
