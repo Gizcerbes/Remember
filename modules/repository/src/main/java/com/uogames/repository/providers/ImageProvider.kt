@@ -1,8 +1,10 @@
 package com.uogames.repository.providers
 
 import android.content.Context
+import android.util.Log
 import androidx.core.net.toUri
 import com.uogames.clientApi.version3.network.NetworkProvider
+import com.uogames.clientApi.version3.network.response.ImageResponse
 import com.uogames.database.repository.ImageRepository
 import com.uogames.dto.global.GlobalImageView
 import com.uogames.dto.local.LocalImage
@@ -75,12 +77,27 @@ class ImageProvider(
         return res ?: image
     }
 
+    suspend fun shareV2(id: Int): LocalImage? {
+        val image = getById(id)
+        image?.globalId?.let {
+            if (network.image.exists(it)) return image
+        }
+
+        val res = image?.let {
+            fileRepository.readFile(image.imgUri.toUri())?.let {
+                network.image.uploadV2(
+                    byteArray = it,
+                    ImageResponse(image.globalId, imageUri = "")
+                )
+            }
+        }?.let { LocalImage(image.id, image.imgUri, it.globalId, it.globalOwner) }
+        res?.let { database.update(it) }
+        return res ?: image
+    }
+
     suspend fun addToShare(iv: LocalImageView) {
-        if (iv.globalId != null) return
-        else {
             val r = dataProvider.share.exists(idImage = iv.id)
             if (!r) dataProvider.share.save(LocalShare(idImage = iv.id))
-        }
     }
 
     suspend fun download(id: UUID): LocalImage? {

@@ -52,7 +52,7 @@ class ChoiceCardAdapter(
                         Picasso.get().load(image.imgUri.toUri()).placeholder(R.drawable.noise).into(view.getFirstImageView())
                         view.showImageFirst = true
                     }.ifNull { view.showImageFirst = false }
-                    phrase.pronounce?.let { pronounce ->
+                    phrase.pronounce?.let { _ ->
                         view.showAudioFirst = true
                         view.setOnClickButtonCardFirst {
                             launch { cardView.playPhrase(it.background.asAnimationDrawable()) }
@@ -67,7 +67,7 @@ class ChoiceCardAdapter(
                         view.showImageSecond = true
                         Picasso.get().load(image.imgUri.toUri()).placeholder(R.drawable.noise).into(view.getSecondImageView())
                     }.ifNull { view.showImageSecond = false }
-                    translate.pronounce?.let { pronounce ->
+                    translate.pronounce?.let { _ ->
                         view.showAudioSecond = true
                         view.setOnClickButtonCardSecond {
                             launch { cardView.playTranslate(it.background.asAnimationDrawable()) }

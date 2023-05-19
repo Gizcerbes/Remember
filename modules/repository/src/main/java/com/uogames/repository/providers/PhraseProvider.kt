@@ -1,5 +1,6 @@
 package com.uogames.repository.providers
 
+import android.util.Log
 import com.uogames.clientApi.version3.network.NetworkProvider
 import com.uogames.database.repository.PhraseRepository
 import com.uogames.dto.global.GlobalPhraseView
@@ -36,6 +37,8 @@ class PhraseProvider(
     suspend fun count(like: String?, lang: String?, country: String?) = pr.count(like, lang, country)
 
     suspend fun getById(id: Int) = pr.getById(id)
+
+    suspend fun getByGlobalId(id: UUID) = pr.getByGlobalId(id)
 
     fun getByIdFlow(id: Int) = pr.getByIdFlow(id)
 
@@ -83,7 +86,7 @@ class PhraseProvider(
     suspend fun addToShare(pv: LocalPhraseView) {
         pv.image?.let { dataProvider.images.addToShare(it) }
         pv.pronounce?.let { dataProvider.pronounce.adToShare(it) }
-        if(getById(pv.id)?.changed != true) return
+        if (getById(pv.id)?.changed != true) return
         val exists = dataProvider.share.exists(idPhrase = pv.id)
         if (!exists) dataProvider.share.save(LocalShare(idPhrase = pv.id))
     }
@@ -91,12 +94,12 @@ class PhraseProvider(
     suspend fun shareV2(id: Int): LocalPhrase? {
         val phrase = getViewByID(id)
         phrase?.let {
-            val im = phrase.image?.let { img -> img.globalId ?: dataProvider.images.share(img.id)?.globalId ?: throw Exception("Image wasn't saved") }
-            val pr = phrase.pronounce?.let { pro ->
-                pro.globalId ?: dataProvider.pronounce.share(pro.id)?.globalId ?: throw Exception("Pronunciation wasn't sawed")
-            }
-            val res = network.phrase.post(phrase.toLocalPhrase().toGlobal(im,pr))
-            val updatedPhrase = it.toLocalPhrase().update(res)
+            val im = phrase.image?.apply { if (globalOwner == null) dataProvider.images.shareV2(id) }?.globalId
+            val pr = phrase.pronounce?.apply { if (globalOwner == null) dataProvider.pronounce.shareV2(id) }?.globalId
+            val res = network.phrase.post(phrase.toLocalPhrase().toGlobal(im, pr))
+            val idImage = res.idImage?.let { it1 -> dataProvider.images.getByGlobalId(it1) ?: dataProvider.images.download(it1) }?.id
+            val idPronounce = res.idPronounce?.let { it1 -> dataProvider.pronounce.getByGlobalId(it1) ?: dataProvider.pronounce.download(it1) }?.id
+            val updatedPhrase = it.toLocalPhrase().update(res, idPronounce, idImage)
             update(updatedPhrase)
             return updatedPhrase
         }

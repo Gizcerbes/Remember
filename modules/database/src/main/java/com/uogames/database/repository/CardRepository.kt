@@ -14,7 +14,7 @@ import kotlin.collections.ArrayList
 
 class CardRepository(
     private val cardDAO: CardDAO,
-    private val map: ViewMap<CardEntity,LocalCardView>
+    private val map: ViewMap<CardEntity, LocalCardView>
 ) {
 
     suspend fun insert(card: LocalCard) = cardDAO.insert(card.toEntity())
@@ -142,6 +142,7 @@ class CardRepository(
         newest: Boolean = false,
         position: Int? = null
     ) = getEntity(like, langFirst, langSecond, countryFirst, countrySecond, newest, position)?.let { map.toDTO(it) }
+
     fun getCountFlow() = cardDAO.getCountFlow()
 
     suspend fun getById(id: Int) = cardDAO.getById(id)?.toDTO()

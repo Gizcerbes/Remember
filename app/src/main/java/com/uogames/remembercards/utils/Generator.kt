@@ -15,7 +15,7 @@ class Generator(val hz: Double, val durationMils: Int, val event: suspend (progr
         val step = durationMils / (1000 / hz)
         var count = 0
         var nextStep = start
-        var progress = 0.0
+        var progress: Double
         do {
             progress = (nextStep - start).toDouble() / durationMils
             event(progress, progress >= 100.0)

@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.findNavController
 import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
@@ -16,6 +15,7 @@ import com.uogames.remembercards.ui.games.gameYesOrNo.GameYesOrNotFragment
 import com.uogames.remembercards.ui.games.gameYesOrNo.GameYesOrNotViewModel
 import com.uogames.remembercards.ui.games.notification.NotificationWorkerFragment
 import com.uogames.remembercards.ui.games.watchCard.WatchCardFragment
+import com.uogames.remembercards.ui.module.choiceModuleDialog.ChoiceModuleViewModel
 import com.uogames.remembercards.ui.module.library.LibraryViewModel
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observeWhenStarted
@@ -36,6 +36,9 @@ class GamesFragment : DaggerFragment() {
 
     @Inject
     lateinit var libraryViewModel: LibraryViewModel
+
+    @Inject
+    lateinit var choiceModuleViewModel: ChoiceModuleViewModel
 
     private var _bind: FragmentGamesBinding? = null
     private val bind get() = _bind!!
@@ -63,7 +66,7 @@ class GamesFragment : DaggerFragment() {
         countItemsObserver = createCountItemObserver()
 
         bind.gameYesOrNot.setOnClickListener {
-            gamesViewModel.selectedModule.value?.let {
+            gamesViewModel.selectedModuleId.value?.let {
                 navigate(
                     R.id.gameYesOrNotFragment,
                     bundleOf(GameYesOrNotFragment.MODULE_ID to it.id)
@@ -75,7 +78,7 @@ class GamesFragment : DaggerFragment() {
 
 
         bind.gameWatchCard.setOnClickListener {
-            gamesViewModel.selectedModule.value?.let {
+            gamesViewModel.selectedModuleId.value?.let {
                 navigate(
                     R.id.watchCardFragment,
                     bundleOf(WatchCardFragment.MODULE_ID to it.id)
@@ -86,7 +89,7 @@ class GamesFragment : DaggerFragment() {
         }
 
         bind.notificationWorker.setOnClickListener {
-            gamesViewModel.selectedModule.value?.let {
+            gamesViewModel.selectedModuleId.value?.let {
                 navigate(
                     R.id.notificationWorkerFragment,
                     bundleOf(NotificationWorkerFragment.MODULE_ID to it.id)
@@ -97,18 +100,21 @@ class GamesFragment : DaggerFragment() {
         }
 
         bind.mcvSelectModule.setOnClickListener {
-            val dialog = ChoiceModuleDialog(libraryViewModel) {
-                gamesViewModel.selectedModule.value = it
+            val dialog = ChoiceModuleDialog(choiceModuleViewModel) {
+                gamesViewModel.selectedModuleId.value = when (it) {
+                    is ChoiceModuleViewModel.ChoiceAll -> null
+                    is ChoiceModuleViewModel.ChoiceLocalModule -> it.view
+                }
             }
             dialog.show(requireActivity().supportFragmentManager, ChoiceModuleDialog.TAG)
         }
 
         bind.btnClear.setOnClickListener {
-            gamesViewModel.selectedModule.value = null
+            gamesViewModel.selectedModuleId.value = null
         }
     }
 
-    private fun createSelectedModuleObserver() = gamesViewModel.selectedModule.observeWhenStarted(lifecycleScope) { module ->
+    private fun createSelectedModuleObserver() = gamesViewModel.selectedModuleId.observeWhenStarted(lifecycleScope) { module ->
         module?.let {
             bind.txtName.text = module.name
             bind.btnClear.visibility = View.VISIBLE

@@ -37,7 +37,7 @@ class EditPhraseViewModel @Inject constructor(
         val idPronounce: MutableStateFlow<Int?> = MutableStateFlow(null)
         val idImage: MutableStateFlow<Int?> = MutableStateFlow(null)
         val timeChange = MutableStateFlow(0L)
-        private var globalId: UUID? = null
+        private var globalId: UUID = UUID.randomUUID()
         private var globalOwner: String? = null
 
         fun create() = LocalPhrase(

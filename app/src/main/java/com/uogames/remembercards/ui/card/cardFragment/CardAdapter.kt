@@ -2,6 +2,7 @@ package com.uogames.remembercards.ui.card.cardFragment
 
 import android.util.Log
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.net.toUri
 import com.google.firebase.auth.ktx.auth
@@ -38,21 +39,6 @@ class CardAdapter(
     }
 
     inner class LocalCardHolder(val view: CardView) : ClosableHolder(view) {
-
-        private val startAction: () -> Unit = {
-//            view.showProgressLoading = true
-//            view.showButtonStop = true
-//            view.showButtonShare = false
-//            view.showButtonEdit = false
-        }
-
-        private val endAction: (String) -> Unit = {
-//            view.showProgressLoading = false
-//            view.showButtonStop = false
-//            view.showButtonShare = true
-//            view.showButtonEdit = true
-//            Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
-        }
 
         override fun show() {
             view.reset()
@@ -91,22 +77,18 @@ class CardAdapter(
                     view.definitionSecond = translate.definition.orEmpty()
                 }
 
-                //model.setShareAction(cardView.card, endAction).ifTrue(startAction)
-
                 addShareAction(cardView)
 
-//                view.setOnClickButtonStop(false) {
-//                    model.stopSharing(cardView.card)
-//                }
-
-                model.getShareAction(cardView.card).observe(this) {
-                    view.showProgressLoading = it
-                    view.showButtonShare = !it && isAvailableToShare(cardView, model.isChanged(cardView.card).first() == true)
-                    view.showButtonEdit = !it
+                model.getShareAction(cardView.card).observeLaunching(this) {
+                    runCatching{
+                        view.showProgressLoading = it
+                        view.showButtonShare = !it && isAvailableToShare(cardView, model.isChanged(cardView.card).value == true)
+                        view.showButtonEdit = !it
+                    }
                 }
 
-                model.isChanged(cardView.card).observe(this) {
-                    view.showButtonShare = isAvailableToShare(cardView, it == true)
+                model.isChanged(cardView.card).observeLaunching(this) {
+                    runCatching { view.showButtonShare = isAvailableToShare(cardView, it == true) }
                 }
 
                 view.showButtons = true
@@ -125,13 +107,11 @@ class CardAdapter(
             if (!isAvailableToShare(cardView, changed = cardView.card.changed)) return
             view.setOnClickButtonShare {
                 model.shareNotice.value?.let {
-                    startAction()
-                    model.share(cardView.card, endAction)
+                    model.share(cardView.card){}
                 }.ifNull {
                     ShareAttentionDialog.show(itemView.context) {
-                        startAction()
                         if (it) model.showShareNotice(false)
-                        model.share(cardView.card, endAction)
+                        model.share(cardView.card){}
                     }
                 }
             }

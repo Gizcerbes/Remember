@@ -3,26 +3,18 @@ package com.uogames.remembercards.ui.games.gameYesOrNo
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.divider.MaterialDivider
 import com.squareup.picasso.Picasso
 import com.uogames.remembercards.R
-import com.uogames.remembercards.databinding.CardGameResultBinding
 import com.uogames.remembercards.databinding.CardResultBinding
 import com.uogames.remembercards.utils.ClosableAdapter
 import com.uogames.remembercards.utils.asAnimationDrawable
 import com.uogames.remembercards.utils.ifNull
-import com.uogames.remembercards.utils.observeWhile
-import com.uogames.repository.DataProvider.Companion.toPhrase
-import com.uogames.repository.DataProvider.Companion.toTranslate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import java.util.Locale
 

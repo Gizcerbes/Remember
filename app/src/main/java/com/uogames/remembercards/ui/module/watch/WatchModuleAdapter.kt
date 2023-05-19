@@ -42,7 +42,7 @@ class WatchModuleAdapter(
                         model.getPicasso(itemView.context).load(image.imgUri.toUri()).placeholder(R.drawable.noise).into(view.getFirstImageView())
                         view.showImageFirst = true
                     }.ifNull { view.showImageFirst = false }
-                    phrase.pronounce?.let { pronounce ->
+                    phrase.pronounce?.let { _ ->
                         view.showAudioFirst = true
                         view.setOnClickButtonCardFirst {
                             recyclerScope.launch { moduleCardView.playFirst(it.background.asAnimationDrawable()) }
@@ -57,7 +57,7 @@ class WatchModuleAdapter(
                         view.showImageSecond = true
                         model.getPicasso(itemView.context).load(image.imgUri.toUri()).placeholder(R.drawable.noise).into(view.getSecondImageView())
                     }.ifNull { view.showImageSecond = false }
-                    translate.pronounce?.let { pronounce ->
+                    translate.pronounce?.let { _ ->
                         view.showAudioSecond = true
                         view.setOnClickButtonCardSecond {
                             recyclerScope.launch { moduleCardView.playSecond(it.background.asAnimationDrawable()) }
@@ -85,7 +85,7 @@ class WatchModuleAdapter(
                         model.getPicasso(itemView.context).load(image.imageUri.toUri()).placeholder(R.drawable.noise).into(view.getFirstImageView())
                         view.showImageFirst = true
                     }.ifNull { view.showImageFirst = false }
-                    phrase.pronounce?.let { pronounce ->
+                    phrase.pronounce?.let { _ ->
                         view.showAudioFirst = true
                         view.setOnClickButtonCardFirst {
                             recyclerScope.launch { moduleCardView.playFirst(it.background.asAnimationDrawable()) }
@@ -100,7 +100,7 @@ class WatchModuleAdapter(
                         view.showImageSecond = true
                         model.getPicasso(itemView.context).load(image.imageUri.toUri()).placeholder(R.drawable.noise).into(view.getSecondImageView())
                     }.ifNull { view.showImageSecond = false }
-                    translate.pronounce?.let { pronounce ->
+                    translate.pronounce?.let { _ ->
                         view.showAudioSecond = true
                         view.setOnClickButtonCardSecond {
                             recyclerScope.launch { moduleCardView.playSecond(it.background.asAnimationDrawable()) }

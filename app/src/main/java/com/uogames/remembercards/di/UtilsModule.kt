@@ -21,6 +21,7 @@ import com.uogames.remembercards.ui.games.watchCard.WatchCardViewModel
 import com.uogames.remembercards.ui.gamesFragment.GamesViewModel
 import com.uogames.remembercards.ui.module.library.LibraryViewModel
 import com.uogames.remembercards.ui.mainNav.NavigationViewModel
+import com.uogames.remembercards.ui.module.choiceModuleDialog.ChoiceModuleViewModel
 import com.uogames.remembercards.ui.module.watch.WatchModuleViewModel
 import com.uogames.remembercards.ui.phrase.phrasesFragment.PhraseViewModel
 import com.uogames.remembercards.ui.registerFragment.RegisterViewModel
@@ -161,8 +162,11 @@ class UtilsModule {
         globalViewModel: GlobalViewModel
     ): WatchCardViewModel = WatchCardViewModel(globalViewModel)
 
-
-
+    @Provides
+    @Singleton
+    fun provideChoiceModuleViewModel(
+        model: MViewModel
+    ): ChoiceModuleViewModel = ChoiceModuleViewModel(model)
 
     @Provides
     @Singleton

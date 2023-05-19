@@ -27,7 +27,8 @@
 		android:id="@+id/rv_modules"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+		app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+		app:spanCount="1"
 		android:layout_below="@id/til_search"
 		android:layout_alignParentBottom="true"
 

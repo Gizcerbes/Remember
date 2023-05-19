@@ -5,6 +5,7 @@ import com.uogames.dto.local.LocalCardView
 import com.uogames.dto.local.LocalModuleCard
 import com.uogames.dto.local.LocalModuleCardView
 import com.uogames.dto.local.LocalModuleView
+import java.util.UUID
 
 object ModuleCardMap : Map<ModuleCardEntity, LocalModuleCard> {
 
@@ -12,7 +13,7 @@ object ModuleCardMap : Map<ModuleCardEntity, LocalModuleCard> {
         id = id,
         idModule = idModule,
         idCard = idCard,
-        globalId = globalId,
+        globalId = globalId ?: UUID.randomUUID(),
         globalOwner = globalOwner
     )
 
@@ -36,7 +37,7 @@ class ModuleCardViewMap(
         id = entity.id,
         module = moduleBuilder(entity.idModule),
         card = cardBuilder(entity.idCard),
-        globalId = entity.globalId,
+        globalId = entity.globalId ?: UUID.randomUUID(),
         globalOwner = entity.globalOwner
     )
 

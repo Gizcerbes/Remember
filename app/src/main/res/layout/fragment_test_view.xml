@@ -42,4 +42,8 @@
         app:full="true"
         app:language_tag_first=""/>
 
+    <com.uogames.remembercards.ui.views.CardModuleView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
 </LinearLayout>

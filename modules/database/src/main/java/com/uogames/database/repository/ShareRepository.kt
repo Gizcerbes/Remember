@@ -55,4 +55,6 @@ class ShareRepository(
         idModuleCard = idModuleCard
     )
 
+    suspend fun clean() = dao.clean()
+
 }

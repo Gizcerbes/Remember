@@ -115,7 +115,7 @@ class GameYesOrNotFragment : DaggerFragment() {
 
     }
 
-    private fun setData(card: GameYesOrNotViewModel.AnswerCards2) {
+    private fun setData(card: GameYesOrNotViewModel.AnswerCard) {
         val view = bind.cvInfo
         val cardView = card.first
         view.clue = cardView.card.reason

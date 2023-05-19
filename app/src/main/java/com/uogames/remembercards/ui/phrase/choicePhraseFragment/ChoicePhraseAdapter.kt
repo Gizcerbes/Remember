@@ -2,7 +2,6 @@ package com.uogames.remembercards.ui.phrase.choicePhraseFragment
 
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.net.toUri
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.uogames.dto.global.GlobalPhrase
@@ -61,7 +60,7 @@ class ChoicePhraseAdapter(
                     vm.getPicasso(itemView.context).load(uri).placeholder(R.drawable.noise).into(view.getImageView())
                     view.showImage = true
                 }.ifNull { view.showImage = false }
-                phrase.pronounce?.audioUri?.let { uri ->
+                phrase.pronounce?.audioUri?.let { _ ->
                     view.setOnClickButtonSound {
                         launch { phraseView.play(it.background.asAnimationDrawable()) }
                     }

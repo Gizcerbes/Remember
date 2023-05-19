@@ -35,11 +35,15 @@ dependencies {
     implementation project(path: ':modules:dto')
     testImplementation 'junit:junit:4.13.2'
 
-    implementation "io.ktor:ktor-client-core:2.2.3"
-    implementation "io.ktor:ktor-client-okhttp:2.2.3"
-    implementation "io.ktor:ktor-client-content-negotiation:2.2.3"
-    implementation "io.ktor:ktor-client-logging:2.2.3"
-    implementation "io.ktor:ktor-serialization-gson:2.2.3"
+    def ktor_version = "2.3.0"
+
+    implementation "io.ktor:ktor-client-core:$ktor_version"
+    implementation "io.ktor:ktor-client-okhttp:$ktor_version"
+    implementation "io.ktor:ktor-client-content-negotiation:$ktor_version"
+    implementation "io.ktor:ktor-client-logging:$ktor_version"
+    implementation("io.ktor:ktor-client-encoding:$ktor_version")
+    implementation "io.ktor:ktor-serialization-gson:$ktor_version"
+
     implementation 'com.google.code.gson:gson:2.10'
 //    implementation "io.ktor:ktor-serialization-kotlinx-json:2.1.0"
     implementation 'io.ktor:ktor-server-auth-jwt:2.2.3'

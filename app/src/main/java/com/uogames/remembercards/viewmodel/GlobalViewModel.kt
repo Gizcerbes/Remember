@@ -196,18 +196,26 @@ class GlobalViewModel @Inject constructor(
     fun deleteFreeCards() = viewModelScope.launch { provider.cards.deleteFree() }
 
     private fun sharing() = viewModelScope.launch {
+        var errors = 0
         while (true) {
             while (provider.share.count() > 0) {
-
                 runCatching {
                     val f = provider.share.getFirst()
-                    f?.idImage?.let { provider.images.share(it) }
-                    f?.idPronounce?.let { provider.pronounce.share(it) }
+                    f?.idImage?.let { provider.images.shareV2(it) }
+                    f?.idPronounce?.let { provider.pronounce.shareV2(it) }
                     f?.idPhrase?.let { provider.phrase.shareV2(it) }
                     f?.idCard?.let { provider.cards.shareV2(it) }
                     if (f?.idModuleCard == null) f?.idModule?.let { provider.module.share(it) }
-                    else f.idModuleCard?.let { provider.moduleCard.share(it) }
+                    else f.idModuleCard?.let { provider.moduleCard.shareV2(it) }
                     f?.let { provider.share.remove(it) }
+                    errors = 0
+                }.onFailure {
+                    errors++
+                    if (errors > 100) {
+                        errors = 0
+                        provider.share.clean()
+                    }
+                    delay(1000)
                 }
             }
             delay(1000)

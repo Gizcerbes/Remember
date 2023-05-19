@@ -12,7 +12,7 @@ import java.util.UUID
 object CardMap {
 
 	fun LocalCard.toGlobal(phrase: LocalPhrase?, translate: LocalPhrase?, image: LocalImage?) = GlobalCard(
-		globalId = globalId ?: DefaultUUID.value,
+		globalId = globalId,
 		globalOwner = globalOwner ?: "",
 		idPhrase = phrase?.globalId ?: DefaultUUID.value,
 		idTranslate = translate?.globalId ?: DefaultUUID.value,
@@ -24,7 +24,7 @@ object CardMap {
 	)
 
 	fun LocalCard.toGlobal(phraseID: UUID, translateID: UUID, imageID: UUID?) = GlobalCard(
-		globalId = globalId ?: DefaultUUID.value,
+		globalId = globalId,
 		globalOwner = globalOwner ?: "",
 		idPhrase = phraseID,
 		idTranslate = translateID,

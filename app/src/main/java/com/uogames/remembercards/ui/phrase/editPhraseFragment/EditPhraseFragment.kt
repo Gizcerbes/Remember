@@ -183,7 +183,7 @@ class EditPhraseFragment : DaggerFragment() {
 
         bind.btnRecord.setOnClickListener {
             Permission.RECORD_AUDIO.requestPermission(requireActivity()) {
-                model.showRecord.value = true
+                if (it) model.showRecord.value = true
             }
         }
 
@@ -194,7 +194,14 @@ class EditPhraseFragment : DaggerFragment() {
 
         bind.mcvImgEdit.setOnClickListener {
             if (model.imgPhrase.value == null) {
-                bottomSheet?.state = BottomSheetBehavior.STATE_HALF_EXPANDED
+                if (model.adapter.itemCount == 0) {
+                    chooser.getBitmap {
+                        cropViewModel.putData(it)
+                        navigate(R.id.cropFragment)
+                    }
+                } else {
+                    bottomSheet?.state = BottomSheetBehavior.STATE_HALF_EXPANDED
+                }
             } else {
                 model.setBitmapImage(null)
             }
@@ -256,7 +263,7 @@ class EditPhraseFragment : DaggerFragment() {
                 bind.pvPhraseView.language = it
             }
             model.isFileWriting.observe(this) {
-                val size = model.tempAudioSource.size.ifNull { 0L }
+                //val size = model.tempAudioSource.size.ifNull { 0L }
                 //bind.btnSound.visibility = if (it || size <= 0L) View.GONE else View.VISIBLE
                 bind.ivRecordBtn.setImageResource(micIcons[if (it) 1 else 0])
                 bind.tvPressToRecord.text = requireContext().getText(if (it) R.string.click_to_stop else R.string.press_to_record)
@@ -294,6 +301,7 @@ class EditPhraseFragment : DaggerFragment() {
                     0 -> bind.txtStatusRecording.text = requireContext().getText(R.string.status_ready)
                     1 -> bind.txtStatusRecording.text =
                         requireContext().getText(R.string.status_record_sp).toString().replace("||TIME||", model.timeWriting.value.toString())
+
                     2 -> bind.txtStatusRecording.text = requireContext().getText(R.string.status_recorded)
                 }
             }

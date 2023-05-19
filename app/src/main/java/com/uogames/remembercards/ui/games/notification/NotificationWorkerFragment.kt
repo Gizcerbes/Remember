@@ -15,6 +15,7 @@ import androidx.work.*
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentNotificationWorkerBinding
 import com.uogames.remembercards.ui.module.choiceModuleDialog.ChoiceModuleDialog
+import com.uogames.remembercards.ui.module.choiceModuleDialog.ChoiceModuleViewModel
 import com.uogames.remembercards.ui.module.library.LibraryViewModel
 import com.uogames.remembercards.utils.Permission
 import com.uogames.remembercards.utils.ifTrue
@@ -44,6 +45,9 @@ class NotificationWorkerFragment : DaggerFragment() {
     @Inject
     lateinit var libraryViewModel: LibraryViewModel
 
+    @Inject
+    lateinit var choiceModuleViewModel: ChoiceModuleViewModel
+
     private var _bind: FragmentNotificationWorkerBinding? = null
     private val bind get() = _bind!!
 
@@ -71,8 +75,12 @@ class NotificationWorkerFragment : DaggerFragment() {
         }
 
         bind.btnPrepareModule.setOnClickListener {
-            val dialog = ChoiceModuleDialog(libraryViewModel) {
-                model.moduleID.value = it.id            }
+            val dialog = ChoiceModuleDialog(choiceModuleViewModel) {
+                model.moduleID.value = when (it) {
+                    is ChoiceModuleViewModel.ChoiceAll -> null
+                    is ChoiceModuleViewModel.ChoiceLocalModule -> it.view.id
+                }
+            }
             dialog.show(requireActivity().supportFragmentManager, ChoiceModuleDialog.TAG)
         }
 
@@ -109,7 +117,7 @@ class NotificationWorkerFragment : DaggerFragment() {
     private fun startWork() {
         model.saveSelectedModule()
         val work = PeriodicWorkRequestBuilder<NotificationWorker>(15, TimeUnit.MINUTES).build()
-        workManager.enqueueUniquePeriodicWork(NotificationWorker.WORKER_UNIQUE_NAME, ExistingPeriodicWorkPolicy.REPLACE, work)
+        workManager.enqueueUniquePeriodicWork(NotificationWorker.WORKER_UNIQUE_NAME, ExistingPeriodicWorkPolicy.UPDATE, work)
     }
 
     override fun onStart() {

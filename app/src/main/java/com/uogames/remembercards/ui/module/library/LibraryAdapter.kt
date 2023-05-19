@@ -14,6 +14,7 @@ import com.uogames.remembercards.utils.ClosableAdapter
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.ifTrue
 import com.uogames.remembercards.utils.observe
+import com.uogames.remembercards.utils.observeLaunching
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
 
@@ -36,26 +37,10 @@ class LibraryAdapter(
 
         private var full = false
 
-        private val startAction: () -> Unit = {
-//            bind.progressLoading.visibility = View.VISIBLE
-//            bind.btnStop.visibility = View.VISIBLE
-//            bind.btnShare.visibility = View.GONE
-//            bind.btnEdit.visibility = View.GONE
-        }
-
-        private val endAction: (String) -> Unit = {
-//            bind.progressLoading.visibility = View.GONE
-//            bind.btnStop.visibility = View.GONE
-//            bind.btnShare.visibility = View.VISIBLE
-//            bind.btnEdit.visibility = View.VISIBLE
-//            Toast.makeText(itemView.context, it, Toast.LENGTH_SHORT).show()
-        }
-
         override fun show() {
             clear()
             observer = recyclerScope.launch {
                 val mm = model.getLocalModel(adapterPosition).ifNull { return@launch }
-                val user = auth.currentUser
                 if (isAvailableToShare(mm.module, mm.module.changed)) bind.btnShare.visibility = View.GONE
 
                 bind.txtName.text = mm.module.name
@@ -66,39 +51,33 @@ class LibraryAdapter(
 
                 bind.btnEdit.setOnClickListener { model.edit(mm.module) }
 
-                model.setShareAction(mm.module, endAction).ifTrue(startAction)
-
                 bind.btnShare.setOnClickListener {
-                    startAction()
-                    model.share(mm.module, endAction)
+                    model.share(mm.module){}
                 }
 
                 bind.btnShare.setOnClickListener {
                     model.shareNotice.value?.let {
-                        startAction()
-                        model.share(mm.module, endAction)
+                        model.share(mm.module){}
                     }.ifNull {
                         ShareAttentionDialog.show(itemView.context) {
-                            startAction()
-                            model.share(mm.module, endAction)
+                            model.share(mm.module){}
                             if (it) model.showShareNotice(false)
                         }
                     }
                 }
 
-//                bind.btnStop.setOnClickListener {
-//                    model.stopSharing(mm.module)
-//                }
-
-                model.getShareAction(mm.module).observe(this) {
-                    bind.progressLoading.visibility = if (it) View.VISIBLE else View.GONE
-                    bind.btnShare.visibility =
-                        if (it && !isAvailableToShare(mm.module, model.isChanged(mm.module).first() == true)) View.GONE else View.VISIBLE
-                    bind.btnEdit.visibility = if (it) View.GONE else View.VISIBLE
+                model.getShareAction(mm.module).observeLaunching(this) {
+                    runCatching {
+                        bind.progressLoading.visibility = if (it) View.VISIBLE else View.GONE
+                        bind.btnShare.visibility = if (!it && isAvailableToShare(mm.module, model.isChanged(mm.module).value == true)) View.VISIBLE else View.GONE
+                        bind.btnEdit.visibility = if (!it) View.VISIBLE else View.GONE
+                    }
                 }
 
-                model.isChanged(mm.module).observe(this) {
-                    bind.btnShare.visibility = if (isAvailableToShare(mm.module, it == true)) View.VISIBLE else View.GONE
+                model.isChanged(mm.module).observeLaunching(this) {
+                    runCatching {
+                        bind.btnShare.visibility = if (isAvailableToShare(mm.module, it == true)) View.VISIBLE else View.GONE
+                    }
                 }
 
                 bind.btnShow.setOnClickListener { model.watchLocal(mm.module) }

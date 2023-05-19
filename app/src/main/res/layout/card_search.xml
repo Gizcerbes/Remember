@@ -67,22 +67,21 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintGuide_begin="77dp"
-                app:layout_constraintGuide_percent="0.21"/>
+                app:layout_constraintGuide_percent="0.23" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/line2"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.54" />
+                app:layout_constraintGuide_percent="0.56" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/line3"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.64" />
+                app:layout_constraintGuide_percent="0.66" />
 
             <TextView
                 android:id="@+id/label_lang"
@@ -94,7 +93,7 @@
                 app:layout_constraintEnd_toEndOf="@id/line1"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintWidth_percent="0.21" />
+                app:layout_constraintWidth_percent="0.23" />
 
             <RelativeLayout
                 android:layout_width="0dp"
@@ -102,6 +101,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/line2"
                 app:layout_constraintStart_toEndOf="@id/line1"
+                app:layout_constraintWidth_percent="0.31"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <com.google.android.material.card.MaterialCardView
@@ -109,10 +109,10 @@
                     style="@style/Theme.RememberCards.CardView.Button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintWidth_percent="0.34">
+                    android:layout_marginStart="3dp"
+                    android:layout_marginTop="3dp"
+                    android:layout_marginEnd="3dp"
+                    android:layout_marginBottom="3dp">
 
                     <TextView
                         android:id="@+id/tv_language_first"
@@ -150,6 +150,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/line3"
+                app:layout_constraintWidth_percent="0.31"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <com.google.android.material.card.MaterialCardView
@@ -157,7 +158,10 @@
                     style="@style/Theme.RememberCards.CardView.Button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:layout_constraintWidth_percent="0.34">
+                    android:layout_marginStart="3dp"
+                    android:layout_marginTop="3dp"
+                    android:layout_marginEnd="3dp"
+                    android:layout_marginBottom="3dp">
 
                     <TextView
                         android:id="@+id/tv_language_second"
@@ -169,7 +173,7 @@
                         android:maxLines="2"
                         android:minWidth="50dp"
                         android:textAppearance="?attr/textAppearanceBody2"
-                        tools:text="fdsfd ds d ds ds dsd ds ds " />
+                        tools:text="fdsf d \ngfggfggfgfggfgfgfgfggf" />
 
                 </com.google.android.material.card.MaterialCardView>
 
@@ -189,21 +193,21 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.21" />
+                app:layout_constraintGuide_percent="0.23" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/line5"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.54" />
+                app:layout_constraintGuide_percent="0.56" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/line6"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.64" />
+                app:layout_constraintGuide_percent="0.66" />
 
             <TextView
                 android:id="@+id/label_country"
@@ -215,7 +219,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintWidth_percent="0.21" />
+                app:layout_constraintWidth_percent="0.23" />
 
             <RelativeLayout
                 android:layout_width="0dp"

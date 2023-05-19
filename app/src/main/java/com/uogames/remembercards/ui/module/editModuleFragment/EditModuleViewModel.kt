@@ -9,6 +9,7 @@ import com.uogames.remembercards.utils.ObservableMediaPlayer
 import com.uogames.remembercards.utils.ifNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -24,12 +25,15 @@ class EditModuleViewModel @Inject constructor(
 
     val moduleID = MutableStateFlow(0)
 
+    @ExperimentalCoroutinesApi
     val module = moduleID.flatMapLatest { provider.module.getByIdFlow(it) }
 
+    @ExperimentalCoroutinesApi
     val moduleCardsList = module.flatMapLatest { provider.moduleCard.getByModuleFlow(it.ifNull { LocalModule() }) }
 
    // val size = moduleID.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0).map { provider.moduleCard.getCountByModuleId(it) }
 
+    @ExperimentalCoroutinesApi
     val size = moduleID.flatMapLatest { provider.moduleCard.getCountByModuleIdFlow(it) }
 
     val adapter = EditModuleAdapter(this, player)

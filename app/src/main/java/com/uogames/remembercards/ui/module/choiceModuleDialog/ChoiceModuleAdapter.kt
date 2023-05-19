@@ -1,73 +1,73 @@
 package com.uogames.remembercards.ui.module.choiceModuleDialog
 
-import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import com.uogames.dto.local.LocalModule
-import com.uogames.dto.local.LocalModuleView
+import android.widget.LinearLayout
 import com.uogames.remembercards.R
-import com.uogames.remembercards.databinding.CardModuleBinding
-import com.uogames.remembercards.ui.module.library.LibraryViewModel
+import com.uogames.remembercards.ui.views.CardModuleView
 import com.uogames.remembercards.utils.ClosableAdapter
 import com.uogames.remembercards.utils.ifNull
-import com.uogames.remembercards.utils.ifTrue
-import com.uogames.remembercards.utils.observeWhile
+import com.uogames.remembercards.utils.ifNullOrEmpty
+import com.uogames.remembercards.utils.observe
 import kotlinx.coroutines.*
 
 class ChoiceModuleAdapter(
-    val model: LibraryViewModel,
-    val selectModule: (LocalModuleView) -> Unit
+    val model: ChoiceModuleViewModel
 ) : ClosableAdapter() {
 
     private val recyclerScope = CoroutineScope(Dispatchers.Main)
     private var size = 0
 
     init {
-        model.size.observeWhile(recyclerScope) {
+        model.size.observe(recyclerScope) {
             size = it
             notifyDataSetChanged()
         }
     }
 
-    inner class ModuleHolder(val bind: CardModuleBinding) : ClosableHolder(bind.root) {
-
-        private var full = false
-
+    inner class ModuleHolderAll(val view: CardModuleView) : ClosableHolder(view) {
         override fun show() {
-            clear()
+            view.reset()
             observer = recyclerScope.launch {
-                val mm = model.getLocalModel(adapterPosition).ifNull { return@launch }
-                val owner = mm.owner.await().userName
-
-                bind.txtName.text = mm.module.name
-                val count = mm.count.await().toString()
-                bind.txtCountItems.text = itemView.context.getString(R.string.count_items).replace("||COUNT||", count)
-
-                bind.txtOwner.text = owner
-
-                bind.root.setOnClickListener { selectModule(mm.module) }
-
+                view.name = itemView.context.getString(R.string.all_cards)
+                view.count = model.getCountOfAllCardsAsync().await()
+                view.owner = model.getUserName()
+                view.setOnClick { model.selectModule(ChoiceModuleViewModel.ChoiceAll()) }
             }
-        }
-
-        private fun clear() {
-            full = false
-            bind.llBar.visibility = View.GONE
-            bind.progressLoading.visibility = View.GONE
-            bind.btnDownload.visibility = View.GONE
-            bind.btnStop.visibility = View.GONE
-            bind.btnReport.visibility = View.GONE
-            bind.btnShare.visibility = View.GONE
-            //bind.imgAction.setImageResource(R.drawable.ic_baseline_add_24)
-            bind.imgAction.visibility = View.GONE
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ModuleHolder {
-        return ModuleHolder(
-            CardModuleBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        )
+    inner class ModuleHolderLocal(val view: CardModuleView) : ClosableHolder(view) {
+        override fun show() {
+            view.reset()
+            observer = recyclerScope.launch {
+                val mm = model.getLocalModel(adapterPosition).ifNull { return@launch }
+                val owner = mm.owner.await().userName.ifNullOrEmpty {
+                    model.getUserName()
+                }
+
+                view.name = mm.module.name
+                view.count = mm.count.await()
+                view.owner = owner
+
+                view.setOnClick { model.selectModule(ChoiceModuleViewModel.ChoiceLocalModule(mm.module)) }
+
+            }
+        }
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return when (model.getType(position)) {
+            ChoiceModuleViewModel.ChoiceStat.ALL -> 0
+            ChoiceModuleViewModel.ChoiceStat.ID -> 1
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ClosableHolder {
+        return when (viewType) {
+            0 -> ModuleHolderAll(CardModuleView(parent.context))
+            1 -> ModuleHolderLocal(CardModuleView(parent.context))
+            else -> ModuleHolderLocal(CardModuleView(parent.context))
+        }
     }
 
     override fun onBindViewHolder(holder: ClosableHolder, position: Int) {
