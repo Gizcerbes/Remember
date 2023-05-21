@@ -216,6 +216,6 @@ class GameYesOrNotFragment : DaggerFragment() {
         startObserver?.cancel()
         observers?.cancel()
         requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        _bind = null
+        //_bind = null
     }
 }

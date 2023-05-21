@@ -2,6 +2,7 @@ package com.uogames.remembercards.ui.games.gameYesOrNo
 
 import android.graphics.drawable.AnimationDrawable
 import androidx.lifecycle.ViewModel
+import com.uogames.dto.local.ErrorCard
 import com.uogames.dto.local.LocalCardView
 import com.uogames.remembercards.utils.MediaBytesSource
 import com.uogames.remembercards.utils.ObservableMediaPlayer
@@ -90,18 +91,28 @@ class GameYesOrNotViewModel @Inject constructor(
 
     fun newAnswer() = viewModelScope.launch {
         val f = module.value?.let {
-            provider.moduleCard.getRandomModuleView(it)?.card
+            if (Math.random() > 0.5) provider.moduleCard.getRandomModuleView(it)?.card
+            else provider.moduleCard.getUnknowable(it)?.card
         }.ifNull {
-            provider.cards.getRandomView()
+            if (Math.random() > 0.5) provider.cards.getUnknowableView()
+            else provider.cards.getRandomView()
         }?.let {
             LocalCardModel(it)
         }.ifNull { return@launch }
 
         val s = if (Math.random() > 0.5)
             module.value?.let {
-                provider.moduleCard.getRandomModuleView(it)?.card
+                if (Math.random() > 0.5) {
+                    provider.moduleCard.let { mc ->
+                        mc.getConfusing(it, f.card.phrase.id).ifNull { mc.getRandomModuleView(it) }
+                    }?.card
+                } else provider.moduleCard.getRandomModuleView(it)?.card
             }.ifNull {
-                provider.cards.getRandomView()
+                if (Math.random() > 0.5) {
+                    provider.cards.let { c ->
+                        c.getConfusingView(f.card.phrase.id).ifNull { c.getRandomView() }
+                    }
+                } else provider.cards.getRandomView()
             }?.let {
                 LocalCardModel(it)
             }.ifNull { return@launch }
@@ -110,9 +121,9 @@ class GameYesOrNotViewModel @Inject constructor(
         _answerCard.value = AnswerCard(f, s)
     }
 
-    fun check(card:AnswerCard, b: Boolean): Boolean? {
-        val r = (card.first.card.id == card.second.card.id) == b
+    fun check(card: AnswerCard, b: Boolean): Boolean {
 
+        val r = (card.first.card.id == card.second.card.id) == b
         val list = _answerMap[card.first.card.id]?.second.ifNull {
             val l = ArrayList<LocalCardModel>()
             _answerMap[card.first.card.id] = card.first to l
@@ -122,7 +133,30 @@ class GameYesOrNotViewModel @Inject constructor(
         if (r) _trueAnswers.value++
         _allAnswers.value++
         _isTrueAnswer.value = r
-        //newAnswer()
+        addToErrorCard(card, r)
         return r
+    }
+
+    private fun addToErrorCard(card: AnswerCard, result: Boolean) = viewModelScope.launch {
+        val trues = provider.errorCardProvider.getByPhraseAndTranslate(card.first.card.phrase.id, card.first.card.translate.id)
+        val err = provider.errorCardProvider.getByPhraseAndTranslate(card.first.card.phrase.id, card.second.card.translate.id)
+        if (err != null) {
+            provider.errorCardProvider.update(updateErrorCard(err, result))
+        } else {
+            val nc = updateErrorCard(ErrorCard(idPhrase = card.first.card.phrase.id, idTranslate = card.second.card.translate.id), result)
+            provider.errorCardProvider.add(nc)
+        }
+        if (trues != null) {
+            provider.errorCardProvider.update(updateErrorCard(trues, result))
+        } else {
+            val nc = updateErrorCard(ErrorCard(idPhrase = card.first.card.phrase.id, idTranslate = card.first.card.translate.id), result)
+            provider.errorCardProvider.add(nc)
+        }
+    }
+
+    private fun updateErrorCard(errorCard: ErrorCard, result: Boolean): ErrorCard {
+        if (result) errorCard.correct++ else errorCard.incorrect++
+        errorCard.percentCorrect = (errorCard.correct * 100 / (errorCard.correct + errorCard.incorrect)).toByte()
+        return errorCard
     }
 }

@@ -1,14 +1,11 @@
 package com.uogames.remembercards.ui.games.notification
 
-import android.app.PendingIntent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.NonNull
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.work.*
@@ -21,12 +18,7 @@ import com.uogames.remembercards.utils.Permission
 import com.uogames.remembercards.utils.ifTrue
 import com.uogames.remembercards.utils.observe
 import dagger.android.support.DaggerFragment
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -99,6 +91,8 @@ class NotificationWorkerFragment : DaggerFragment() {
                     if (id != null) {
                         val module = model.getModuleByIdAsync(id).await()
                         bind.tvSelectedModule.text = module?.name
+                    } else {
+                        bind.tvSelectedModule.text = requireContext().getText(R.string.all_cards)
                     }
                 }
             }
@@ -107,11 +101,12 @@ class NotificationWorkerFragment : DaggerFragment() {
                     if (id != null) {
                         val module = model.getModuleByIdAsync(id).await()
                         bind.tvSelectedPrepareModule.text = module?.name
+                    } else {
+                        bind.tvSelectedPrepareModule.text = requireContext().getText(R.string.all_cards)
                     }
                 }
             }
         }
-
     }
 
     private fun startWork() {

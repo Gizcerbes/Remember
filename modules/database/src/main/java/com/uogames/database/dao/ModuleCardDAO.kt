@@ -32,8 +32,25 @@ interface ModuleCardDAO {
 	@Query("SELECT * FROM module_card ORDER BY RANDOM() LIMIT 1")
 	suspend fun getRandomModuleCard(): ModuleCardEntity?
 
-	@Query("SELECT * FROM module_card WHERE id_module  =:idModule ORDER BY RANDOM() LIMIT 1")
+	@Query("SELECT * FROM module_card WHERE id_module = :idModule ORDER BY RANDOM() LIMIT 1")
 	suspend fun getRandomModuleCard(idModule: Int): ModuleCardEntity?
+
+	@Query("SELECT mc.* FROM module_card AS mc " +
+			"JOIN cards_table AS ct ON mc.id_card = ct.id " +
+			"LEFT JOIN error_card AS ec ON ct.id_phrase = ec.id_phrase AND ct.id_translate = ec.id_translate " +
+			"WHERE mc.id_module = :idModule " +
+			"ORDER BY ec.percent_correct ASC " +
+			"LIMIT 1")
+	suspend fun getUnknowable(idModule: Int): ModuleCardEntity?
+
+	@Query("SELECT mc.* FROM module_card AS mc " +
+			"JOIN cards_table AS ct ON mc.id_card = ct.id " +
+			"LEFT JOIN error_card AS ec ON  ct.id_translate = ec.id_translate " +
+			"WHERE mc.id_module = :idModule " +
+			"AND ec.id_phrase = :idPhrase " +
+			"ORDER BY ec.percent_correct ASC " +
+			"LIMIT 1")
+	suspend fun getConfusing(idModule: Int, idPhrase: Int): ModuleCardEntity?
 
 	@Query("SELECT * FROM module_card WHERE id_card <> :idCard ORDER BY RANDOM() LIMIT 1")
 	suspend fun getRandomWithout(idCard: Int): ModuleCardEntity?

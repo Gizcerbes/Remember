@@ -1,11 +1,9 @@
 package com.uogames.database.dao
 
-import android.database.sqlite.SQLiteQuery
 import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.uogames.database.entity.CardEntity
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 import java.util.*
 
 @Dao
@@ -100,6 +98,19 @@ interface CardDAO {
 
 	@Query("SELECT * FROM cards_table ORDER BY RANDOM() LIMIT 1")
 	suspend fun getRandom(): CardEntity?
+
+	@Query("SELECT ct.* FROM cards_table AS ct " +
+			"LEFT JOIN error_card AS ec ON ct.id_phrase = ec.id_phrase AND ct.id_translate = ec.id_translate " +
+			"ORDER BY ec.percent_correct ASC " +
+			"LIMIT 1")
+	suspend fun getUnknowable(): CardEntity?
+
+	@Query("SELECT ct.* FROM cards_table AS ct " +
+			"LEFT JOIN error_card AS ec ON  ct.id_translate = ec.id_translate " +
+			"WHERE ec.id_phrase = :idPhrase " +
+			"ORDER BY ec.percent_correct ASC " +
+			"LIMIT 1")
+	suspend fun getConfusing(idPhrase: Int): CardEntity?
 
 	@Query("SELECT * FROM cards_table WHERE id <> :id ORDER BY RANDOM() LIMIT 1")
 	suspend fun getRandomWithOut(id: Int): CardEntity?

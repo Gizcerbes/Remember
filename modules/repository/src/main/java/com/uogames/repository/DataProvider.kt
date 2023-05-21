@@ -53,6 +53,8 @@ class DataProvider private constructor(
 
     val share by lazy { ShareProvider(database.shareRepository) }
 
+    val errorCardProvider by lazy { ErrorCardProvider(this, database.errorCardRepository) }
+
     suspend fun clean() {
         images.clear()
         pronounce.clear()

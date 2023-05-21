@@ -6,7 +6,7 @@ import com.uogames.database.entity.ErrorCardEntity
 @Dao
 interface ErrorCardDAO {
 
-	@Insert
+	@Insert(onConflict = OnConflictStrategy.REPLACE)
 	suspend fun insert(errorCardEntity: ErrorCardEntity): Long
 
 	@Update
