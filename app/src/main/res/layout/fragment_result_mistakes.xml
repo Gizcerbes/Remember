@@ -11,6 +11,18 @@
 		android:layout_width="match_parent"
 		android:layout_alignParentTop="true">
 
+		<TextView
+			android:id="@+id/txt_top_name"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="13dp"
+			android:text="@string/result"
+			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintBottom_toBottomOf="parent"
+			android:textAppearance="?attr/textAppearanceHeadline6"
+			android:layout_centerVertical="true" />
+
 		<com.google.android.material.card.MaterialCardView
 			android:id="@+id/btn_close"
 			style="@style/Theme.RememberCards.CardView.Button.Negative"

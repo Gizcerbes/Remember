@@ -45,6 +45,10 @@ class ModuleCardProvider(
 
     suspend fun getRandomModuleView(idModule: Int) = mcr.getRandomModuleView(idModule)
 
+    suspend fun getUnknowable(idModule: Int) = mcr.getUnknowableView(idModule)
+
+    suspend fun getConfusing(idModule: Int, idPhrase: Int) = mcr.getConfusing(idModule, idPhrase)
+
     suspend fun getRandomWithout(idModule: Int, idCard: Int) = mcr.getRandomModuleWithout(idModule, idCard)
 
     suspend fun removeByModule(idModule: Int) = mcr.removeByModuleId(idModule)
@@ -92,7 +96,7 @@ class ModuleCardProvider(
     }
 
     suspend fun download(module: LocalModule, position: Long): LocalModuleCard? {
-        val globalModuleId = module.globalId ?: return null
+        val globalModuleId = module.globalId
         val nmc = network.moduleCard.get(globalModuleId, position)
         val card = dataProvider.cards.download(nmc.idCard) ?: return null
         val id = insert(LocalModuleCard(idModule = module.id, idCard = card.id).update(nmc))
@@ -118,7 +122,7 @@ class ModuleCardProvider(
     }
 
     suspend fun save(module: LocalModule) {
-        module.globalId?.let {moduleID ->
+        module.globalId.let {moduleID ->
             val count = countGlobal(moduleID)
             for (number in 0 until  count) save(getGlobalView(moduleID, number), module)
         }

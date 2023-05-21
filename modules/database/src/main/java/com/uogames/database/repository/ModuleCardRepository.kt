@@ -40,6 +40,10 @@ class ModuleCardRepository(
 
     suspend fun getRandomModuleView(idModule: Int) = dao.getRandomModuleCard(idModule)?.let { map.toDTO(it) }
 
+    suspend fun getUnknowableView(idModule: Int) = dao.getUnknowable(idModule)?.let { map.toDTO(it) }
+
+    suspend fun getConfusing(idModule: Int, idPhrase: Int) = dao.getConfusing(idModule, idPhrase)?.let { map.toDTO(it) }
+
     suspend fun getRandomModuleWithout(idCard: Int) = dao.getRandomWithout(idCard)?.toDTO()
 
     suspend fun getRandomModuleWithout(idModule: Int, idCard: Int) = dao.getRandomWithout(idModule, idCard)?.toDTO()

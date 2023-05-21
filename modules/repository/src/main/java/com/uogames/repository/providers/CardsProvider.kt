@@ -68,6 +68,10 @@ class CardsProvider(
 
     suspend fun getRandomView() = repository.getRandomView()
 
+    suspend fun getUnknowableView() = repository.getUnknowableView()
+
+    suspend fun getConfusingView(idPhrase: Int) = repository.getConfusingView(idPhrase)
+
     suspend fun getRandomWithout(id: Int) = repository.getRandomWithOut(id)
 
     fun countFree() = repository.countFree()

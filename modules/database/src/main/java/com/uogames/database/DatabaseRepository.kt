@@ -51,5 +51,7 @@ class DatabaseRepository private constructor(private val database: MyDatabase) {
 
     val shareRepository by lazy { ShareRepository(database.shareDAO()) }
 
+    val errorCardRepository by lazy { ErrorCardRepository(database.errorCardDAO()) }
+
 
 }
