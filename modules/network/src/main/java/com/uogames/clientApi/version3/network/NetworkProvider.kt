@@ -34,17 +34,12 @@ class NetworkProvider private constructor(private val c: Client) {
         ): NetworkProvider {
             return instance.get {
                 val keystore = context.assets.open("keys/keystore.bks").readBytes()
-                val defaultUrl = if (BuildConfig.DEBUG) {
-                    "https://93.125.42.151:8081"
-                } else {
-                    "https://93.125.42.151:8080"
-                }
                 val client = Client(
                     secret = secret,
                     data = data,
-                    defaultUrl = defaultUrl,
+                    defaultUrl = BuildConfig.SERVER_IP,
                     keystoreInput = keystore,
-                    keystorePassword = "itismyfirstseriousapp".toCharArray()
+                    keystorePassword = BuildConfig.NETWORK_PASSWORD.toCharArray()
                 )
                 return@get NetworkProvider(client)
             }

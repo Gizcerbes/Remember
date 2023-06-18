@@ -180,6 +180,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="50dp"
+            android:backgroundTint="@color/ic_launcher_background"
             android:src="@drawable/ic_next" />
 
     </com.google.android.material.card.MaterialCardView>

@@ -8,31 +8,40 @@ plugins {
 android {
     signingConfigs {
         relise {
-            storeFile file('E:\\keys\\remember_card.jks')
-            storePassword 'itismyfirstseriousapp'
-            keyAlias 'key0'
-            keyPassword 'itismyfirstseriousapp'
+            def pass = System.getenv("STORE_PASSWORD") ?: providers.gradleProperty("signing.store.password").get()
+            def alias = System.getenv("KEY_ALIAS") ?: providers.gradleProperty("signing.key.alias").get()
+            def keyPass = System.getenv("KEY_PASSWORD") ?: providers.gradleProperty("signing.key.password").get()
+
+            storeFile file(providers.gradleProperty("signing.store.file").get())
+            storePassword pass
+            keyAlias alias
+            keyPassword keyPass
         }
     }
     compileSdk 33
-    ndkVersion '0.1.27'
+    ndkVersion '0.1.28'
     defaultConfig {
         applicationId "com.uogames.remembercards"
         minSdk 26
         targetSdk 33
-        versionCode 17
+        versionCode 18
         versionName ndkVersion
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
+
         debug {
+            def networkKey = System.getenv("NETWORK_KEY_DEBUG") ?: providers.gradleProperty("network.key.debug").get()
+            buildConfigField "String", "NETWORK_KEY", networkKey
             applicationIdSuffix ".debug"
             versionNameSuffix "-debug"
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         release {
+            def networkKey = System.getenv("NETWORK_KEY_RELEASE") ?: providers.gradleProperty("network.key.release").get()
+            buildConfigField "String", "NETWORK_KEY", networkKey
             signingConfig signingConfigs.relise
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -46,12 +55,13 @@ android {
         jvmTarget = '1.8'
     }
 
-    buildFeatures{
+    buildFeatures {
         viewBinding = true
     }
     namespace 'com.uogames.remembercards'
 
 }
+
 
 dependencies {
 
@@ -86,18 +96,18 @@ dependencies {
 
     implementation 'com.squareup.picasso:picasso:2.71828'
 
-    implementation ('com.firebaseui:firebase-ui-auth:8.0.1'){
+    implementation('com.firebaseui:firebase-ui-auth:8.0.1') {
         exclude module: "play-services-safetynet"
     }
     implementation platform('com.google.firebase:firebase-bom:30.3.1')
-    implementation ('com.google.android.gms:play-services-auth:20.5.0') {
+    implementation('com.google.android.gms:play-services-auth:20.5.0') {
         exclude module: "play-services-safetynet"
     }
-    implementation ('com.google.firebase:firebase-auth-ktx'){
+    implementation('com.google.firebase:firebase-auth-ktx') {
         exclude module: "play-services-safetynet"
     }
 
-    implementation 'com.google.firebase:firebase-analytics:21.2.2'
+    implementation 'com.google.firebase:firebase-analytics:21.3.0'
 
     // worker
     implementation "androidx.work:work-runtime:2.8.1"

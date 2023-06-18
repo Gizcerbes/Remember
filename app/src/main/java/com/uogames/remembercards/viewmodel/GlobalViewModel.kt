@@ -47,11 +47,7 @@ class GlobalViewModel @Inject constructor(
     }
 
     val provider = DataProvider.get(
-        context,
-        {
-            if (BuildConfig.DEBUG) "secret"
-            else "It doesn't matter"
-        },
+        context, { BuildConfig.NETWORK_KEY },
         data
     )
 
