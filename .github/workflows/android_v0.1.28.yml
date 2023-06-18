@@ -40,7 +40,7 @@ jobs:
       env:
           ENCODED_STRING: ${{ secrets.KEYSTORE_BKS }}
       run: |
-          mkdir "${GITHUB_WORKSPACE}"/modules/network/src/main/assets/keys
+          mkdirs "${GITHUB_WORKSPACE}"/modules/network/src/main/assets/keys
           echo $ENCODED_STRING | base64 -di > "${GITHUB_WORKSPACE}"/modules/network/src/main/assets/keys/keystore.bks
       
     - name: Build with Gradle
