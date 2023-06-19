@@ -24,7 +24,7 @@ jobs:
     - name : Retrieve Version
       id: tag
       run: |
-        echo "android_version=v$(${{${GITHUB_WORKSPACE}}}/gradlew -q :app:version)" >> $GITHUB_OUTPUT
+        echo "android_version=v$(${{GITHUB_WORKSPACE}}/gradlew -q :app:version)" >> $GITHUB_OUTPUT
 
     - name: Print tag
       run: echo "${{ steps.tag.outputs.android_version }}"
