@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Theme.RememberCards.CardView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:contentPadding="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="40dp">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btn_sound"
+                style="@style/Theme.RememberCards.CardView.Button.Icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="0dp"
+                android:visibility="visible"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true">
+
+                <ImageView
+                    android:id="@+id/img_btn_sound"
+                    android:layout_width="@dimen/card_button"
+                    android:layout_height="@dimen/card_button"
+                    android:background="@drawable/list_music_play" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:id="@+id/txt_lang"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="7dp"
+                android:textAppearance="?attr/textAppearanceBody2"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@id/btn_sound"
+                tools:text="English" />
+
+            <TextView
+                android:id="@+id/txt_country"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="7dp"
+                android:textAppearance="?attr/textAppearanceBody2"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@id/txt_lang"
+                tools:text="English" />
+
+
+            <LinearLayout
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:layout_width="wrap_content"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btn_add"
+                    style="@style/Theme.RememberCards.CardView.Button.Icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="0dp"
+                    android:visibility="visible">
+
+                    <ImageView
+                        android:layout_width="@dimen/card_button"
+                        android:layout_height="@dimen/card_button"
+                        android:src="@drawable/ic_baseline_add_24" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btn_action"
+                    style="@style/Theme.RememberCards.CardView.Button.Icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="0dp"
+                    android:visibility="visible">
+
+                    <ImageView
+                        android:id="@+id/img_action"
+                        android:layout_width="@dimen/card_button"
+                        android:layout_height="@dimen/card_button"
+                        android:src="@drawable/ic_baseline_keyboard_arrow_up_24" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+
+            </LinearLayout>
+
+
+        </RelativeLayout>
+
+        <com.google.android.material.divider.MaterialDivider
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="7dp"
+            android:layout_marginEnd="7dp" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="5dp">
+
+            <LinearLayout
+                android:id="@+id/ll_phrase"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="2dp"
+                android:minHeight="70dp"
+                android:orientation="vertical"
+                android:layout_toStartOf="@id/mcv_img_phrase"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true">
+
+                <TextView
+                    android:id="@+id/txt_phrase"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?attr/textAppearanceBody1"
+                    tools:text="Noise" />
+
+                <TextView
+                    android:id="@+id/txt_definition"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="7dp"
+                    android:textAppearance="?attr/textAppearanceBody2"
+                    tools:text="Irregular fluctuations that accompany a trant part of it and tend to obscure it." />
+
+            </LinearLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/mcv_img_phrase"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                app:layout_constraintStart_toEndOf="@id/ll_phrase"
+                android:layout_alignParentTop="true"
+                app:strokeColor="?attr/colorControlNormal"
+                app:strokeWidth="1dp">
+
+                <ImageView
+                    android:id="@+id/img_phrase"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:adjustViewBounds="true"
+                    android:src="@drawable/noise"
+                    android:visibility="visible" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_btns"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="7dp"
+                android:layout_marginEnd="7dp" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:id="@+id/ll_b_left"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_centerVertical="true"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btn_report"
+                        style="@style/Theme.RememberCards.CardView.Button.Icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_margin="0dp"
+                        android:visibility="visible">
+
+                        <ImageView
+                            android:layout_width="@dimen/card_button"
+                            android:layout_height="@dimen/card_button"
+                            android:src="@drawable/ic_baseline_report_24" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+
+                <com.google.android.material.progressindicator.LinearProgressIndicator
+                    android:id="@+id/progress_loading"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_centerVertical="true"
+                    android:layout_toStartOf="@id/ll_b_right"
+                    android:layout_toEndOf="@id/ll_b_left"
+                    android:indeterminate="true"
+                    app:trackCornerRadius="7dp"
+                    android:layout_marginStart="7dp"
+                    android:layout_marginEnd="7dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"
+                    app:trackThickness="30dp" />
+
+
+                <LinearLayout
+                    android:id="@+id/ll_b_right"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="end"
+                    android:orientation="horizontal"
+                    android:visibility="visible">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btn_stop"
+                        style="@style/Theme.RememberCards.CardView.Button.Icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="0dp"
+                        android:visibility="visible">
+
+                        <ImageView
+                            android:layout_width="@dimen/card_button"
+                            android:layout_height="@dimen/card_button"
+                            android:src="@drawable/ic_baseline_stop_circle_24" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btn_download"
+                        style="@style/Theme.RememberCards.CardView.Button.Icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="0dp"
+                        android:visibility="visible">
+
+                        <ImageView
+                            android:layout_width="@dimen/card_button"
+                            android:layout_height="@dimen/card_button"
+                            android:src="@drawable/ic_baseline_cloud_download_24" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btn_share"
+                        style="@style/Theme.RememberCards.CardView.Button.Icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="0dp"
+                        android:visibility="visible">
+
+                        <ImageView
+                            android:layout_width="@dimen/card_button"
+                            android:layout_height="@dimen/card_button"
+                            android:src="@drawable/ic_baseline_cloud_upload_24" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btn_edit"
+                        style="@style/Theme.RememberCards.CardView.Button.Icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="0dp"
+                        android:visibility="visible">
+
+                        <ImageView
+                            android:id="@+id/img_edit"
+                            android:layout_width="@dimen/card_button"
+                            android:layout_height="@dimen/card_button"
+                            android:src="@drawable/ic_baseline_change_24" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

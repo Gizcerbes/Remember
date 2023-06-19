@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/nav_main"
+	app:startDestination="@id/game_fragment">
+
+	<fragment
+		android:id="@+id/game_fragment"
+		android:name="com.uogames.remembercards.ui.gamesFragment.GamesFragment"
+		android:label="GamesFragment"
+		tools:layout="@layout/fragment_games" >
+	</fragment>
+
+	<fragment
+		android:id="@+id/library_fragment"
+		android:name="com.uogames.remembercards.ui.module.library.LibraryFragment"
+		android:label="BookFragment"
+		tools:layout="@layout/fragment_module" />
+
+	<fragment
+		android:id="@+id/person_fragment"
+		android:name="com.uogames.remembercards.ui.personFragment.PersonFragment"
+		android:label="BookFragment"
+		tools:layout="@layout/fragment_person" />
+
+	<fragment
+		android:id="@+id/card_fragment"
+		android:name="com.uogames.remembercards.ui.card.cardFragment.CardFragment"
+		android:label="CardFragment"
+		tools:layout="@layout/fragment_card" />
+
+	<fragment
+		android:id="@+id/phrase_fragment"
+		android:name="com.uogames.remembercards.ui.phrase.phrasesFragment.PhraseFragment"
+		android:label="PhraseFragment"
+		tools:layout="@layout/fragment_phrase"
+		/>
+
+
+</navigation>

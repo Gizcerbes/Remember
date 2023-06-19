@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+
+	>
+
+	<item
+		android:id="@+id/game_fragment"
+		android:icon="@drawable/ic_game_controller"
+		android:title="@string/games"
+		/>
+
+	<item
+		android:id="@+id/library_fragment"
+		android:icon="@drawable/ic_library_sharp"
+		android:title="@string/modules" />
+
+	<item
+		android:id="@+id/card_fragment"
+		android:icon="@drawable/ic_red_card"
+		android:title="@string/cards" />
+
+	<item
+		android:id="@+id/phrase_fragment"
+		android:icon="@drawable/ic_book"
+		android:title="@string/list" />
+
+	<item
+		android:id="@+id/person_fragment"
+		android:icon="@drawable/ic_person_sharp"
+		android:title="@string/person" />
+
+
+</menu>

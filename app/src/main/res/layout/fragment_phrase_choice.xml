@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:animateLayoutChanges="true">
+
+	<RelativeLayout
+		android:id="@+id/top_bar"
+		style="@style/Theme.RememberCards.AppBar"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignParentTop="true"
+		app:layout_constraintBaseline_toTopOf="parent">
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="13dp"
+			android:text="@string/choose_phrase"
+			android:textAppearance="?attr/textAppearanceHeadline6"
+			android:layout_centerVertical="true"/>
+
+		<LinearLayout
+			android:id="@+id/ll_buttons"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal"
+			android:layout_centerVertical="true"
+			android:layout_alignParentEnd="true">
+
+			<com.google.android.material.card.MaterialCardView
+				android:id="@+id/btn_add"
+				style="@style/Theme.RememberCards.CardView.Button.Positive"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content">
+
+				<ImageView
+					android:layout_width="@dimen/card_button"
+					android:layout_height="@dimen/card_button"
+					android:src="@drawable/ic_baseline_add_24" />
+
+			</com.google.android.material.card.MaterialCardView>
+
+			<com.google.android.material.card.MaterialCardView
+				android:id="@+id/btn_network"
+				style="@style/Theme.RememberCards.CardView.Button"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginStart="0dp">
+
+				<ImageView
+					android:id="@+id/img_network"
+					android:layout_width="@dimen/card_button"
+					android:layout_height="@dimen/card_button"
+					android:src="@drawable/ic_baseline_cloud_24" />
+
+			</com.google.android.material.card.MaterialCardView>
+
+			<com.google.android.material.card.MaterialCardView
+				android:id="@+id/btn_search"
+				style="@style/Theme.RememberCards.CardView.Button"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginStart="0dp">
+
+				<ImageView
+					android:id="@+id/search_image"
+					android:layout_width="@dimen/card_button"
+					android:layout_height="@dimen/card_button"
+					android:src="@drawable/ic_baseline_search_24" />
+
+			</com.google.android.material.card.MaterialCardView>
+
+			<com.google.android.material.card.MaterialCardView
+				android:id="@+id/btn_back"
+				style="@style/Theme.RememberCards.CardView.Button.Negative"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginStart="0dp"
+				android:visibility="visible">
+
+				<ImageView
+					android:layout_width="@dimen/card_button"
+					android:layout_height="@dimen/card_button"
+					android:src="@drawable/ic_baseline_close_24" />
+			</com.google.android.material.card.MaterialCardView>
+
+		</LinearLayout>
+
+
+		<com.google.android.material.divider.MaterialDivider
+			android:id="@+id/bottom_divider"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_below="@id/ll_buttons"
+			app:layout_constraintBottom_toBottomOf="parent" />
+
+	</RelativeLayout>
+
+	<com.uogames.remembercards.ui.views.SearchView
+		android:id="@+id/cl_search_bar"
+		android:layout_width="match_parent"
+		android:layout_below="@id/top_bar"
+		android:layout_height="wrap_content"/>
+
+	<com.google.android.material.progressindicator.LinearProgressIndicator
+		android:id="@+id/lpi_load_indicator"
+		android:indeterminate="true"
+		android:visibility="visible"
+		android:progress="50"
+		android:layout_below="@id/cl_search_bar"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"/>
+
+	<androidx.recyclerview.widget.RecyclerView
+		android:id="@+id/recycler"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_below="@id/cl_search_bar"
+		android:layout_alignParentBottom="true"
+		android:orientation="vertical"
+		app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+		tools:listitem="@layout/card_card" />
+
+
+	<TextView
+		android:id="@+id/txt_book_empty"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_centerInParent="true"
+		android:text="@string/List_empty" />
+
+
+</RelativeLayout>

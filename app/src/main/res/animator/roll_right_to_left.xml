@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <objectAnimator
+        android:duration="50"
+        android:propertyName="rotation"
+        android:valueFrom="-3"
+        android:repeatCount="4"
+        android:repeatMode="reverse"
+        android:valueTo="3"/>
+
+</set>

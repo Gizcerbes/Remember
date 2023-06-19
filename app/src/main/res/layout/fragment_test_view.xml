@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.uogames.remembercards.ui.views.PhraseView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:definition="defin"
+        app:language_tag="eng"
+        app:opened="true"
+        app:phrase="Hdfsddf"
+        app:show_button_add="true"
+        app:show_button_download="false"
+        app:show_button_edit="false"
+        app:show_button_report="false"
+        app:show_button_share="false"
+        app:show_button_sound="true"
+        app:show_button_stop="true"
+        app:show_buttons="true"
+        app:show_image="true"
+        app:show_progress_loading="true" />
+
+    <com.uogames.remembercards.ui.views.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:clue="gdfgsgfd"
+        app:definition_first="gfgdfgdfg"
+        app:definition_second="gfdhfdhncsdfsf"
+        app:opened="true"
+        app:phrase_first="fdfs"
+        app:phrase_second="bvbvcbcbc"
+        app:show_button_stop="true"
+        app:show_buttons="true"
+        app:show_progress_loading="true" />
+
+    <com.uogames.remembercards.ui.views.SearchView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:full="true"
+        app:language_tag_first=""/>
+
+    <com.uogames.remembercards.ui.views.CardModuleView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>

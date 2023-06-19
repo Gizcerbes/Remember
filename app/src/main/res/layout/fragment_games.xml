@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical">
+
+	<androidx.constraintlayout.widget.ConstraintLayout
+		android:id="@+id/top_bar"
+		style="@style/Theme.RememberCards.AppBar"
+		android:layout_width="match_parent"
+		app:layout_constraintBaseline_toTopOf="parent">
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="13dp"
+			android:text="@string/game_list"
+			android:textAppearance="?attr/textAppearanceHeadline6"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent" />
+
+
+		<com.google.android.material.divider.MaterialDivider
+			android:id="@+id/bottom_divider"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:layout_constraintBottom_toBottomOf="parent" />
+
+	</androidx.constraintlayout.widget.ConstraintLayout>
+
+	<androidx.appcompat.widget.LinearLayoutCompat
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:orientation="vertical"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintTop_toBottomOf="@id/top_bar">
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="18dp"
+			android:layout_marginTop="7dp"
+			android:text="@string/selected_module"
+			android:textAppearance="?attr/textAppearanceBody2"
+			android:textColor="?attr/colorControlNormal" />
+
+		<com.google.android.material.card.MaterialCardView
+			android:id="@+id/mcv_select_module"
+			style="@style/Theme.RememberCards.CardView.Button"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="0dp">
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="vertical">
+
+
+				<androidx.constraintlayout.widget.ConstraintLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content">
+
+					<TextView
+						android:id="@+id/txt_name"
+						android:layout_width="0dp"
+						android:layout_height="wrap_content"
+						android:textAppearance="?attr/textAppearanceHeadline6"
+						app:layout_constraintEnd_toStartOf="@id/btn_clear"
+						app:layout_constraintStart_toStartOf="parent"
+						app:layout_constraintTop_toTopOf="parent"
+						tools:text="How I met your mother" />
+
+					<TextView
+						android:id="@+id/txt_count_items"
+						android:layout_width="0dp"
+						android:layout_height="wrap_content"
+						android:layout_marginBottom="20dp"
+						android:textAppearance="?attr/textAppearanceBody1"
+						app:layout_constraintBottom_toTopOf="@id/txt_owner"
+						app:layout_constraintStart_toStartOf="parent"
+						app:layout_constraintTop_toBottomOf="@id/txt_name"
+						app:layout_constraintEnd_toEndOf="@id/txt_name"
+						tools:text="100500 cards" />
+
+					<TextView
+						android:id="@+id/txt_owner"
+						android:layout_width="0dp"
+						android:layout_height="wrap_content"
+						android:layout_gravity="start"
+						android:textAppearance="?attr/textAppearanceBody1"
+						app:layout_constraintBottom_toBottomOf="parent"
+						app:layout_constraintEnd_toStartOf="@id/txt_likes"
+						app:layout_constraintStart_toStartOf="parent"
+						app:layout_constraintTop_toBottomOf="@id/txt_count_items"
+						tools:text="Owner" />
+
+					<TextView
+						android:id="@+id/txt_likes"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:textAppearance="?attr/textAppearanceBody1"
+						app:layout_constraintBottom_toBottomOf="@id/img_thumb"
+						app:layout_constraintEnd_toStartOf="@id/img_thumb"
+						android:visibility="gone"
+						tools:text="40%" />
+
+					<ImageView
+						android:id="@+id/img_thumb"
+						android:layout_width="22dp"
+						android:layout_height="22dp"
+						android:visibility="gone"
+						android:src="@drawable/ic_baseline_thumb_up_alt_24"
+						app:layout_constraintBottom_toBottomOf="parent"
+						app:layout_constraintEnd_toEndOf="parent" />
+
+					<com.google.android.material.card.MaterialCardView
+						android:id="@+id/btn_clear"
+						style="@style/Theme.RememberCards.CardView.Button.Icon"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_marginTop="0dp"
+						android:layout_marginEnd="0dp"
+						app:layout_constraintEnd_toEndOf="parent"
+						app:layout_constraintTop_toTopOf="parent">
+
+						<ImageView
+							android:layout_width="@dimen/card_button"
+							android:layout_height="@dimen/card_button"
+							android:src="@drawable/ic_baseline_close_24" />
+
+					</com.google.android.material.card.MaterialCardView>
+
+
+				</androidx.constraintlayout.widget.ConstraintLayout>
+
+			</LinearLayout>
+
+
+		</com.google.android.material.card.MaterialCardView>
+
+		<com.google.android.material.divider.MaterialDivider
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content" />
+
+		<ScrollView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content">
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="vertical">
+
+				<com.google.android.material.card.MaterialCardView
+					android:id="@+id/game_watch_card"
+					style="@style/Theme.RememberCards.CardView.Button"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content">
+
+					<RelativeLayout
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content">
+
+						<ImageView
+							android:id="@+id/iv_read"
+							android:layout_width="50dp"
+							android:layout_height="50dp"
+							android:layout_margin="17dp"
+							android:src="@drawable/ic_read" />
+
+						<TextView
+							android:layout_width="match_parent"
+							android:layout_height="match_parent"
+							android:layout_alignTop="@id/iv_read"
+							android:layout_alignBottom="@id/iv_read"
+							android:layout_alignParentStart="true"
+							android:layout_alignParentEnd="true"
+							android:layout_marginStart="17dp"
+							android:layout_marginEnd="17dp"
+							android:gravity="center"
+							android:text="@string/read"
+							android:textAppearance="?attr/textAppearanceHeadline5" />
+					</RelativeLayout>
+				</com.google.android.material.card.MaterialCardView>
+
+				<com.google.android.material.card.MaterialCardView
+					android:id="@+id/game_yes_or_not"
+					style="@style/Theme.RememberCards.CardView.Button"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content">
+
+					<RelativeLayout
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content">
+
+						<ImageView
+							android:id="@+id/icn_choice"
+							android:layout_width="50dp"
+							android:layout_height="50dp"
+							android:layout_margin="17dp"
+							android:src="@drawable/ic_choice" />
+
+						<TextView
+							android:layout_width="match_parent"
+							android:layout_height="match_parent"
+							android:layout_alignTop="@id/icn_choice"
+							android:layout_alignBottom="@id/icn_choice"
+							android:layout_alignParentStart="true"
+							android:layout_alignParentEnd="true"
+							android:layout_marginStart="17dp"
+							android:layout_marginEnd="17dp"
+							android:gravity="center"
+							android:text="@string/yes_or_no"
+							android:textAppearance="?attr/textAppearanceHeadline5" />
+					</RelativeLayout>
+				</com.google.android.material.card.MaterialCardView>
+
+				<com.google.android.material.card.MaterialCardView
+					android:id="@+id/notification_worker"
+					style="@style/Theme.RememberCards.CardView.Button"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content">
+
+					<RelativeLayout
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content">
+
+						<ImageView
+							android:id="@+id/icn_notification"
+							android:layout_width="50dp"
+							android:layout_height="50dp"
+							android:layout_margin="17dp"
+							android:src="@drawable/ic_bell" />
+
+						<TextView
+							android:layout_width="match_parent"
+							android:layout_height="match_parent"
+							android:layout_alignTop="@id/icn_notification"
+							android:layout_alignBottom="@id/icn_notification"
+							android:layout_alignParentStart="true"
+							android:layout_alignParentEnd="true"
+							android:layout_marginStart="17dp"
+							android:layout_marginEnd="17dp"
+							android:gravity="center"
+							android:text="@string/notification"
+							android:textAppearance="?attr/textAppearanceHeadline5" />
+					</RelativeLayout>
+				</com.google.android.material.card.MaterialCardView>
+
+
+
+			</LinearLayout>
+
+		</ScrollView>
+
+
+	</androidx.appcompat.widget.LinearLayoutCompat>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

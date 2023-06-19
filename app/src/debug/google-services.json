@@ -1,0 +1,92 @@
+{
+  "project_info": {
+    "project_number": "572904362912",
+    "project_id": "remember-cards",
+    "storage_bucket": "remember-cards.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:572904362912:android:a4dace460f3223393d0ac5",
+        "android_client_info": {
+          "package_name": "com.uogames.remembercards"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "572904362912-5jguu0f18qde884jqbi4j5p1m6mmf0km.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.uogames.remembercards",
+            "certificate_hash": "37b7f62118cd271b84507d28c8dcb2722762ba21"
+          }
+        },
+        {
+          "client_id": "572904362912-upi7ct72ju9g9808nb5houpqa2mubjgk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.uogames.remembercards",
+            "certificate_hash": "cdabfc185f66b05b25defd68900c52741993fa5c"
+          }
+        },
+        {
+          "client_id": "572904362912-bm9tiqhnj5gsjmjvudkc499be6rena5r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPrh5_q0bhUWMwUDHmGYK7_UwMZ5t_r8Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "572904362912-bm9tiqhnj5gsjmjvudkc499be6rena5r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:572904362912:android:55a716ce2c79faac3d0ac5",
+        "android_client_info": {
+          "package_name": "com.uogames.remembercards.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "572904362912-u2aj5fneeb9d0k2qf0m3e20k00735vio.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.uogames.remembercards.debug",
+            "certificate_hash": "cdabfc185f66b05b25defd68900c52741993fa5c"
+          }
+        },
+        {
+          "client_id": "572904362912-bm9tiqhnj5gsjmjvudkc499be6rena5r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPrh5_q0bhUWMwUDHmGYK7_UwMZ5t_r8Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "572904362912-bm9tiqhnj5gsjmjvudkc499be6rena5r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

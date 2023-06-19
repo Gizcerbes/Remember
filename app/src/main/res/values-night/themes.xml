@@ -1,0 +1,33 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.RememberCards" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/linen</item>
+        <item name="colorPrimaryVariant">@color/black</item>
+        <item name="colorOnPrimary">@color/redwood</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/redwood</item>
+        <item name="colorSecondaryVariant">@color/redwood</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <!-- Customize your theme here. -->
+        <item name="textAppearanceBody1">@style/Theme.RememberCards.Body1</item>
+        <item name="textAppearanceBody2">@style/Theme.RememberCards.Body2</item>
+        <item name="textAppearanceHeadline6">@style/Theme.RememberCards.Headline6</item>
+        <item name="textAppearanceHeadline5">@style/Theme.RememberCards.Headline5</item>
+        <item name="textAppearanceSubtitle1">@style/Theme.RememberCards.Subtitle1</item>
+        <item name="textAppearanceButton">@style/Theme.RememberCards.Button</item>
+        <item name="textAppearanceCaption">@style/Theme.RememberCards.Caption</item>
+    </style>
+
+    <style name="Theme.AppBar" parent="Theme.MaterialComponents">
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+	<style name="Theme.RememberCards.CardView.Button.Negative" parent="Theme.RememberCards.CardView.Button">
+		<item name="cardBackgroundColor">@color/btn_negative</item>
+	</style>
+
+
+</resources>

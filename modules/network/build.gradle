@@ -1,0 +1,63 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+    compileSdk 32
+
+    defaultConfig {
+        minSdk 26
+        targetSdk 32
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+
+        def storePassword = System.getenv("NETWORK_STORE_PASSWORD") ?: providers.gradleProperty("network.store.password").get()
+        buildConfigField "String", "NETWORK_PASSWORD", storePassword
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField "String", "SERVER_IP", providers.gradleProperty("network.ip.release").get()
+        }
+        debug {
+            buildConfigField "String", "SERVER_IP", providers.gradleProperty("network.ip.debug").get()
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    namespace 'com.uogames.network'
+}
+
+dependencies {
+
+    implementation project(path: ':modules:dto')
+    testImplementation 'junit:junit:4.13.2'
+
+    def ktor_version = "2.3.0"
+
+    implementation "io.ktor:ktor-client-core:$ktor_version"
+    implementation "io.ktor:ktor-client-okhttp:$ktor_version"
+    implementation "io.ktor:ktor-client-content-negotiation:$ktor_version"
+    implementation "io.ktor:ktor-client-logging:$ktor_version"
+    implementation("io.ktor:ktor-client-encoding:$ktor_version")
+    implementation "io.ktor:ktor-serialization-gson:$ktor_version"
+
+    implementation 'com.google.code.gson:gson:2.10'
+//    implementation "io.ktor:ktor-serialization-kotlinx-json:2.1.0"
+    implementation 'io.ktor:ktor-server-auth-jwt:2.2.3'
+
+
+    implementation"com.squareup.okhttp3:logging-interceptor:4.10.0"
+    implementation 'com.squareup.picasso:picasso:2.71828'
+
+}

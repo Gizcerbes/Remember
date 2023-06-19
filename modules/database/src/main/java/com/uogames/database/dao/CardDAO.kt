@@ -1,0 +1,133 @@
+package com.uogames.database.dao
+
+import androidx.room.*
+import androidx.sqlite.db.SupportSQLiteQuery
+import com.uogames.database.entity.CardEntity
+import kotlinx.coroutines.flow.Flow
+import java.util.*
+
+@Dao
+interface CardDAO {
+
+	@Insert
+	suspend fun insert(cardEntity: CardEntity): Long
+
+	@Delete
+	suspend fun delete(cardEntity: CardEntity): Int
+
+	@Update
+	suspend fun update(cardEntity: CardEntity): Int
+
+	@RawQuery
+	suspend fun count(query: SupportSQLiteQuery): Int
+
+	@RawQuery
+	suspend fun get(query: SupportSQLiteQuery): CardEntity?
+
+	@Query(
+		"SELECT COUNT(nct.id) FROM cards_table AS nct " +
+				"JOIN phrase_table AS pt1 " +
+				"ON pt1.id = nct.id_phrase " +
+				"JOIN phrase_table AS pt2 " +
+				"ON pt2.id = nct.id_translate " +
+				"WHERE pt1.phrase LIKE '%' || :like || '%' " +
+				"OR pt2.phrase LIKE '%' || :like || '%'"
+	)
+	fun getCountFlow(like: String): Flow<Int>
+
+	@Query(
+		"SELECT COUNT(nct.id) FROM cards_table AS nct " +
+				"JOIN phrase_table AS pt1 " +
+				"ON pt1.id = nct.id_phrase " +
+				"JOIN phrase_table AS pt2 " +
+				"ON pt2.id = nct.id_translate " +
+				"WHERE (pt1.phrase LIKE '%' || :like || '%' " +
+				"OR pt2.phrase LIKE '%' || :like || '%') "
+	)
+	fun test(like: String): Flow<Int>
+
+	@Query("SELECT COUNT(id) FROM cards_table")
+	fun getCountFlow(): Flow<Int>
+
+	@Query(
+		"SELECT nct.* FROM cards_table AS nct " +
+				"JOIN phrase_table AS pt1 " +
+				"ON pt1.id = nct.id_phrase " +
+				"JOIN phrase_table AS pt2 " +
+				"ON pt2.id = nct.id_translate " +
+				"WHERE pt1.phrase LIKE '%' || :like || '%' " +
+				"OR pt2.phrase LIKE '%' || :like || '%' " +
+				"LIMIT :number, 1"
+	)
+	fun getCardFlow(like: String, number: Int): Flow<CardEntity?>
+
+
+	@Query(
+		"SELECT nct.* FROM cards_table AS nct " +
+				"JOIN phrase_table AS pt1 " +
+				"ON pt1.id = nct.id_phrase " +
+				"JOIN phrase_table AS pt2 " +
+				"ON pt2.id = nct.id_translate " +
+				"WHERE pt1.phrase LIKE '%' || :like || '%' " +
+				"OR pt2.phrase LIKE '%' || :like || '%' " +
+				"LIMIT :number, 1"
+	)
+	suspend fun getCard(like: String, number: Int): CardEntity?
+
+	@Query(
+		"SELECT nct.*, pt1.phrase AS ph1, pt2.phrase AS ph2 FROM cards_table AS nct " +
+				"JOIN phrase_table AS pt1 " +
+				"ON pt1.id = nct.id_phrase " +
+				"JOIN phrase_table AS pt2 " +
+				"ON pt2.id = nct.id_translate " +
+				"WHERE pt1.phrase LIKE '%' || :like || '%' " +
+				"OR pt2.phrase LIKE '%' || :like || '%' " +
+				"ORDER BY nct.time_change DESC " +
+				"LIMIT :number, 1"
+	)
+	suspend fun test(like: String, number: Int): CardEntity?
+
+	@Query("SELECT * FROM cards_table WHERE id = :id")
+	suspend fun getById(id: Int): CardEntity?
+
+	@Query("SELECT * FROM cards_table WHERE global_id = :id")
+	suspend fun getByGlobalId(id: UUID): CardEntity?
+
+	@Query("SELECT * FROM cards_table WHERE id = :id")
+	fun getByIdFlow(id: Int): Flow<CardEntity?>
+
+	@Query("SELECT * FROM cards_table ORDER BY RANDOM() LIMIT 1")
+	suspend fun getRandom(): CardEntity?
+
+	@Query("SELECT ct.* FROM cards_table AS ct " +
+			"LEFT JOIN error_card AS ec ON ct.id_phrase = ec.id_phrase AND ct.id_translate = ec.id_translate " +
+			"ORDER BY ec.percent_correct ASC " +
+			"LIMIT 1")
+	suspend fun getUnknowable(): CardEntity?
+
+	@Query("SELECT ct.* FROM cards_table AS ct " +
+			"LEFT JOIN error_card AS ec ON  ct.id_translate = ec.id_translate " +
+			"WHERE ec.id_phrase = :idPhrase " +
+			"ORDER BY ec.percent_correct ASC " +
+			"LIMIT 1")
+	suspend fun getConfusing(idPhrase: Int): CardEntity?
+
+	@Query("SELECT * FROM cards_table WHERE id <> :id ORDER BY RANDOM() LIMIT 1")
+	suspend fun getRandomWithOut(id: Int): CardEntity?
+
+	@Query("SELECT DISTINCT(reason) FROM cards_table WHERE reason LIKE '%' || :text || '%' ORDER BY LENGTH(reason), reason LIMIT 5")
+	suspend fun getClues(text:String): List<String>
+
+	@Query("SELECT COUNT(DISTINCT ct.id) FROM cards_table AS ct " +
+			"LEFT JOIN module_card AS mc " +
+			"ON ct.id = mc.id_card " +
+			"WHERE mc.id IS NULL")
+	fun countFree(): Flow<Int>
+
+	@Query("DELETE FROM cards_table " +
+			"WHERE NOT EXISTS (SELECT mct.id FROM module_card AS mct WHERE cards_table.id = mct.id_card)")
+	suspend fun deleteFree()
+
+	@Query("SELECT changed FROM cards_table WHERE id = :id")
+	fun isChanged(id: Int): Flow<Boolean?>
+}
