@@ -71,15 +71,15 @@ jobs:
           NETWORK_KEY_RELEASE: ${{ secrets.NETWORK_KEY_RELEASE }}
           NETWORK_STORE_PASSWORD: ${{ secrets.NETWORK_STORE_PASSWORD }}
 
-    - name: Generate release tag
+    - name: Get Version
       id: tag
       run: |
-          echo "::set-output name=release_tag::$(${{github.workspace}}/gradlew -q :app:version)"
+          echo "android_version=v$(${{github.workspace}}/gradlew -q :app:version)" >> $GITHUB_OUTPUT
           
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: "v${{ steps.tag.outputs.release_tag }}"
+        tag_name: "${{ steps.tag.outputs.android_version }}.${GITHUB_RUN_NUMBER}"
         files: | 
           app/build/outputs/apk/debug/app-debug.apk
           app/build/outputs/apk/release/app-release.apk
