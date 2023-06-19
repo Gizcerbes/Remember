@@ -8,14 +8,10 @@ plugins {
 android {
     signingConfigs {
         relise {
-            def pass = System.getenv("STORE_PASSWORD") ?: providers.gradleProperty("signing.store.password").get()
-            def alias = System.getenv("KEY_ALIAS") ?: providers.gradleProperty("signing.key.alias").get()
-            def keyPass = System.getenv("KEY_PASSWORD") ?: providers.gradleProperty("signing.key.password").get()
-
             storeFile file(providers.gradleProperty("signing.store.file").get())
-            storePassword pass
-            keyAlias alias
-            keyPassword keyPass
+            storePassword System.getenv("STORE_PASSWORD") ?: providers.gradleProperty("signing.store.password").get()
+            keyAlias System.getenv("KEY_ALIAS") ?: providers.gradleProperty("signing.key.alias").get()
+            keyPassword System.getenv("KEY_PASSWORD") ?: providers.gradleProperty("signing.key.password").get()
         }
     }
     compileSdk 33
