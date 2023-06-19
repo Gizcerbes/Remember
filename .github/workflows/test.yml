@@ -24,7 +24,7 @@ jobs:
     - name: Read Version
       id: tag
       run: |
-          echo ./gradlew :app:version
+          ./gradlew :app:version
           
     - name: Print tag
       run: echo ${{ steps.tag.outputs.release_tag }}
