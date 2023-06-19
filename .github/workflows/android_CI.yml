@@ -69,8 +69,8 @@ jobs:
           NETWORK_KEY_RELEASE: ${{ secrets.NETWORK_KEY_RELEASE }}
           NETWORK_STORE_PASSWORD: ${{ secrets.NETWORK_STORE_PASSWORD }}
       
-    - name: Upload
-      uses: actions/upload-artifact@v3
-      with:
-        name: Build Artifacts
-        path: app/build/outputs/
+#     - name: Upload
+#       uses: actions/upload-artifact@v3
+#       with:
+#         name: Build Artifacts
+#         path: app/build/outputs/
