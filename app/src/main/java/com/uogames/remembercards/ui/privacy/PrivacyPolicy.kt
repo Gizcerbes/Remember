@@ -1,20 +1,15 @@
 package com.uogames.remembercards.ui.privacy
 
 import android.os.Bundle
-import android.text.Html
 import android.text.method.LinkMovementMethod
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.tabs.TabLayout
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentPrivacyPolicyBinding
-import kotlinx.coroutines.delay
-import okhttp3.internal.wait
 
 class PrivacyPolicy : Fragment() {
 
@@ -32,6 +27,16 @@ class PrivacyPolicy : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         bind.tlPrivacyPolicy.addOnTabSelectedListener(tListener)
+        bind.tvPolicy.text = requireContext().assets.open(requireContext().getString(R.string.file_policy)).bufferedReader().let {
+            val txt = it.readText()
+            it.close()
+            txt
+        }
+        bind.tvTerms.text = requireContext().assets.open(requireContext().getString(R.string.file_terms)).bufferedReader().let {
+            val txt = it.readText()
+            it.close()
+            txt
+        }
         bind.tvPolicy.movementMethod = LinkMovementMethod.getInstance()
         bind.tvTerms.movementMethod = LinkMovementMethod.getInstance()
 

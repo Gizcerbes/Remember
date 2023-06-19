@@ -87,7 +87,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="13dp"
-                android:text="@string/policy"
+                android:autoLink="web"
                 android:textAppearance="?attr/textAppearanceBody2" />
 
             <TextView
@@ -95,7 +95,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="13dp"
-                android:text="@string/terms"
+                android:autoLink="web"
                 android:textAppearance="?attr/textAppearanceBody2"
                 android:visibility="gone" />
 
