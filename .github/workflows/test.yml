@@ -22,8 +22,8 @@ jobs:
       run: chmod +x gradlew
       
     - name : Retrieve Version
-      env:
-        ANDROID_VERSION: ./gradlew :app:version
+      run: |
+        echo ./gradlew :app:version >> $GITHUB_OUTPUT
 
     - name: Print tag
       run: echo "version_name=$ANDROID_VERSION"
