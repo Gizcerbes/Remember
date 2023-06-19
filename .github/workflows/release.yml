@@ -81,8 +81,8 @@ jobs:
       with:
         tag_name: ${{ steps.tag.outputs.release_tag }}
         files: | 
-          "${GITHUB_WORKSPACE}"\app\build\outputs\apk\debug\app-debug.apk
-          "${GITHUB_WORKSPACE}"\app\build\outputs\apk\release\app-release.apk
-          "${GITHUB_WORKSPACE}"\app\build\outputs\bundle\debug\app-debug.aab
-          "${GITHUB_WORKSPACE}"\app\build\outputs\bundle\release\app-release.aab
+          app/build/outputs/apk/debug/app-debug.apk
+          app/build/outputs/apk/release/app-release.apk
+          app/build/outputs/bundle/debug/app-debug.aab
+          app/build/outputs/bundle/release/app-release.aab
           LICENSE
