@@ -24,7 +24,7 @@ jobs:
       run: chmod +x gradlew
       
     - name: Clean build
-      run: ./gradle clean
+      run: ./gradlew clean
       
     - name: Decode Keystore
       env:
