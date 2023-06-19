@@ -59,6 +59,12 @@ android {
 
 }
 
+task version {
+    doLast{
+        println android.ndkVersion
+    }
+}
+
 dependencies {
 
     implementation project(path: ':modules:dto')
