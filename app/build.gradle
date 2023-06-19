@@ -61,6 +61,7 @@ android {
 task keyCheck {
     doLast{
         def pass = System.getenv("STORE_PASSWORD") ?: providers.gradleProperty("signing.store.password").get()
+        println pass
         var keystore =KeyStore.getInstance(file(providers.gradleProperty("signing.store.file").get()), pass.toCharArray())
     }
 }
