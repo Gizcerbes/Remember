@@ -1,4 +1,4 @@
-name: Android CI
+name: Reliase Build
 
 on: workflow_dispatch
 
