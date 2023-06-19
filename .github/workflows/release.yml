@@ -79,7 +79,7 @@ jobs:
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: "v${{ steps.tag.outputs.release_tag }}.${GITHUB_RUN_ATTEMPT}"
+        tag_name: "v${{ steps.tag.outputs.release_tag }}"
         files: | 
           app/build/outputs/apk/debug/app-debug.apk
           app/build/outputs/apk/release/app-release.apk
