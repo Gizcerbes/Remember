@@ -45,12 +45,30 @@ jobs:
       
     - name: Build with Gradle
       run: ./gradlew build
+      env:
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          NETWORK_KEY_DEBUG: ${{ secrets.NETWORK_KEY_DEBUG }}
+          NETWORK_KEY_RELEASE: ${{ secrets.NETWORK_KEY_RELEASE }}
+          NETWORK_STORE_PASSWORD: ${{ secrets.NETWORK_STORE_PASSWORD }}
       
     - name: Build bundle release
       run: ./gradlew :app:bundleRelease
+      env:
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          NETWORK_KEY_DEBUG: ${{ secrets.NETWORK_KEY_DEBUG }}
+          NETWORK_KEY_RELEASE: ${{ secrets.NETWORK_KEY_RELEASE }}
+          NETWORK_STORE_PASSWORD: ${{ secrets.NETWORK_STORE_PASSWORD }}
       
     - name: Build bundle debug
       run: ./gradlew :app:bundleDebug
+      env:
+          NETWORK_KEY_DEBUG: ${{ secrets.NETWORK_KEY_DEBUG }}
+          NETWORK_KEY_RELEASE: ${{ secrets.NETWORK_KEY_RELEASE }}
+          NETWORK_STORE_PASSWORD: ${{ secrets.NETWORK_STORE_PASSWORD }}
       
     - name: Upload
       uses: actions/upload-artifact@v3
