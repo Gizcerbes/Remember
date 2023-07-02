@@ -34,7 +34,6 @@ class GlobalViewModel @Inject constructor(
         const val GAME_YES_OR_NO_COUNT = "GAME_YES_OR_NO_COUNT"
     }
 
-
     val auth = Firebase.auth
     private val data = {
         val uid = auth.uid

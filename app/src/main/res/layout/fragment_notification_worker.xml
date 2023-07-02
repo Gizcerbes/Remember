@@ -135,6 +135,39 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="13dp"
+                android:layout_marginEnd="13dp" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="13dp"
+                android:layout_marginTop="13dp"
+                android:layout_marginEnd="13dp">
+
+                <TextView
+                    android:id="@+id/label_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:text="@string/notification_type"
+                    android:textAppearance="?attr/textAppearanceBody1" />
+
+                <TextView
+                    android:id="@+id/tv_selected_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:textAppearance="?attr/textAppearanceBody1"
+                    android:layout_toEndOf="@id/label_type"
+                    android:gravity="end"
+                    tools:text="MODULE NAME IT" />
+
+            </RelativeLayout>
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="13dp"
                 android:layout_marginEnd="13dp"
                 android:layout_marginBottom="13dp" />
         </LinearLayout>
@@ -186,6 +219,46 @@
                             android:layout_alignParentEnd="true"
                             android:textAppearance="?attr/textAppearanceBody1"
                             android:layout_toEndOf="@id/label_prepare_module"
+                            android:gravity="end"
+                            tools:text="MODULE NAME IT" />
+
+                    </RelativeLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="13dp"
+                    android:layout_marginEnd="13dp" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btn_choice_type"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:contentPaddingLeft="13dp"
+                    app:contentPaddingRight="13dp"
+                    app:contentPaddingTop="13dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:id="@+id/label_choice_type"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:text="@string/choice_type"
+                            android:textAppearance="?attr/textAppearanceBody1" />
+
+                        <TextView
+                            android:id="@+id/tv_selected_choice_type"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:textAppearance="?attr/textAppearanceBody1"
+                            android:layout_toEndOf="@id/label_choice_type"
                             android:gravity="end"
                             tools:text="MODULE NAME IT" />
 
