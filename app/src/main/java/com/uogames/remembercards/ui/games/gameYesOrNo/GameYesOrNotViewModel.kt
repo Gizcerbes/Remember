@@ -91,10 +91,10 @@ class GameYesOrNotViewModel @Inject constructor(
 
     fun newAnswer() = viewModelScope.launch {
         val f = module.value?.let {
-            if (Math.random() > 0.5) provider.moduleCard.getRandomModuleView(it)?.card
+            if (Math.random() > 0.25) provider.moduleCard.getRandomModuleView(it)?.card
             else provider.moduleCard.getUnknowable(it)?.card
         }.ifNull {
-            if (Math.random() > 0.5) provider.cards.getUnknowableView()
+            if (Math.random() > 0.25) provider.cards.getUnknowableView()
             else provider.cards.getRandomView()
         }?.let {
             LocalCardModel(it)
@@ -144,13 +144,13 @@ class GameYesOrNotViewModel @Inject constructor(
             provider.errorCardProvider.update(updateErrorCard(err, result))
         } else {
             val nc = updateErrorCard(ErrorCard(idPhrase = card.first.card.phrase.id, idTranslate = card.second.card.translate.id), result)
-            provider.errorCardProvider.add(nc)
+            if (nc.percentCorrect < 100) provider.errorCardProvider.add(nc)
         }
         if (trues != null) {
             provider.errorCardProvider.update(updateErrorCard(trues, result))
         } else {
             val nc = updateErrorCard(ErrorCard(idPhrase = card.first.card.phrase.id, idTranslate = card.first.card.translate.id), result)
-            provider.errorCardProvider.add(nc)
+            if (nc.percentCorrect < 100) provider.errorCardProvider.add(nc)
         }
     }
 

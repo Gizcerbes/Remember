@@ -35,11 +35,22 @@ interface ModuleCardDAO {
 	@Query("SELECT * FROM module_card WHERE id_module = :idModule ORDER BY RANDOM() LIMIT 1")
 	suspend fun getRandomModuleCard(idModule: Int): ModuleCardEntity?
 
+//	@Query("SELECT mc.* FROM module_card AS mc " +
+//			"JOIN cards_table AS ct ON mc.id_card = ct.id " +
+//			"LEFT JOIN error_card AS ec ON ct.id_phrase = ec.id_phrase AND ct.id_translate = ec.id_translate " +
+//			"WHERE mc.id_module = :idModule " +
+//			"ORDER BY ec.percent_correct ASC " +
+//			"LIMIT 1")
+//	suspend fun getUnknowable(idModule: Int): ModuleCardEntity?
+
 	@Query("SELECT mc.* FROM module_card AS mc " +
 			"JOIN cards_table AS ct ON mc.id_card = ct.id " +
 			"LEFT JOIN error_card AS ec ON ct.id_phrase = ec.id_phrase AND ct.id_translate = ec.id_translate " +
 			"WHERE mc.id_module = :idModule " +
-			"ORDER BY ec.percent_correct ASC " +
+			"ORDER BY CASE " +
+			"WHEN ec.percent_correct IS NULL THEN 100 " +
+			"else ec.percent_correct " +
+			"END ASC " +
 			"LIMIT 1")
 	suspend fun getUnknowable(idModule: Int): ModuleCardEntity?
 
@@ -48,15 +59,33 @@ interface ModuleCardDAO {
 			"LEFT JOIN error_card AS ec ON  ct.id_translate = ec.id_translate " +
 			"WHERE mc.id_module = :idModule " +
 			"AND ec.id_phrase = :idPhrase " +
-			"ORDER BY ec.percent_correct ASC " +
+			"ORDER BY CASE " +
+			"WHEN ec.percent_correct IS NULL THEN 100 " +
+			"ELSE ec.percent_correct " +
+			"END ASC " +
 			"LIMIT 1")
 	suspend fun getConfusing(idModule: Int, idPhrase: Int): ModuleCardEntity?
+
 
 	@Query("SELECT * FROM module_card WHERE id_card <> :idCard ORDER BY RANDOM() LIMIT 1")
 	suspend fun getRandomWithout(idCard: Int): ModuleCardEntity?
 
+	@Query("SELECT * FROM module_card WHERE id_card NOT IN (:idCard) ORDER BY RANDOM() LIMIT 1")
+	suspend fun getRandomWithout(idCard: Array<Int>): ModuleCardEntity?
+
 	@Query("SELECT * FROM module_card WHERE id_module = :idModule AND id <> :idCard ORDER BY RANDOM() LIMIT 1")
 	suspend fun getRandomWithout(idModule: Int, idCard: Int): ModuleCardEntity?
+
+	@Query("SELECT * FROM module_card WHERE id_module = :idModule AND id_card NOT IN (:idCard) ORDER BY RANDOM() LIMIT 1")
+	suspend fun getRandomWithout(idModule: Int, idCard: Array<Int>): ModuleCardEntity?
+
+	@Query("SELECT mc.* FROM module_card AS mc " +
+			"JOIN cards_table AS ct ON mc.id_card = ct.id " +
+			"WHERE mc.id_module = :idModule " +
+			"AND ct.id_phrase NOT IN (:phraseIds)" +
+			"AND ct.id_translate NOT IN (:phraseIds) " +
+			"ORDER BY RANDOM() LIMIT 1")
+	suspend fun getRandomWithoutPhrases(idModule: Int, phraseIds: Array<Int>): ModuleCardEntity?
 
 	@Query("SELECT * FROM module_card WHERE id = :moduleCardId")
 	suspend fun getById(moduleCardId: Int): ModuleCardEntity?

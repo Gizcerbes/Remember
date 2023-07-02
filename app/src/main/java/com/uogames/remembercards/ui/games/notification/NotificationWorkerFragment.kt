@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.work.*
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentNotificationWorkerBinding
 import com.uogames.remembercards.ui.module.choiceModuleDialog.ChoiceModuleDialog
@@ -19,6 +20,8 @@ import com.uogames.remembercards.utils.ifTrue
 import com.uogames.remembercards.utils.observe
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -76,6 +79,26 @@ class NotificationWorkerFragment : DaggerFragment() {
             dialog.show(requireActivity().supportFragmentManager, ChoiceModuleDialog.TAG)
         }
 
+        bind.btnChoiceType.setOnClickListener {
+            val items = arrayOf(
+                requireContext().getText(R.string.show),
+                requireContext().getText(R.string.choice_answer)
+            )
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(requireContext().getText(R.string.types))
+                .setItems(items){ _, v ->
+                    bind.tvSelectedChoiceType.text = items[v]
+                    bind.tvSelectedType.text = items[v]
+                    lifecycleScope.launch {
+                        when (v) {
+                            0 -> model.setType(NotificationReceiver.NotificationType.SHOW)
+                            1 -> model.setType(NotificationReceiver.NotificationType.CHOICE)
+                        }
+                    }
+                }.show()
+        }
+
+
         bind.btnStop.setOnClickListener {
             workManager.cancelUniqueWork(NotificationWorker.WORKER_UNIQUE_NAME)
         }
@@ -83,8 +106,8 @@ class NotificationWorkerFragment : DaggerFragment() {
             findNavController().popBackStack()
         }
 
-        observers = lifecycleScope.launchWhenStarted {
 
+        observers = lifecycleScope.launchWhenStarted {
             model.notificationModuleID.observe(this) {
                 runCatching {
                     val id = it?.toInt()
@@ -104,6 +127,18 @@ class NotificationWorkerFragment : DaggerFragment() {
                     } else {
                         bind.tvSelectedPrepareModule.text = requireContext().getText(R.string.all_cards)
                     }
+                }
+            }
+            launch {
+                while (true) {
+                     val txt = when (model.getType()) {
+                        NotificationReceiver.NotificationType.SHOW -> requireContext().getText(R.string.show)
+                        NotificationReceiver.NotificationType.CHOICE -> requireContext().getText(R.string.choice_answer)
+                        else -> requireContext().getText(R.string.show)
+                    }
+                    bind.tvSelectedChoiceType.text = txt
+                    bind.tvSelectedType.text = txt
+                    delay(1000)
                 }
             }
         }

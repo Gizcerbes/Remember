@@ -99,16 +99,29 @@ interface CardDAO {
 	@Query("SELECT * FROM cards_table ORDER BY RANDOM() LIMIT 1")
 	suspend fun getRandom(): CardEntity?
 
+	@Query("SELECT * FROM cards_table WHERE id NOT IN (:cardsIds) ORDER BY RANDOM() LIMIT 1")
+	suspend fun getRandomWithout(cardsIds: Array<Int>): CardEntity?
+
+
+	@Query("SELECT * FROM cards_table WHERE id_phrase NOT IN (:phraseIds) AND id_translate NOT IN (:phraseIds) ORDER BY RANDOM() LIMIT 1")
+	suspend fun getRandomWithoutPhrases(phraseIds: Array<Int>): CardEntity?
+
 	@Query("SELECT ct.* FROM cards_table AS ct " +
 			"LEFT JOIN error_card AS ec ON ct.id_phrase = ec.id_phrase AND ct.id_translate = ec.id_translate " +
-			"ORDER BY ec.percent_correct ASC " +
+			"ORDER BY CASE " +
+			"WHEN ec.percent_correct IS NULL THEN 100 " +
+			"ELSE ec.percent_correct " +
+			"END ASC " +
 			"LIMIT 1")
 	suspend fun getUnknowable(): CardEntity?
 
 	@Query("SELECT ct.* FROM cards_table AS ct " +
 			"LEFT JOIN error_card AS ec ON  ct.id_translate = ec.id_translate " +
 			"WHERE ec.id_phrase = :idPhrase " +
-			"ORDER BY ec.percent_correct ASC " +
+			"ORDER BY CASE " +
+			"WHEN ec.percent_correct IS NULL THEN 100 " +
+			"ELSE ec.percent_correct " +
+			"END ASC " +
 			"LIMIT 1")
 	suspend fun getConfusing(idPhrase: Int): CardEntity?
 

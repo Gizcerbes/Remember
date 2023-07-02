@@ -157,6 +157,10 @@ class CardRepository(
 
     suspend fun getRandomView() = cardDAO.getRandom()?.let { map.toDTO(it) }
 
+    suspend fun getRandomViewWithout(cardIds: Array<Int>) = cardDAO.getRandomWithout(cardIds)?.let { map.toDTO(it) }
+
+    suspend fun getRandomViewWithoutPhrases(phraseIds: Array<Int>) = cardDAO.getRandomWithoutPhrases(phraseIds)?.let { map.toDTO(it) }
+
     suspend fun getUnknowableView() = cardDAO.getUnknowable()?.let { map.toDTO(it) }
 
     suspend fun getConfusingView(idPhrase: Int) = cardDAO.getConfusing(idPhrase)?.let { map.toDTO(it) }
