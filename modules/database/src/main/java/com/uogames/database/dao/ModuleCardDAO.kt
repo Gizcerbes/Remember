@@ -88,7 +88,7 @@ interface ModuleCardDAO {
 	@Query("SELECT mc.* FROM module_card AS mc " +
 			"JOIN cards_table AS ct ON mc.id_card = ct.id " +
 			"WHERE mc.id_module = :idModule " +
-			"AND ct.id_phrase NOT IN (:phraseIds)" +
+			"AND ct.id_phrase NOT IN (:phraseIds) " +
 			"AND ct.id_translate NOT IN (:phraseIds) " +
 			"ORDER BY RANDOM() LIMIT 1")
 	suspend fun getRandomWithoutPhrases(idModule: Int, phraseIds: Array<Int>): ModuleCardEntity?

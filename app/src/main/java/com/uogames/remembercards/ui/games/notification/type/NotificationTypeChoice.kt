@@ -44,7 +44,6 @@ object NotificationTypeChoice {
 		if (first == 0 || second == 0) return null
 		model.saveResult(first, second, result)
 		val card = model.getCardById(first) ?: return null
-		val flag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_MUTABLE else PendingIntent.FLAG_UPDATE_CURRENT
 		val notification = NotificationCompat.Builder(context, App.NOTIFICATION_CHANNEL_ID)
 			.setSmallIcon(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) R.drawable.ic_logo_trans else R.drawable.ic_launcher_round)
 			.setOnlyAlertOnce(true)

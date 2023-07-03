@@ -55,7 +55,7 @@ class ModuleCardProvider(
 
 	suspend fun getRandomViewWithout(idModule: Int, idCard: Array<Int>) = mcr.getRandomModuleViewWithout(idModule, idCard)
 
-	suspend fun getRandomViewWithoutPhrases(idModule: Int, phraseIds: Array<Int>) = mcr.getRandomModuleViewWithout(idModule, phraseIds)
+	suspend fun getRandomViewWithoutPhrases(idModule: Int, phraseIds: Array<Int>) = mcr.getRandomModuleViewWithoutPhrases(idModule, phraseIds)
 
 	suspend fun removeByModule(idModule: Int) = mcr.removeByModuleId(idModule)
 

@@ -1,5 +1,6 @@
 package com.uogames.remembercards.ui.games.notification
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.uogames.dto.local.ErrorCard
@@ -46,14 +47,18 @@ class NotificationViewModel @Inject constructor(
 		val moduleId = globalViewModel.provider.setting.get(GlobalViewModel.MODULE_ID_FOR_NOTIFICATION)?.toInt()
 		val card = provider.cards.getById(cardId) ?: return null
 		return if (moduleId != null) {
-			if (Math.random() > 0.5)
-				provider.moduleCard.getConfusingViewWithout(moduleId, card.idPhrase, arrayOf(card.idPhrase, card.idTranslate))?.card
-					?: provider.moduleCard.getRandomViewWithoutPhrases(moduleId, arrayOf(card.idPhrase, card.idTranslate))?.card
-			else provider.moduleCard.getRandomViewWithout(moduleId, arrayOf(card.idPhrase, card.idTranslate))?.card
+			if (Math.random() > 0.5) provider.moduleCard.getConfusingViewWithout(
+				moduleId,
+				card.idPhrase,
+				arrayOf(card.idPhrase, card.idTranslate)
+			)?.card.ifNull {
+				provider.moduleCard.getRandomViewWithoutPhrases(moduleId, arrayOf(card.idPhrase, card.idTranslate))?.card
+			}
+			else provider.moduleCard.getRandomViewWithoutPhrases(moduleId, arrayOf(card.idPhrase, card.idTranslate))?.card
 		} else {
-			if (Math.random() > 0.5) provider.cards.getConfusingViewWithout(card.idPhrase,arrayOf(card.idPhrase, card.idTranslate))
+			if (Math.random() > 0.5) provider.cards.getConfusingViewWithout(card.idPhrase, arrayOf(card.idPhrase, card.idTranslate))
 				?: provider.cards.getRandomViewWithoutPhrases(arrayOf(card.idPhrase, card.idTranslate))
-			else provider.cards.getRandomViewWithout(arrayOf(card.idPhrase, card.idTranslate))
+			else provider.cards.getRandomViewWithoutPhrases(arrayOf(card.idPhrase, card.idTranslate))
 		}
 	}
 
