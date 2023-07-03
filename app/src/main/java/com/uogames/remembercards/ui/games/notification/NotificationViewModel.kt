@@ -47,11 +47,11 @@ class NotificationViewModel @Inject constructor(
 		val card = provider.cards.getById(cardId) ?: return null
 		return if (moduleId != null) {
 			if (Math.random() > 0.5)
-				provider.moduleCard.getConfusing(moduleId, card.idPhrase)?.card
+				provider.moduleCard.getConfusingViewWithout(moduleId, card.idPhrase, arrayOf(card.idPhrase, card.idTranslate))?.card
 					?: provider.moduleCard.getRandomViewWithoutPhrases(moduleId, arrayOf(card.idPhrase, card.idTranslate))?.card
 			else provider.moduleCard.getRandomViewWithout(moduleId, arrayOf(card.idPhrase, card.idTranslate))?.card
 		} else {
-			if (Math.random() > 0.5) provider.cards.getConfusingView(card.idPhrase)
+			if (Math.random() > 0.5) provider.cards.getConfusingViewWithout(card.idPhrase,arrayOf(card.idPhrase, card.idTranslate))
 				?: provider.cards.getRandomViewWithoutPhrases(arrayOf(card.idPhrase, card.idTranslate))
 			else provider.cards.getRandomViewWithout(arrayOf(card.idPhrase, card.idTranslate))
 		}

@@ -76,6 +76,8 @@ class CardsProvider(
 
     suspend fun getConfusingView(idPhrase: Int) = repository.getConfusingView(idPhrase)
 
+    suspend fun getConfusingViewWithout(idPhrase: Int, phraseIds: Array<Int>) = repository.getConfusingViewWithoutPhrases(idPhrase, phraseIds)
+
     suspend fun getRandomWithout(id: Int) = repository.getRandomWithOut(id)
 
     fun countFree() = repository.countFree()

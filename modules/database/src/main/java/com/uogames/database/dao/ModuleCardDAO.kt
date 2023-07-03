@@ -59,13 +59,19 @@ interface ModuleCardDAO {
 			"LEFT JOIN error_card AS ec ON  ct.id_translate = ec.id_translate " +
 			"WHERE mc.id_module = :idModule " +
 			"AND ec.id_phrase = :idPhrase " +
-			"ORDER BY CASE " +
-			"WHEN ec.percent_correct IS NULL THEN 100 " +
-			"ELSE ec.percent_correct " +
-			"END ASC " +
+			"ORDER BY  ec.percent_correct ASC " +
 			"LIMIT 1")
 	suspend fun getConfusing(idModule: Int, idPhrase: Int): ModuleCardEntity?
 
+	@Query("SELECT mc.* FROM module_card AS mc " +
+			"JOIN cards_table AS ct ON mc.id_card = ct.id " +
+			"LEFT JOIN error_card AS ec ON  ct.id_translate = ec.id_translate " +
+			"WHERE mc.id_module = :idModule " +
+			"AND ec.id_phrase = :idPhrase " +
+			"AND ec.id_translate NOT IN (:phraseIds) " +
+			"ORDER BY  ec.percent_correct ASC " +
+			"LIMIT 1")
+	suspend fun getConfusingWithoutPhrases(idModule: Int, idPhrase: Int, phraseIds: Array<Int>): ModuleCardEntity?
 
 	@Query("SELECT * FROM module_card WHERE id_card <> :idCard ORDER BY RANDOM() LIMIT 1")
 	suspend fun getRandomWithout(idCard: Int): ModuleCardEntity?
