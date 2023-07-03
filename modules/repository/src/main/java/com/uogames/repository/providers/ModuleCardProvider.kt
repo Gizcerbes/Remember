@@ -49,11 +49,13 @@ class ModuleCardProvider(
 
 	suspend fun getConfusing(idModule: Int, idPhrase: Int) = mcr.getConfusing(idModule, idPhrase)
 
+	suspend fun getConfusingViewWithout(idModule: Int, idPhrase: Int, phraseIds: Array<Int>) = mcr.getConfusingWithoutPhrases(idModule, idPhrase, phraseIds)
+
 	suspend fun getRandomWithout(idModule: Int, idCard: Int) = mcr.getRandomModuleWithout(idModule, idCard)
 
 	suspend fun getRandomViewWithout(idModule: Int, idCard: Array<Int>) = mcr.getRandomModuleViewWithout(idModule, idCard)
 
-	suspend fun getRandomViewWithoutPhrases(idModule: Int, phraseIds: Array<Int>) = mcr.getRandomModuleViewWithout(idModule, phraseIds)
+	suspend fun getRandomViewWithoutPhrases(idModule: Int, phraseIds: Array<Int>) = mcr.getRandomModuleViewWithoutPhrases(idModule, phraseIds)
 
 	suspend fun removeByModule(idModule: Int) = mcr.removeByModuleId(idModule)
 

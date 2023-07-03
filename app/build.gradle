@@ -15,12 +15,12 @@ android {
         }
     }
     compileSdk 33
-    ndkVersion '0.1.29'
+    ndkVersion '0.1.30'
     defaultConfig {
         applicationId "com.uogames.remembercards"
         minSdk 26
         targetSdk 33
-        versionCode 19
+        versionCode 20
         versionName ndkVersion
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -56,7 +56,6 @@ android {
         viewBinding = true
     }
     namespace 'com.uogames.remembercards'
-
 }
 
 task version {
@@ -72,17 +71,18 @@ dependencies {
     implementation project(path: ':modules:flags')
 
 
-    implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'androidx.appcompat:appcompat:1.5.0'
-    implementation 'com.google.android.material:material:1.6.1'
+    implementation 'androidx.core:core-ktx:1.10.1'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.1'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.5.1'
+    // We use backQueue to know how deep we are. With version 2.6.0 it isn't possible.
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
 
 
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
     implementation 'com.google.dagger:dagger:2.43'
     kapt 'com.google.dagger:dagger-compiler:2.43'
@@ -102,7 +102,7 @@ dependencies {
         exclude module: "play-services-safetynet"
     }
     implementation platform('com.google.firebase:firebase-bom:30.3.1')
-    implementation('com.google.android.gms:play-services-auth:20.5.0') {
+    implementation('com.google.android.gms:play-services-auth:20.6.0') {
         exclude module: "play-services-safetynet"
     }
     implementation('com.google.firebase:firebase-auth-ktx') {

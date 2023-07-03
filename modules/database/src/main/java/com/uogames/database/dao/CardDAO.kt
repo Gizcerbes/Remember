@@ -118,12 +118,17 @@ interface CardDAO {
 	@Query("SELECT ct.* FROM cards_table AS ct " +
 			"LEFT JOIN error_card AS ec ON  ct.id_translate = ec.id_translate " +
 			"WHERE ec.id_phrase = :idPhrase " +
-			"ORDER BY CASE " +
-			"WHEN ec.percent_correct IS NULL THEN 100 " +
-			"ELSE ec.percent_correct " +
-			"END ASC " +
+			"ORDER BY  ec.percent_correct ASC " +
 			"LIMIT 1")
 	suspend fun getConfusing(idPhrase: Int): CardEntity?
+
+	@Query("SELECT ct.* FROM cards_table AS ct " +
+			"LEFT JOIN error_card AS ec ON  ct.id_translate = ec.id_translate " +
+			"WHERE ec.id_phrase = :idPhrase " +
+			"AND ct.id_translate NOT IN (:phraseIds) " +
+			"ORDER BY ec.percent_correct  ASC " +
+			"LIMIT 1")
+	suspend fun getConfusingWithoutPhrases(idPhrase: Int, phraseIds: Array<Int>): CardEntity?
 
 	@Query("SELECT * FROM cards_table WHERE id <> :id ORDER BY RANDOM() LIMIT 1")
 	suspend fun getRandomWithOut(id: Int): CardEntity?

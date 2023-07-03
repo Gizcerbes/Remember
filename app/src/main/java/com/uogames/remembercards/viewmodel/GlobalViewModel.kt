@@ -109,8 +109,8 @@ class GlobalViewModel @Inject constructor(
         auth.currentUser?.reload()
     }
 
-    fun setShowKeyboard(view: View) {
-
+    fun setShowKeyboard(view: View?) {
+        if (view == null) return
         job?.cancel()
         job = viewModelScope.launch {
             delay(10)
@@ -120,7 +120,7 @@ class GlobalViewModel @Inject constructor(
         }
     }
 
-    fun setBackQueue(arrBackStack: ArrayDeque<NavBackStackEntry>?) {
+    fun setBackQueue(arrBackStack: List<NavBackStackEntry>?) {
         arrBackStack?.let {
             val lastDest = it.last().destination
             _shouldReset = it.size > _backSize || (it.size == _backSize && lastDestination != lastDest)
