@@ -43,22 +43,33 @@ class NotificationViewModel @Inject constructor(
 		}
 	}
 
-	override suspend fun getRandomWithout(cardId: Int): LocalCardView? {
+//	override suspend fun getRandomWithout(cardId: Int): LocalCardView? {
+//		val moduleId = globalViewModel.provider.setting.get(GlobalViewModel.MODULE_ID_FOR_NOTIFICATION)?.toInt()
+//		val card = provider.cards.getById(cardId) ?: return null
+//		return if (moduleId != null) {
+//			if (Math.random() > 0.5) provider.moduleCard.getConfusingViewWithout(
+//				moduleId,
+//				card.idPhrase,
+//				arrayOf(card.idPhrase, card.idTranslate)
+//			)?.card.ifNull {
+//				provider.moduleCard.getRandomViewWithoutPhrases(moduleId, arrayOf(card.idPhrase, card.idTranslate))?.card
+//			}
+//			else provider.moduleCard.getRandomViewWithoutPhrases(moduleId, arrayOf(card.idPhrase, card.idTranslate))?.card
+//		} else {
+//			if (Math.random() > 0.5) provider.cards.getConfusingViewWithout(card.idPhrase, arrayOf(card.idPhrase, card.idTranslate))
+//				?: provider.cards.getRandomViewWithoutPhrases(arrayOf(card.idPhrase, card.idTranslate))
+//			else provider.cards.getRandomViewWithoutPhrases(arrayOf(card.idPhrase, card.idTranslate))
+//		}
+//	}
+
+	override suspend fun getRandomWithoutPhrases(card: LocalCardView, phraseIds: Array<Int>): LocalCardView? {
 		val moduleId = globalViewModel.provider.setting.get(GlobalViewModel.MODULE_ID_FOR_NOTIFICATION)?.toInt()
-		val card = provider.cards.getById(cardId) ?: return null
 		return if (moduleId != null) {
-			if (Math.random() > 0.5) provider.moduleCard.getConfusingViewWithout(
-				moduleId,
-				card.idPhrase,
-				arrayOf(card.idPhrase, card.idTranslate)
-			)?.card.ifNull {
-				provider.moduleCard.getRandomViewWithoutPhrases(moduleId, arrayOf(card.idPhrase, card.idTranslate))?.card
-			}
-			else provider.moduleCard.getRandomViewWithoutPhrases(moduleId, arrayOf(card.idPhrase, card.idTranslate))?.card
+			val r = if (Math.random() > 0.5) provider.moduleCard.getConfusingViewWithout(moduleId, card.phrase.id, phraseIds)?.card else null
+			r ?: provider.moduleCard.getRandomViewWithoutPhrases(moduleId, phraseIds)?.card
 		} else {
-			if (Math.random() > 0.5) provider.cards.getConfusingViewWithout(card.idPhrase, arrayOf(card.idPhrase, card.idTranslate))
-				?: provider.cards.getRandomViewWithoutPhrases(arrayOf(card.idPhrase, card.idTranslate))
-			else provider.cards.getRandomViewWithoutPhrases(arrayOf(card.idPhrase, card.idTranslate))
+			val r = if (Math.random() > 0.5) provider.cards.getConfusingViewWithout(card.phrase.id, phraseIds) else null
+			r	?: provider.cards.getRandomViewWithoutPhrases(phraseIds)
 		}
 	}
 
