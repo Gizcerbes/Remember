@@ -13,9 +13,11 @@
 	<color name="btn_positive">#B4FFB4</color>
     <color name="btn_inform">#B4B4FA</color>
     <color name="txt_inform">#3F51FF</color>
+	<color name="btn_notification">#faf0e6</color>
 
     <color name="redwood">#5b342e</color>
     <color name="linen">#faf0e6</color>
+
 
     <color name="oliveDrab">#6b8e23</color>
     <color name="darkGreen">#006400</color>

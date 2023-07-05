@@ -64,7 +64,7 @@ object NotificationTypeShow {
 		cardAction: String = ACTION_BACK_SIDE
 	): NotificationCompat.Builder {
 		val imageData = phrase.image?.let { model.getData(it) }
-		val flag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_MUTABLE else PendingIntent.FLAG_UPDATE_CURRENT
+		val flag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT else PendingIntent.FLAG_UPDATE_CURRENT
 		val notification = NotificationCompat.Builder(context, App.NOTIFICATION_CHANNEL_ID)
 			.setSmallIcon(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) R.drawable.ic_logo_trans else R.drawable.ic_launcher_round)
 			.setContentTitle(phrase.phrase)
