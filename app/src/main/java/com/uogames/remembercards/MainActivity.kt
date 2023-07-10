@@ -1,5 +1,6 @@
 package com.uogames.remembercards
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -17,6 +18,8 @@ import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
+import com.uogames.remembercards.broadcast.DownloadForeground
+import com.uogames.remembercards.broadcast.NotificationReceiver
 import com.uogames.remembercards.utils.Permission
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observe
@@ -94,18 +97,21 @@ class MainActivity : DaggerAppCompatActivity() {
 
 		val navController = findNavController(R.id.nav_host_fragment)
 
-
 		observers = lifecycleScope.launch {
-//			navController.visibleEntries.observe(this){
-//				globalViewModel.setBackQueue(it)
-//			}
-
 			navController.currentBackStackEntryFlow.observe(this) { globalViewModel.setBackQueue(navController.backQueue) }
 
 			globalViewModel.screenMode.observe(this) {
 				if (AppCompatDelegate.getDefaultNightMode() == it) return@observe
 				AppCompatDelegate.setDefaultNightMode(it)
 			}
+			globalViewModel.downloadCount.observe(this) {
+				if (it > 0) sendBroadcast(Intent(
+					applicationContext,
+					NotificationReceiver::class.java
+				).apply { action = DownloadForeground.ACTION_START })
+
+			}
+
 		}
 	}
 

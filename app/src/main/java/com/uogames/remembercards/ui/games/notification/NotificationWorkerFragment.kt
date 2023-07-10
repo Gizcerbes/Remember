@@ -2,7 +2,6 @@ package com.uogames.remembercards.ui.games.notification
 
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +10,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.work.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.uogames.remembercards.R
+import com.uogames.remembercards.broadcast.NotificationReceiver
 import com.uogames.remembercards.databinding.FragmentNotificationWorkerBinding
 import com.uogames.remembercards.ui.module.choiceModuleDialog.ChoiceModuleDialog
 import com.uogames.remembercards.ui.module.choiceModuleDialog.ChoiceModuleViewModel
@@ -57,7 +57,7 @@ class NotificationWorkerFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val moduleID = arguments?.get(MODULE_ID) as? Int
+        val moduleID = arguments?.getInt(MODULE_ID)
 
         model.moduleID.value = moduleID
 

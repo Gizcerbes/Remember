@@ -13,7 +13,7 @@ object JWTBuilder {
 	fun create(secret: String, data: Map<String, String>, time: Int = 6000): String {
 		var byteCode: Byte = 0
 		return JWT.create().apply {
-			data.forEach { (t, u) ->
+			data.forEach { (_, u) ->
 				u.toByteArray().forEach { b -> byteCode = byteCode.xor(b) }
 			}
 			withExpiresAt(Date(System.currentTimeMillis() + time))

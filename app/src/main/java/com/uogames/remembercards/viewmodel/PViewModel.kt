@@ -2,6 +2,7 @@ package com.uogames.remembercards.viewmodel
 
 import android.content.Context
 import android.graphics.drawable.AnimationDrawable
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.uogames.dto.global.GlobalPhraseView
 import com.uogames.dto.local.LocalPhrase
@@ -109,7 +110,12 @@ class PViewModel(
         country: String?,
         newest: Boolean = false,
         position: Int?
-    ) = provider.phrase.getView(like, lang, country, newest, position)?.let { LocalPhraseModel(it) }
+    ): LocalPhraseModel? {
+        val t = System.nanoTime()
+        val r = provider.phrase.getView(like, lang, country, newest, position)?.let { LocalPhraseModel(it) }
+        Log.e("TAG", "time: ${System.nanoTime() - t}", )
+        return r
+    }
 
     suspend fun getGlobalModel(
         like: String?,

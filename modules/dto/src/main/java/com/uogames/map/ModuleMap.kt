@@ -8,7 +8,7 @@ import com.uogames.dto.local.LocalModule
 object ModuleMap {
 
 	fun LocalModule.toGlobal() = GlobalModule(
-		globalId = globalId ?: DefaultUUID.value,
+		globalId = globalId,
 		globalOwner = globalOwner ?: "",
 		name = name,
 		timeChange = timeChange,

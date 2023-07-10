@@ -1,7 +1,6 @@
 package com.uogames.database
 
 import android.content.Context
-import com.uogames.database.map.*
 import com.uogames.database.repository.*
 
 class DatabaseRepository private constructor(private val database: MyDatabase) {
@@ -17,41 +16,30 @@ class DatabaseRepository private constructor(private val database: MyDatabase) {
         }
     }
 
-    private val imageMapper = ImageViewMap()
-    private val pronounceMapper = PronunciationViewMap()
-    private val phraseMapper = PhraseViewMap(
-        pronounceBuilder = { id: Int -> pronunciationRepository.getViewById(id) },
-        imageBuilder = { id: Int -> imageRepository.getViewByID(id) }
-    )
-    private val cardMapper = CardViewMap(
-        phraseBuilder = { id: Int -> phraseRepository.getViewById(id) ?: throw Exception("Phrase wasn't loaded") },
-        imageBuilder = { id: Int -> imageRepository.getViewByID(id) }
-    )
-    private val moduleMapper = ModuleViewMap()
-    private val moduleCardMapper = ModuleCardViewMap(
-        moduleBuilder = { id -> moduleRepository.getViewById(id) ?: throw Exception("Module wasn't loaded") },
-        cardBuilder = { id -> cardRepository.getViewById(id) ?: throw Exception("Card wasn't loaded") }
-    )
 
-    val phraseRepository by lazy { PhraseRepository(database.phraseDAO(), phraseMapper) }
+    val phraseRepository by lazy { PhraseRepository(database.phraseDAO()) }
 
-    val imageRepository by lazy { ImageRepository(database.imageDAO(), imageMapper) }
+    val imageRepository by lazy { ImageRepository(database.imageDAO()) }
 
-    val pronunciationRepository by lazy { PronunciationRepository(database.pronunciationDAO(), pronounceMapper) }
+    val pronunciationRepository by lazy { PronunciationRepository(database.pronunciationDAO()) }
 
-    val cardRepository by lazy { CardRepository(database.cardDAO(), cardMapper) }
+    val cardRepository by lazy { CardRepository(database.cardDAO()) }
 
     val settingRepository by lazy { SettingRepository(database.settingDAO()) }
 
-    val moduleRepository by lazy { ModuleRepository(database.moduleDAO(), moduleMapper) }
+    val moduleRepository by lazy { ModuleRepository(database.moduleDAO()) }
 
-    val moduleCardRepository by lazy { ModuleCardRepository(database.moduleCardDAO(), moduleCardMapper) }
+    val moduleCardRepository by lazy { ModuleCardRepository(database.moduleCardDAO()) }
 
     val userRepository by lazy { UserRepository(database.userDAO()) }
 
     val shareRepository by lazy { ShareRepository(database.shareDAO()) }
 
+    val downloadRepository by lazy { DownloadRepository(database.downloadDAO()) }
+
     val errorCardRepository by lazy { ErrorCardRepository(database.errorCardDAO()) }
+
+
 
 
 }

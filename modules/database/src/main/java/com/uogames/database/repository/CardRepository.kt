@@ -3,25 +3,18 @@ package com.uogames.database.repository
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.uogames.database.dao.CardDAO
 import com.uogames.database.entity.CardEntity
-import com.uogames.database.map.CardMap.toDTO
-import com.uogames.database.map.CardMap.toEntity
-import com.uogames.database.map.ViewMap
-import com.uogames.dto.local.LocalCard
-import com.uogames.dto.local.LocalCardView
-import kotlinx.coroutines.flow.map
 import java.util.*
 import kotlin.collections.ArrayList
 
 class CardRepository(
-	private val cardDAO: CardDAO,
-	private val map: ViewMap<CardEntity, LocalCardView>
+	private val cardDAO: CardDAO
 ) {
 
-	suspend fun insert(card: LocalCard) = cardDAO.insert(card.toEntity())
+	suspend fun insert(card: CardEntity) = cardDAO.insert(card)
 
-	suspend fun delete(card: LocalCard) = cardDAO.delete(card.toEntity()) > 0
+	suspend fun delete(card: CardEntity) = cardDAO.delete(card) > 0
 
-	suspend fun update(card: LocalCard) = cardDAO.update(card.toEntity()) > 0
+	suspend fun update(card: CardEntity) = cardDAO.update(card) > 0
 
 	suspend fun count(
 		like: String? = null,
@@ -118,7 +111,6 @@ class CardRepository(
 		}
 		if (newest) builder.append("ORDER BY nct.time_change DESC ")
 		else builder.append("ORDER BY length(ph1), ph1, length(ph2), ph2 ")
-		//builder.append("ORDER BY length(ph1), ph1 ")
 		position?.let { builder.append("LIMIT $position, 1") }
 		return cardDAO.get(SimpleSQLiteQuery(builder.toString(), params.toArray()))
 	}
@@ -131,44 +123,34 @@ class CardRepository(
 		countrySecond: String? = null,
 		newest: Boolean = false,
 		position: Int? = null
-	) = getEntity(like, langFirst, langSecond, countryFirst, countrySecond, newest, position)?.toDTO()
-
-	suspend fun getView(
-		like: String? = null,
-		langFirst: String? = null,
-		langSecond: String? = null,
-		countryFirst: String? = null,
-		countrySecond: String? = null,
-		newest: Boolean = false,
-		position: Int? = null
-	) = getEntity(like, langFirst, langSecond, countryFirst, countrySecond, newest, position)?.let { map.toDTO(it) }
+	) = getEntity(like, langFirst, langSecond, countryFirst, countrySecond, newest, position)
 
 	fun getCountFlow() = cardDAO.getCountFlow()
 
-	suspend fun getById(id: Int) = cardDAO.getById(id)?.toDTO()
+	suspend fun getById(id: Int) = cardDAO.getById(id)
 
-	suspend fun getViewById(id: Int) = cardDAO.getById(id)?.let { map.toDTO(it) }
+	suspend fun getViewById(id: Int) = cardDAO.getById(id)
 
-	suspend fun getByGlobalId(id: UUID) = cardDAO.getByGlobalId(id)?.toDTO()
+	suspend fun getByGlobalId(id: UUID) = cardDAO.getByGlobalId(id)
 
-	fun getByIdFlow(id: Int) = cardDAO.getByIdFlow(id).map { it?.toDTO() }
+	fun getByIdFlow(id: Int) = cardDAO.getByIdFlow(id)
 
-	suspend fun getRandom() = cardDAO.getRandom()?.toDTO()
+	suspend fun getRandom() = cardDAO.getRandom()
 
-	suspend fun getRandomView() = cardDAO.getRandom()?.let { map.toDTO(it) }
+	suspend fun getRandomView() = cardDAO.getRandom()
 
-	suspend fun getRandomViewWithout(cardIds: Array<Int>) = cardDAO.getRandomWithout(cardIds)?.let { map.toDTO(it) }
+	suspend fun getRandomViewWithout(cardIds: Array<Int>) = cardDAO.getRandomWithout(cardIds)
 
-	suspend fun getRandomViewWithoutPhrases(phraseIds: Array<Int>) = cardDAO.getRandomWithoutPhrases(phraseIds)?.let { map.toDTO(it) }
+	suspend fun getRandomViewWithoutPhrases(phraseIds: Array<Int>) = cardDAO.getRandomWithoutPhrases(phraseIds)
 
-	suspend fun getUnknowableView() = cardDAO.getUnknowable()?.let { map.toDTO(it) }
+	suspend fun getUnknowableView() = cardDAO.getUnknowable()
 
-	suspend fun getConfusingView(idPhrase: Int) = cardDAO.getConfusing(idPhrase)?.let { map.toDTO(it) }
+	suspend fun getConfusingView(idPhrase: Int) = cardDAO.getConfusing(idPhrase)
 
 	suspend fun getConfusingViewWithoutPhrases(idPhrase: Int, phraseIds: Array<Int>) =
-		cardDAO.getConfusingWithoutPhrases(idPhrase, phraseIds)?.let { map.toDTO(it) }
+		cardDAO.getConfusingWithoutPhrases(idPhrase, phraseIds)
 
-	suspend fun getRandomWithOut(id: Int) = cardDAO.getRandomWithOut(id)?.toDTO()
+	suspend fun getRandomWithOut(id: Int) = cardDAO.getRandomWithOut(id)
 
 	suspend fun getClues(text: String) = cardDAO.getClues(text)
 
@@ -177,4 +159,7 @@ class CardRepository(
 	suspend fun deleteFree() = cardDAO.deleteFree()
 
 	fun isChanged(id: Int) = cardDAO.isChanged(id)
+
+
+
 }

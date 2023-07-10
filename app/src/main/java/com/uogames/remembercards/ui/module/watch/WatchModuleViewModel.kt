@@ -73,7 +73,7 @@ class WatchModuleViewModel @Inject constructor(
         model.getGlobalModuleCardModel(globalID, position)
     }
 
-    fun download(view: GlobalModuleView, loading: (String) -> Unit) = model.download(view, loading)
+    fun download(view: GlobalModuleView, loading: (String) -> Unit) = model.download(view)
 
     fun setDownloadAction(view: GlobalModuleView, loading: (String) -> Unit) = model.setDownloadAction(view.globalId, loading)
 

@@ -3,26 +3,18 @@ package com.uogames.database.repository
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.uogames.database.dao.PhraseDAO
 import com.uogames.database.entity.PhraseEntity
-import com.uogames.database.map.PhraseMap.toDTO
-import com.uogames.database.map.PhraseMap.toEntity
-import com.uogames.database.map.ViewMap
-import com.uogames.dto.global.GlobalPhraseView
-import com.uogames.dto.local.LocalPhrase
-import com.uogames.dto.local.LocalPhraseView
-import kotlinx.coroutines.flow.map
 import java.util.*
 import kotlin.collections.ArrayList
 
 class PhraseRepository(
     private val dao: PhraseDAO,
-    private val map: ViewMap<PhraseEntity, LocalPhraseView>
 ) {
 
-    suspend fun add(phrase: LocalPhrase) = dao.insert(phrase.toEntity())
+    suspend fun add(phrase: PhraseEntity) = dao.insert(phrase)
 
-    suspend fun delete(phrase: LocalPhrase) = dao.delete(phrase.toEntity()) > 0
+    suspend fun delete(phrase: PhraseEntity) = dao.delete(phrase) > 0
 
-    suspend fun update(phrase: LocalPhrase) = dao.update(phrase.toEntity()) > 0
+    suspend fun update(phrase: PhraseEntity) = dao.update(phrase) > 0
 
     fun countFlow() = dao.countFLOW()
 
@@ -64,15 +56,7 @@ class PhraseRepository(
         country: String? = null,
         newest: Boolean = false,
         position: Int? = null
-    ) = getEntity(like, lang, country, newest, position)?.toDTO()
-
-    suspend fun getView(
-        like: String? = null,
-        lang: String? = null,
-        country: String? = null,
-        newest: Boolean = false,
-        position: Int? = null
-    ) = getEntity(like, lang, country, newest, position)?.let { map.toDTO(it) }
+    ) = getEntity(like, lang, country, newest, position)
 
     suspend fun count(
         like: String? = null,
@@ -100,13 +84,11 @@ class PhraseRepository(
         return dao.count(SimpleSQLiteQuery(builder.toString(), params.toArray()))
     }
 
-    suspend fun getById(id: Int) = dao.getById(id)?.toDTO()
+    suspend fun getById(id: Int) = dao.getById(id)
 
-    suspend fun getViewById(id: Int) = dao.getById(id)?.let { map.toDTO(it) }
+    suspend fun getByGlobalId(id: UUID) = dao.getByGlobalId(id)
 
-    suspend fun getByGlobalId(id: UUID) = dao.getByGlobalId(id)?.toDTO()
-
-    fun getByIdFlow(id: Int) = dao.getByIdFlow(id).map { it?.toDTO() }
+    fun getByIdFlow(id: Int) = dao.getByIdFlow(id)
 
     fun countFree() = dao.countFree()
 

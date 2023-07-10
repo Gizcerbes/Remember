@@ -2,7 +2,6 @@ package com.uogames.remembercards.viewmodel
 
 import android.content.Context
 import android.graphics.Rect
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.ViewModel
@@ -79,11 +78,11 @@ class GlobalViewModel @Inject constructor(
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, AppCompatDelegate.MODE_NIGHT_YES)
 
-    val countPhrases = provider.phrase.countFlow().stateIn(viewModelScope, SharingStarted.Eagerly, 0)
+    val countPhrases = provider.phrase.countFlow().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
 
     val countCards = provider.cards.getCountFlow().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
 
-    val countModules = provider.module.getCount().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
+    val countModules = provider.module.getCountFlow().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
 
     val gameYesOrNotCount = provider.setting.getFlow(GAME_YES_OR_NO_COUNT).stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
@@ -94,6 +93,8 @@ class GlobalViewModel @Inject constructor(
     val phraseCountFree = provider.phrase.countFree().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
 
     val shareCount = provider.share.countFlow().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
+
+    val downloadCount = provider.download.countFlow().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
 
 
     private var job: Job? = null

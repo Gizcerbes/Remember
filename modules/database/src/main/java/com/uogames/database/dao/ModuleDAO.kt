@@ -65,7 +65,7 @@ interface ModuleDAO {
 	suspend fun getByGlobalId(globalId: UUID): ModuleEntity?
 
 	@Query("SELECT COUNT(id) FROM modules")
-	fun getCount(): Flow<Int>
+	fun getCountFlow(): Flow<Int>
 
 	@Query("SELECT COUNT(id) FROM modules WHERE name LIKE  '%' ||:like || '%' ")
 	fun getCountLike(like: String): Flow<Int>

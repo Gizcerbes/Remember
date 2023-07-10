@@ -1,6 +1,9 @@
 package com.uogames.database.entity
 
 import androidx.room.*
+import androidx.room.migration.Migration
+import androidx.room.util.convertByteToUUID
+import androidx.sqlite.db.SupportSQLiteDatabase
 import java.util.*
 
 @Entity(
@@ -17,7 +20,10 @@ import java.util.*
 			childColumns = ["id_translate"],
 			onDelete = ForeignKey.CASCADE
 		)],
-	indices = [Index("id_phrase", "id_translate", unique = true)]
+	indices = [
+		Index("id_phrase", "id_translate", unique = true),
+		Index(value = ["global_id"], orders = [Index.Order.ASC])
+	]
 )
 
 data class CardEntity(
@@ -26,7 +32,7 @@ data class CardEntity(
 	val id: Int = 0,
 	@ColumnInfo(name = "id_phrase")
 	val idPhrase: Int,
-	@ColumnInfo(name = "id_translate")
+	@ColumnInfo(name = "id_translate", index = true)
 	val idTranslate: Int,
 	@ColumnInfo(name = "id_image")
 	val idImage: Int?,
@@ -39,26 +45,9 @@ data class CardEntity(
 	@ColumnInfo(name = "dislike")
 	val dislike: Long,
 	@ColumnInfo(name = "global_id")
-	val globalId: UUID?,
+	val globalId: String,
 	@ColumnInfo(name = "global_owner")
 	val globalOwner: String?,
 	@ColumnInfo(name = "changed", defaultValue = "false")
 	val changed: Boolean = false
-){
-	companion object{
-		private const val v1 = "CREATE TABLE `cards_table` (" +
-				"`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
-				"`id_phrase` INTEGER NOT NULL, " +
-				"`id_translate` INTEGER NOT NULL, " +
-				"`id_image` INTEGER, `reason` TEXT NOT NULL, " +
-				"`time_change` INTEGER NOT NULL, " +
-				"`like` INTEGER NOT NULL, " +
-				"`dislike` INTEGER NOT NULL, " +
-				"`global_id` BLOB, " +
-				"`global_owner` TEXT, " +
-				"FOREIGN KEY(`id_phrase`) REFERENCES `phrase_table`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , " +
-				"FOREIGN KEY(`id_translate`) REFERENCES `phrase_table`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE " +
-				");"
-		private const val indexV1 = "CREATE UNIQUE INDEX `index_cards_table_id_phrase_id_translate` ON `cards_table` (`id_phrase`, `id_translate`);"
-	}
-}
+)

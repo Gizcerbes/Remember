@@ -11,7 +11,7 @@ import com.uogames.dto.local.LocalImageView
 import com.uogames.dto.local.LocalPhraseView
 import com.uogames.remembercards.App
 import com.uogames.remembercards.R
-import com.uogames.remembercards.ui.games.notification.NotificationReceiver
+import com.uogames.remembercards.broadcast.NotificationReceiver
 
 object NotificationTypeShow {
 

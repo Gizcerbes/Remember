@@ -43,7 +43,7 @@ interface ImageDAO {
 	)
 	suspend fun freeImages(): List<ImageEntity>
 
-	@Query("SELECT * FROM images_table")
+	@Query("SELECT * FROM images_table ORDER BY id DESC")
 	suspend fun getList(): List<ImageEntity>
 
 	@Query("SELECT * FROM images_table ORDER BY id DESC")

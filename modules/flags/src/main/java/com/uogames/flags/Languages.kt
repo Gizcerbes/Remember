@@ -194,9 +194,9 @@ enum class Languages(val language: String, val isoCode: String) {
 
 	companion object {
 		fun search(teg: String): Languages? {
-			val teg = teg.split("-")[0]
+			val t = teg.split("-")[0]
 			values().forEach {
-				if (it.isoCode == teg) return it
+				if (it.isoCode == t) return it
 			}
 			return null
 		}

@@ -3,15 +3,13 @@ package com.uogames.remembercards.ui.games.notification.type
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.os.Build
-import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import com.uogames.dto.local.LocalCardView
 import com.uogames.remembercards.App
 import com.uogames.remembercards.R
-import com.uogames.remembercards.ui.games.notification.NotificationReceiver
+import com.uogames.remembercards.broadcast.NotificationReceiver
 
 object NotificationTypeChoice {
 

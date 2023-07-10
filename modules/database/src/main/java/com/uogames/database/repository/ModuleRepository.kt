@@ -3,24 +3,17 @@ package com.uogames.database.repository
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.uogames.database.dao.ModuleDAO
 import com.uogames.database.entity.ModuleEntity
-import com.uogames.database.map.ModuleMap.toDTO
-import com.uogames.database.map.ModuleMap.toEntity
-import com.uogames.database.map.ViewMap
-import com.uogames.dto.local.LocalModule
-import com.uogames.dto.local.LocalModuleView
-import kotlinx.coroutines.flow.map
 import java.util.*
 
 class ModuleRepository(
-    private val dao: ModuleDAO,
-    private val map: ViewMap<ModuleEntity, LocalModuleView>
+    private val dao: ModuleDAO
 ) {
 
-    suspend fun insert(module: LocalModule) = dao.insert(module.toEntity())
+    suspend fun insert(module: ModuleEntity) = dao.insert(module)
 
-    suspend fun delete(module: LocalModule) = dao.delete(module.toEntity()) > 0
+    suspend fun delete(module: ModuleEntity) = dao.delete(module) > 0
 
-    suspend fun update(module: LocalModule) = dao.update(module.toEntity()) > 0
+    suspend fun update(module: ModuleEntity) = dao.update(module) > 0
 
     suspend fun count(text: String?): Int {
         return if (text == null) dao.count()
@@ -132,46 +125,16 @@ class ModuleRepository(
         sCountry: String? = null,
         newest: Boolean = false,
         position: Int? = null
-    ) = getEntity(text, fLang, sLang, fCountry, sCountry, newest, position)?.toDTO()
+    ) = getEntity(text, fLang, sLang, fCountry, sCountry, newest, position)
 
-    suspend fun getView(
-        text: String? = null,
-        fLang: String? = null,
-        sLang: String? = null,
-        fCountry: String? = null,
-        sCountry: String? = null,
-        newest: Boolean = false,
-        position: Int? = null
-    ) = getEntity(text, fLang, sLang, fCountry, sCountry, newest, position)?.let { map.toDTO(it) }
+    suspend fun getById(id: Int) = dao.getById(id)
 
-    suspend fun get(text: String?, position: Int): LocalModule? {
-        return if (text == null) dao.get(position)?.toDTO()
-        else dao.get(text, position)?.toDTO()
-    }
+    suspend fun getByGlobalId(globalId: UUID) = dao.getByGlobalId(globalId)
 
-    suspend fun getView(text: String?, position: Int) : LocalModuleView? {
-        return if (text == null) dao.get(position)?.let { map.toDTO(it) }
-        else dao.get(text, position)?.let { map.toDTO(it) }
-    }
-
-    fun getCount() = dao.getCount()
-
-    fun getCountLike(like: String) = dao.getCountLike(like)
-
-    fun getList() = dao.getList().map { it.map { module -> module.toDTO() } }
-
-    fun getListLike(like: String) = dao.getListLike(like).map { it.map { module -> module.toDTO() } }
-
-    suspend fun getById(id: Int) = dao.getById(id)?.toDTO()
-
-    suspend fun getViewById(id: Int) = dao.getById(id)?.let { map.toDTO(it) }
-
-    suspend fun getByGlobalId(globalId: UUID) = dao.getByGlobalId(globalId)?.toDTO()
-
-    suspend fun getByPosition(like: String, position: Int) = dao.getByPosition(like, position)?.toDTO()
-
-    fun getByIdFlow(id: Int) = dao.getByIdFlow(id).map { it?.toDTO() }
+    fun getByIdFlow(id: Int) = dao.getByIdFlow(id)
 
     fun isChanged(id: Int) = dao.isChanged(id)
+
+    fun getCountFlow() = dao.getCountFlow()
 
 }

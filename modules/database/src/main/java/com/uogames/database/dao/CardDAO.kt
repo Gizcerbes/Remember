@@ -21,8 +21,14 @@ interface CardDAO {
 	@RawQuery
 	suspend fun count(query: SupportSQLiteQuery): Int
 
+	@RawQuery(observedEntities = [CardEntity::class])
+	fun countFlow(query: SupportSQLiteQuery): Flow<Int>
+
 	@RawQuery
 	suspend fun get(query: SupportSQLiteQuery): CardEntity?
+
+	@RawQuery(observedEntities = [CardEntity::class])
+	fun getFlow(query: SupportSQLiteQuery): Flow<CardEntity?>
 
 	@Query(
 		"SELECT COUNT(nct.id) FROM cards_table AS nct " +
@@ -34,17 +40,6 @@ interface CardDAO {
 				"OR pt2.phrase LIKE '%' || :like || '%'"
 	)
 	fun getCountFlow(like: String): Flow<Int>
-
-	@Query(
-		"SELECT COUNT(nct.id) FROM cards_table AS nct " +
-				"JOIN phrase_table AS pt1 " +
-				"ON pt1.id = nct.id_phrase " +
-				"JOIN phrase_table AS pt2 " +
-				"ON pt2.id = nct.id_translate " +
-				"WHERE (pt1.phrase LIKE '%' || :like || '%' " +
-				"OR pt2.phrase LIKE '%' || :like || '%') "
-	)
-	fun test(like: String): Flow<Int>
 
 	@Query("SELECT COUNT(id) FROM cards_table")
 	fun getCountFlow(): Flow<Int>
@@ -74,19 +69,6 @@ interface CardDAO {
 	)
 	suspend fun getCard(like: String, number: Int): CardEntity?
 
-	@Query(
-		"SELECT nct.*, pt1.phrase AS ph1, pt2.phrase AS ph2 FROM cards_table AS nct " +
-				"JOIN phrase_table AS pt1 " +
-				"ON pt1.id = nct.id_phrase " +
-				"JOIN phrase_table AS pt2 " +
-				"ON pt2.id = nct.id_translate " +
-				"WHERE pt1.phrase LIKE '%' || :like || '%' " +
-				"OR pt2.phrase LIKE '%' || :like || '%' " +
-				"ORDER BY nct.time_change DESC " +
-				"LIMIT :number, 1"
-	)
-	suspend fun test(like: String, number: Int): CardEntity?
-
 	@Query("SELECT * FROM cards_table WHERE id = :id")
 	suspend fun getById(id: Int): CardEntity?
 
@@ -101,7 +83,6 @@ interface CardDAO {
 
 	@Query("SELECT * FROM cards_table WHERE id NOT IN (:cardsIds) ORDER BY RANDOM() LIMIT 1")
 	suspend fun getRandomWithout(cardsIds: Array<Int>): CardEntity?
-
 
 	@Query("SELECT * FROM cards_table WHERE id_phrase NOT IN (:phraseIds) AND id_translate NOT IN (:phraseIds) ORDER BY RANDOM() LIMIT 1")
 	suspend fun getRandomWithoutPhrases(phraseIds: Array<Int>): CardEntity?
@@ -145,6 +126,7 @@ interface CardDAO {
 	@Query("DELETE FROM cards_table " +
 			"WHERE NOT EXISTS (SELECT mct.id FROM module_card AS mct WHERE cards_table.id = mct.id_card)")
 	suspend fun deleteFree()
+
 
 	@Query("SELECT changed FROM cards_table WHERE id = :id")
 	fun isChanged(id: Int): Flow<Boolean?>
