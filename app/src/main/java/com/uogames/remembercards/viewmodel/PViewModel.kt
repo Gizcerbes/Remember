@@ -68,7 +68,7 @@ class PViewModel(
         shareActions.remove(phrase.id)
     }
 
-    fun isChanged(phrase: LocalPhraseView) = provider.phrase.isChanged(phrase.id)
+    fun isChanged(phrase: LocalPhraseView) = provider.phrase.isChangedFlow(phrase.id)
 
     fun getShareAction(phrase: LocalPhraseView) = provider.share.existsFlow(idPhrase = phrase.id)
 
@@ -109,7 +109,10 @@ class PViewModel(
         country: String?,
         newest: Boolean = false,
         position: Int?
-    ) = provider.phrase.getView(like, lang, country, newest, position)?.let { LocalPhraseModel(it) }
+    ): LocalPhraseModel? {
+        val r = provider.phrase.getView(like, lang, country, newest, position)?.let { LocalPhraseModel(it) }
+        return r
+    }
 
     suspend fun getGlobalModel(
         like: String?,

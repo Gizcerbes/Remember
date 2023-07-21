@@ -2,66 +2,45 @@ package com.uogames.database.repository
 
 import com.uogames.database.dao.ModuleCardDAO
 import com.uogames.database.entity.ModuleCardEntity
-import com.uogames.database.map.ModuleCardMap.toDTO
-import com.uogames.database.map.ModuleCardMap.toEntity
-import com.uogames.database.map.ViewMap
-import com.uogames.dto.local.LocalModule
-import com.uogames.dto.local.LocalModuleCard
-import com.uogames.dto.local.LocalModuleCardView
-import kotlinx.coroutines.flow.map
+import com.uogames.database.entity.ModuleEntity
 import java.util.*
 
 class ModuleCardRepository(
-	private val dao: ModuleCardDAO,
-	private val map: ViewMap<ModuleCardEntity, LocalModuleCardView>
+	private val dao: ModuleCardDAO
 ) {
 
-	suspend fun insert(moduleCard: LocalModuleCard) = dao.insert(moduleCard.toEntity())
+	suspend fun insert(moduleCard: ModuleCardEntity) = dao.insert(moduleCard)
 
-	suspend fun delete(moduleCard: LocalModuleCard) = dao.delete(moduleCard.toEntity()) > 0
+	suspend fun delete(moduleCard: ModuleCardEntity) = dao.delete(moduleCard) > 0
 
-	suspend fun update(moduleCard: LocalModuleCard) = dao.update(moduleCard.toEntity()) > 0
+	suspend fun update(moduleCard: ModuleCardEntity) = dao.update(moduleCard) > 0
 
-	fun getByModuleID(id: Int) = dao.getByModuleID(id).map { it.map { mc -> mc.toDTO() } }
-
-	fun getByModule(module: LocalModule) = dao.getByModuleID(module.id).map { it.map { mc -> mc.toDTO() } }
+	fun getByModule(module: ModuleEntity) = dao.getByModuleID(module.id)
 
 	fun getCountByModuleIdFlow(id: Int) = dao.getCountByModuleIdFlow(id)
 
 	suspend fun getCountByModuleId(id: Int) = dao.getCountByModuleId(id)
 
-	suspend fun getByPositionOfModule(idModule: Int, position: Int) = dao.getByPositionOfModule(idModule, position)?.toDTO()
+	suspend fun getViewByPositionOfModule(idModule: Int, position: Int) = dao.getByPositionOfModule(idModule, position)
 
-	suspend fun getViewByPositionOfModule(idModule: Int, position: Int) = dao.getByPositionOfModule(idModule, position)?.let { map.toDTO(it) }
-
-	suspend fun getRandomModule() = dao.getRandomModuleCard()?.toDTO()
-
-	suspend fun getRandomModule(idModule: Int) = dao.getRandomModuleCard(idModule)?.toDTO()
-
-	suspend fun getRandomModuleView(idModule: Int) = dao.getRandomModuleCard(idModule)?.let { map.toDTO(it) }
-
-	suspend fun getRandomModuleViewWithout(idModule: Int, idCard: Array<Int>) = dao.getRandomWithout(idModule, idCard)?.let { map.toDTO(it) }
+	suspend fun getRandomModuleView(idModule: Int) = dao.getRandomModuleCard(idModule)
 
 	suspend fun getRandomModuleViewWithoutPhrases(idModule: Int, phraseIds: Array<Int>) =
-		dao.getRandomWithoutPhrases(idModule, phraseIds)?.let { map.toDTO(it) }
+		dao.getRandomWithoutPhrases(idModule, phraseIds)
 
 
-	suspend fun getUnknowableView(idModule: Int) = dao.getUnknowable(idModule)?.let { map.toDTO(it) }
+	suspend fun getUnknowableView(idModule: Int) = dao.getUnknowable(idModule)
 
-	suspend fun getConfusing(idModule: Int, idPhrase: Int) = dao.getConfusing(idModule, idPhrase)?.let { map.toDTO(it) }
+	suspend fun getConfusingView(idModule: Int, idPhrase: Int) = dao.getConfusing(idModule, idPhrase)
 
 	suspend fun getConfusingWithoutPhrases(idModule: Int, idPhrase: Int, phraseIds: Array<Int>) =
-		dao.getConfusingWithoutPhrases(idModule, idPhrase, phraseIds)?.let { map.toDTO(it) }
+		dao.getConfusingWithoutPhrases(idModule, idPhrase, phraseIds)
 
-	suspend fun getRandomModuleWithout(idCard: Int) = dao.getRandomWithout(idCard)?.toDTO()
+	suspend fun getById(id: Int) = dao.getById(id)
 
-	suspend fun getRandomModuleWithout(idModule: Int, idCard: Int) = dao.getRandomWithout(idModule, idCard)?.toDTO()
+	suspend fun getViewById(id: Int) = dao.getById(id)
 
-	suspend fun getById(id: Int) = dao.getById(id)?.toDTO()
-
-	suspend fun getViewById(id: Int) = dao.getById(id)?.let { map.toDTO(it) }
-
-	suspend fun getByGlobalId(globalId: UUID) = dao.getByGlobalId(globalId)?.toDTO()
+	suspend fun getByGlobalId(globalId: String) = dao.getByGlobalId(globalId)
 
 	suspend fun removeByModuleId(idModule: Int) = dao.removeByModule(idModule)
 

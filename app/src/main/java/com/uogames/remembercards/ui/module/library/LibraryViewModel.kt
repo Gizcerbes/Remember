@@ -158,9 +158,11 @@ class LibraryViewModel @Inject constructor(
         position = position
     )
 
-    fun download(view: GlobalModuleView, loading: (String) -> Unit) = model.download(view, loading)
+    fun download(view: GlobalModuleView, loading: (String) -> Unit) = model.download(view)
 
-    fun setDownloadAction(id: UUID, loading: (String) -> Unit) = model.setDownloadAction(id, loading)
+    //fun setDownloadAction(id: UUID, loading: (String) -> Unit) = model.setDownloadAction(id, loading)
+
+    suspend fun getDownloadFlow(uuid: UUID) = model.getDownloadFlow(uuid)
 
     fun stopDownloading(id: UUID) = model.stopDownloading(id)
 

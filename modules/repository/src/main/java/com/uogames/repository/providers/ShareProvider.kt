@@ -2,20 +2,22 @@ package com.uogames.repository.providers
 
 import com.uogames.database.repository.ShareRepository
 import com.uogames.dto.local.LocalShare
+import com.uogames.repository.map.ShareMap.toDTO
+import com.uogames.repository.map.ShareMap.toEntity
 
 class ShareProvider(
     private val rep: ShareRepository
 ) {
 
-    suspend fun save(share: LocalShare) = rep.save(share)
+    suspend fun save(share: LocalShare) = rep.save(share.toEntity())
 
-    suspend fun remove(share: LocalShare) = rep.delete(share)
+    suspend fun remove(share: LocalShare) = rep.delete(share.toEntity())
 
     suspend fun count() = rep.count()
 
     fun countFlow() = rep.countFlow()
 
-    suspend fun getFirst() = rep.getFirst()
+    suspend fun getFirst() = rep.getFirst()?.toDTO()
 
     suspend fun exists(
         id: Int = -1,

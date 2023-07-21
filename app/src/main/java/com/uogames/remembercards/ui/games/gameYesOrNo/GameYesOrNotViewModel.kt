@@ -92,7 +92,7 @@ class GameYesOrNotViewModel @Inject constructor(
     fun newAnswer() = viewModelScope.launch {
         val f = module.value?.let {
             if (Math.random() > 0.25) provider.moduleCard.getRandomModuleView(it)?.card
-            else provider.moduleCard.getUnknowable(it)?.card
+            else provider.moduleCard.getUnknowableView(it)?.card
         }.ifNull {
             if (Math.random() > 0.25) provider.cards.getUnknowableView()
             else provider.cards.getRandomView()
@@ -104,7 +104,7 @@ class GameYesOrNotViewModel @Inject constructor(
             module.value?.let {
                 if (Math.random() > 0.5) {
                     provider.moduleCard.let { mc ->
-                        mc.getConfusing(it, f.card.phrase.id).ifNull { mc.getRandomModuleView(it) }
+                        mc.getConfusingView(it, f.card.phrase.id).ifNull { mc.getRandomModuleView(it) }
                     }?.card
                 } else provider.moduleCard.getRandomModuleView(it)?.card
             }.ifNull {

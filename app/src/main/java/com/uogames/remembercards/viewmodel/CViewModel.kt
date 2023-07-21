@@ -46,6 +46,8 @@ class CViewModel(
     private val shareActions = HashMap<Int, ShareAction>()
     private val downloadAction = HashMap<UUID, DownloadAction>()
 
+    fun getLocalModelView(v: LocalCardView) = LocalCardModel(v)
+
     suspend fun getLocalModelView(
         like: String? = null,
         langFirst: String? = null,
@@ -63,6 +65,8 @@ class CViewModel(
         newest = newest,
         position = position
     )?.let { LocalCardModel(it) }
+
+    fun getGlobalModelView(v: GlobalCardView) = GlobalCardModel(v)
 
     suspend fun getGlobalModelView(
         text: String? = null,
@@ -112,7 +116,7 @@ class CViewModel(
         shareActions.remove(card.id)
     }
 
-    fun isChanged(card: LocalCardView) = provider.cards.isChanged(card.id)
+    fun isChanged(card: LocalCardView) = provider.cards.isChangedFlow(card.id)
 
     fun getShareAction(card: LocalCardView) = provider.share.existsFlow(idCard = card.id)
 

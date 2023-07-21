@@ -1,9 +1,9 @@
 package com.uogames.database
 
+import androidx.room.util.convertUUIDToByte
 import org.junit.Test
 
-import org.junit.Assert.*
-import org.junit.runner.RunWith
+import java.util.UUID
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -13,6 +13,11 @@ import org.junit.runner.RunWith
 class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+        //2E024E1E32B846E7B7D96D898D022170
+        val uuid = UUID.randomUUID()
+        println(convertUUIDToByte(uuid).toString())
+
     }
+
+
 }

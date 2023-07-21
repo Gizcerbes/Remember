@@ -3,14 +3,21 @@ package com.uogames.repository.providers
 import com.uogames.clientApi.version3.network.NetworkProvider
 import com.uogames.database.repository.ModuleCardRepository
 import com.uogames.dto.global.GlobalModuleCardView
+import com.uogames.dto.local.LocalCardView
 import com.uogames.dto.local.LocalModule
 import com.uogames.dto.local.LocalModuleCard
 import com.uogames.dto.local.LocalModuleCardView
+import com.uogames.dto.local.LocalModuleView
 import com.uogames.dto.local.LocalShare
 import com.uogames.map.ModuleCardMap.toGlobal
 import com.uogames.map.ModuleCardMap.toLocalModuleCard
 import com.uogames.map.ModuleCardMap.update
 import com.uogames.repository.DataProvider
+import com.uogames.repository.map.ModuleCardMap.toDTO
+import com.uogames.repository.map.ModuleCardMap.toEntity
+import com.uogames.repository.map.ModuleCardMap.toViewDTO
+import com.uogames.repository.map.ModuleMap.toEntity
+import kotlinx.coroutines.flow.map
 import java.util.*
 
 class ModuleCardProvider(
@@ -19,13 +26,16 @@ class ModuleCardProvider(
 	private val network: NetworkProvider
 ) {
 
-	suspend fun insert(moduleCard: LocalModuleCard) = mcr.insert(moduleCard)
+	private val moduleBuilder: suspend (id: Int) -> LocalModuleView = { dataProvider.module.getViewById(it) ?: throw Exception("") }
+	private val cardBuilder: suspend (id: Int) -> LocalCardView = { dataProvider.cards.getViewByID(it) ?: throw Exception("Cards isn't saved") }
 
-	suspend fun delete(moduleCard: LocalModuleCard) = mcr.delete(moduleCard)
+	suspend fun insert(moduleCard: LocalModuleCard) = mcr.insert(moduleCard.toEntity())
 
-	suspend fun update(moduleCard: LocalModuleCard) = mcr.update(moduleCard)
+	suspend fun delete(moduleCard: LocalModuleCard) = mcr.delete(moduleCard.toEntity())
 
-	suspend fun getById(id: Int) = mcr.getById(id)
+	suspend fun update(moduleCard: LocalModuleCard) = mcr.update(moduleCard.toEntity())
+
+	suspend fun getById(id: Int) = mcr.getById(id)?.toDTO()
 
 	fun getCountByModuleIdFlow(id: Int) = mcr.getCountByModuleIdFlow(id)
 
@@ -33,41 +43,31 @@ class ModuleCardProvider(
 
 	suspend fun getCountByModuleId(idModule: Int) = mcr.getCountByModuleId(idModule)
 
-	suspend fun getByPositionOfModule(idModule: Int, position: Int) = mcr.getByPositionOfModule(idModule, position)
+	suspend fun getView(idModule: Int, position: Int) = mcr.getViewByPositionOfModule(idModule, position)?.toViewDTO(moduleBuilder, cardBuilder)
 
-	suspend fun getView(idModule: Int, position: Int) = mcr.getViewByPositionOfModule(idModule, position)
+	suspend fun getViewByID(id: Int) = mcr.getViewById(id)?.toViewDTO(moduleBuilder, cardBuilder)
 
-	suspend fun getViewByID(id: Int) = mcr.getViewById(id)
+	fun getByModuleFlow(module: LocalModule) = mcr.getByModule(module.toEntity()).map { list -> list.map { it.toDTO() } }
 
-	fun getByModuleFlow(module: LocalModule) = mcr.getByModule(module)
+	suspend fun getRandomModuleView(idModule: Int) = mcr.getRandomModuleView(idModule)?.toViewDTO(moduleBuilder, cardBuilder)
 
-	suspend fun getRandom(idModule: Int) = mcr.getRandomModule(idModule)
+	suspend fun getUnknowableView(idModule: Int) = mcr.getUnknowableView(idModule)?.toViewDTO(moduleBuilder, cardBuilder)
 
-	suspend fun getRandomModuleView(idModule: Int) = mcr.getRandomModuleView(idModule)
+	suspend fun getConfusingView(idModule: Int, idPhrase: Int) = mcr.getConfusingView(idModule, idPhrase)?.toViewDTO(moduleBuilder, cardBuilder)
 
-	suspend fun getUnknowable(idModule: Int) = mcr.getUnknowableView(idModule)
+	suspend fun getConfusingViewWithout(idModule: Int, idPhrase: Int, phraseIds: Array<Int>) =
+		mcr.getConfusingWithoutPhrases(idModule, idPhrase, phraseIds)?.toViewDTO(moduleBuilder, cardBuilder)
 
-	suspend fun getConfusing(idModule: Int, idPhrase: Int) = mcr.getConfusing(idModule, idPhrase)
-
-	suspend fun getConfusingViewWithout(idModule: Int, idPhrase: Int, phraseIds: Array<Int>) = mcr.getConfusingWithoutPhrases(idModule, idPhrase, phraseIds)
-
-	suspend fun getRandomWithout(idModule: Int, idCard: Int) = mcr.getRandomModuleWithout(idModule, idCard)
-
-	suspend fun getRandomViewWithout(idModule: Int, idCard: Array<Int>) = mcr.getRandomModuleViewWithout(idModule, idCard)
-
-	suspend fun getRandomViewWithoutPhrases(idModule: Int, phraseIds: Array<Int>) = mcr.getRandomModuleViewWithoutPhrases(idModule, phraseIds)
+	suspend fun getRandomViewWithoutPhrases(idModule: Int, phraseIds: Array<Int>) =
+		mcr.getRandomModuleViewWithoutPhrases(idModule, phraseIds)?.toViewDTO(moduleBuilder, cardBuilder)
 
 	suspend fun removeByModule(idModule: Int) = mcr.removeByModuleId(idModule)
-
-	suspend fun countGlobal(moduleGlobalId: UUID) = network.moduleCard.count(moduleGlobalId)
-
-	suspend fun getGlobal(moduleGlobalId: UUID, number: Long) = network.moduleCard.get(moduleGlobalId, number)
-
-	suspend fun getGlobalById(globalId: UUID) = network.moduleCard.get(globalId)
 
 	suspend fun getGlobalCount(moduleGlobalId: UUID) = network.moduleCard.count(moduleGlobalId)
 
 	suspend fun getGlobalView(moduleID: UUID, number: Long) = network.moduleCard.getView(moduleID, number)
+
+	suspend fun getGlobalListView(moduleGlobalId: UUID, number: Long, limit: Int) = network.moduleCard.getListView(moduleGlobalId, number, limit)
 
 	suspend fun share(id: Int): LocalModuleCard? {
 		val moduleCard = getById(id)
@@ -110,8 +110,8 @@ class ModuleCardProvider(
 	}
 
 	suspend fun save(view: GlobalModuleCardView, module: LocalModule): LocalModuleCard {
-		val l1 = mcr.getByGlobalId(view.globalId)
-		if (l1 == null) {
+		val l1 = mcr.getByGlobalId(view.globalId.toString())
+		return if (l1 == null) {
 			val localID = insert(
 				LocalModuleCard(
 					idModule = module.id,
@@ -120,16 +120,28 @@ class ModuleCardProvider(
 					globalOwner = view.user.globalOwner
 				)
 			).toInt()
-			return getById(localID) ?: throw Exception("ModuleCard wasn't saved")
+			getById(localID) ?: throw Exception("ModuleCard wasn't saved")
 		} else {
 			view.card.let { dataProvider.cards.save(it) }
-			return l1
+			l1.toDTO()
 		}
 	}
 
+	suspend fun fastSave(view: GlobalModuleCardView, module: LocalModule): Long {
+		return insert(
+			LocalModuleCard(
+				idModule = module.id,
+				idCard = view.card.let { dataProvider.cards.fastSave(it) },
+				globalId = view.globalId,
+				globalOwner = view.user.globalOwner
+			)
+		)
+	}
+
+
 	suspend fun save(module: LocalModule) {
 		module.globalId.let { moduleID ->
-			val count = countGlobal(moduleID)
+			val count = getGlobalCount(moduleID)
 			for (number in 0 until count) save(getGlobalView(moduleID, number), module)
 		}
 	}

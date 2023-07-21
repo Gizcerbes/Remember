@@ -1,11 +1,11 @@
 package com.uogames.remembercards.ui.games.notification
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.uogames.dto.local.ErrorCard
 import com.uogames.dto.local.LocalCardView
 import com.uogames.dto.local.LocalImageView
+import com.uogames.remembercards.broadcast.NotificationReceiver
 import com.uogames.remembercards.ui.games.notification.type.NotificationTypeChoice
 import com.uogames.remembercards.ui.games.notification.type.NotificationTypeShow
 import com.uogames.remembercards.utils.ifNull
@@ -36,7 +36,7 @@ class NotificationViewModel @Inject constructor(
 		val moduleId = globalViewModel.provider.setting.get(GlobalViewModel.MODULE_ID_FOR_NOTIFICATION)?.toInt()
 		return moduleId?.let {
 			if (Math.random() > 0.25) provider.moduleCard.getRandomModuleView(it)?.card
-			else provider.moduleCard.getUnknowable(it)?.card
+			else provider.moduleCard.getUnknowableView(it)?.card
 		}.ifNull {
 			if (Math.random() > 0.25) provider.cards.getRandomView()
 			else provider.cards.getUnknowableView()

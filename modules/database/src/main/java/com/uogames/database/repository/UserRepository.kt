@@ -1,19 +1,16 @@
 package com.uogames.database.repository
 
 import com.uogames.database.dao.UserDAO
-import com.uogames.database.map.UserMapper.toDTO
-import com.uogames.database.map.UserMapper.toEntity
-import com.uogames.dto.User
-import kotlinx.coroutines.flow.map
+import com.uogames.database.entity.UserEntity
 
 class UserRepository(val dao: UserDAO) {
 
-	suspend fun save(user: User) = dao.insert(user.toEntity())
+	suspend fun save(user: UserEntity) = dao.insert(user)
 
-	suspend fun delete(user: User) = dao.delete(user.toEntity())
+	suspend fun delete(user: UserEntity) = dao.delete(user)
 
-	suspend fun getById(userId: String) = dao.getById(userId)?.toDTO()
+	suspend fun getById(userId: String) = dao.getById(userId)
 
-	fun getByIdFlow(userId: String) = dao.getByIdFlow(userId).map { it?.toDTO() }
+	fun getByIdFlow(userId: String) = dao.getByIdFlow(userId)
 
 }

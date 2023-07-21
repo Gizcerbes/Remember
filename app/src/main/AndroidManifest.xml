@@ -32,7 +32,7 @@
         </activity>
 
         <receiver
-            android:name=".ui.games.notification.NotificationReceiver"
+            android:name=".broadcast.NotificationReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="NotificationReceiver_ACTION_NEW_NOTIFICATION" />
@@ -41,6 +41,7 @@
                 <action android:name="NotificationReceiver_CARD_ID" />
             </intent-filter>
         </receiver>
+        <service android:name=".broadcast.DownloadForeground"/>
 
     </application>
 

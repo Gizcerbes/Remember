@@ -1,7 +1,6 @@
 package com.uogames.repository.providers
 
 import android.content.Context
-import android.util.Log
 import androidx.core.net.toUri
 import com.uogames.clientApi.version3.network.NetworkProvider
 import com.uogames.clientApi.version3.network.response.ImageResponse
@@ -14,7 +13,12 @@ import com.uogames.dto.local.LocalShare
 import com.uogames.map.ImageMap.update
 import com.uogames.repository.DataProvider
 import com.uogames.repository.fileRepository.FileRepository
+import com.uogames.repository.map.ImageMap.toDTO
+import com.uogames.repository.map.ImageMap.toEntity
+import com.uogames.repository.map.ImageMap.toViewDTO
+import com.uogames.repository.map.PhraseViewMap.toEntity
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import java.util.*
 
 class ImageProvider(
@@ -25,34 +29,35 @@ class ImageProvider(
 ) {
 
     suspend fun add(bytes: ByteArray): Int {
-        val id = database.insert(LocalImage()).toInt()
+        val id = database.insert(LocalImage().toEntity()).toInt()
         val uri = fileRepository.saveFile("$id.png", bytes)
-        database.update(LocalImage(id, uri.toString()))
+        database.update(LocalImage(id, uri.toString()).toEntity())
         return id
     }
 
     suspend fun delete(image: LocalImage): Boolean {
         return database.getByIdFlow(image.id).first()?.let {
             fileRepository.deleteFile(it.imgUri.toUri())
-            database.delete(image)
+            database.delete(image.toEntity())
         } ?: false
     }
 
     suspend fun update(image: LocalImage, bytes: ByteArray): Boolean {
         return database.getByIdFlow(image.id).first()?.let {
             val uri = fileRepository.saveFile("${it.id}.png", bytes)
-            return database.update(LocalImage(image.id, uri.toString()))
+            return database.update(LocalImage(image.id, uri.toString()).toEntity())
         } ?: false
     }
 
-    suspend fun getById(id: Int) = database.getById(id)
-    fun getByIdFlow(id: Int) = database.getByIdFlow(id)
-    fun getByPhrase(phrase: LocalPhrase) = database.getByPhraseFlow(phrase)
+    suspend fun getById(id: Int) = database.getById(id)?.toDTO()
 
-    suspend fun getView(id: Int) = database.getViewByID(id)
-    suspend fun getByGlobalId(id: UUID) = database.getByGlobalId(id)
-    suspend fun getGlobalById(id: UUID) = network.image.get(id)
-    suspend fun getGlobalView(id: UUID) = network.image.getView(id)
+    fun getByIdFlow(id: Int) = database.getByIdFlow(id).map { it?.toDTO() }
+
+    fun getByPhrase(phrase: LocalPhrase) = database.getByPhraseFlow(phrase.toEntity()).map { it?.toDTO() }
+
+    suspend fun getViewById(id: Int) = database.getById(id)?.toViewDTO()
+
+    suspend fun getByGlobalId(id: UUID) = database.getByGlobalId(id.toString())?.toDTO()
 
     fun load(image: LocalImageView): ByteArray? = fileRepository.readFile(image.imgUri.toUri())
 
@@ -63,7 +68,7 @@ class ImageProvider(
         }
     }
 
-    fun getListFlow() = database.getImageListFlow()
+    fun getListFlow() = database.getImageListFlow().map { list -> list.map { it.toDTO() } }
 
     suspend fun share(id: Int): LocalImage? {
         val image = getById(id)
@@ -73,7 +78,7 @@ class ImageProvider(
         val res = image?.let {
             fileRepository.readFile(image.imgUri.toUri())?.let { network.image.upload(it) }
         }?.let { LocalImage(image.id, image.imgUri, it.globalId, it.globalOwner) }
-        res?.let { database.update(it) }
+        res?.let { database.update(it.toEntity()) }
         return res ?: image
     }
 
@@ -91,7 +96,7 @@ class ImageProvider(
                 )
             }
         }?.let { LocalImage(image.id, image.imgUri, it.globalId, it.globalOwner) }
-        res?.let { database.update(it) }
+        res?.let { database.update(it.toEntity()) }
         return res ?: image
     }
 
@@ -101,26 +106,31 @@ class ImageProvider(
     }
 
     suspend fun download(id: UUID): LocalImage? {
-        val local = database.getByGlobalId(id)
+        val local = database.getByGlobalId(id.toString())
         if (local == null) {
             val localId = add(network.image.load(id))
-            val l = database.getById(localId)?.update(network.image.get(id)) ?: return null
-            database.update(l)
+            val l = database.getById(localId)?.toDTO()?.update(network.image.get(id)) ?: return null
+            database.update(l.toEntity())
             return l
         }
-        return local
+        return local.toDTO()
     }
 
     suspend fun save(view: GlobalImageView): LocalImage {
-        val l1 = database.getByGlobalId(view.globalId)
+        val l1 = database.getByGlobalId(view.globalId.toString())
         return if (l1 == null) {
             val localID = add(network.image.load(view.globalId))
-            val l = database.getById(localID)?.update(view) ?: throw Exception("Image wasn't saved")
-            database.update(l)
+            val l = database.getById(localID)?.toDTO()?.update(view) ?: throw Exception("Image wasn't saved")
+            database.update(l.toEntity())
             l
         } else {
-            l1
+            l1.toDTO()
         }
+    }
+
+    suspend fun fastSave(view: GlobalImageView): Int {
+        val l1 = database.getByGlobalId(view.globalId.toString())
+        return l1?.id ?: add(network.image.load(view.globalId))
     }
 
     fun getPicasso(context: Context) = network.getPicasso(context)

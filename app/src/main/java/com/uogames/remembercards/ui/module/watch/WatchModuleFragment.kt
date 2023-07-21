@@ -71,7 +71,7 @@ class WatchModuleFragment : DaggerFragment() {
         model.shouldReset.ifTrue { model.reset() }
 
         model.type.value = (arguments?.get(MODULE_TYPE) as? ModuleType) == ModuleType.GLOBAL
-        model.localID.value = arguments?.get(MODULE_ID) as? Int
+        model.localID.value = arguments?.getInt(MODULE_ID)
         model.globalID.value = arguments?.get(MODULE_ID) as? UUID
 
         model.apply { if (localID.value == null && globalID.value == null) findNavController().popBackStack() }

@@ -1,17 +1,18 @@
-package com.uogames.database.map
+package com.uogames.repository.map
 
 import com.uogames.database.entity.UserEntity
 import com.uogames.dto.User
 
-object UserMapper : Map<UserEntity, User> {
+object UserMap {
 
-	override fun UserEntity.toDTO() = User(
+	fun UserEntity.toDTO() = User(
 		globalOwner = globalId,
 		name = name
 	)
 
-	override fun User.toEntity() = UserEntity(
+	fun User.toEntity() = UserEntity(
 		globalId = globalOwner,
 		name = name
 	)
+
 }

@@ -12,7 +12,7 @@ import java.util.UUID
 object PhraseMap {
 
     fun LocalPhrase.toGlobal(image: LocalImage?, pronunciation: LocalPronunciation?) = GlobalPhrase(
-        globalId = globalId ?: DefaultUUID.value,
+        globalId = globalId,
         globalOwner = globalOwner ?: "",
         phrase = phrase,
         definition = definition,

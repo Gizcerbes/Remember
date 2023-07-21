@@ -43,6 +43,24 @@ class CardProvider(private val s: CardService) {
         number = number
     ).toDTO()
 
+    suspend fun getListView(
+        text: String? = null,
+        langFirst: String? = null,
+        langSecond: String? = null,
+        countryFirst: String? = null,
+        countrySecond: String? = null,
+        number: Long,
+        limit: Int
+    ) = s.getListView(
+        text = text,
+        langFirst = langFirst,
+        langSecond = langSecond,
+        countryFirst = countryFirst,
+        countrySecond = countrySecond,
+        number = number,
+        limit = limit
+    ).map { it.toDTO() }
+
     suspend fun getView(globalId: UUID) = s.getView(globalId).toDTO()
 
     suspend fun count(

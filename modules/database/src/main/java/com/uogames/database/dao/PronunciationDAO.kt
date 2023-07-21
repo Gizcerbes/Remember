@@ -27,7 +27,7 @@ interface PronunciationDAO {
 	suspend fun getById(id: Int): PronunciationEntity?
 
 	@Query("SELECT * FROM pronounce_table WHERE global_id = :id")
-	suspend fun getByGlobalId(id: UUID): PronunciationEntity?
+	suspend fun getByGlobalId(id: String): PronunciationEntity?
 
 	@Query("SELECT * FROM pronounce_table WHERE id =:id")
 	fun getByIdFlow(id: Int): Flow<PronunciationEntity?>
@@ -37,13 +37,6 @@ interface PronunciationDAO {
 
 	@Query("SELECT * FROM pronounce_table LIMIT :number, 1")
 	fun getByNumberFlow(number: Int): Flow<PronunciationEntity?>
-
-//	@Query(
-//		"SELECT * FROM pronounce_table " +
-//				"WHERE " +
-//				"NOT EXISTS (SELECT * FROM phrase_table pt WHERE pt.id_pronounce = pronounce_table.id )"
-//	)
-//	suspend fun freePronounce(): List<PronunciationEntity>
 
 	@Query(
 		"SELECT prt.* FROM pronounce_table AS prt " +

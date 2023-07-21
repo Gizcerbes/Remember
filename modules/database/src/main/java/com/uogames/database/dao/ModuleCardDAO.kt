@@ -35,14 +35,6 @@ interface ModuleCardDAO {
 	@Query("SELECT * FROM module_card WHERE id_module = :idModule ORDER BY RANDOM() LIMIT 1")
 	suspend fun getRandomModuleCard(idModule: Int): ModuleCardEntity?
 
-//	@Query("SELECT mc.* FROM module_card AS mc " +
-//			"JOIN cards_table AS ct ON mc.id_card = ct.id " +
-//			"LEFT JOIN error_card AS ec ON ct.id_phrase = ec.id_phrase AND ct.id_translate = ec.id_translate " +
-//			"WHERE mc.id_module = :idModule " +
-//			"ORDER BY ec.percent_correct ASC " +
-//			"LIMIT 1")
-//	suspend fun getUnknowable(idModule: Int): ModuleCardEntity?
-
 	@Query("SELECT mc.* FROM module_card AS mc " +
 			"JOIN cards_table AS ct ON mc.id_card = ct.id " +
 			"LEFT JOIN error_card AS ec ON ct.id_phrase = ec.id_phrase AND ct.id_translate = ec.id_translate " +
@@ -97,7 +89,7 @@ interface ModuleCardDAO {
 	suspend fun getById(moduleCardId: Int): ModuleCardEntity?
 
 	@Query("SELECT * FROM module_card WHERE global_id = :globalId")
-	suspend fun getByGlobalId(globalId: UUID): ModuleCardEntity?
+	suspend fun getByGlobalId(globalId: String): ModuleCardEntity?
 
 	@Query("DELETE FROM module_card WHERE id_module = :idModule")
 	suspend fun removeByModule(idModule: Int)

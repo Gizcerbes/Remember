@@ -1,23 +1,21 @@
 package com.uogames.database.repository
 
 import com.uogames.database.dao.ShareDAO
-import com.uogames.database.map.ShareMapper.toDTO
-import com.uogames.database.map.ShareMapper.toEntity
-import com.uogames.dto.local.LocalShare
+import com.uogames.database.entity.ShareEntity
 
 class ShareRepository(
     private val dao: ShareDAO
 ) {
 
-    suspend fun save(share: LocalShare) = dao.insert(share.toEntity())
+    suspend fun save(share: ShareEntity) = dao.insert(share)
 
-    suspend fun delete(share: LocalShare) = dao.delete(share.toEntity())
+    suspend fun delete(share: ShareEntity) = dao.delete(share)
 
     suspend fun count() = dao.count()
 
     fun countFlow() = dao.countFlow()
 
-    suspend fun getFirst() = dao.getFirst()?.toDTO()
+    suspend fun getFirst() = dao.getFirst()
 
     suspend fun exists(
         id: Int = -1,

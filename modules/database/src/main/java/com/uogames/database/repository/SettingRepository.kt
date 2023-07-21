@@ -1,19 +1,16 @@
 package com.uogames.database.repository
 
 import com.uogames.database.dao.SettingDAO
-import com.uogames.database.map.SettingMapper.toDTO
-import com.uogames.database.map.SettingMapper.toEntity
-import com.uogames.dto.local.Setting
-import kotlinx.coroutines.flow.map
+import com.uogames.database.entity.SettingEntity
 
 class SettingRepository(val dao: SettingDAO) {
 
-	suspend fun save(setting: Setting) = dao.save(setting.toEntity())
+	suspend fun save(setting: SettingEntity) = dao.save(setting)
 
-	suspend fun delete(setting: Setting) = dao.delete(setting.toEntity())
+	suspend fun delete(setting: SettingEntity) = dao.delete(setting)
 
-	suspend fun get(key: String) = dao.get(key)?.toDTO()
+	suspend fun get(key: String) = dao.get(key)
 
-	fun getFlow(key: String) = dao.getFlow(key).map { it?.toDTO() }
+	fun getFlow(key: String) = dao.getFlow(key)
 
 }

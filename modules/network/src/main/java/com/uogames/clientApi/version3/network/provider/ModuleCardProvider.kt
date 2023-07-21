@@ -30,6 +30,16 @@ class ModuleCardProvider(private val s: ModuleCardService) {
         number = number
     ).toDTO()
 
+    suspend fun getListView(
+        moduleID: UUID? = null,
+        number: Long,
+        limit: Int = 1
+    ) = s.getListView(
+        moduleID = moduleID,
+        number = number,
+        limit = limit
+    ).map { it.toDTO() }
+
     suspend fun getView(globalId: UUID) = s.getView(globalId).toDTO()
 
 

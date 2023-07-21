@@ -8,6 +8,7 @@ import com.uogames.remembercards.utils.ifNull
 import com.uogames.repository.DataProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 
 class GamesViewModel constructor(val provider: DataProvider) : ViewModel() {
@@ -18,6 +19,7 @@ class GamesViewModel constructor(val provider: DataProvider) : ViewModel() {
 
     val cardOwner: MutableStateFlow<String> = MutableStateFlow("")
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     val countItems = selectedModuleId.flatMapLatest {
         it?.let {
             cardOwner.value = it.globalOwner?.let { owner ->

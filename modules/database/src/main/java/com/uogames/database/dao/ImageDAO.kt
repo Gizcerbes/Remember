@@ -27,7 +27,7 @@ interface ImageDAO {
 	suspend fun getById(id: Int): ImageEntity?
 
 	@Query("SELECT * FROM images_table WHERE global_id = :id")
-	suspend fun getByGlobalId(id: UUID): ImageEntity?
+	suspend fun getByGlobalId(id: String): ImageEntity?
 
 	@Query("SELECT * FROM images_table WHERE id = :id")
 	fun getByIdFlow(id: Int): Flow<ImageEntity?>
@@ -43,7 +43,7 @@ interface ImageDAO {
 	)
 	suspend fun freeImages(): List<ImageEntity>
 
-	@Query("SELECT * FROM images_table")
+	@Query("SELECT * FROM images_table ORDER BY id DESC")
 	suspend fun getList(): List<ImageEntity>
 
 	@Query("SELECT * FROM images_table ORDER BY id DESC")

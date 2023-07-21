@@ -3,6 +3,7 @@ package com.uogames.remembercards.ui.card.choiceCardFragment
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Parcelable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
@@ -13,15 +14,18 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.uogames.dto.global.GlobalCard
 import com.uogames.dto.local.LocalCard
+import com.uogames.flags.Countries
 import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentCardChoiceBinding
+import com.uogames.remembercards.models.SearchingState
 import com.uogames.remembercards.ui.dialogs.choiceCountry.ChoiceCountryDialog
 import com.uogames.remembercards.ui.dialogs.choiceLanguageDialog.ChoiceLanguageDialog
 import com.uogames.remembercards.ui.card.editCardFragment.EditCardFragment
@@ -30,11 +34,46 @@ import com.uogames.remembercards.utils.*
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
 class ChoiceCardFragment : DaggerFragment() {
+
+    interface Model {
+
+        val like: MutableStateFlow<String?>
+        val languageFirst: MutableStateFlow<Locale?>
+        val languageSecond: MutableStateFlow<Locale?>
+        val countryFirst: MutableStateFlow<Countries?>
+        val countrySecond: MutableStateFlow<Countries?>
+
+        val cloud: MutableStateFlow<Boolean>
+        val search: MutableStateFlow<Boolean>
+        val newest: MutableStateFlow<Boolean>
+
+        val adapter: RecyclerView.Adapter<out RecyclerView.ViewHolder>
+        val size: Flow<Int>
+        val isSearching: Flow<SearchingState>
+
+
+        var recyclerStat: Parcelable?
+
+        fun reset()
+
+        fun update()
+
+        fun addReportListener(box: (GlobalCard) -> Unit)
+
+        fun removeReportListener(box: (GlobalCard) -> Unit)
+
+        fun addChoiceListener(box: (LocalCard) -> Unit)
+
+        fun removeChoiceListener(box: (LocalCard) -> Unit)
+
+    }
 
     companion object {
         const val TAG = "ChoiceCardFragment_CHOICE_CARD_FRAGMENT"
@@ -44,7 +83,7 @@ class ChoiceCardFragment : DaggerFragment() {
     lateinit var globalViewModel: GlobalViewModel
 
     @Inject
-    lateinit var model: ChoiceCardViewModel
+    lateinit var model: Model
 
     private var _bind: FragmentCardChoiceBinding? = null
     private val bind get() = _bind!!
@@ -155,12 +194,12 @@ class ChoiceCardFragment : DaggerFragment() {
             }
             model.isSearching.observe(this) {
                 when(it){
-                    ChoiceCardViewModel.SearchingState.SEARCHING -> {
+                    SearchingState.SEARCHING -> {
                         bind.lpiLoadIndicator.setIndicatorColor(MaterialColors.getColor(requireContext(), R.attr.colorPrimary, Color.BLACK))
                         bind.lpiLoadIndicator.isIndeterminate = true
                         bind.lpiLoadIndicator.visibility = View.VISIBLE
                     }
-                    ChoiceCardViewModel.SearchingState.SEARCHED -> bind.lpiLoadIndicator.visibility = View.GONE
+                    SearchingState.SEARCHED -> bind.lpiLoadIndicator.visibility = View.GONE
                     else -> {
                         bind.lpiLoadIndicator.setIndicatorColor(requireContext().getColor(R.color.red))
                         bind.lpiLoadIndicator.isIndeterminate = false

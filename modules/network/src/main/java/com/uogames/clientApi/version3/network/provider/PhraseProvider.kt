@@ -45,6 +45,20 @@ class PhraseProvider(private val s: PhraseService) {
         number = number
     ).toDTO()
 
+    suspend fun getListView(
+        text: String? = null,
+        lang: String? = null,
+        country: String? = null,
+        number: Long,
+        limit: Int = 1
+    ) = s.getListView(
+        text = text,
+        lang = lang,
+        country = country,
+        number = number,
+        limit = limit
+    ).map { it.toDTO() }
+
     suspend fun getView(globalId: UUID) = s.getView(globalId).toDTO()
 
     suspend fun post(phrase: GlobalPhrase) = s.post(phrase.toResponse()).toDTO()

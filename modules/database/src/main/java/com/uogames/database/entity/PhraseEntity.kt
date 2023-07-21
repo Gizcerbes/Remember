@@ -1,12 +1,24 @@
 package com.uogames.database.entity
 
 import androidx.room.*
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
-import java.util.*
 
 @Entity(
-	tableName = "phrase_table"
+	tableName = "phrase_table",
+	foreignKeys = [
+		ForeignKey(
+			entity = PronunciationEntity::class,
+			parentColumns = ["id"],
+			childColumns = ["id_pronounce"],
+			onDelete = ForeignKey.SET_NULL
+		), ForeignKey(
+			entity = ImageEntity::class,
+			parentColumns = ["id"],
+			childColumns = ["id_image"],
+			onDelete = ForeignKey.SET_NULL
+		)],
+	indices = [
+		Index(value = ["global_id"], orders = [Index.Order.ASC])
+	]
 )
 data class PhraseEntity(
 	@PrimaryKey(autoGenerate = true)
@@ -20,9 +32,9 @@ data class PhraseEntity(
 	val lang: String,
 	@ColumnInfo(name = "country")
 	val country: String,
-	@ColumnInfo(name = "id_pronounce")
+	@ColumnInfo(name = "id_pronounce", index = true)
 	val idPronounce: Int?,
-	@ColumnInfo(name = "id_image")
+	@ColumnInfo(name = "id_image", index = true)
 	val idImage: Int?,
 	@ColumnInfo(name = "time_change")
 	val timeChange: Long,
@@ -31,64 +43,9 @@ data class PhraseEntity(
 	@ColumnInfo(name = "dislike")
 	val dislike: Long,
 	@ColumnInfo(name = "global_id")
-	val globalId: UUID?,
+	val globalId: String,
 	@ColumnInfo(name = "global_owner")
 	val globalOwner: String?,
 	@ColumnInfo(name = "changed", defaultValue = "false")
 	val changed: Boolean = false
-) {
-
-	companion object {
-		private const val v1 = "CREATE TABLE " +
-				"`phrase_table` (" +
-				"`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
-				"`phrase` TEXT NOT NULL, " +
-				"`definition` TEXT, " +
-				"`lang` TEXT NOT NULL, " +
-				"`id_pronounce` INTEGER, " +
-				"`id_image` INTEGER, " +
-				"`time_change` INTEGER NOT NULL, " +
-				"`like` INTEGER NOT NULL, " +
-				"`dislike` INTEGER NOT NULL, " +
-				"`global_id` BLOB, " +
-				"`global_owner` TEXT" +
-				");"
-
-		private const val v3 = "CREATE TABLE " +
-				"`phrase_table` (" +
-				"`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
-				"`phrase` TEXT NOT NULL, " +
-				"`definition` TEXT, " +
-				"`lang` TEXT NOT NULL, " +
-				"`country` TEXT NOT NULL, " +
-				"`id_pronounce` INTEGER, " +
-				"`id_image` INTEGER, " +
-				"`time_change` INTEGER NOT NULL, " +
-				"`like` INTEGER NOT NULL, " +
-				"`dislike` INTEGER NOT NULL, " +
-				"`global_id` BLOB, " +
-				"`global_owner` TEXT" +
-				");"
-
-
-		fun migration_2_3(): Migration {
-			return object: Migration(2,3){
-				override fun migrate(database: SupportSQLiteDatabase) {
-					database.execSQL("ALTER TABLE `phrase_table` ADD `country` TEXT NOT NULL DEFAULT 'UNITED_KINGDOM'")
-					val result = database.query("SELECT * FROM `phrase_table`")
-					if (result.moveToFirst()) do {
-						val lan = result.getString(result.getColumnIndexOrThrow("lang")).split("-")
-						database.execSQL(
-							"UPDATE `phrase_table` " +
-									"SET `lang` = '${lan[0]}', " +
-									"`country` = '${lan[1]}' " +
-									"WHERE `id` = ${result.getInt(result.getColumnIndexOrThrow("id"))}"
-						)
-					} while (result.moveToNext())
-				}
-			}
-		}
-	}
-
-
-}
+)

@@ -24,6 +24,9 @@ interface PhraseDAO {
 	@RawQuery
 	suspend fun get(query: SupportSQLiteQuery): PhraseEntity?
 
+	@RawQuery
+	suspend fun getList(query: SupportSQLiteQuery): List<PhraseEntity>
+
 	@Query("SELECT COUNT(phrase) FROM phrase_table")
 	fun countFLOW(): Flow<Int>
 
@@ -31,27 +34,37 @@ interface PhraseDAO {
 	suspend fun getById(id: Int): PhraseEntity?
 
 	@Query("SELECT * FROM phrase_table WHERE global_id = :id")
-	suspend fun getByGlobalId(id: UUID): PhraseEntity?
+	suspend fun getByGlobalId(id: String): PhraseEntity?
 
 	@Query("SELECT * FROM phrase_table WHERE id = :id")
 	fun getByIdFlow(id: Int): Flow<PhraseEntity?>
 
-	@Query("SELECT phrase_table.*, length(phrase_table.phrase) AS len FROM phrase_table WHERE id = :id ORDER BY time_change DESC")
+	@Query("SELECT * FROM phrase_table WHERE id = :id ORDER BY time_change DESC")
 	fun getTest(id: Int): Flow<PhraseEntity?>
 
-	@Query("SELECT COUNT(DISTINCT pt.id) FROM phrase_table AS pt " +
-			"LEFT JOIN cards_table AS ct1 " +
-            "ON pt.id = ct1.id_phrase " +
-            "LEFT JOIN cards_table AS ct2 " +
-            "ON pt.id = ct2.id_translate " +
-            "WHERE ct1.id IS NULL AND ct2.id IS NULL")
+	@Query(
+		"SELECT COUNT(DISTINCT pt.id) FROM phrase_table AS pt " +
+				"LEFT JOIN cards_table AS ct1 " +
+				"ON pt.id = ct1.id_phrase " +
+				"LEFT JOIN cards_table AS ct2 " +
+				"ON pt.id = ct2.id_translate " +
+				"WHERE ct1.id IS NULL AND ct2.id IS NULL"
+	)
 	fun countFree(): Flow<Int>
 
-	@Query("DELETE FROM phrase_table " +
-			"WHERE NOT EXISTS (SELECT ct.id FROM cards_table AS ct WHERE phrase_table.id = ct.id_phrase  OR phrase_table.id = ct.id_translate) ")
+	@Query(
+		"DELETE FROM phrase_table " +
+				"WHERE NOT EXISTS (SELECT ct.id FROM cards_table AS ct WHERE phrase_table.id = ct.id_phrase  OR phrase_table.id = ct.id_translate) "
+	)
 	suspend fun deleteFree()
 
 	@Query("SELECT changed FROM phrase_table WHERE id = :id")
-	fun isChanged(id: Int) : Flow<Boolean?>
+	fun isChangedFlow(id: Int): Flow<Boolean?>
+
+	@Query("SELECT changed FROM phrase_table WHERE id = :id")
+	suspend fun isChanged(id: Int): Boolean
+
+	@Query("SELECT EXISTS (SELECT id FROM phrase_table WHERE global_id = :id)")
+	fun isExistsByGlobalIdFlow(id: String): Flow<Boolean>
 
 }

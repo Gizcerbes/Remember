@@ -80,9 +80,9 @@ class GameYesOrNotFragment : DaggerFragment() {
 
         bind.btnPause.setOnClickListener { play(!gameModel.isStarted.value) }
 
-        bind.btnYes.setOnClickListener { gameModel.answerCard.value?.let { it1 -> gameModel.check(it1, true)?.let { reaction(it) } } }
+        bind.btnYes.setOnClickListener { gameModel.answerCard.value?.let { it1 -> reaction(gameModel.check(it1, true)) } }
 
-        bind.btnNo.setOnClickListener { gameModel.answerCard.value?.let { it1 -> gameModel.check(it1, false)?.let { reaction(it) } } }
+        bind.btnNo.setOnClickListener { gameModel.answerCard.value?.let { it1 -> reaction(gameModel.check(it1, false)) } }
 
         play(true)
 

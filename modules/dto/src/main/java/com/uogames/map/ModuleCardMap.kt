@@ -11,14 +11,14 @@ import java.util.UUID
 object ModuleCardMap {
 
     fun LocalModuleCard.toGlobal(module: LocalModule?, card: LocalCard?) = GlobalModuleCard(
-        globalId = globalId ?: DefaultUUID.value,
+        globalId = globalId,
         globalOwner = globalOwner ?: "",
         idModule = module?.globalId ?: DefaultUUID.value,
         idCard = card?.globalId ?: DefaultUUID.value
     )
 
     fun LocalModuleCard.toGlobal(moduleID: UUID, cardID: UUID) = GlobalModuleCard(
-        globalId = globalId ?: DefaultUUID.value,
+        globalId = globalId,
         globalOwner = globalOwner ?: "",
         idModule = moduleID,
         idCard = cardID

@@ -5,6 +5,8 @@ import com.uogames.database.DatabaseRepository
 import com.uogames.database.repository.UserRepository
 import com.uogames.dto.User
 import com.uogames.repository.DataProvider
+import com.uogames.repository.map.UserMap.toDTO
+import com.uogames.repository.map.UserMap.toEntity
 
 class UserProvider(
     private val dataProvider: DataProvider,
@@ -12,11 +14,9 @@ class UserProvider(
     private val network: NetworkProvider
 ) {
 
-    suspend fun insert(user: User) = up.save(user)
+    suspend fun insert(user: User) = up.save(user.toEntity())
 
-    fun getByOwnerFlow(globalOwner: String) = up.getByIdFlow(globalOwner)
-
-    suspend fun getByUid(uid: String) = up.getById(uid)
+    suspend fun getByUid(uid: String) = up.getById(uid)?.toDTO()
 
     suspend fun getGlobalByUid(uid: String) = network.user.get(uid)
 
