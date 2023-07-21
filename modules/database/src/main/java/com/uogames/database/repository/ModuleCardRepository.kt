@@ -21,15 +21,9 @@ class ModuleCardRepository(
 
 	suspend fun getCountByModuleId(id: Int) = dao.getCountByModuleId(id)
 
-	suspend fun getByPositionOfModule(idModule: Int, position: Int) = dao.getByPositionOfModule(idModule, position)
-
 	suspend fun getViewByPositionOfModule(idModule: Int, position: Int) = dao.getByPositionOfModule(idModule, position)
 
-	suspend fun getRandomModule(idModule: Int) = dao.getRandomModuleCard(idModule)
-
 	suspend fun getRandomModuleView(idModule: Int) = dao.getRandomModuleCard(idModule)
-
-	suspend fun getRandomModuleViewWithout(idModule: Int, idCard: Array<Int>) = dao.getRandomWithout(idModule, idCard)
 
 	suspend fun getRandomModuleViewWithoutPhrases(idModule: Int, phraseIds: Array<Int>) =
 		dao.getRandomWithoutPhrases(idModule, phraseIds)
@@ -42,14 +36,11 @@ class ModuleCardRepository(
 	suspend fun getConfusingWithoutPhrases(idModule: Int, idPhrase: Int, phraseIds: Array<Int>) =
 		dao.getConfusingWithoutPhrases(idModule, idPhrase, phraseIds)
 
-
-	suspend fun getRandomModuleWithout(idModule: Int, idCard: Int) = dao.getRandomWithout(idModule, idCard)
-
 	suspend fun getById(id: Int) = dao.getById(id)
 
 	suspend fun getViewById(id: Int) = dao.getById(id)
 
-	suspend fun getByGlobalId(globalId: UUID) = dao.getByGlobalId(globalId)
+	suspend fun getByGlobalId(globalId: String) = dao.getByGlobalId(globalId)
 
 	suspend fun removeByModuleId(idModule: Int) = dao.removeByModule(idModule)
 

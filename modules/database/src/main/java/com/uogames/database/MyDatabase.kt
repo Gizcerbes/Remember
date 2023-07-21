@@ -24,14 +24,16 @@ import com.uogames.database.migrations.MigrationFrom6To7
 		ErrorCardEntity::class,
 		UserEntity::class,
 		ShareEntity::class,
-		DownloadEntity::class
+		DownloadEntity::class,
+		CacheEntity::class
 	],
 	autoMigrations = [
 		AutoMigration(from = 4, to = 5),
 		AutoMigration(from = 5, to = 6),
-		AutoMigration(from = 7, to = 8)
+		AutoMigration(from = 7, to = 8),
+		AutoMigration(from = 8, to = 9)
 	],
-	version = 8
+	version = 9
 )
 abstract class MyDatabase : RoomDatabase() {
 
@@ -56,6 +58,8 @@ abstract class MyDatabase : RoomDatabase() {
 	abstract fun shareDAO(): ShareDAO
 
 	abstract fun downloadDAO(): DownloadDAO
+
+	abstract fun cacheDAO(): CacheDAO
 
 	companion object {
 		private var INSTANCE: MyDatabase? = null

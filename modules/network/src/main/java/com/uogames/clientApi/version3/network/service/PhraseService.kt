@@ -51,6 +51,20 @@ class PhraseService(private val client: HttpClient) {
             parameter("number", number)
         }.ifSuccess()
 
+    suspend fun getListView(
+        text: String? = null,
+        lang: String? = null,
+        country: String? = null,
+        number: Long,
+        limit: Int = 1
+    ): List<PhraseViewResponse> = client.get("/remember-card/v3/phrase/list/view"){
+        text?.let { parameter("text", it) }
+        lang?.let { parameter("lang", it) }
+        country?.let { parameter("country", it) }
+        parameter("number", number)
+        parameter("limit", limit)
+    }.ifSuccess()
+
     suspend fun getView(globalId: UUID): PhraseViewResponse = client
         .get("/remember-card/v3/phrase/view/$globalId")
         .ifSuccess()

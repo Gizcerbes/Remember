@@ -3,6 +3,8 @@ package com.uogames.repository.providers
 import com.uogames.clientApi.version3.network.NetworkProvider
 import com.uogames.database.repository.CardRepository
 import com.uogames.dto.global.GlobalCardView
+import com.uogames.dto.global.GlobalImageView
+import com.uogames.dto.global.GlobalPhraseView
 import com.uogames.dto.local.LocalCard
 import com.uogames.dto.local.LocalCardView
 import com.uogames.dto.local.LocalImageView
@@ -15,6 +17,7 @@ import com.uogames.repository.DataProvider
 import com.uogames.repository.map.CardMap.toDTO
 import com.uogames.repository.map.CardMap.toEntity
 import com.uogames.repository.map.CardMap.toViewDTO
+import com.uogames.repository.map.CardMap.update
 import com.uogames.repository.map.PhraseViewMap.toDTO
 import kotlinx.coroutines.flow.map
 import java.util.*
@@ -28,6 +31,8 @@ class CardsProvider(
 	private val phraseBuilder: suspend (id:Int) -> LocalPhraseView = { dataProvider.phrase.getViewByID(it) ?: throw Exception("Phrase isn't saved") }
 	private val imageBuilder: suspend (id: Int) -> LocalImageView? = { dataProvider.images.getViewById(it) }
 
+	private val phraseUpdate: suspend (GlobalPhraseView) -> Int = { dataProvider.phrase.fastSave(it) }
+	private val imageUpdate: suspend (GlobalImageView) -> Int = { dataProvider.images.fastSave(it) }
 
 	suspend fun add(card: LocalCard) = repository.insert(card.toEntity())
 
@@ -65,6 +70,18 @@ class CardsProvider(
 		position: Int? = null
 	) = repository.get(like, langFirst, langSecond, countryFirst, countrySecond, newest, position)?.toViewDTO(phraseBuilder, imageBuilder)
 
+	suspend fun getListView(
+		like: String? = null,
+		langFirst: String? = null,
+		langSecond: String? = null,
+		countryFirst: String? = null,
+		countrySecond: String? = null,
+		newest: Boolean = false,
+		position: Int? = null,
+		limit: Int = 1
+	) = repository.getList(like, langFirst, langSecond, countryFirst, countrySecond, newest, position, limit)
+		.map { it.toViewDTO(phraseBuilder, imageBuilder) }
+
 	suspend fun getViewByID(id: Int) = repository.getViewById(id)?.toViewDTO(phraseBuilder, imageBuilder)
 
 	fun getCountFlow() = repository.getCountFlow()
@@ -74,6 +91,8 @@ class CardsProvider(
 	fun getByIdFlow(id: Int) = repository.getByIdFlow(id).map { it?.toDTO() }
 
 	suspend fun getById(id: Int) = repository.getById(id)?.toDTO()
+
+	fun existByGlobalIdFlow(id: UUID) = repository.existByGlobalId(id.toString())
 
 	suspend fun getRandomView() = repository.getRandomView()?.toViewDTO(phraseBuilder, imageBuilder)
 
@@ -117,7 +136,27 @@ class CardsProvider(
 		number = number
 	)
 
-	fun isChanged(id: Int) = repository.isChanged(id)
+	suspend fun getGlobalListView(
+		text: String? = null,
+		langFirst: String? = null,
+		langSecond: String? = null,
+		countryFirst: String? = null,
+		countrySecond: String? = null,
+		number: Long,
+		limit: Int
+	) = network.card.getListView(
+		text = text,
+		langFirst = langFirst,
+		langSecond = langSecond,
+		countryFirst = countryFirst,
+		countrySecond = countrySecond,
+		number = number,
+		limit = limit
+	)
+
+	fun isChangedFlow(id: Int) = repository.isChangedFlow(id)
+
+	suspend fun isChanged(id: Int) = repository.isChanged(id)
 
 	suspend fun share(id: Int): LocalCard? {
 		val card = getById(id)
@@ -161,7 +200,7 @@ class CardsProvider(
 	}
 
 	suspend fun download(globalId: UUID): LocalCard? {
-		val local = repository.getByGlobalId(globalId)
+		val local = repository.getByGlobalId(globalId.toString())
 		val nc = network.card.get(globalId)
 		val phrase = dataProvider.phrase.download(nc.idPhrase)
 		val translate = dataProvider.phrase.download(nc.idTranslate)
@@ -180,63 +219,28 @@ class CardsProvider(
 	}
 
 	suspend fun save(view: GlobalCardView): LocalCard {
-		val l1 = repository.getByGlobalId(view.globalId)
-		if (l1 == null) {
-			val localID = add(
-				LocalCard(
-					idPhrase = view.phrase.let { dataProvider.phrase.save(it) }.id,
-					idTranslate = view.translate.let { dataProvider.phrase.save(it) }.id,
-					reason = view.reason,
-					idImage = view.image?.let { dataProvider.images.save(it) }?.id,
-					timeChange = view.timeChange,
-					like = view.like,
-					dislike = view.dislike,
-					globalId = view.globalId,
-					globalOwner = view.user.globalOwner
-				)
-			).toInt()
-			return repository.getById(localID)?.toDTO() ?: throw Exception("Card wasn't saved")
+		val l1 = repository.getByGlobalId(view.globalId.toString())
+		return if (l1 == null) {
+			val localID = repository.insert(view.toEntity(phraseUpdate, imageUpdate)).toInt()
+			repository.getById(localID)?.toDTO() ?: throw Exception("Card wasn't saved")
 		} else if (l1.timeChange <= view.timeChange) {
-			val l2 = l1.toDTO().update(
-				view = view,
-				idPhrase = view.phrase.let { dataProvider.phrase.save(it) }.id,
-				idTranslate = view.translate.let { dataProvider.phrase.save(it) }.id,
-				idImage = view.image?.let { dataProvider.images.save(it) }?.id,
-			)
-			update(l2)
-			return l2
+			val up = l1.update(view, phraseUpdate, imageUpdate)
+			repository.update(up)
+			up.toDTO()
 		} else {
-			return l1.toDTO()
+			l1.toDTO()
 		}
 	}
 
 	suspend fun fastSave(view: GlobalCardView): Int {
-		val l1 = repository.getByGlobalId(view.globalId)
-		if (l1 == null) {
-			return add(
-				LocalCard(
-					idPhrase = view.phrase.let { dataProvider.phrase.fastSave(it) },
-					idTranslate = view.translate.let { dataProvider.phrase.fastSave(it) },
-					reason = view.reason,
-					idImage = view.image?.let { dataProvider.images.fastSave(it) },
-					timeChange = view.timeChange,
-					like = view.like,
-					dislike = view.dislike,
-					globalId = view.globalId,
-					globalOwner = view.user.globalOwner
-				)
-			).toInt()
+		val l1 = repository.getByGlobalId(view.globalId.toString())
+		return if (l1 == null) {
+			repository.insert(view.toEntity(phraseUpdate, imageUpdate)).toInt()
 		} else if (l1.timeChange <= view.timeChange) {
-			val l2 = l1.toDTO().update(
-				view = view,
-				idPhrase = view.phrase.let { dataProvider.phrase.save(it) }.id,
-				idTranslate = view.translate.let { dataProvider.phrase.save(it) }.id,
-				idImage = view.image?.let { dataProvider.images.save(it) }?.id,
-			)
-			update(l2)
-			return l2.id
+			repository.update(l1.update(view, phraseUpdate, imageUpdate))
+			l1.id
 		} else {
-			return l1.id
+			l1.id
 		}
 	}
 

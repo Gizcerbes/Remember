@@ -89,7 +89,7 @@ interface ModuleCardDAO {
 	suspend fun getById(moduleCardId: Int): ModuleCardEntity?
 
 	@Query("SELECT * FROM module_card WHERE global_id = :globalId")
-	suspend fun getByGlobalId(globalId: UUID): ModuleCardEntity?
+	suspend fun getByGlobalId(globalId: String): ModuleCardEntity?
 
 	@Query("DELETE FROM module_card WHERE id_module = :idModule")
 	suspend fun removeByModule(idModule: Int)

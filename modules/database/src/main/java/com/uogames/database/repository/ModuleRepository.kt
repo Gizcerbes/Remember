@@ -129,7 +129,7 @@ class ModuleRepository(
 
     suspend fun getById(id: Int) = dao.getById(id)
 
-    suspend fun getByGlobalId(globalId: UUID) = dao.getByGlobalId(globalId)
+    suspend fun getByGlobalId(globalId: String) = dao.getByGlobalId(globalId)
 
     fun getByIdFlow(id: Int) = dao.getByIdFlow(id)
 

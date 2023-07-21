@@ -18,7 +18,7 @@ class ImageRepository(
 
     suspend fun getById(id: Int) = imageDAO.getById(id)
 
-    suspend fun getByGlobalId(id: UUID) = imageDAO.getByGlobalId(id)
+    suspend fun getByGlobalId(id: String) = imageDAO.getByGlobalId(id)
 
     fun getByIdFlow(id: Int) = imageDAO.getByIdFlow(id)
 

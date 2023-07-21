@@ -110,7 +110,7 @@ class ModuleCardProvider(
 	}
 
 	suspend fun save(view: GlobalModuleCardView, module: LocalModule): LocalModuleCard {
-		val l1 = mcr.getByGlobalId(view.globalId)
+		val l1 = mcr.getByGlobalId(view.globalId.toString())
 		return if (l1 == null) {
 			val localID = insert(
 				LocalModuleCard(

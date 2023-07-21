@@ -39,6 +39,8 @@ class DatabaseRepository private constructor(private val database: MyDatabase) {
 
     val errorCardRepository by lazy { ErrorCardRepository(database.errorCardDAO()) }
 
+    val cacheRepository by lazy { CacheRepository(database.cacheDAO()) }
+
 
 
 

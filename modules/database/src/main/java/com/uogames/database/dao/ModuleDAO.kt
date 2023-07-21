@@ -62,7 +62,7 @@ interface ModuleDAO {
 	suspend fun getById(id: Int): ModuleEntity?
 
 	@Query("SELECT * FROM modules WHERE global_id = :globalId")
-	suspend fun getByGlobalId(globalId: UUID): ModuleEntity?
+	suspend fun getByGlobalId(globalId: String): ModuleEntity?
 
 	@Query("SELECT COUNT(id) FROM modules")
 	fun getCountFlow(): Flow<Int>

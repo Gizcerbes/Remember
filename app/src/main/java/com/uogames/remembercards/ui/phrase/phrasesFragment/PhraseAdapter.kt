@@ -1,183 +1,199 @@
 package com.uogames.remembercards.ui.phrase.phrasesFragment
 
+import android.content.Context
 import android.view.ViewGroup
-import android.widget.Toast
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.uogames.dto.global.GlobalPhrase
-import com.uogames.dto.local.LocalPhrase
+import com.squareup.picasso.Picasso
+import com.uogames.dto.global.GlobalPhraseView
 import com.uogames.dto.local.LocalPhraseView
-import com.uogames.map.PhraseMap.toGlobalPhrase
 import com.uogames.remembercards.R
+import com.uogames.remembercards.models.GlobalPhraseModel
+import com.uogames.remembercards.models.LocalPhraseModel
 import com.uogames.remembercards.ui.dialogs.ShareAttentionDialog
 import com.uogames.remembercards.ui.views.PhraseView
 import com.uogames.remembercards.utils.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 class PhraseAdapter(
-    private val vm: PhraseViewModel,
-    private val reportCall: ((GlobalPhrase) -> Unit)? = null,
-    private val editCall: ((Int) -> Unit)? = null
+	private val vm: Model
 ) : ClosableAdapter() {
 
-    private val recyclerScope = CoroutineScope(Dispatchers.Main)
-    private val auth = Firebase.auth
-    private var size = 0
+	interface Model {
 
-    init {
-        vm.size.observe(recyclerScope) {
-            size = it
-            notifyDataSetChanged()
-        }
-    }
+		val size: Flow<Int>
 
-    inner class LocalPhraseHolder(val view: PhraseView) : ClosableHolder(view) {
+		suspend fun getLocal(position: Int): LocalPhraseModel?
 
-        override fun show() {
-            view.reset()
-            observer = recyclerScope.safeLaunch {
-                val phraseView = vm.getLocalModel(adapterPosition).ifNull { return@safeLaunch }
-                val phrase = phraseView.phrase
-                view.phrase = phrase.phrase
-                view.definition = phrase.definition.orEmpty()
-                phrase.image?.imgUri?.let { uri ->
-                    vm.getPicasso(itemView.context).load(uri).placeholder(R.drawable.noise).into(view.getImageView())
-                    view.showImage = true
-                }.ifNull { view.showImage = false }
-                phrase.pronounce?.audioUri?.let {
-                    view.setOnClickButtonSound { v ->
-                        launch { phraseView.play(v.background.asAnimationDrawable()) }
-                    }
-                }.ifNull { view.setOnClickButtonSound(false, null) }
-                view.language = Locale.forLanguageTag(phraseView.phrase.lang)
-                view.setOnClickListenerButtonEdit { editCall?.let { it1 -> it1(phrase.id) } }
+		suspend fun getGlobal(position: Int): GlobalPhraseModel?
 
-                setShareAction(phrase)
+		fun getPicasso(context: Context): Picasso
 
-                vm.getShareAction(phrase).observeLaunching(this) {
-                    runCatching {
-                        view.showProgressLoading = it
-                        view.showButtonShare = !it && isAvailableToShare(phrase, vm.isChanged(phrase).value == true)
-                        view.showButtonEdit = !it
-                    }
-                }
+		fun onEdit(v: LocalPhraseView)
 
-                vm.isChanged(phrase).observeLaunching(this) {
-                    runCatching { view.showButtonShare = isAvailableToShare(phrase, it == true) }
-                }
+		fun getShareAction(v: LocalPhraseView): Flow<Boolean>
 
-            }
-        }
+		fun isChangedFlow(v: LocalPhraseView): Flow<Boolean?>
 
-        private fun isAvailableToShare(phrase: LocalPhraseView, changed: Boolean): Boolean {
-            if (!changed) return false
-            if (auth.currentUser == null) return false
-            if (phrase.globalOwner != null && phrase.globalOwner != auth.currentUser?.uid) return false
-            return true
-        }
+		suspend fun isChanged(v: LocalPhraseView): Boolean
 
-        private fun setShareAction(phrase: LocalPhraseView) {
-            if (!isAvailableToShare(phrase, phrase.changed)) return
-            view.setOnClickButtonShare {
-                vm.shareNotice.value?.let {
-                    recyclerScope.launch {
-                        vm.share(phrase){}
-                    }
-                }.ifNull {
-                    ShareAttentionDialog.show(itemView.context) {
-                        vm.share(phrase){}
-                        it.ifTrue { vm.showShareNotice(false) }
-                    }
-                }
-            }
-        }
+		fun isUploadNoticed(): Boolean
 
-        override fun onDestroy() {
-            super.onDestroy()
-            view.reset()
-        }
+		fun setUploadNotice(b: Boolean)
 
-    }
+		fun setUpload(v: LocalPhraseView)
 
-    inner class GlobalPhraseHolder(val view: PhraseView) : ClosableHolder(view) {
+		fun onReportAction(v: GlobalPhraseView)
 
-        private val startAction: () -> Unit = {
-            view.showProgressLoading = true
-            view.showButtonStop = true
-            view.showButtonDownload = false
-        }
+		fun onSave(v: GlobalPhraseView)
 
-        private val endAction: (String, LocalPhrase?) -> Unit = { m, _ ->
-            view.showProgressLoading = false
-            view.showButtonStop = false
-            view.showButtonDownload = true
-            Toast.makeText(itemView.context, m, Toast.LENGTH_SHORT).show()
-        }
+		fun isCloud(): Boolean
 
-        override fun show() {
-            view.reset()
-            observer = recyclerScope.launch {
-                val phraseView = vm.getGlobalModel(adapterPosition).ifNull { return@launch }
-                val phrase = phraseView.phraseView
-                view.phrase = phrase.phrase
-                view.definition = phrase.definition.orEmpty()
+		fun isExistsFlow(v: GlobalPhraseView): Flow<Boolean>
 
-                phrase.image?.imageUri?.let { uri ->
-                    vm.getPicasso(itemView.context).load(uri).placeholder(R.drawable.noise).into(view.getImageView())
-                    view.showImage = true
-                }.ifNull { view.showImage = false }
-                phrase.pronounce?.let {
-                    view.setOnClickButtonSound { v ->
-                        launch { phraseView.play(v.background.asAnimationDrawable()) }
-                    }
-                }.ifNull { view.setOnClickButtonSound(false, null) }
-                view.language = Locale.forLanguageTag(phrase.lang)
-                vm.setDownloadAction(phrase.globalId, endAction).ifTrue(startAction)
+	}
 
-                view.setOnClickButtonReport(auth.currentUser != null) { reportCall?.let { it(phrase.toGlobalPhrase()) } }
+	private val recyclerScope = CoroutineScope(Dispatchers.Main)
+	private val auth = Firebase.auth
+	private var size = 0
 
-                view.setOnClickButtonDownload {
-                    startAction()
-                    vm.save(phrase, endAction)
-                }
-                view.setOnClickButtonStop(false) { vm.stopDownloading(phrase.globalId) }
-            }
-        }
+	init {
+		vm.size.observe(recyclerScope) {
+			size = it
+			notifyDataSetChanged()
+		}
+	}
 
-        override fun onDestroy() {
-            super.onDestroy()
-            view.reset()
-        }
+	inner class LocalPhraseHolder(val view: PhraseView) : ClosableHolder(view) {
 
-    }
+		override fun show() {
+			view.reset()
+			observer = recyclerScope.safeLaunch {
+				val phraseView = vm.getLocal(adapterPosition).ifNull { return@safeLaunch }
+				val phrase = phraseView.phrase
+				view.phrase = phrase.phrase
+				view.definition = phrase.definition.orEmpty()
+				phrase.image?.imgUri?.let { uri ->
+					vm.getPicasso(itemView.context).load(uri).placeholder(R.drawable.noise).into(view.getImageView())
+					view.showImage = true
+				}.ifNull { view.showImage = false }
+				phrase.pronounce?.audioUri?.let {
+					view.setOnClickButtonSound { v ->
+						launch { phraseView.playPhrase(v.background.asAnimationDrawable()) }
+					}
+				}.ifNull { view.setOnClickButtonSound(false, null) }
+				view.language = Locale.forLanguageTag(phraseView.phrase.lang)
+				// view.setOnClickListenerButtonEdit { editCall?.let { it1 -> it1(phrase.id) } }
+				view.setOnClickListenerButtonEdit { vm.onEdit(phrase) }
 
-    override fun getItemViewType(position: Int): Int {
-        return if (vm.cloud.value) 1 else 0
-    }
+				setShareAction(phrase)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ClosableHolder {
-        return when (viewType) {
-            0 -> LocalPhraseHolder(PhraseView(parent.context))
-            else -> GlobalPhraseHolder(PhraseView(parent.context))
-        }
-    }
+				vm.getShareAction(phrase).observeLaunching(this) {
+					runCatching {
+						view.showProgressLoading = it
+						view.showButtonShare = !it && isAvailableToShare(phrase, vm.isChanged(phrase))
+						view.showButtonEdit = !it
+					}
+				}
+				vm.isChangedFlow(phrase).observeLaunching(this) {
+					runCatching { view.showButtonShare = isAvailableToShare(phrase, it == true) }
+				}
+			}
+		}
 
-    override fun onBindViewHolder(holder: ClosableHolder, position: Int) {
-        holder.show()
-    }
+		private fun isAvailableToShare(phrase: LocalPhraseView, changed: Boolean): Boolean {
+			if (!changed) return false
+			if (auth.currentUser == null) return false
+			if (phrase.globalOwner != null && phrase.globalOwner != auth.currentUser?.uid) return false
+			return true
+		}
 
-    override fun getItemCount() = size
+		private fun setShareAction(phrase: LocalPhraseView) {
+			if (!isAvailableToShare(phrase, phrase.changed)) return
+			view.setOnClickButtonShare {
+				if (vm.isUploadNoticed()) {
+					vm.setUpload(phrase)
+				} else {
+					ShareAttentionDialog.show(itemView.context) {
+						vm.setUpload(phrase)
+						it.ifTrue { vm.setUploadNotice(false) }
+					}
+				}
+			}
+		}
 
-    override fun onViewRecycled(holder: ClosableHolder) {
-        super.onViewRecycled(holder)
-        holder.onDestroy()
-    }
+		override fun onDestroy() {
+			super.onDestroy()
+			view.reset()
+		}
 
-    override fun close() {
-        recyclerScope.cancel()
-    }
+	}
+
+	inner class GlobalPhraseHolder(val view: PhraseView) : ClosableHolder(view) {
+
+		override fun show() {
+			view.reset()
+			observer = recyclerScope.launch {
+				val phraseView = vm.getGlobal(adapterPosition).ifNull { return@launch }
+				val phrase = phraseView.phrase
+				view.phrase = phrase.phrase
+				view.definition = phrase.definition.orEmpty()
+
+				phrase.image?.imageUri?.let { uri ->
+					vm.getPicasso(itemView.context).load(uri).placeholder(R.drawable.noise).into(view.getImageView())
+					view.showImage = true
+				}.ifNull { view.showImage = false }
+				phrase.pronounce?.let {
+					view.setOnClickButtonSound { v ->
+						launch { phraseView.playPhrase(v.background.asAnimationDrawable()) }
+					}
+				}.ifNull { view.setOnClickButtonSound(false, null) }
+				view.language = Locale.forLanguageTag(phrase.lang)
+
+				view.setOnClickButtonReport(auth.currentUser != null) { vm.onReportAction(phrase) }
+
+				view.setOnClickButtonDownload {
+					vm.onSave(phrase)
+				}
+
+				vm.isExistsFlow(phrase).observe(this) { view.showButtonDownload = !it }
+			}
+		}
+
+		override fun onDestroy() {
+			super.onDestroy()
+			view.reset()
+		}
+
+	}
+
+	override fun getItemViewType(position: Int): Int {
+		return if (vm.isCloud()) 1 else 0
+	}
+
+	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ClosableHolder {
+		return when (viewType) {
+			0 -> LocalPhraseHolder(PhraseView(parent.context))
+			else -> GlobalPhraseHolder(PhraseView(parent.context))
+		}
+	}
+
+	override fun onBindViewHolder(holder: ClosableHolder, position: Int) {
+		holder.show()
+	}
+
+	override fun getItemCount() = size
+
+	override fun onViewRecycled(holder: ClosableHolder) {
+		super.onViewRecycled(holder)
+		holder.onDestroy()
+	}
+
+	override fun close() {
+		recyclerScope.cancel()
+	}
 
 
 }

@@ -3,141 +3,193 @@ package com.uogames.remembercards.ui.phrase.choicePhraseFragment
 import android.content.Context
 import android.os.Parcelable
 import androidx.lifecycle.ViewModel
-import com.uogames.dto.global.GlobalImage
+import androidx.recyclerview.widget.RecyclerView
+import com.squareup.picasso.Picasso
 import com.uogames.dto.global.GlobalPhrase
 import com.uogames.dto.global.GlobalPhraseView
+import com.uogames.dto.global.GlobalPronunciationView
 import com.uogames.dto.local.LocalPhrase
 import com.uogames.dto.local.LocalPhraseView
+import com.uogames.dto.local.LocalPronunciationView
 import com.uogames.flags.Countries
-import com.uogames.remembercards.ui.phrase.phrasesFragment.PhraseViewModel
+import com.uogames.map.PhraseMap.toGlobalPhrase
+import com.uogames.map.PhraseMap.toLocalPhrase
+import com.uogames.remembercards.models.GlobalPhraseModel
+import com.uogames.remembercards.models.LocalPhraseModel
+import com.uogames.remembercards.models.SearchingState
+import com.uogames.remembercards.pagination.Pagination
 import com.uogames.remembercards.utils.ObservableMediaPlayer
-import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observe
 import com.uogames.remembercards.utils.toNull
-import com.uogames.remembercards.viewmodel.PViewModel
-import com.uogames.repository.DataProvider
-import kotlinx.coroutines.*
+import com.uogames.remembercards.viewmodel.GlobalViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import java.util.*
+import kotlinx.coroutines.launch
+import java.util.Locale
 import javax.inject.Inject
-import kotlin.collections.HashMap
 
 class ChoicePhraseViewModel @Inject constructor(
-    private val model: PViewModel
-) : ViewModel() {
+	private val gvm: GlobalViewModel,
+	private val player: ObservableMediaPlayer
+) : ViewModel(),
+	ChoicePhraseAdapter.Model,
+	ChoicePhraseFragment.Model {
 
-    enum class SearchingState { SEARCHING, SEARCHED, FAIL }
+	private val viewModelScope = CoroutineScope(Dispatchers.IO)
+	override val like: MutableStateFlow<String?> = MutableStateFlow(null)
+	override val cloud: MutableStateFlow<Boolean> = MutableStateFlow(false)
+	override val search: MutableStateFlow<Boolean> = MutableStateFlow(false)
+	override val language: MutableStateFlow<Locale?> = MutableStateFlow(null)
+	override val country: MutableStateFlow<Countries?> = MutableStateFlow(null)
+	override val newest: MutableStateFlow<Boolean> = MutableStateFlow(false)
+	private val _size = MutableStateFlow(0)
+	override val size: Flow<Int> = _size.asStateFlow()
+	override var recyclerStat: Parcelable? = null
+	private val _isSearching = MutableStateFlow(SearchingState.SEARCHED)
+	override val isSearching: Flow<SearchingState> = _isSearching.asStateFlow()
+	override val adapter: RecyclerView.Adapter<out RecyclerView.ViewHolder> = ChoicePhraseAdapter(this)
 
-    private val provider = model.globalViewModel.provider
-    private val viewModelScope = CoroutineScope(Dispatchers.IO)
+	private val reportCallList = ArrayList<(GlobalPhrase) -> Unit>()
+	private val choiceCallList = ArrayList<(LocalPhrase) -> Unit>()
 
-    val like = MutableStateFlow<String?>(null)
-    val country = MutableStateFlow<Countries?>(null)
-    val language = MutableStateFlow<Locale?>(null)
-    private val _size = MutableStateFlow(0)
-    val size = _size.asStateFlow()
+	private val localPagination = Pagination(
+		viewModelScope,
+		100,
+		{ count() },
+		{ count, offset -> getList(offset, count) }
+	)
 
-    val cloud = MutableStateFlow(false)
-    val search = MutableStateFlow(false)
-    val newest = MutableStateFlow(false)
+	private val globalPagination = Pagination(
+		viewModelScope,
+		100,
+		{ globalCount() },
+		{ count, offset -> getGlobalList(offset, count) }
+	)
 
-    private val _isSearching = MutableStateFlow(SearchingState.SEARCHED)
-    val isSearching = _isSearching.asStateFlow()
+	private val localPronLoader = { pv: LocalPronunciationView -> viewModelScope.async { gvm.provider.pronounce.load(pv) ?: ByteArray(0) } }
+	private val globalPronLoader = { pv: GlobalPronunciationView -> viewModelScope.async { gvm.provider.pronounce.downloadData(pv.globalId) } }
 
-    var recyclerStat: Parcelable? = null
-    private var searchJob: Job? = null
+	init {
+		like.observe(viewModelScope) { update() }
+		country.observe(viewModelScope) { update() }
+		language.observe(viewModelScope) { update() }
+		newest.observe(viewModelScope) {
+			_size.value = 0
+			update()
+		}
+		cloud.observe(viewModelScope) {
+			_size.value = 0
+			update()
+		}
+		localPagination.isLoading().observe(viewModelScope) {
+			if (!cloud.value) _isSearching.value = if (it) SearchingState.SEARCHING else SearchingState.SEARCHED
+		}
+		localPagination.countFlow().observe(viewModelScope) { if (!cloud.value) _size.value = it }
+		globalPagination.isLoading().observe(viewModelScope) {
+			if (cloud.value) _isSearching.value = if (it) SearchingState.SEARCHING else SearchingState.SEARCHED
+		}
+		globalPagination.countFlow().observe(viewModelScope) { if (cloud.value) _size.value = it }
 
-    val adapter = ChoicePhraseAdapter(
-        vm = this,
-        reportCall = { gp -> reportCallList.forEach { it(gp) } },
-        choiceCall = { id -> choiceCallList.forEach { it(id) } }
-    )
-    private val reportCallList = ArrayList<(GlobalPhrase) -> Unit>()
-    private val choiceCallList = ArrayList<(LocalPhrase) -> Unit>()
+	}
 
-    init {
-        like.observe(viewModelScope) { updateSize() }
-        country.observe(viewModelScope) { updateSize() }
-        language.observe(viewModelScope) { updateSize() }
-        cloud.observe(viewModelScope) {
-            _size.value = 0
-            updateSize()
-        }
-        newest.observe(viewModelScope) {
-            _size.value = 0
-            updateSize()
-        }
-    }
+	override fun reset() {
+		like.toNull()
+		country.toNull()
+		language.toNull()
+		cloud.value = false
+		search.value = false
+		newest.value = false
+		reportCallList.clear()
+		choiceCallList.clear()
+	}
 
-    private fun updateSize() {
-        searchJob?.cancel()
-        searchJob = viewModelScope.launch {
-            runCatching {
-                _isSearching.value = SearchingState.SEARCHING
-                delay(100)
-                val text = like.value
-                val language = language.value?.isO3Language
-                val country = country.value?.toString()
-                _size.value = if (cloud.value) {
-                    provider.phrase.countGlobal(text, language, country).toInt()
-                } else {
-                    provider.phrase.count(text, language, country)
-                }
-                _isSearching.value = SearchingState.SEARCHED
-            }.onFailure {
-                when (it) {
-                    is CancellationException -> {}
-                    else -> _isSearching.value = SearchingState.FAIL
-                }
-            }
-        }
-    }
+	override fun update() {
+		viewModelScope.launch {
+			if (!cloud.value) localPagination.reload()
+			else globalPagination.reload()
+		}
+	}
 
-    fun reset() {
-        like.toNull()
-        country.toNull()
-        language.toNull()
-        cloud.value = false
-        search.value = false
-        newest.value = false
-        reportCallList.clear()
-        choiceCallList.clear()
-    }
+	override fun addChoiceCall(box: (LocalPhrase) -> Unit) {
+		choiceCallList.add(box)
+	}
 
-    fun update() {
-        updateSize()
-    }
+	override fun removeChoiceCall(box: (LocalPhrase) -> Unit) {
+		choiceCallList.remove(box)
+	}
 
-    fun addReportCall(call: (GlobalPhrase) -> Unit) = reportCallList.add(call)
+	override fun addReportCall(box: (GlobalPhrase) -> Unit) {
+		reportCallList.add(box)
+	}
 
-    fun removeReportCall(call: (GlobalPhrase) -> Unit) = reportCallList.remove(call)
+	override fun removeReportCall(box: (GlobalPhrase) -> Unit) {
+		reportCallList.remove(box)
+	}
 
-    fun addChoiceCall(call: (LocalPhrase) -> Unit) = choiceCallList.add(call)
+	override suspend fun getLocal(position: Int): LocalPhraseModel? {
+		return localPagination.get(position)?.let { LocalPhraseModel(it, player, localPronLoader) }
+	}
 
-    fun removeChoiceCall(call: (LocalPhrase) -> Unit) = choiceCallList.remove(call)
+	override suspend fun getGlobal(position: Int): GlobalPhraseModel? {
+		return globalPagination.get(position)?.let { GlobalPhraseModel(it, player, globalPronLoader) }
+	}
 
-    suspend fun getLocalModel(position: Int) = model.getLocalModel(
-        like = like.value,
-        lang = language.value?.isO3Language,
-        country = country.value?.toString(),
-        newest = newest.value,
-        position = position
-    )
+	override fun getPicasso(context: Context): Picasso {
+		return gvm.getPicasso(context)
+	}
 
-    suspend fun getGlobalModel(position: Int) = model.getGlobalModel(
-        like = like.value,
-        lang = language.value?.isO3Language,
-        country = country.value?.toString(),
-        position = position
-    )
+	override fun onSave(v: GlobalPhraseView) {
+		viewModelScope.launch {
+			runCatching {
+				val r = gvm.provider.phrase.save(v)
+				viewModelScope.launch(Dispatchers.Main) { choiceCallList.forEach { it(r) } }
+			}
+		}
+	}
 
-    fun setDownloadAction(id: UUID, loading: (String, LocalPhrase?) -> Unit) = model.setDownloadAction(id, loading)
+	override fun isCloud(): Boolean {
+		return cloud.value
+	}
 
-    fun stopDownloading(id: UUID) = model.stopDownloading(id)
+	override fun onAddAction(v: LocalPhraseView) {
+		choiceCallList.forEach { it(v.toLocalPhrase()) }
+	}
 
-    fun save(phraseView: GlobalPhraseView, loading: (String, LocalPhrase?) -> Unit) = model.save(phraseView, loading)
+	override fun onReportAction(v: GlobalPhraseView) {
+		reportCallList.forEach { it(v.toGlobalPhrase()) }
+	}
 
-    fun getPicasso(context: Context) = provider.images.getPicasso(context)
+	private suspend fun count(): Int = gvm.provider.phrase.count(
+		like = like.value,
+		lang = language.value?.isO3Language,
+		country = country.value?.toString()
+	)
+
+	private suspend fun getList(position: Int, limit: Int): List<LocalPhraseView> = gvm.provider.phrase.getListView(
+		like = like.value,
+		newest = newest.value,
+		offset = position,
+		limit = limit,
+		lang = language.value?.isO3Language,
+		country = country.value?.toString()
+	)
+
+	private suspend fun globalCount(): Int = gvm.provider.phrase.countGlobal(
+		text = like.value,
+		lang = language.value?.isO3Language,
+		country = country.value?.toString()
+	).toInt()
+
+	private suspend fun getGlobalList(position: Int, limit: Int): List<GlobalPhraseView> = gvm.provider.phrase.getGlobalListView(
+		text = like.value,
+		number = position.toLong(),
+		limit = limit,
+		lang = language.value?.isO3Language,
+		country = country.value?.toString()
+	)
 
 }

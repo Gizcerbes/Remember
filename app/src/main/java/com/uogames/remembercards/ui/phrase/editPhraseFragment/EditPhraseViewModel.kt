@@ -287,7 +287,7 @@ class EditPhraseViewModel @Inject constructor(
 		if (phrase.value.isNotEmpty()) {
 			viewModelScope.launch {
 				val phrase = build(0)
-				val res = provider.phrase.add(phrase)
+				val res = provider.phrase.insert(phrase)
 				launch(Dispatchers.Main) { call(res) }
 			}
 		}

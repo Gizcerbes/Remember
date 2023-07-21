@@ -2,7 +2,9 @@ package com.uogames.repository.providers
 
 import com.uogames.clientApi.version3.network.NetworkProvider
 import com.uogames.database.repository.PhraseRepository
+import com.uogames.dto.global.GlobalImageView
 import com.uogames.dto.global.GlobalPhraseView
+import com.uogames.dto.global.GlobalPronunciationView
 import com.uogames.dto.local.LocalImageView
 import com.uogames.dto.local.LocalPhrase
 import com.uogames.dto.local.LocalPhraseView
@@ -15,8 +17,8 @@ import com.uogames.repository.DataProvider
 import com.uogames.repository.map.PhraseViewMap.toDTO
 import com.uogames.repository.map.PhraseViewMap.toEntity
 import com.uogames.repository.map.PhraseViewMap.toViewDTO
+import com.uogames.repository.map.PhraseViewMap.update
 import com.uogames.repository.map.PronounceMap.toDTO
-import kotlinx.coroutines.flow.map
 import java.util.*
 
 class PhraseProvider(
@@ -28,7 +30,11 @@ class PhraseProvider(
 	private val pronounceBuilder: suspend (id: Int) -> LocalPronunciationView? = { dataProvider.pronounce.getViewById(it) }
 	private val imageBuilder: suspend (id: Int) -> LocalImageView? = { dataProvider.images.getViewById(it) }
 
-	suspend fun add(phrase: LocalPhrase) = pr.add(phrase.toEntity())
+	private val pronounceUpdate: suspend (pv: GlobalPronunciationView) -> Int? = { dataProvider.pronounce.fastSave(it) }
+	private val imageUpdate: suspend (iv: GlobalImageView) -> Int? = { dataProvider.images.fastSave(it) }
+
+
+	suspend fun insert(phrase: LocalPhrase) = pr.insert(phrase.toEntity())
 
 	suspend fun delete(phrase: LocalPhrase) = pr.delete(phrase.toEntity())
 
@@ -40,6 +46,15 @@ class PhraseProvider(
 	suspend fun getView(like: String?, lang: String?, country: String?, newest: Boolean, position: Int?) =
 		pr.get(like, lang, country, newest, position)?.toViewDTO(pronounceBuilder, imageBuilder)
 
+	suspend fun getListView(
+		like: String?,
+		lang: String?,
+		country: String?,
+		newest: Boolean,
+		offset: Int?,
+		limit: Int = 1
+	) = pr.getList(like, lang, country, newest, offset, limit).map { it.toViewDTO(pronounceBuilder, imageBuilder) }
+
 	suspend fun getById(id: Int) = pr.getById(id)?.toDTO()
 
 	suspend fun getViewByID(id: Int) = pr.getById(id)?.toViewDTO(pronounceBuilder, imageBuilder)
@@ -48,9 +63,9 @@ class PhraseProvider(
 
 	suspend fun count(like: String?, lang: String?, country: String?) = pr.count(like, lang, country)
 
-	suspend fun getByGlobalId(id: UUID) = pr.getByGlobalId(id)
+	suspend fun getByGlobalId(id: UUID) = pr.getByGlobalId(id.toString())
 
-	fun getByIdFlow(id: Int) = pr.getByIdFlow(id).map { it?.toDTO() }
+	fun isExistsByGlobalId(id: UUID) = pr.isExistsByGlobalIdFlow(id.toString())
 
 	fun countFree() = pr.countFree()
 
@@ -78,7 +93,23 @@ class PhraseProvider(
 		number = number
 	)
 
-	fun isChanged(id: Int) = pr.isChanged(id)
+	suspend fun getGlobalListView(
+		text: String? = null,
+		lang: String? = null,
+		country: String? = null,
+		number: Long,
+		limit: Int = 1
+	) = network.phrase.getListView(
+		text = text,
+		lang = lang,
+		country = country,
+		number = number,
+		limit = limit
+	)
+
+	fun isChangedFlow(id: Int) = pr.isChangedFlow(id)
+
+	suspend fun isChanged(id: Int) = pr.isChanged(id)
 
 	suspend fun share(id: Int): LocalPhrase? {
 		val phrase = getById(id)
@@ -108,7 +139,8 @@ class PhraseProvider(
 			val pr = phrase.pronounce?.apply { if (globalOwner == null) dataProvider.pronounce.shareV2(id) }?.globalId
 			val res = network.phrase.post(phrase.toLocalPhrase().toGlobal(im, pr))
 			val idImage = res.idImage?.let { it1 -> dataProvider.images.getByGlobalId(it1) ?: dataProvider.images.download(it1) }?.id
-			val idPronounce = res.idPronounce?.let { it1 -> dataProvider.pronounce.getByGlobalId(it1)?.toDTO() ?: dataProvider.pronounce.download(it1) }?.id
+			val idPronounce =
+				res.idPronounce?.let { it1 -> dataProvider.pronounce.getByGlobalId(it1)?.toDTO() ?: dataProvider.pronounce.download(it1) }?.id
 			val updatedPhrase = it.toLocalPhrase().update(res, idPronounce, idImage)
 			update(updatedPhrase)
 			return updatedPhrase
@@ -117,7 +149,7 @@ class PhraseProvider(
 	}
 
 	suspend fun download(id: UUID): LocalPhrase? {
-		val local = pr.getByGlobalId(id)?.toDTO()
+		val local = pr.getByGlobalId(id.toString())?.toDTO()
 		val np = network.phrase.get(id)
 		val image = np.idImage?.let { dataProvider.images.download(it) }
 		val pronounce = np.idPronounce?.let { dataProvider.pronounce.download(it) }
@@ -125,71 +157,34 @@ class PhraseProvider(
 			update(local.update(network.phrase.get(id), pronounce?.id, image?.id))
 			local.id
 		} else {
-			add(LocalPhrase().update(network.phrase.get(id), pronounce?.id, image?.id)).toInt()
+			insert(LocalPhrase().update(network.phrase.get(id), pronounce?.id, image?.id)).toInt()
 		}
 		return pr.getById(localId)?.toDTO()
 	}
 
 	suspend fun save(view: GlobalPhraseView): LocalPhrase {
-		val l1 = pr.getByGlobalId(view.globalId)
-		if (l1 == null) {
-			val localID = add(
-				LocalPhrase(
-					phrase = view.phrase,
-					definition = view.definition,
-					lang = view.lang,
-					country = view.country,
-					idPronounce = view.pronounce?.let { dataProvider.pronounce.save(it) }?.id,
-					idImage = view.image?.let { dataProvider.images.save(it) }?.id,
-					timeChange = view.timeChange,
-					like = view.like,
-					dislike = view.dislike,
-					globalId = view.globalId,
-					globalOwner = view.user.globalOwner
-				)
-			).toInt()
-			return pr.getById(localID)?.toDTO() ?: throw Exception("Phrase wasn't saved")
+		val l1 = pr.getByGlobalId(view.globalId.toString())
+		return if (l1 == null) {
+			val localID = pr.insert(view.toEntity(pronounceUpdate, imageUpdate)).toInt()
+			pr.getById(localID)?.toDTO() ?: throw Exception("Phrase wasn't saved")
 		} else if (l1.timeChange <= view.timeChange) {
-			val l2 = l1.toDTO().update(
-				view = view,
-				idPronounce = view.pronounce?.let { dataProvider.pronounce.save(it) }?.id,
-				idImage = view.image?.let { dataProvider.images.save(it) }?.id
-			)
-			update(l2)
-			return l2
+			val l2 = l1.update(view, pronounceUpdate, imageUpdate)
+			pr.update(l2)
+			l2.toDTO()
 		} else {
-			return l1.toDTO()
+			l1.toDTO()
 		}
 	}
 
 	suspend fun fastSave(view: GlobalPhraseView): Int {
-		val l1 = pr.getByGlobalId(view.globalId)
-		if (l1 == null) {
-			return add(
-				LocalPhrase(
-					phrase = view.phrase,
-					definition = view.definition,
-					lang = view.lang,
-					country = view.country,
-					idPronounce = view.pronounce?.let { dataProvider.pronounce.fastSave(it) },
-					idImage = view.image?.let { dataProvider.images.fastSave(it) },
-					timeChange = view.timeChange,
-					like = view.like,
-					dislike = view.dislike,
-					globalId = view.globalId,
-					globalOwner = view.user.globalOwner
-				)
-			).toInt()
+		val l1 = pr.getByGlobalId(view.globalId.toString())
+		return if (l1 == null) {
+			pr.insert(view.toEntity(pronounceUpdate, imageUpdate)).toInt()
 		} else if (l1.timeChange <= view.timeChange) {
-			val l2 = l1.toDTO().update(
-				view = view,
-				idPronounce = view.pronounce?.let { dataProvider.pronounce.save(it) }?.id,
-				idImage = view.image?.let { dataProvider.images.save(it) }?.id
-			)
-			update(l2)
-			return l2.id
+			pr.update(l1.update(view, pronounceUpdate, imageUpdate))
+			l1.id
 		} else {
-			return l1.id
+			l1.id
 		}
 	}
 

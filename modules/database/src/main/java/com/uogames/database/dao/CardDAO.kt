@@ -27,6 +27,9 @@ interface CardDAO {
 	@RawQuery
 	suspend fun get(query: SupportSQLiteQuery): CardEntity?
 
+	@RawQuery
+	suspend fun getList(query: SupportSQLiteQuery): List<CardEntity>
+
 	@RawQuery(observedEntities = [CardEntity::class])
 	fun getFlow(query: SupportSQLiteQuery): Flow<CardEntity?>
 
@@ -73,7 +76,10 @@ interface CardDAO {
 	suspend fun getById(id: Int): CardEntity?
 
 	@Query("SELECT * FROM cards_table WHERE global_id = :id")
-	suspend fun getByGlobalId(id: UUID): CardEntity?
+	suspend fun getByGlobalId(id: String): CardEntity?
+
+	@Query("SELECT EXISTS( SELECT id FROM cards_table WHERE global_id = :id) ")
+	fun existsByGlobalIdFlow(id: String): Flow<Boolean>
 
 	@Query("SELECT * FROM cards_table WHERE id = :id")
 	fun getByIdFlow(id: Int): Flow<CardEntity?>
@@ -87,47 +93,60 @@ interface CardDAO {
 	@Query("SELECT * FROM cards_table WHERE id_phrase NOT IN (:phraseIds) AND id_translate NOT IN (:phraseIds) ORDER BY RANDOM() LIMIT 1")
 	suspend fun getRandomWithoutPhrases(phraseIds: Array<Int>): CardEntity?
 
-	@Query("SELECT ct.* FROM cards_table AS ct " +
-			"LEFT JOIN error_card AS ec ON ct.id_phrase = ec.id_phrase AND ct.id_translate = ec.id_translate " +
-			"ORDER BY CASE " +
-			"WHEN ec.percent_correct IS NULL THEN 100 " +
-			"ELSE ec.percent_correct " +
-			"END ASC " +
-			"LIMIT 1")
+	@Query(
+		"SELECT ct.* FROM cards_table AS ct " +
+				"LEFT JOIN error_card AS ec ON ct.id_phrase = ec.id_phrase AND ct.id_translate = ec.id_translate " +
+				"ORDER BY CASE " +
+				"WHEN ec.percent_correct IS NULL THEN 100 " +
+				"ELSE ec.percent_correct " +
+				"END ASC " +
+				"LIMIT 1"
+	)
 	suspend fun getUnknowable(): CardEntity?
 
-	@Query("SELECT ct.* FROM cards_table AS ct " +
-			"LEFT JOIN error_card AS ec ON  ct.id_translate = ec.id_translate " +
-			"WHERE ec.id_phrase = :idPhrase " +
-			"ORDER BY  ec.percent_correct ASC " +
-			"LIMIT 1")
+	@Query(
+		"SELECT ct.* FROM cards_table AS ct " +
+				"LEFT JOIN error_card AS ec ON  ct.id_translate = ec.id_translate " +
+				"WHERE ec.id_phrase = :idPhrase " +
+				"ORDER BY  ec.percent_correct ASC " +
+				"LIMIT 1"
+	)
 	suspend fun getConfusing(idPhrase: Int): CardEntity?
 
-	@Query("SELECT ct.* FROM cards_table AS ct " +
-			"LEFT JOIN error_card AS ec ON  ct.id_translate = ec.id_translate " +
-			"WHERE ec.id_phrase = :idPhrase " +
-			"AND ct.id_translate NOT IN (:phraseIds) " +
-			"ORDER BY ec.percent_correct  ASC " +
-			"LIMIT 1")
+	@Query(
+		"SELECT ct.* FROM cards_table AS ct " +
+				"LEFT JOIN error_card AS ec ON  ct.id_translate = ec.id_translate " +
+				"WHERE ec.id_phrase = :idPhrase " +
+				"AND ct.id_translate NOT IN (:phraseIds) " +
+				"ORDER BY ec.percent_correct  ASC " +
+				"LIMIT 1"
+	)
 	suspend fun getConfusingWithoutPhrases(idPhrase: Int, phraseIds: Array<Int>): CardEntity?
 
 	@Query("SELECT * FROM cards_table WHERE id <> :id ORDER BY RANDOM() LIMIT 1")
 	suspend fun getRandomWithOut(id: Int): CardEntity?
 
 	@Query("SELECT DISTINCT(reason) FROM cards_table WHERE reason LIKE '%' || :text || '%' ORDER BY LENGTH(reason), reason LIMIT 5")
-	suspend fun getClues(text:String): List<String>
+	suspend fun getClues(text: String): List<String>
 
-	@Query("SELECT COUNT(DISTINCT ct.id) FROM cards_table AS ct " +
-			"LEFT JOIN module_card AS mc " +
-			"ON ct.id = mc.id_card " +
-			"WHERE mc.id IS NULL")
+	@Query(
+		"SELECT COUNT(DISTINCT ct.id) FROM cards_table AS ct " +
+				"LEFT JOIN module_card AS mc " +
+				"ON ct.id = mc.id_card " +
+				"WHERE mc.id IS NULL"
+	)
 	fun countFree(): Flow<Int>
 
-	@Query("DELETE FROM cards_table " +
-			"WHERE NOT EXISTS (SELECT mct.id FROM module_card AS mct WHERE cards_table.id = mct.id_card)")
+	@Query(
+		"DELETE FROM cards_table " +
+				"WHERE NOT EXISTS (SELECT mct.id FROM module_card AS mct WHERE cards_table.id = mct.id_card)"
+	)
 	suspend fun deleteFree()
 
 
 	@Query("SELECT changed FROM cards_table WHERE id = :id")
-	fun isChanged(id: Int): Flow<Boolean?>
+	fun isChangedFlow(id: Int): Flow<Boolean?>
+
+	@Query("SELECT changed FROM cards_table WHERE id = :id")
+	suspend fun isChanged(id: Int): Boolean
 }

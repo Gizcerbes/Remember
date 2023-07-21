@@ -57,7 +57,7 @@ class ImageProvider(
 
     suspend fun getViewById(id: Int) = database.getById(id)?.toViewDTO()
 
-    suspend fun getByGlobalId(id: UUID) = database.getByGlobalId(id)?.toDTO()
+    suspend fun getByGlobalId(id: UUID) = database.getByGlobalId(id.toString())?.toDTO()
 
     fun load(image: LocalImageView): ByteArray? = fileRepository.readFile(image.imgUri.toUri())
 
@@ -106,7 +106,7 @@ class ImageProvider(
     }
 
     suspend fun download(id: UUID): LocalImage? {
-        val local = database.getByGlobalId(id)
+        val local = database.getByGlobalId(id.toString())
         if (local == null) {
             val localId = add(network.image.load(id))
             val l = database.getById(localId)?.toDTO()?.update(network.image.get(id)) ?: return null
@@ -117,7 +117,7 @@ class ImageProvider(
     }
 
     suspend fun save(view: GlobalImageView): LocalImage {
-        val l1 = database.getByGlobalId(view.globalId)
+        val l1 = database.getByGlobalId(view.globalId.toString())
         return if (l1 == null) {
             val localID = add(network.image.load(view.globalId))
             val l = database.getById(localID)?.toDTO()?.update(view) ?: throw Exception("Image wasn't saved")
@@ -129,7 +129,7 @@ class ImageProvider(
     }
 
     suspend fun fastSave(view: GlobalImageView): Int {
-        val l1 = database.getByGlobalId(view.globalId)
+        val l1 = database.getByGlobalId(view.globalId.toString())
         return l1?.id ?: add(network.image.load(view.globalId))
     }
 

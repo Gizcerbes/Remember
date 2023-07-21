@@ -105,11 +105,11 @@ class MainActivity : DaggerAppCompatActivity() {
 				AppCompatDelegate.setDefaultNightMode(it)
 			}
 			globalViewModel.downloadCount.observe(this) {
-				if (it > 0) sendBroadcast(Intent(
+				val c = globalViewModel.provider.download.count()
+				if (c > 0) sendBroadcast(Intent(
 					applicationContext,
 					NotificationReceiver::class.java
 				).apply { action = DownloadForeground.ACTION_START })
-
 			}
 
 		}
@@ -139,5 +139,7 @@ class MainActivity : DaggerAppCompatActivity() {
 	override fun onDestroy() {
 		super.onDestroy()
 		globalViewModel.setBackQueue(null)
+
 	}
+
 }

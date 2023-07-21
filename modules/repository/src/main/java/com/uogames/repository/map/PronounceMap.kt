@@ -1,6 +1,7 @@
 package com.uogames.repository.map
 
 import com.uogames.database.entity.PronunciationEntity
+import com.uogames.dto.global.GlobalPhraseView
 import com.uogames.dto.local.LocalPronunciation
 import com.uogames.dto.local.LocalPronunciationView
 import java.util.UUID
@@ -30,7 +31,7 @@ object PronounceMap {
 		globalOwner = globalOwner
 	)
 
-	 fun LocalPronunciationView.toEntity() = PronunciationEntity(
+	fun LocalPronunciationView.toEntity() = PronunciationEntity(
 		id = id,
 		audioUri = audioUri,
 		globalId = globalId.toString(),

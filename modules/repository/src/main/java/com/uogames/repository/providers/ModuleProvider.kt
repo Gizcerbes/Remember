@@ -133,7 +133,7 @@ class ModuleProvider(
 	}
 
 	suspend fun download(globalId: UUID): LocalModule? {
-		val local = mr.getByGlobalId(globalId)
+		val local = mr.getByGlobalId(globalId.toString())
 		val nm = network.module.get(globalId)
 		val localId = if (local != null) {
 			update(local.toDTO().update(nm))
@@ -146,7 +146,7 @@ class ModuleProvider(
 	}
 
 	suspend fun save(view: GlobalModuleView): LocalModule {
-		val l1 = mr.getByGlobalId(view.globalId)
+		val l1 = mr.getByGlobalId(view.globalId.toString())
 		if (l1 != null) mr.delete(l1)
 		val localID = add(
 			LocalModule(

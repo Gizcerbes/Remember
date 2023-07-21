@@ -23,7 +23,7 @@ class PronunciationRepository(
 
 	suspend fun getById(id: Int) = dao.getById(id)
 
-	suspend fun getByGlobalId(id: UUID) = dao.getByGlobalId(id)
+	suspend fun getByGlobalId(id: String) = dao.getByGlobalId(id)
 
 	suspend fun getViewById(id: Int) = dao.getById(id)
 

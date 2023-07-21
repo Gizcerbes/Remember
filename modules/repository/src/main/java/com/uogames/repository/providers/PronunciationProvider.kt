@@ -57,9 +57,7 @@ class PronunciationProvider(
 	suspend fun getViewById(id: Int) = database.getViewById(id)?.toViewDTO()
 
 
-	fun getByPhrase(phrase: LocalPhrase) = database.getByPhrase(phrase.toEntity()).map { it?.toDTO() }
-
-	suspend fun getByGlobalId(id: UUID) = database.getByGlobalId(id)
+	suspend fun getByGlobalId(id: UUID) = database.getByGlobalId(id.toString())
 
 
 	suspend fun downloadData(id: UUID) = network.pronounce.load(id)
@@ -104,8 +102,7 @@ class PronunciationProvider(
 	}
 
 	suspend fun download(id: UUID): LocalPronunciation? {
-		val local = database.getByGlobalId(id)
-
+		val local = database.getByGlobalId(id.toString())
 		if (local == null) {
 			val localId = add(network.pronounce.load(id))
 			val l = database.getById(localId)?.toDTO() ?: return null
@@ -117,7 +114,7 @@ class PronunciationProvider(
 	}
 
 	suspend fun save(view: GlobalPronunciationView): LocalPronunciation {
-		val l1 = database.getByGlobalId(view.globalId)
+		val l1 = database.getByGlobalId(view.globalId.toString())
 		return if (l1 == null) {
 			val localID = add(network.pronounce.load(view.globalId))
 			val l = database.getById(localID)?.toDTO()?.update(view) ?: throw Exception("Pronunciation wasn't saved")
@@ -129,7 +126,7 @@ class PronunciationProvider(
 	}
 
 	suspend fun fastSave(view: GlobalPronunciationView): Int {
-		val l1 = database.getByGlobalId(view.globalId)
+		val l1 = database.getByGlobalId(view.globalId.toString())
 		return l1?.id ?: add(network.pronounce.load(view.globalId))
 	}
 

@@ -3,12 +3,8 @@ package com.uogames.database
 import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.uogames.database.entity.PhraseEntity
 import com.uogames.database.repository.PhraseRepository
 import com.uogames.dto.local.LocalPhrase
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert
@@ -37,12 +33,12 @@ class TestPhraseDAO {
 	}
 
 	fun setData() = runBlocking {
-		rep.add(LocalPhrase(1, "Hello", null, "en", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
-		rep.add(LocalPhrase(2, "World", null, "en", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
-		rep.add(LocalPhrase(3, "Hello World", null, "en", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
-		rep.add(LocalPhrase(4, "Привет", null, "ru", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
-		rep.add(LocalPhrase(5, "Мир", null, "ru", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
-		rep.add(LocalPhrase(6, "Привет Мир", null, "ru", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
+		rep.insert(LocalPhrase(1, "Hello", null, "en", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
+		rep.insert(LocalPhrase(2, "World", null, "en", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
+		rep.insert(LocalPhrase(3, "Hello World", null, "en", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
+		rep.insert(LocalPhrase(4, "Привет", null, "ru", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
+		rep.insert(LocalPhrase(5, "Мир", null, "ru", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
+		rep.insert(LocalPhrase(6, "Привет Мир", null, "ru", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
 	}
 
 	@Test

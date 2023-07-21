@@ -57,7 +57,7 @@ class DataProvider private constructor(
 
     val errorCardProvider by lazy { ErrorCardProvider(this, database.errorCardRepository) }
 
-
+    val cache by lazy { CacheProvider(database.cacheRepository) }
 
     suspend fun clean() {
         images.clear()

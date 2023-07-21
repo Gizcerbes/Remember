@@ -9,7 +9,6 @@ import androidx.room.RawQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.uogames.database.entity.DownloadEntity
 import kotlinx.coroutines.flow.Flow
-import java.util.UUID
 
 @Dao
 interface DownloadDAO {
