@@ -29,7 +29,6 @@ class NotificationReceiver : BroadcastReceiver() {
 	}
 
 	override fun onReceive(context: Context?, intent: Intent?): Unit = runBlocking {
-		Log.e("TAG", "onReceive: ${intent?.action}", )
 		if (context == null || intent == null) return@runBlocking
 		val model = NotificationViewModel(GlobalViewModel(context))
 		val builder = when (intent.action) {

@@ -34,4 +34,7 @@ interface DownloadDAO {
 	@RawQuery(observedEntities = [DownloadEntity::class])
 	fun existsFlow(query: SupportSQLiteQuery): Flow<Boolean>
 
+	@RawQuery
+	suspend fun exists(query: SupportSQLiteQuery): Boolean
+
 }

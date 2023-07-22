@@ -83,12 +83,12 @@ class PhraseViewModel @Inject constructor(
 			_size.value = 0
 			update()
 		}
-		localPagination.isLoading().observe(viewModelScope) {
-			if (!cloud.value) _isSearching.value = if (it) SearchingState.SEARCHING else SearchingState.SEARCHED
+		localPagination.loadState.observe(viewModelScope){
+			if (!cloud.value) _isSearching.value = it
 		}
 		localPagination.countFlow().observe(viewModelScope) { if (!cloud.value) _size.value = it }
-		globalPagination.isLoading().observe(viewModelScope) {
-			if (cloud.value) _isSearching.value = if (it) SearchingState.SEARCHING else SearchingState.SEARCHED
+		globalPagination.loadState.observe(viewModelScope){
+			if (cloud.value) _isSearching.value = it
 		}
 		globalPagination.countFlow().observe(viewModelScope) { if (cloud.value) _size.value = it }
 

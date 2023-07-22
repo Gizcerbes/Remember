@@ -40,6 +40,7 @@ enum class Permission constructor(private val permission: String) {
     }
 
     fun onRequestPermissionResult(grantResults: IntArray) {
+        if (grantResults.isEmpty()) return
         lastResult = grantResults[0] == PackageManager.PERMISSION_GRANTED
         listener(lastResult)
     }

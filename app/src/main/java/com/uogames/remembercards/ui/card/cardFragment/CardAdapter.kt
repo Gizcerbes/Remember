@@ -65,11 +65,12 @@ class CardAdapter(
 	init {
 		model.size.observe(recyclerScope) {
 			size = it
+			notifyDataSetChanged()
 		}
 
-		model.isSearching.observe(recyclerScope) {
-			if (it != SearchingState.SEARCHED) notifyDataSetChanged()
-		}
+//		model.isSearching.observe(recyclerScope) {
+//			if (it != SearchingState.SEARCHED) notifyDataSetChanged()
+//		}
 	}
 
 	inner class LocalCardHolder(val view: CardView) : ClosableHolder(view) {
