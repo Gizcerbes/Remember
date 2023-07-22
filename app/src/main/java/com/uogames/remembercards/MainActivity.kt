@@ -1,6 +1,7 @@
 package com.uogames.remembercards
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -106,10 +107,21 @@ class MainActivity : DaggerAppCompatActivity() {
 			}
 			globalViewModel.downloadCount.observe(this) {
 				val c = globalViewModel.provider.download.count()
-				if (c > 0) sendBroadcast(Intent(
-					applicationContext,
-					NotificationReceiver::class.java
-				).apply { action = DownloadForeground.ACTION_START })
+				if (c > 0) {
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+						Permission.POST_NOTIFICATIONS.requestPermission(this@MainActivity){
+							if (it) sendBroadcast(Intent(
+								applicationContext,
+								NotificationReceiver::class.java
+							).apply { action = DownloadForeground.ACTION_START })
+						}
+					} else {
+						sendBroadcast(Intent(
+							applicationContext,
+							NotificationReceiver::class.java
+						).apply { action = DownloadForeground.ACTION_START })
+					}
+				}
 			}
 
 		}

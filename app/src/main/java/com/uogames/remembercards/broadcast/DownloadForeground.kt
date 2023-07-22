@@ -31,7 +31,7 @@ class DownloadForeground : Service() {
 			ACTION_STOP -> stopSharing()
 			else -> {}
 		}
-		return super.onStartCommand(intent, flags, startId)
+		return START_NOT_STICKY
 	}
 
 	private fun startSharing() {
@@ -56,15 +56,20 @@ class DownloadForeground : Service() {
 						val localModule = provider.module.download(mId) ?: continue
 						message = localModule.name
 						maxCount = provider.moduleCard.getGlobalCount(mId).toInt()
-						position = 0
-						val limit = 50
-						while (position < maxCount && started) {
-							provider.moduleCard.getGlobalListView(localModule.globalId, position.toLong(), limit).forEach {
-								provider.moduleCard.fastSave(it, localModule)
-								val mPosition = provider.moduleCard.getCountByModule(localModule)
-								message = localModule.name + " $mPosition/$maxCount"
+						position = provider.moduleCard.getCountByModule(localModule)
+						val limit = 100
+						while (position < maxCount && started && provider.download.exists(moduleId = mId)) {
+							try {
+								provider.moduleCard.getGlobalListView(localModule.globalId, position.toLong(), limit).forEach {
+									provider.moduleCard.fastSave(it, localModule)
+									val mPosition = provider.moduleCard.getCountByModule(localModule)
+									message = localModule.name + " $mPosition/$maxCount"
+								}
+								position = provider.moduleCard.getCountByModule(localModule)
+							} catch (e: Exception){
+								retry++
+								delay(1000)
 							}
-							position += limit
 						}
 						position = maxCount
 					}
@@ -96,18 +101,20 @@ class DownloadForeground : Service() {
 			val intent = Intent(context, NotificationReceiver::class.java).apply {
 				action = ACTION_STOP
 			}
+			val flag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT else PendingIntent.FLAG_UPDATE_CURRENT
 			val stopIntent =
 				PendingIntent.getBroadcast(
 					context,
 					0,
 					intent,
-					PendingIntent.FLAG_UPDATE_CURRENT
+					flag
 				)
 
 			val notificationBuilder = NotificationCompat.Builder(context, App.NOTIFICATION_CHANNEL_ID)
 				.setContentTitle(contentTitle)
 				.setSmallIcon(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) R.drawable.ic_logo_trans else R.drawable.ic_launcher_round)
 				.setSilent(true)
+				.setOngoing(true)
 				.setContentText(message)
 				.setProgress(maxCount, position, false)
 				.addAction(

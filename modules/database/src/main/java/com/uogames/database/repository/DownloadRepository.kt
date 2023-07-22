@@ -27,12 +27,12 @@ class DownloadRepository(
 		phraseId: String? = null,
 		cardId: String? = null,
 		moduleId: String? = null
-	) : Flow<Boolean> {
+	): Flow<Boolean> {
 		val builder = StringBuilder()
 		val params = ArrayList<Any>()
 		builder.append("SELECT EXISTS (")
 		builder.append("SELECT id FROM download_table ")
-		val r = withNotNull(id,phraseId,cardId,moduleId)
+		val r = withNotNull(id, phraseId, cardId, moduleId)
 		if (r) builder.append("WHERE ")
 		id?.let {
 			if (params.isNotEmpty()) builder.append("AND ")
@@ -56,5 +56,41 @@ class DownloadRepository(
 		}
 		builder.append(")")
 		return dao.existsFlow(SimpleSQLiteQuery(builder.toString(), params.toArray()))
+	}
+
+	suspend fun exists(
+		id: Int? = null,
+		phraseId: String? = null,
+		cardId: String? = null,
+		moduleId: String? = null
+	): Boolean {
+		val builder = StringBuilder()
+		val params = ArrayList<Any>()
+		builder.append("SELECT EXISTS (")
+		builder.append("SELECT id FROM download_table ")
+		val r = withNotNull(id, phraseId, cardId, moduleId)
+		if (r) builder.append("WHERE ")
+		id?.let {
+			if (params.isNotEmpty()) builder.append("AND ")
+			builder.append("id = ? ")
+			params.add(id)
+		}
+		phraseId?.let {
+			if (params.isNotEmpty()) builder.append("AND ")
+			builder.append("global_phrase_id = ? ")
+			params.add(phraseId)
+		}
+		cardId?.let {
+			if (params.isNotEmpty()) builder.append("AND ")
+			builder.append("global_card_id = ? ")
+			params.add(cardId)
+		}
+		moduleId?.let {
+			if (params.isNotEmpty()) builder.append("AND ")
+			builder.append("global_module_id = ? ")
+			params.add(moduleId)
+		}
+		builder.append(")")
+		return dao.exists(SimpleSQLiteQuery(builder.toString(), params.toArray()))
 	}
 }

@@ -1,7 +1,11 @@
 package com.uogames.remembercards.pagination
 
+import com.uogames.remembercards.models.SearchingState
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -19,34 +23,57 @@ class Pagination<T>(
 	private val loaded = MutableStateFlow(0)
 
 	private val map = HashMap<Int, T>()
+	private val _loadState = MutableStateFlow(SearchingState.SEARCHED)
+	override val loadState: Flow<SearchingState> = _loadState.asStateFlow()
+
+	private var job: Job? = null
+
 
 	override suspend fun reload() {
-		workScope.launch {
-			_isLoading.value = true
-			loaded.value = 0
-			_count.value = askCount()
-			map.clear()
-			delay(100)
-			val p = askPage(loadCount, 0).let {
-				var id = 1
-				HashMap<Int, T>().apply {
-					it.forEach { put(id++, it) }
+		job?.cancel()
+		job = workScope.launch {
+			runCatching {
+				_loadState.value = SearchingState.SEARCHING
+				_isLoading.value = true
+				loaded.value = 0
+				_count.value = askCount()
+				map.clear()
+				delay(100)
+				val offset = 0
+				askPage(loadCount, 0).let { list ->
+					var id = offset + 1
+					list.forEach { map[id++] = it }
+					loaded.value = map.size
 				}
+				loaded.value = map.size
+				_loadState.value = SearchingState.SEARCHED
+				_isLoading.value = false
+			}.onFailure {
+				if (it is CancellationException) return@launch
+				_loadState.value = SearchingState.FAIL
+				_isLoading.value = false
 			}
-			map.putAll(p)
-			loaded.value = map.size
-			_isLoading.value = false
 		}
 	}
 
 	private fun load(offset: Int) {
-		workScope.launch {
-			_isLoading.value = true
-			_count.value = askCount()
-			askPage(loadCount, offset).let { list ->
-				var id = offset + 1
-				list.forEach { map[id++] = it }
-				loaded.value = map.size
+		job?.cancel()
+		job = workScope.launch {
+			runCatching {
+				_loadState.value = SearchingState.SEARCHING
+				_isLoading.value = true
+				delay(100)
+				_count.value = askCount()
+				askPage(loadCount, offset).let { list ->
+					var id = offset + 1
+					list.forEach { map[id++] = it }
+					loaded.value = map.size
+				}
+				_loadState.value = SearchingState.SEARCHED
+				_isLoading.value = false
+			}.onFailure {
+				if (it is CancellationException) return@launch
+				_loadState.value = SearchingState.FAIL
 				_isLoading.value = false
 			}
 		}

@@ -22,12 +22,24 @@ class DownloadProvider(
 
 	suspend fun clean() = rep.clean()
 
-	suspend fun existsFlow(
+	fun existsFlow(
 		id: Int? = null,
 		phraseId: UUID? = null,
 		cardId: UUID? = null,
 		moduleId: UUID? = null
 	) = rep.existsFlow(
+		id = id,
+		phraseId = phraseId?.toString(),
+		cardId = cardId?.toString(),
+		moduleId = moduleId?.toString()
+	)
+
+	suspend fun exists(
+		id: Int? = null,
+		phraseId: UUID? = null,
+		cardId: UUID? = null,
+		moduleId: UUID? = null
+	) = rep.exists(
 		id = id,
 		phraseId = phraseId?.toString(),
 		cardId = cardId?.toString(),
