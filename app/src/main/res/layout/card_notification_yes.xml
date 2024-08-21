@@ -36,7 +36,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_alignParentStart="true"
-		android:layout_toEndOf="@id/img"
+		android:layout_toStartOf="@id/img"
 		tools:text="answer"
 		style="@style/TextAppearance.Compat.Notification.Title"
 		android:layout_marginStart="20dp"/>

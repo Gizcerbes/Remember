@@ -2,9 +2,7 @@ package com.uogames.remembercards
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.content.res.Configuration
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import com.uogames.remembercards.di.DaggerAppComponent
 import dagger.android.AndroidInjector
