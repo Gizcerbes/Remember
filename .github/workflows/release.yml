@@ -44,7 +44,7 @@ jobs:
           mkdir -p "${GITHUB_WORKSPACE}"/modules/network/src/main/assets/keys
           echo $ENCODED_STRING | base64 -di > "${GITHUB_WORKSPACE}"/modules/network/src/main/assets/keys/keystore.bks
           
-       - name: Build bundle apk
+    - name: Build bundle apk
       run: ./gradlew assemble
       env:
           STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
