@@ -15,7 +15,7 @@ android {
             keyPassword System.getenv("KEY_PASSWORD") ?: providers.gradleProperty("signing.key.password").get()
         }
     }
-    compileSdk 34
+    compileSdk 35
     ndkVersion '0.2.2'
     defaultConfig {
         applicationId "com.uogames.remembercards"
