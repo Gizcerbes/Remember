@@ -40,7 +40,7 @@ interface ModuleCardDAO {
 			"LEFT JOIN error_card AS ec ON ct.id_phrase = ec.id_phrase AND ct.id_translate = ec.id_translate " +
 			"WHERE mc.id_module = :idModule " +
 			"ORDER BY CASE " +
-			"WHEN ec.percent_correct IS NULL THEN 100 " +
+			"WHEN ec.percent_correct IS NULL THEN 90 " +
 			"else ec.percent_correct " +
 			"END ASC " +
 			"LIMIT 1")

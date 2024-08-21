@@ -29,26 +29,24 @@ class TestErrorCardDAO {
 	fun closeDB() {
 		db.close()
 	}
+//
+//	private fun setData() = runBlocking {
+//		db.phraseDAO().insert(PhraseEntity(1, "Hello", null, "en", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
+//		db.phraseDAO().insert(PhraseEntity(2, "World", null, "en", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
+//		db.phraseDAO().insert(PhraseEntity(3, "Hello World", null, "en", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
+//		db.phraseDAO().insert(PhraseEntity(4, "Привет", null, "ru", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
+//		db.phraseDAO().insert(PhraseEntity(5, "Мир", null, "ru", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
+//		db.phraseDAO().insert(PhraseEntity(6, "Привет Мир", null, "ru", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
+//		db.errorCardDAO().insert(ErrorCardEntity(0, 1, 2, 0, 0, 100))
+//		db.errorCardDAO().insert(ErrorCardEntity(0, 1, 3, 0, 0, 100))
+//		db.errorCardDAO().insert(ErrorCardEntity(0, 2, 3, 0, 0, 100))
+//		db.errorCardDAO().insert(ErrorCardEntity(0, 3, 1, 0, 0, 100))
+//	}
 
-	private fun setData() = runBlocking {
-		db.phraseDAO().insert(PhraseEntity(1, "Hello", null, "en", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
-		db.phraseDAO().insert(PhraseEntity(2, "World", null, "en", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
-		db.phraseDAO().insert(PhraseEntity(3, "Hello World", null, "en", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
-		db.phraseDAO().insert(PhraseEntity(4, "Привет", null, "ru", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
-		db.phraseDAO().insert(PhraseEntity(5, "Мир", null, "ru", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
-		db.phraseDAO().insert(PhraseEntity(6, "Привет Мир", null, "ru", "BELARUS", null, null, 0, 0, 0, UUID.randomUUID(),""))
-		db.errorCardDAO().insert(ErrorCardEntity(0, 1, 2, 0, 0, 100))
-		db.errorCardDAO().insert(ErrorCardEntity(0, 1, 3, 0, 0, 100))
-		db.errorCardDAO().insert(ErrorCardEntity(0, 2, 3, 0, 0, 100))
-		db.errorCardDAO().insert(ErrorCardEntity(0, 3, 1, 0, 0, 100))
-
-
-	}
-
-	@Test
-	fun getFree() = runBlocking {
-		setData()
-		assert(true)
-	}
+//	@Test
+//	fun getFree() = runBlocking {
+//		setData()
+//		assert(true)
+//	}
 
 }
