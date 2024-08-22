@@ -16,12 +16,12 @@ android {
         }
     }
     compileSdk 35
-    ndkVersion '0.2.2'
+    ndkVersion '0.2.3'
     defaultConfig {
         applicationId "com.uogames.remembercards"
         minSdk 26
         targetSdk 34
-        versionCode 24
+        versionCode 25
         versionName ndkVersion
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
