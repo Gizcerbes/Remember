@@ -5,25 +5,27 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentGamesBinding
-import com.uogames.remembercards.ui.module.choiceModuleDialog.ChoiceModuleDialog
 import com.uogames.remembercards.ui.games.gameYesOrNo.GameYesOrNotFragment
 import com.uogames.remembercards.ui.games.gameYesOrNo.GameYesOrNotViewModel
 import com.uogames.remembercards.ui.games.notification.NotificationWorkerFragment
 import com.uogames.remembercards.ui.games.watchCard.WatchCardFragment
+import com.uogames.remembercards.ui.module.choiceModuleDialog.ChoiceModuleDialog
 import com.uogames.remembercards.ui.module.choiceModuleDialog.ChoiceModuleViewModel
 import com.uogames.remembercards.ui.module.library.LibraryViewModel
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observeWhenStarted
-import dagger.android.support.DaggerFragment
+import com.uogames.remembercards.viewmodel.GlobalViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import javax.inject.Inject
 
-class GamesFragment : DaggerFragment() {
+@AndroidEntryPoint
+class GamesFragment : Fragment() {
 
     @Inject
     lateinit var gamesViewModel: GamesViewModel

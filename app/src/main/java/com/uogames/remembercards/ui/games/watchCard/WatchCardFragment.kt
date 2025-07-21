@@ -5,19 +5,26 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.net.toUri
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentGameWarchCardBinding
 import com.uogames.remembercards.ui.animation.Animations
-import com.uogames.remembercards.utils.*
-import dagger.android.support.DaggerFragment
+import com.uogames.remembercards.utils.ObservableMediaPlayer
+import com.uogames.remembercards.utils.asAnimationDrawable
+import com.uogames.remembercards.utils.ifNull
+import com.uogames.remembercards.utils.ifTrue
+import com.uogames.remembercards.utils.observe
+import com.uogames.remembercards.utils.setOpposite
+import com.uogames.remembercards.viewmodel.GlobalViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
-import java.util.*
+import java.util.Locale
 import javax.inject.Inject
 
-class WatchCardFragment : DaggerFragment() {
+@AndroidEntryPoint
+class WatchCardFragment : Fragment() {
 
     companion object {
         const val MODULE_ID = "WatchCardFragment_MODULE_ID"

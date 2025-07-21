@@ -5,9 +5,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.work.*
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.uogames.remembercards.R
 import com.uogames.remembercards.broadcast.NotificationReceiver
@@ -18,14 +22,15 @@ import com.uogames.remembercards.ui.module.library.LibraryViewModel
 import com.uogames.remembercards.utils.Permission
 import com.uogames.remembercards.utils.ifTrue
 import com.uogames.remembercards.utils.observe
-import dagger.android.support.DaggerFragment
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class NotificationWorkerFragment : DaggerFragment() {
+@AndroidEntryPoint
+class NotificationWorkerFragment : Fragment() {
 
     companion object {
         const val MODULE_ID = "NotificationWorkerFragment_MODULE_ID"

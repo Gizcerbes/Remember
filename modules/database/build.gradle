@@ -2,7 +2,8 @@ plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
     //id 'kotlin-kapt'
-    id 'com.google.devtools.ksp' version "1.9.20-1.0.14"
+    id 'com.google.devtools.ksp'
+//    id 'androidx.room' version "2.7.2"
 }
 
 android {
@@ -28,7 +29,13 @@ android {
         }
 
 
+
+
     }
+
+//    room {
+//        schemaDirectory("$projectDir/schemas")
+//    }
 
     buildTypes {
         release {
@@ -59,9 +66,9 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
 
-    implementation "androidx.room:room-runtime:2.6.1"
-    ksp "androidx.room:room-compiler:2.6.1"
-    implementation "androidx.room:room-ktx:2.6.1"
-    testImplementation "androidx.room:room-testing:2.6.1"
+    implementation "androidx.room:room-runtime:2.7.2"
+    ksp "androidx.room:room-compiler:2.7.2"
+    implementation "androidx.room:room-ktx:2.7.2"
+    testImplementation "androidx.room:room-testing:2.7.2"
 
 }

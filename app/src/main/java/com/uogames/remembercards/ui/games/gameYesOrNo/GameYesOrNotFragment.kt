@@ -1,31 +1,41 @@
 package com.uogames.remembercards.ui.games.gameYesOrNo
 
 import android.content.Context
-import android.os.*
+import android.os.Build
+import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.core.net.toUri
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.squareup.picasso.Picasso
-import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentYesOrNotGameBinding
 import com.uogames.remembercards.ui.animation.Animations
-import com.uogames.remembercards.utils.*
-import dagger.android.support.DaggerFragment
+import com.uogames.remembercards.utils.ObservableMediaPlayer
+import com.uogames.remembercards.utils.asAnimationDrawable
+import com.uogames.remembercards.utils.ifNull
+import com.uogames.remembercards.utils.ifTrue
+import com.uogames.remembercards.utils.observe
+import com.uogames.remembercards.viewmodel.GlobalViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.*
+import java.util.Locale
 import javax.inject.Inject
 
-class GameYesOrNotFragment : DaggerFragment() {
+@AndroidEntryPoint
+class GameYesOrNotFragment : Fragment() {
 
     companion object {
         const val MODULE_ID = "GameYesOrNotFragment_MODULE_ID"

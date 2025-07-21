@@ -14,25 +14,34 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.squareup.picasso.Picasso
 import com.uogames.dto.local.LocalPhraseView
-import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentEditCardBinding
-import com.uogames.remembercards.ui.phrase.choicePhraseFragment.ChoicePhraseFragment
 import com.uogames.remembercards.ui.cropFragment.CropViewModel
-import com.uogames.remembercards.utils.*
-import dagger.android.support.DaggerFragment
-import kotlinx.coroutines.*
-import java.util.*
+import com.uogames.remembercards.ui.phrase.choicePhraseFragment.ChoicePhraseFragment
+import com.uogames.remembercards.utils.ShortTextWatcher
+import com.uogames.remembercards.utils.asAnimationDrawable
+import com.uogames.remembercards.utils.ifNull
+import com.uogames.remembercards.utils.ifNullOrEmpty
+import com.uogames.remembercards.utils.ifTrue
+import com.uogames.remembercards.utils.observe
+import com.uogames.remembercards.utils.setOpposite
+import com.uogames.remembercards.viewmodel.GlobalViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import java.util.Locale
 import javax.inject.Inject
 
-class EditCardFragment : DaggerFragment() {
+@AndroidEntryPoint
+class EditCardFragment : Fragment() {
 
     companion object {
         private const val FIRST_PHRASE = "EditCardFragment_FIRST_PHRASE"

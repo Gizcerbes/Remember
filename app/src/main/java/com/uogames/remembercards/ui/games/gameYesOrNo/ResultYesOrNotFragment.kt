@@ -5,15 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
 import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
-import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentResultMistakesBinding
-import dagger.android.support.DaggerFragment
+import com.uogames.remembercards.viewmodel.GlobalViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-class ResultYesOrNotFragment : DaggerFragment() {
+@AndroidEntryPoint
+class ResultYesOrNotFragment : Fragment() {
 
     @Inject
     lateinit var model: GameYesOrNotViewModel

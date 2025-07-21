@@ -13,26 +13,34 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.squareup.picasso.Picasso
-import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.MainActivity.Companion.findNavHostFragment
 import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentEditPhraseBinding
-import com.uogames.remembercards.ui.dialogs.choiceLanguageDialog.ChoiceLanguageDialog
 import com.uogames.remembercards.ui.cropFragment.CropViewModel
-import com.uogames.remembercards.utils.*
-import dagger.android.support.DaggerFragment
+import com.uogames.remembercards.ui.dialogs.choiceLanguageDialog.ChoiceLanguageDialog
+import com.uogames.remembercards.utils.FileChooser
+import com.uogames.remembercards.utils.Permission
+import com.uogames.remembercards.utils.ShortTextWatcher
+import com.uogames.remembercards.utils.asAnimationDrawable
+import com.uogames.remembercards.utils.ifTrue
+import com.uogames.remembercards.utils.observe
+import com.uogames.remembercards.utils.setOpposite
+import com.uogames.remembercards.viewmodel.GlobalViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import java.util.*
+import java.util.Locale
 import javax.inject.Inject
 
-class EditPhraseFragment : DaggerFragment() {
+@AndroidEntryPoint
+class EditPhraseFragment : Fragment() {
 
     companion object {
         const val ID_PHRASE = "ID_PHRASE"

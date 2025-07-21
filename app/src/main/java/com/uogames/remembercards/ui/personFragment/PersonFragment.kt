@@ -4,22 +4,27 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
-import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.uogames.flags.Countries
-import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentPersonBinding
-import com.uogames.remembercards.utils.*
-import dagger.android.support.DaggerFragment
+import com.uogames.remembercards.utils.UserGlobalName
+import com.uogames.remembercards.utils.ifNull
+import com.uogames.remembercards.utils.ifNullOrEmpty
+import com.uogames.remembercards.utils.observe
+import com.uogames.remembercards.utils.observeNotNull
+import com.uogames.remembercards.viewmodel.GlobalViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import javax.inject.Inject
 
-class PersonFragment : DaggerFragment() {
+@AndroidEntryPoint
+class PersonFragment : Fragment() {
 
     @Inject
     lateinit var globalViewModel: GlobalViewModel
