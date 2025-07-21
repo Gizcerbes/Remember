@@ -7,20 +7,25 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentRegisterBinding
 import com.uogames.remembercards.ui.dialogs.choiceCountry.ChoiceCountryDialog
-import com.uogames.remembercards.utils.*
-import dagger.android.support.DaggerFragment
+import com.uogames.remembercards.utils.ShortTextWatcher
+import com.uogames.remembercards.utils.ifFalse
+import com.uogames.remembercards.utils.ifNull
+import com.uogames.remembercards.utils.observe
+import com.uogames.remembercards.viewmodel.GlobalViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
-class RegisterFragment : DaggerFragment() {
+@AndroidEntryPoint
+class RegisterFragment : Fragment() {
 
     @Inject
     lateinit var globalViewModel: GlobalViewModel

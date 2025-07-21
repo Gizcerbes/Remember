@@ -6,23 +6,25 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentEditModuleBinding
 import com.uogames.remembercards.ui.card.choiceCardFragment.ChoiceCardFragment
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.ifTrue
-import dagger.android.support.DaggerFragment
+import com.uogames.remembercards.viewmodel.GlobalViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
-class EditModuleFragment : DaggerFragment() {
+@AndroidEntryPoint
+class EditModuleFragment : Fragment() {
 
     companion object {
         private const val CARD_CALL_TAG = "EditModuleFragment_CARD_CALL_TAG"

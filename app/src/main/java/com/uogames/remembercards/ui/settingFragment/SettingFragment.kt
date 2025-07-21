@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.firebase.ui.auth.AuthUI
@@ -20,18 +21,23 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.uogames.flags.Countries
 import com.uogames.remembercards.BuildConfig
-import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.ComponentTextImputLayoutBinding
 import com.uogames.remembercards.databinding.FragmentSettingsBinding
 import com.uogames.remembercards.ui.dialogs.choiceCountry.ChoiceCountryDialog
-import com.uogames.remembercards.utils.*
-import dagger.android.support.DaggerFragment
+import com.uogames.remembercards.utils.UserGlobalName
+import com.uogames.remembercards.utils.ifNull
+import com.uogames.remembercards.utils.ifNullOrEmpty
+import com.uogames.remembercards.utils.observe
+import com.uogames.remembercards.utils.observeNotNull
+import com.uogames.remembercards.viewmodel.GlobalViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import javax.inject.Inject
 
-class SettingFragment : DaggerFragment() {
+@AndroidEntryPoint
+class SettingFragment : Fragment() {
 
     @Inject
     lateinit var globalViewModel: GlobalViewModel

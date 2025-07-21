@@ -3,21 +3,18 @@ package com.uogames.remembercards
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver
 import androidx.annotation.IdRes
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentContainerView
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 import com.uogames.remembercards.broadcast.DownloadForeground
 import com.uogames.remembercards.broadcast.NotificationReceiver
@@ -25,15 +22,14 @@ import com.uogames.remembercards.utils.Permission
 import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.observe
 import com.uogames.remembercards.viewmodel.GlobalViewModel
-import dagger.android.support.DaggerAppCompatActivity
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.Locale
 import javax.inject.Inject
 
-class MainActivity : DaggerAppCompatActivity() {
+@AndroidEntryPoint
+class MainActivity : AppCompatActivity() {
 
 	@Inject
 	lateinit var globalViewModel: GlobalViewModel

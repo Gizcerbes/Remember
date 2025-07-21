@@ -9,12 +9,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.color.MaterialColors
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.uogames.dto.global.GlobalModuleView
-import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentModuleBinding
@@ -23,13 +23,23 @@ import com.uogames.remembercards.ui.dialogs.choiceLanguageDialog.ChoiceLanguageD
 import com.uogames.remembercards.ui.module.editModuleFragment.EditModuleFragment
 import com.uogames.remembercards.ui.module.watch.WatchModuleFragment
 import com.uogames.remembercards.ui.reportFragment.ReportFragment
-import com.uogames.remembercards.utils.*
-import dagger.android.support.DaggerFragment
-import kotlinx.coroutines.*
-import java.util.*
+import com.uogames.remembercards.utils.ShortTextWatcher
+import com.uogames.remembercards.utils.ifNull
+import com.uogames.remembercards.utils.ifTrue
+import com.uogames.remembercards.utils.observe
+import com.uogames.remembercards.utils.setOpposite
+import com.uogames.remembercards.utils.toNull
+import com.uogames.remembercards.viewmodel.GlobalViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.util.Locale
+import java.util.UUID
 import javax.inject.Inject
 
-class LibraryFragment : DaggerFragment() {
+@AndroidEntryPoint
+class LibraryFragment : Fragment() {
 
     @Inject
     lateinit var model: LibraryViewModel

@@ -1,14 +1,14 @@
 package com.uogames.remembercards
 
+import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.uogames.remembercards.di.DaggerAppComponent
-import dagger.android.AndroidInjector
-import dagger.android.DaggerApplication
+import dagger.hilt.android.HiltAndroidApp
 
-class App : DaggerApplication() {
+@HiltAndroidApp
+class App : Application() {
 
     companion object {
         const val NOTIFICATION_CHANNEL_ID = "NOTIFICATION_CHANNEL_ID_klmdfdskjfnsdvgksdnfgvsd"
@@ -24,10 +24,10 @@ class App : DaggerApplication() {
         }
     }
 
-    override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
-        return DaggerAppComponent.builder().bindApplication(this).build()
-        // return AndroidInjector {  }
-    }
+//    override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
+//        return DaggerAppComponent.builder().bindApplication(this).build()
+//        // return AndroidInjector {  }
+//    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createNotificationChannel() {

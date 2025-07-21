@@ -1,30 +1,28 @@
 package com.uogames.remembercards.ui.module.watch
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.uogames.dto.local.LocalModule
 import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentWatchModuleBinding
 import com.uogames.remembercards.ui.module.editModuleFragment.EditModuleFragment
-import com.uogames.remembercards.utils.ifNull
 import com.uogames.remembercards.utils.ifTrue
 import com.uogames.remembercards.utils.observe
-import dagger.android.support.DaggerFragment
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
 
-class WatchModuleFragment : DaggerFragment() {
+@AndroidEntryPoint
+class WatchModuleFragment : Fragment() {
     enum class ModuleType {
         LOCAL, GLOBAL
     }

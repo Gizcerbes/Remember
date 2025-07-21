@@ -6,16 +6,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.uogames.remembercards.databinding.FragmentCropBinding
 import com.uogames.remembercards.utils.cropp.BitmapCropper
 import com.uogames.remembercards.utils.observeWhenStarted
-import dagger.android.support.DaggerFragment
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import javax.inject.Inject
 
-class CropFragment : DaggerFragment() {
+@AndroidEntryPoint
+class CropFragment : Fragment() {
 
     @Inject
     lateinit var cropViewModel: CropViewModel

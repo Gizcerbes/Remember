@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
@@ -18,26 +19,34 @@ import com.google.firebase.ktx.Firebase
 import com.uogames.dto.global.GlobalCard
 import com.uogames.dto.local.LocalCard
 import com.uogames.flags.Countries
-import com.uogames.remembercards.viewmodel.GlobalViewModel
 import com.uogames.remembercards.MainActivity.Companion.navigate
 import com.uogames.remembercards.R
 import com.uogames.remembercards.databinding.FragmentCardBinding
 import com.uogames.remembercards.models.SearchingState
+import com.uogames.remembercards.ui.card.editCardFragment.EditCardFragment
 import com.uogames.remembercards.ui.dialogs.choiceCountry.ChoiceCountryDialog
 import com.uogames.remembercards.ui.dialogs.choiceLanguageDialog.ChoiceLanguageDialog
-import com.uogames.remembercards.ui.card.editCardFragment.EditCardFragment
 import com.uogames.remembercards.ui.reportFragment.ReportFragment
-import com.uogames.remembercards.utils.*
-import dagger.android.support.DaggerFragment
+import com.uogames.remembercards.utils.ObservableMediaPlayer
+import com.uogames.remembercards.utils.ShortTextWatcher
+import com.uogames.remembercards.utils.ifNull
+import com.uogames.remembercards.utils.ifTrue
+import com.uogames.remembercards.utils.observe
+import com.uogames.remembercards.utils.setOpposite
+import com.uogames.remembercards.utils.toNull
+import com.uogames.remembercards.viewmodel.GlobalViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import java.util.*
+import java.util.Locale
 import javax.inject.Inject
 
-class CardFragment : DaggerFragment() {
+
+@AndroidEntryPoint
+class CardFragment : Fragment() {
 
 	interface Model {
 
